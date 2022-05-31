@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+
+	<ItemGroup>
+    <None Remove="Resources\7za.exe" />
+    <None Remove="Resources\attach.xbe" />
+    <None Remove="Resources\dd.exe" />
+    <None Remove="Resources\fSplit.exe" />
+    <None Remove="Resources\xdvdfs_maker.exe" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\7za.exe">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\attach.xbe" />
+    <EmbeddedResource Include="Resources\dd.exe" />
+    <EmbeddedResource Include="Resources\fSplit.exe">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Mono.Options" Version="6.12.0.148" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Resurgent.UtilityBelt.Library\Resurgent.UtilityBelt.Library.csproj" />
+  </ItemGroup>
+
+</Project>
