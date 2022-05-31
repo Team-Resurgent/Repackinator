@@ -22,9 +22,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\attach.xbe" />
     <EmbeddedResource Include="Resources\dd.exe" />
-    <EmbeddedResource Include="Resources\fSplit.exe">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
