@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Text;
+using Newtonsoft.Json;
+using Repackinator;
 using Resurgent.UtilityBelt.Library.Utilities;
 
 namespace QuikIso
@@ -13,6 +15,8 @@ namespace QuikIso
         private static string SevenZipFile { get; set; }
 
         private static string DdFile { get; set; }
+
+        private static GameData[] GameData { get; set; }
 
         private static void Log(string message)
         {
@@ -42,6 +46,24 @@ namespace QuikIso
                 {
                     Log($"Skipping '{Path.GetFileName(inputFile)}' as unsupported exension.");
                     return;
+                }
+
+                GameData? gameData = null;
+                foreach (var game in GameData)
+                {
+                    if (game.ArchiveName.Equals(Path.GetFileNameWithoutExtension(inputFile), StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        if (game.Process.Equals("Y", StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            gameData = game;
+                        }
+                        break;
+                    }
+                } 
+
+                if (gameData == null)
+                {
+                    Log($"Skipping '{Path.GetFileName(inputFile)}' as requested to skip in dataset.");
                 }
 
                 Log($"Processing '{Path.GetFileName(inputFile)}'...");
@@ -111,9 +133,10 @@ namespace QuikIso
                     unpacked = true;
                 }
 
-                var gameName = Path.GetFileNameWithoutExtension(inputFile);
+             //   var gameName = Path.GetFileNameWithoutExtension(inputFile);
+            //    gameName = gameData.ISOName;
 
-                Directory.CreateDirectory(Path.Combine(outputPath, gameName));
+                Directory.CreateDirectory(Path.Combine(outputPath, gameData.XBETitleAndFolderName));
 
                 using (var inputStream = new FileStream(input, FileMode.Open))
                 using (var outputStream = new MemoryStream())
@@ -124,9 +147,9 @@ namespace QuikIso
                         var attach = ResourceLoader.GetEmbeddedResourceBytes("attach.xbe");
                         var xbe = outputStream.ToArray();
 
-                        if (XbeUtility.ReplaceCertInfo(attach, xbe, out var patchedAttach))
+                        if (XbeUtility.ReplaceCertInfo(attach, xbe, gameData.XBETitleAndFolderName, out var patchedAttach))
                         {
-                            File.WriteAllBytes(Path.Combine(outputPath, gameName, $"{gameName}.xbe"), patchedAttach);
+                            File.WriteAllBytes(Path.Combine(outputPath, gameData.XBETitleAndFolderName, $"default.xbe"), patchedAttach);
                         }
                         else
                         {
@@ -137,7 +160,7 @@ namespace QuikIso
                         {
                             if (XprUtility.ConvertXprToPng(xprImage, out var pngImage))
                             {
-                                File.WriteAllBytes(Path.Combine(outputPath, gameName, "icon.png"), pngImage);
+                                File.WriteAllBytes(Path.Combine(outputPath, gameData.XBETitleAndFolderName, "icon.png"), pngImage);
                             }
                             else
                             {
@@ -171,7 +194,7 @@ namespace QuikIso
                 process2.WaitForExit();
 
                 Log("Splitting ISO...");
-                XisoUtility.Split($"{input}.novideo", Path.Combine(outputPath, gameName), gameName);
+                XisoUtility.Split($"{input}.novideo", Path.Combine(outputPath, gameData.XBETitleAndFolderName), gameData.ISOName);
 
                 if (unpacked)
                 {
@@ -191,7 +214,11 @@ namespace QuikIso
             FileStream? logStream = null;
 
             try
-            {                
+            {
+                var gameDataJson = ResourceLoader.GetEmbeddedResourceString("XbeDataList.json");
+                GameData = JsonConvert.DeserializeObject<GameData[]>(gameDataJson);
+
+
                 if (!string.IsNullOrEmpty(log))
                 {
                     LogStream = File.OpenWrite(log);
