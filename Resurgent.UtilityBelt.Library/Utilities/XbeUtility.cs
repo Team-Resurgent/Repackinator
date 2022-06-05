@@ -17,37 +17,6 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             return theStructure;
         }
 
-        private static string GetUtf8String(byte[] buffer)
-        {
-            var result = string.Empty;
-            for (var i = 0; i < buffer.Length; i++)
-            {
-                var value = buffer[i];
-                if (value == 0)
-                {
-                    break;
-                }
-                result += (char)value;
-            }
-            return result;
-        }
-
-        private static string GetUnicodeString(byte[] buffer)
-        {
-            var result = string.Empty;
-            for (var i = 0; i < buffer.Length; i+=2)
-            {
-                var value = (short)Encoding.Unicode.GetString(buffer, i, 2)[0]; 
-                if (value == 0)
-                {
-                    break;
-                }
-                result += (char)value;
-            }
-            return result;
-        }
-
-
         public enum ImageType
         {
             LogoImage,
@@ -55,7 +24,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             SaveImage
         }
 
-        public static bool ReplaceCertInfo(byte[]? attach, byte[]? donor, out byte[]? output)
+        public static bool ReplaceCertInfo(byte[]? attach, byte[]? donor, string xbeTitle, out byte[]? output)
         {
             output = null;
 
@@ -76,10 +45,35 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             var donorBaseAddress = donorHeader.Base;
             var donorCertAddress = donorHeader.Certificate_Addr;
 
+            Array.Fill<byte>(donor, 0, (int)(donorCertAddress - donorBaseAddress) + 12, 80);
+            var title = Encoding.Unicode.GetBytes(xbeTitle);
+            Array.Copy(title, 0, donor, (donorCertAddress - donorBaseAddress) + 12, Math.Min(80, title.Length));
+
             output = new byte[attach.Length];
             Array.Copy(attach, output, attach.Length);
             Array.Copy(donor, donorCertAddress - donorBaseAddress, output, atatchCertAddress - atatchBaseAddress, 176);
-            
+
+            return true;
+        }
+
+        public static bool TryGetXbeCert(byte[]? input, out XbeCertificate? output)
+        {
+            output = null;
+
+            if (input == null)
+            {
+                return false;
+            }
+
+            using var stream = new MemoryStream(input);
+            using var reader = new BinaryReader(stream);
+            var header = ByteToType<XbeHheader>(reader);
+
+            var baseAddress = header.Base;
+            var certAddress = header.Certificate_Addr;
+            stream.Position = certAddress - baseAddress;
+
+            output = ByteToType<XbeCertificate>(reader);
             return true;
         }
 
@@ -111,7 +105,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 return true;
             }
 
-            var title_Name = GetUnicodeString(cert.Title_Name);
+            var title_Name = StringHelper.GetUnicodeString(cert.Title_Name);
 
             if (header.Sections > 0)
             {
@@ -128,7 +122,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                         stream.Position = section.Section_Name_Addr - baseAddress;
 
                         var sectionNameBytes = reader.ReadBytes(20);
-                        name = GetUtf8String(sectionNameBytes);
+                        name = StringHelper.GetUtf8String(sectionNameBytes);
                     }
 
                     var rawaddress = section.Raw_Addr;

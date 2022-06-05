@@ -110,7 +110,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             return false;
         }
 
-        public static bool Split(string input, string outputPath, string name)
+        public static bool Split(string input, string outputPath, string isoname)
         {
             using var fs = new FileStream(input, FileMode.Open, FileAccess.Read);
             fs.Seek(0, SeekOrigin.End);
@@ -131,7 +131,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             var fileParts = new List<FileStream>();
             for (var i = 0; i < parts; i++)
             {
-                var filename = parts == 1 ? $"{name}.iso" : $"{name}.{i + 1}.iso";
+                var filename = parts == 1 ? $"{isoname}.iso" : $"{isoname}.{i + 1}.iso";
                 fileParts.Add(new FileStream(Path.Combine(outputPath, filename), FileMode.Create, FileAccess.Write));
             }
 

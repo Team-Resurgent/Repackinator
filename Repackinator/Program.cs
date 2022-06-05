@@ -1,5 +1,9 @@
 ﻿using QuikIso;
 using Mono.Options;
+using Newtonsoft.Json;
+using Resurgent.UtilityBelt.Library.Utilities;
+using Resurgent.UtilityBelt.Library.Utilities.XbeModels;
+using Repackinator;
 
 var shouldShowHelp = false;
 var input = "";
@@ -17,13 +21,34 @@ var optionset = new OptionSet {
 
 try
 {
-    //var files = Directory.GetFiles(@"F:\XboxTool\Isos");
+    //"Title ID": "41430002",
+    //    "Title Name": "All-Star Baseball '03",
+    //    "Version": "01",
+    //    "Region": "(USA)",
+    //    "Archive Name": "All-Star Baseball 2003 featuring Derek Jeter (USA)",
+    //    "XBE Title & Folder Name": "All-Star Baseball 2003 FT D.J (USA)",
+    //    "XBE Title Length": "35",
+    //    "ISO Name": "All-Star Baseball 2003 FT D.J (USA)",
+    //    "ISO Name Length": "41",
+    //    "Process": "Y"
+
+
+    //var summarystring = new StringWriter();
+    //var summaries = new List<XbeSummary>();
+    //var files = Directory.GetFiles(@"F:\XboxTool\Xbes");
     //foreach (var file in files)
     //{
-    //    var extension = Path.GetExtension(file).ToLower();
-
+    //    Console.WriteLine(file);
+    //    var fileinput = File.ReadAllBytes(file);
+    //    XbeUtility.TryGetXbeCert(fileinput, out var cert);
+    //    var xbeSummary = cert.Value.ToXbeSummary(Path.GetFileNameWithoutExtension(file));
+    //    summaries.Add(xbeSummary);
+    //    summarystring.WriteLine(cert.Value.ToSummaryString(Path.GetFileNameWithoutExtension(file)));
     //}
 
+    //var json = JsonConvert.SerializeObject(summaries);
+    //File.WriteAllText(@"D:\XbeData.txt", json);
+    //  File.WriteAllText(@"D:\XbeDataListMedia.txt", summarystring.ToString());
 
     //var attach = ResourceLoader.GetEmbeddedResourceBytes("attach.xbe");
     //var files = Directory.GetFiles(@"F:\XboxTool\Xbes");
@@ -39,6 +64,11 @@ try
     //    }
     //}
 
+    //using var ms = new FileStream(@"H:\Download\Hitman 2 - Silent Assassin (USA)\Hitman 2 - Silent Assassin (USA).iso", FileMode.Open);
+    //using var os = new MemoryStream();
+    //string error = "";
+    //XisoUtility.TryExtractDefaultFromXiso(ms, os, ref error);
+    //File.WriteAllBytes(@"d:\hitman.xbe", os.ToArray());
 
     //var outputPath = $"F:\\XboxTool\\XbeImagesFix";
     //var a = new XbeUtility();
@@ -82,10 +112,6 @@ try
     //        }
     //    }
     //}
-
-
-
-
 
     optionset.Parse(args);
     if (shouldShowHelp || args.Length == 0)
