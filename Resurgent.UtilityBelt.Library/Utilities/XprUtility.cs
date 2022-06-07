@@ -1,4 +1,5 @@
-﻿using SixLabors.ImageSharp;
+﻿using Resurgent.UtilityBelt.Library.Utilities.DdsModels;
+using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace Resurgent.UtilityBelt.Library.Utilities
@@ -238,10 +239,10 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 {
                     uint s = y * width + x << 2;
 
-                    var red = (uint)(buffer[s] << 16);
-                    var green = (uint)(buffer[s + 1] << 8);
-                    var blue = (uint)buffer[s + 2];
                     var alpha = (uint)(buffer[s + 3] << 24);
+                    var red = (uint)(buffer[s + 2] << 16);
+                    var green = (uint)(buffer[s + 1] << 8);
+                    var blue = (uint)(buffer[s + 0] << 0);
                     var color = red | green | blue | alpha;
                     dest[(int)x, (int)y] = UintRgba32ToRgba32(color);
                 }
@@ -260,9 +261,9 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 for (uint x = 0; x < width; x++)
                 {
                     uint s = (y * width + x) * 4;
-                    var red = (uint)(buffer[s] << 16);
+                    var red = (uint)(buffer[s + 2] << 16);
                     var green = (uint)(buffer[s + 1] << 8);
-                    var blue = (uint)buffer[s + 2];
+                    var blue = (uint)buffer[s + 0];
                     var color = red | green | blue | 0xff000000;
                     dest[(int)x, (int)y] = UintRgba32ToRgba32(color);
                 }
@@ -336,6 +337,60 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             }
         }
 
+
+        public static bool ConvertDdsToPng(byte[]? input, out byte[]? output)
+        {
+            output = null;
+
+            if (input == null)
+            {
+                return false;
+            }
+
+            using var inputStream = new MemoryStream(input);
+            using var reader = new BinaryReader(inputStream);
+
+            var magic = reader.ReadUInt32();
+            if (magic != 0x20534444)
+            {
+                return false;
+            }
+
+            var header = StructUtility.ByteToType<DdsHeader>(reader);
+
+            if (header.PixelFormat.FourCC == 0x31545844) //DXT1
+            {
+                using var image = new Image<Rgba32>((int)header.Width, (int)header.Height);
+                var imageData = reader.ReadBytes((int)header.PitchOrLinearSize);
+                ConvertDXT1(imageData, image);
+
+                using var outputStream = new MemoryStream();
+                image.SaveAsPng(outputStream);
+                output = outputStream.ToArray();
+                var q = 1;
+            }
+            else if (header.PixelFormat.FourCC == 0x33545844) //DXT3
+            {
+                using var image = new Image<Rgba32>((int)header.Width, (int)header.Height);
+                var imageData = reader.ReadBytes((int)header.PitchOrLinearSize);
+                ConvertDXT3(imageData, image);
+
+                using var outputStream = new MemoryStream();
+                image.SaveAsPng(outputStream);
+                output = outputStream.ToArray();
+                var q = 1;
+            }
+            else
+            {
+                var x = 1;
+            }
+
+            //33545844
+
+            return true; 
+        }
+
+
         public static bool ConvertXprToPng(byte[]? input, out byte[]? output)
         {
             output = null;
@@ -349,23 +404,36 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             using var reader = new BinaryReader(inputStream);
 
             var magic = reader.ReadUInt32();
+
+            if (magic == 0x20534444)
+            {
+                return ConvertDdsToPng(input, out output);
+            }
+
             if (magic != 0x30525058)
             {
+                try
+                {
+                    inputStream.Position = 0;
+                    using var imagex = Image<Rgba32>.Load(input);
+                    using var outputStream2 = new MemoryStream();
+                    imagex.SaveAsPng(outputStream2);
+                    output = outputStream2.ToArray();
+                    return true;
+                }
+                catch
+                {
+                }
                 return false;
             }
-            
+
             var totalSize = reader.ReadUInt32();
-            if (totalSize != input.Length)
+            if (totalSize > input.Length)
             {
                 return false;
             }
 
             var headerSize = reader.ReadUInt32();
-            if (headerSize != 0x800)
-            {
-                return false;
-            }
-
             var flags = reader.ReadUInt32();
             var count = flags & 0xffff;
             if (count != 1)
@@ -403,20 +471,19 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 return false;
             }
 
-            var end = reader.ReadUInt32();
-            if (end != 0xffffffff)
+            if (headerSize != 32)
             {
-                return false;
-            }
-
-            var paddingSize = headerSize - inputStream.Position;
-            var padding = reader.ReadBytes((int)paddingSize);
-            foreach (var value in padding)
-            {
-                if (value != 0xad)
+                var end = reader.ReadUInt32();
+                if (end != 0xffffffff)
                 {
                     return false;
                 }
+            }
+
+            var paddingSize = headerSize - inputStream.Position;
+            if (paddingSize > 0)
+            {
+                _ = reader.ReadBytes((int)paddingSize);                
             }
 
             var imageSize = totalSize - headerSize;

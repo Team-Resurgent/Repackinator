@@ -64,6 +64,7 @@ namespace QuikIso
                 if (gameData == null)
                 {
                     Log($"Skipping '{Path.GetFileName(inputFile)}' as requested to skip in dataset.");
+                    return;
                 }
 
                 Log($"Processing '{Path.GetFileName(inputFile)}'...");
