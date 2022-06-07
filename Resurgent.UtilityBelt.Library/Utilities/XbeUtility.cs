@@ -8,15 +8,6 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
     public static class XbeUtility
     {
-        private static T? ByteToType<T>(BinaryReader reader)
-        {
-            byte[] bytes = reader.ReadBytes(Marshal.SizeOf(typeof(T)));
-            GCHandle handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
-            var theStructure = (T?)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(T));
-            handle.Free();
-            return theStructure;
-        }
-
         public enum ImageType
         {
             LogoImage,
@@ -35,13 +26,13 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
             using var attachStream = new MemoryStream(attach);
             using var attachReader = new BinaryReader(attachStream);
-            var attachHeader = ByteToType<XbeHheader>(attachReader);
+            var attachHeader = StructUtility.ByteToType<XbeHheader>(attachReader);
             var atatchBaseAddress = attachHeader.Base;
             var atatchCertAddress = attachHeader.Certificate_Addr;
             
             using var donorStream = new MemoryStream(donor);
             using var donorReader = new BinaryReader(donorStream);
-            var donorHeader = ByteToType<XbeHheader>(donorReader);
+            var donorHeader = StructUtility.ByteToType<XbeHheader>(donorReader);
             var donorBaseAddress = donorHeader.Base;
             var donorCertAddress = donorHeader.Certificate_Addr;
 
@@ -67,13 +58,13 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
             using var stream = new MemoryStream(input);
             using var reader = new BinaryReader(stream);
-            var header = ByteToType<XbeHheader>(reader);
+            var header = StructUtility.ByteToType<XbeHheader>(reader);
 
             var baseAddress = header.Base;
             var certAddress = header.Certificate_Addr;
             stream.Position = certAddress - baseAddress;
 
-            output = ByteToType<XbeCertificate>(reader);
+            output = StructUtility.ByteToType<XbeCertificate>(reader);
             return true;
         }
 
@@ -88,13 +79,13 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
             using var stream = new MemoryStream(input);
             using var reader = new BinaryReader(stream);
-            var header = ByteToType<XbeHheader>(reader);
+            var header = StructUtility.ByteToType<XbeHheader>(reader);
 
             var baseAddress = header.Base;
             var certAddress = header.Certificate_Addr;
             stream.Position = certAddress - baseAddress;
 
-            var cert = ByteToType<XbeCertificate>(reader);
+            var cert = StructUtility.ByteToType<XbeCertificate>(reader);
             var bitmapAddress = header.Logo_Bitmap_Addr;
             var bitmapSize = header.Logo_Bitmap_Size;
             stream.Position = bitmapAddress - baseAddress;
@@ -114,7 +105,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 for (int i = 0; i < header.Sections; i++)
                 {
                     stream.Position = (sectionAddress - baseAddress) + (i * Marshal.SizeOf(typeof(XbeSectionHeader)));
-                    var section = ByteToType<XbeSectionHeader>(reader);
+                    var section = StructUtility.ByteToType<XbeSectionHeader>(reader);
 
                     var name = "";
                     if (section.Section_Name_Addr != 0)

@@ -1,0 +1,16 @@
+﻿using System.Runtime.InteropServices;
+
+namespace Resurgent.UtilityBelt.Library.Utilities
+{
+    public static class StructUtility
+    {
+        public static T? ByteToType<T>(BinaryReader reader)
+        {
+            byte[] bytes = reader.ReadBytes(Marshal.SizeOf(typeof(T)));
+            GCHandle handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
+            var theStructure = (T?)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(T));
+            handle.Free();
+            return theStructure;
+        }
+    }
+}
