@@ -1,4 +1,7 @@
 ﻿using Resurgent.UtilityBelt.Library.Utilities.XbeModels;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -66,6 +69,75 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
             output = StructUtility.ByteToType<XbeCertificate>(reader);
             return true;
+        }
+
+        public static bool TryReplaceXbeTitleImage(byte[]? input, byte[]? image)
+        {
+            if (input == null)
+            {
+                return false;
+            }
+
+            if (image == null)
+            {
+                return false;
+            }
+
+            using var memoryStream = new MemoryStream(image);
+            using var icon = Image.Load(memoryStream);
+            icon.Mutate(m => m.Resize(128, 128));
+            icon.Mutate(m => m.Flip(FlipMode.Vertical));
+            icon.Mutate(m => m.BackgroundColor(Color.Black));
+            using var tempImage = icon.CloneAs<Bgr24>();
+            var iconBuffer = new byte[49152];
+            tempImage.CopyPixelDataTo(iconBuffer);
+
+            using var stream = new MemoryStream(input);
+            using var reader = new BinaryReader(stream);
+            var header = StructUtility.ByteToType<XbeHheader>(reader);
+
+            var baseAddress = header.Base;
+            var certAddress = header.Certificate_Addr;
+            stream.Position = certAddress - baseAddress;
+
+            var cert = StructUtility.ByteToType<XbeCertificate>(reader);
+            var bitmapAddress = header.Logo_Bitmap_Addr;
+            var bitmapSize = header.Logo_Bitmap_Size;
+            stream.Position = bitmapAddress - baseAddress;
+
+            var title_Name = StringHelper.GetUnicodeString(cert.Title_Name);
+
+            if (header.Sections > 0)
+            {
+                var sectionAddress = header.Section_Headers_Addr;
+
+                for (int i = 0; i < header.Sections; i++)
+                {
+                    stream.Position = (sectionAddress - baseAddress) + (i * Marshal.SizeOf(typeof(XbeSectionHeader)));
+                    var section = StructUtility.ByteToType<XbeSectionHeader>(reader);
+
+                    var name = "";
+                    if (section.Section_Name_Addr != 0)
+                    {
+                        stream.Position = section.Section_Name_Addr - baseAddress;
+
+                        var sectionNameBytes = reader.ReadBytes(20);
+                        name = StringHelper.GetUtf8String(sectionNameBytes);
+                    }
+
+                    var rawaddress = section.Raw_Addr;
+                    var rawsize = section.Sizeof_Raw;
+                    stream.Position = rawaddress;
+
+                    if (name == "$$XTIMAGE" && rawsize == 49206)
+                    {
+                        Array.Copy(iconBuffer, 0, input, rawaddress + (49206 - 49152), 49152);
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         public static bool TryGetXbeImage(byte[]? input, ImageType imageType, out byte[]? output)
