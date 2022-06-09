@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Reflection;
 using System.Text;
 using Newtonsoft.Json;
 using Repackinator;
@@ -216,14 +217,21 @@ namespace QuikIso
 
             try
             {
-                var gameDataJson = ResourceLoader.GetEmbeddedResourceString("XbeDataList.json");
-                GameData = JsonConvert.DeserializeObject<GameData[]>(gameDataJson);
-
-
                 if (!string.IsNullOrEmpty(log))
                 {
                     LogStream = File.OpenWrite(log);
                 }
+
+                var exePath = Assembly.GetExecutingAssembly().Location;
+                var repackList = Path.Combine(Path.GetDirectoryName(exePath), "RepackList.json");
+                if (!File.Exists(repackList))
+                {
+                    Log("Error: RepackList.json not found.");
+                    return;
+                }
+
+                var gameDataJson = File.ReadAllText(repackList);
+                GameData = JsonConvert.DeserializeObject<GameData[]>(gameDataJson);
 
                 TempFolder = temp;
 

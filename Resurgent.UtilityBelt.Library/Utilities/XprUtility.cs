@@ -6,141 +6,120 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 {
     public static class XprUtility
     {
-        private static Rgba32 UintRgba32ToRgba32(uint colour)
+        //https://github.com/nickbabcock/Pfim/blob/master/src/Pfim/dds/Dxt1Dds.cs
+
+        private static int DXT1toARGB(byte[] src, int srcOffset, Image<Rgba32> dest, int x, int y)
         {
-            return new Rgba32((byte)(colour >> 16 & 0xff), (byte)(colour >> 8 & 0xff), (byte)(colour & 0xff), (byte)(colour >> 24 & 0xff));
+            // colour is in R5G6B5 format, convert to R8G8B8
+
+            ushort[] colors = new ushort[2];
+            Rgba32[] color = new Rgba32[4];
+
+            for (var i = 0; i < 2; i++)
+            {
+                colors[i] = src[srcOffset++];
+                colors[i] |= (ushort)(src[srcOffset++] << 8);
+
+                color[i].R = (byte)((colors[i] & 0xF800) >> 11);
+                color[i].G = (byte)((colors[i] & 0x7E0) >> 5);
+                color[i].B = (byte)(colors[i] & 0x1f);
+                color[i].R = (byte)(color[i].R << 3 | color[i].R >> 2);
+                color[i].G = (byte)(color[i].G << 2 | color[i].G >> 3);
+                color[i].B = (byte)(color[i].B << 3 | color[i].B >> 2);
+                color[i].A = 255;
+            }
+
+            if (colors[0] > colors[1])
+            {
+                color[2].R = (byte)((2 * color[0].R + color[1].R) / 3);
+                color[2].G = (byte)((2 * color[0].G + color[1].G) / 3);
+                color[2].B = (byte)((2 * color[0].B + color[1].B) / 3);
+                color[2].A = 255;
+
+                color[3].R = (byte)((color[0].R + 2 * color[1].R) / 3);
+                color[3].G = (byte)((color[0].G + 2 * color[1].G) / 3);
+                color[3].B = (byte)((color[0].B + 2 * color[1].B) / 3);
+                color[3].A = 255;
+            }
+            else
+            {
+                color[2].R = (byte)((color[0].R + color[1].R) / 2);
+                color[2].G = (byte)((color[0].G + color[1].G) / 2);
+                color[2].B = (byte)((color[0].B + color[1].B) / 2);
+                color[2].A = 255;
+
+                color[3].R = 0;
+                color[3].G = 0;
+                color[3].B = 0;
+                color[3].A = 0;
+            }
+
+            for (int yOffset = 0; yOffset < 4; yOffset++)
+            {
+                var rowVal = src[srcOffset++];
+                for (int xOffset = 0; xOffset < 4; xOffset ++)
+                {
+                    var pixel = color[(rowVal >> (xOffset << 1)) & 0x03];
+                    dest[x + xOffset, y + yOffset] = pixel;
+                }
+            }
+
+            return srcOffset;
         }
 
-        private static void DXT1toARGB(byte[] src, uint srcOffset, Image<Rgba32> dest, uint destOffset, uint destWidth)
+        private static int DXT3toARGB(byte[] src, int srcOffset, Image<Rgba32> dest, int x, int y)
         {
-            try
+            int alphaOffset = srcOffset;
+
+            srcOffset += 8;
+
+            ushort[] colors = new ushort[2];
+            Rgba32[] color = new Rgba32[4];
+
+            for (var i = 0; i < 2; i++)
             {
-                // colour is in R5G6B5 format, convert to R8G8B8
-                uint[] colour = new uint[4];
-                byte[] red = new byte[4];
-                byte[] green = new byte[4];
-                byte[] blue = new byte[4];
+                colors[i] = src[srcOffset++];
+                colors[i] |= (ushort)(src[srcOffset++] << 8);
 
-                for (int i = 0; i < 2; i++)
-                {
-                    red[i] = (byte)(src[2 * i + 1 + srcOffset] & 0xf8);
-                    green[i] = (byte)((src[2 * i + 1 + srcOffset] & 0x7) << 5 | (src[2 * i + srcOffset] & 0xe0) >> 3);
-                    blue[i] = (byte)((src[2 * i + srcOffset] & 0x1f) << 3);
-                    colour[i] = (uint)(red[i] << 16 | green[i] << 8 | blue[i]);
-                }
+                color[i].R = (byte)((colors[i] & 0xF800) >> 11);
+                color[i].G = (byte)((colors[i] & 0x7E0) >> 5);
+                color[i].B = (byte)(colors[i] & 0x1f);
+                color[i].R = (byte)(color[i].R << 3 | color[i].R >> 2);
+                color[i].G = (byte)(color[i].G << 2 | color[i].G >> 3);
+                color[i].B = (byte)(color[i].B << 3 | color[i].B >> 2);
+                color[i].A = 255;
+            }
 
-                if (colour[0] > colour[1])
+            color[2].R = (byte)((2 * color[0].R + color[1].R) / 3);
+            color[2].G = (byte)((2 * color[0].G + color[1].G) / 3);
+            color[2].B = (byte)((2 * color[0].B + color[1].B) / 3);
+            color[2].A = 255;
+
+            color[3].R = (byte)((color[0].R + 2 * color[1].R) / 3);
+            color[3].G = (byte)((color[0].G + 2 * color[1].G) / 3);
+            color[3].B = (byte)((color[0].B + 2 * color[1].B) / 3);
+            color[3].A = 255;
+
+            for (int yOffset = 0; yOffset < 4; yOffset++)
+            {
+                var rowVal = src[srcOffset++];
+
+                ushort rowAlpha = src[alphaOffset++];
+                rowAlpha |= (ushort)(src[alphaOffset++] << 8);
+
+                for (int xOffset = 0; xOffset < 4; xOffset++)
                 {
-                    red[2] = (byte)((2 * red[0] + red[1] + 1) / 3);
-                    green[2] = (byte)((2 * green[0] + green[1] + 1) / 3);
-                    blue[2] = (byte)((2 * blue[0] + blue[1] + 1) / 3);
-                    red[3] = (byte)((red[0] + 2 * red[1] + 1) / 3);
-                    green[3] = (byte)((green[0] + 2 * green[1] + 1) / 3);
-                    blue[3] = (byte)((blue[0] + 2 * blue[1] + 1) / 3);
-                    for (int i = 0; i < 4; i++)
-                    {
-                        colour[i] = (uint)(red[i] << 16 | green[i] << 8 | blue[i] | 0xFF000000);
-                    }
-                }
-                else
-                {
-                    red[2] = (byte)((red[0] + red[1]) / 2);
-                    green[2] = (byte)((green[0] + green[1]) / 2);
-                    blue[2] = (byte)((blue[0] + blue[1]) / 2);
-                    for (int i = 0; i < 3; i++)
-                    {
-                        colour[i] = (uint)(red[i] << 16 | green[i] << 8 | blue[i] | 0xFF000000);
-                    }
-                    colour[2] = 0;  // transparent
-                }
-                for (int y = 0; y < 4; y++)
-                {
-                    var offset = destWidth * y + destOffset;
-                    var offsetx = (int)(offset % dest.Width);
-                    var offsety = (int)(offset / dest.Height);
-                    dest[offsetx, offsety] = UintRgba32ToRgba32(colour[src[4 + y + srcOffset] & 0x03]);
-                    dest[offsetx + 1, offsety] = UintRgba32ToRgba32(colour[(src[4 + y + srcOffset] & 0x0e) >> 2]);
-                    dest[offsetx + 2, offsety] = UintRgba32ToRgba32(colour[(src[4 + y + srcOffset] & 0x30) >> 4]);
-                    dest[offsetx + 3, offsety] = UintRgba32ToRgba32(colour[(src[4 + y + srcOffset] & 0xe0) >> 6]);
+                    byte currentAlpha = (byte)((rowAlpha >> (xOffset * 4)) & 0x0f);
+                    currentAlpha |= (byte)(currentAlpha << 4);
+
+                    var pixel = color[(rowVal >> (xOffset << 1)) & 0x03];
+                    pixel.A = currentAlpha;
+
+                    dest[x + xOffset, y + yOffset] = pixel;
                 }
             }
-            catch (Exception ex)
-            {
-                var a = 1;
-            }
-        }
 
-        private static void DXT3toARGB(byte[] src, uint srcOffset, Image<Rgba32> dest, uint destOffset, uint destWidth)
-        {
-            try
-            {
-                uint b = srcOffset;
-                //BYTE* b = (BYTE*)src;
-                // colour is in R5G6B5 format, convert to R8G8B8
-                uint[] colour = new uint[4];
-                byte[] red = new byte[4];
-                byte[] green = new byte[4];
-                byte[] blue = new byte[4];
-                byte[,] alpha = new byte[4, 4];
-
-                alpha[0, 0] = (byte)((src[0 + b] & 0x0f) << 4 | src[0 + b] & 0x0f);
-                alpha[0, 1] = (byte)(src[0 + b] & 0xf0 | (byte)((src[0 + b] & 0xf0) >> 4));
-                alpha[0, 2] = (byte)((src[1 + b] & 0x0f) << 4 | (byte)(src[1 + b] & 0x0f));
-                alpha[0, 3] = (byte)(src[1 + b] & 0xf0 | (byte)((src[1 + b] & 0xf0) >> 4));
-
-                alpha[1, 0] = (byte)((src[2 + b] & 0x0f) << 4 | src[2 + b] & 0x0f);
-                alpha[1, 1] = (byte)(src[2 + b] & 0xf0 | (src[2 + b] & 0xf0) >> 4);
-                alpha[1, 2] = (byte)((src[3 + b] & 0x0f) << 4 | src[3 + b] & 0x0f);
-                alpha[1, 3] = (byte)(src[3 + b] & 0xf0 | (src[3 + b] & 0xf0) >> 4);
-
-                alpha[2, 0] = (byte)((src[4 + b] & 0x0f) << 4 | src[4 + b] & 0x0f);
-                alpha[2, 1] = (byte)(src[4 + b] & 0xf0 | (src[4 + b] & 0xf0) >> 4);
-                alpha[2, 2] = (byte)((src[5 + b] & 0x0f) << 4 | src[5 + b] & 0x0f);
-                alpha[2, 3] = (byte)(src[5 + b] & 0xf0 | (src[5 + b] & 0xf0) >> 4);
-
-                alpha[3, 0] = (byte)((src[6 + b] & 0x0f) << 4 | src[6 + b] & 0x0f);
-                alpha[3, 1] = (byte)(src[6 + b] & 0xf0 | (src[6 + b] & 0xf0) >> 4);
-                alpha[3, 2] = (byte)((src[7 + b] & 0x0f) << 4 | src[7 + b] & 0x0f);
-                alpha[3, 3] = (byte)(src[7 + b] & 0xf0 | (src[7 + b] & 0xf0) >> 4);
-
-                b += 8;
-
-                for (int i = 0; i < 2; i++)
-                {
-                    red[i] = (byte)(src[2 * i + 1 + b] & 0xf8);
-                    green[i] = (byte)((src[2 * i + 1 + b] & 0x7) << 5 | (src[2 * i + b] & 0xe0) >> 3);
-                    blue[i] = (byte)((src[2 * i + b] & 0x1f) << 3);
-                    colour[i] = (uint)(red[i] << 16 | green[i] << 8 | blue[i]);
-                }
-
-                red[2] = (byte)((2 * red[0] + red[1] + 1) / 3);
-                green[2] = (byte)((2 * green[0] + green[1] + 1) / 3);
-                blue[2] = (byte)((2 * blue[0] + blue[1] + 1) / 3);
-                red[3] = (byte)((red[0] + 2 * red[1] + 1) / 3);
-                green[3] = (byte)((green[0] + 2 * green[1] + 1) / 3);
-                blue[3] = (byte)((blue[0] + 2 * blue[1] + 1) / 3);
-                for (int i = 0; i < 4; i++)
-                {
-                    colour[i] = (uint)(red[i] << 16 | green[i] << 8 | blue[i]);
-                }
-
-                // ok, now grab the bits
-                for (int y = 0; y < 4; y++)
-                {
-                    var offset = destWidth * y + destOffset;
-                    var offsetx = (int)(offset % dest.Width);
-                    var offsety = (int)(offset / dest.Height);
-                    dest[offsetx, offsety] = UintRgba32ToRgba32(colour[src[4 + y + b] & 0x03] | (uint)(alpha[y, 0] << 24));
-                    dest[offsetx + 1, offsety] = UintRgba32ToRgba32(colour[(src[4 + y + b] & 0x0e) >> 2] | (uint)(alpha[y, 1] << 24));
-                    dest[offsetx + 2, offsety] = UintRgba32ToRgba32(colour[(src[4 + y + b] & 0x30) >> 4] | (uint)(alpha[y, 2] << 24));
-                    dest[offsetx + 3, offsety] = UintRgba32ToRgba32(colour[(src[4 + y + b] & 0xe0) >> 6] | (uint)(alpha[y, 3] << 24));
-
-                }
-            }
-            catch (Exception ex)
-            {
-                var a = 1;
-            }
+            return srcOffset;
         }
 
         private static void Unswizzle(byte[] src, uint depth, uint width, uint height, ref byte[] dest)
@@ -198,30 +177,28 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
         private static void ConvertDXT1(byte[] src, Image<Rgba32> dest)
         {
-            var width = (uint)dest.Width;
-            var height = (uint)dest.Height;
-            for (uint y = 0; y < height; y += 4)
+            var srcOffset = 0;
+            var width = dest.Width;
+            var height = dest.Height;
+            for (var y = 0; y < height; y += 4)
             {
-                for (uint x = 0; x < width; x += 4)
+                for (var x = 0; x < width; x += 4)
                 {
-                    uint s = y * width / 2 + x * 2;
-                    uint d = y * width + x;
-                    DXT1toARGB(src, s, dest, d, width);
+                    srcOffset = DXT1toARGB(src, srcOffset, dest, x, y);
                 }
             }
         }
 
         private static void ConvertDXT3(byte[] src, Image<Rgba32> dest)
         {
-            var width = (uint)dest.Width;
-            var height = (uint)dest.Height;
-            for (uint y = 0; y < height; y += 4)
+            var srcOffset = 0;
+            var width = dest.Width;
+            var height = dest.Height;
+            for (var y = 0; y < height; y += 4)
             {
-                for (uint x = 0; x < width; x += 4)
+                for (var x = 0; x < width; x += 4)
                 {
-                    uint s = y * width + x * 4;
-                    uint d = y * width + x;
-                    DXT3toARGB(src, s, dest, d, width);
+                    srcOffset = DXT3toARGB(src, srcOffset, dest, x, y);
                 }
             }
         }
@@ -231,20 +208,18 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             var buffer = new byte[dest.Width * dest.Height * 4];
             Unswizzle(src, 4, (uint)dest.Width, (uint)dest.Height, ref buffer);
 
-            var width = (uint)dest.Width;
-            var height = (uint)dest.Height;
-            for (uint y = 0; y < height; y++)
+            var srcOffset = 0;
+            var width = dest.Width;
+            var height = dest.Height;
+            for (int y = 0; y < height; y++)
             {
-                for (uint x = 0; x < width; x++)
-                {
-                    uint s = y * width + x << 2;
-
-                    var alpha = (uint)(buffer[s + 3] << 24);
-                    var red = (uint)(buffer[s + 2] << 16);
-                    var green = (uint)(buffer[s + 1] << 8);
-                    var blue = (uint)(buffer[s + 0] << 0);
-                    var color = red | green | blue | alpha;
-                    dest[(int)x, (int)y] = UintRgba32ToRgba32(color);
+                for (int x = 0; x < width; x++)
+                {                    
+                    var blue = buffer[srcOffset++];
+                    var green = buffer[srcOffset++];
+                    var red = buffer[srcOffset++];
+                    var alpha = buffer[srcOffset++];                                                          
+                    dest[x, y] = new Rgba32(red, green, blue, alpha);
                 }
             }
         }
@@ -254,18 +229,18 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             var buffer = new byte[dest.Width * dest.Height * 4];
             Unswizzle(src, 4, (uint)dest.Width, (uint)dest.Height, ref buffer);
 
-            var width = (uint)dest.Width;
-            var height = (uint)dest.Height;
-            for (uint y = 0; y < height; y++)
+            var srcOffset = 0;
+            var width = dest.Width;
+            var height = dest.Height;
+            for (int y = 0; y < height; y++)
             {
-                for (uint x = 0; x < width; x++)
+                for (int x = 0; x < width; x++)
                 {
-                    uint s = (y * width + x) * 4;
-                    var red = (uint)(buffer[s + 2] << 16);
-                    var green = (uint)(buffer[s + 1] << 8);
-                    var blue = (uint)buffer[s + 0];
-                    var color = red | green | blue | 0xff000000;
-                    dest[(int)x, (int)y] = UintRgba32ToRgba32(color);
+                    var blue = buffer[srcOffset++];
+                    var green = buffer[srcOffset++];
+                    var red = buffer[srcOffset++];
+                    srcOffset++;
+                    dest[x, y] = new Rgba32(red, green, blue, 255);
                 }
             }
         }
@@ -275,19 +250,18 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             var buffer = new byte[dest.Width * dest.Height * 4];
             Unswizzle(src, 4, (uint)dest.Width, (uint)dest.Height, ref buffer);
 
-            var width = (uint)dest.Width;
-            var height = (uint)dest.Height;
-            for (uint y = 0; y < height; y++)
+            var srcOffset = 0;
+            var width = dest.Width;
+            var height = dest.Height;
+            for (int y = 0; y < height; y++)
             {
-                for (uint x = 0; x < width; x++)
+                for (int x = 0; x < width; x++)
                 {
-                    uint s = (y * width + x) * 4;
-                    var red = (uint)(buffer[s + 3] << 16);
-                    var green = (uint)(buffer[s + 2] << 8);
-                    var blue = (uint)buffer[s + 1];
-                    var alpha = (uint)(buffer[s] << 24);
-                    var color = red | green | blue | alpha;
-                    dest[(int)x, (int)y] = UintRgba32ToRgba32(color);
+                    var alpha = buffer[srcOffset++];
+                    var blue = buffer[srcOffset++];
+                    var green = buffer[srcOffset++];
+                    var red = buffer[srcOffset++];                          
+                    dest[x, y] = new Rgba32(red, green, blue, alpha);
                 }
             }
         }
@@ -297,19 +271,18 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             var buffer = new byte[dest.Width * dest.Height * 2];
             Unswizzle(src, 2, (uint)dest.Width, (uint)dest.Height, ref buffer);
 
-            var width = (uint)dest.Width;
-            var height = (uint)dest.Height;
-            for (uint y = 0; y < height; y++)
+            var srcOffset = 0;
+            var width = dest.Width;
+            var height = dest.Height;
+            for (int y = 0; y < height; y++)
             {
-                for (uint x = 0; x < width; x++)
-                {
-                    uint s = (y * width + x) * 2;
-                    var alpha = (uint)(buffer[s + 1] & 0xf0) << 24;
-                    var red = (uint)((buffer[s + 1] & 0x0f) << 20);
-                    var green = (uint)((buffer[s + 0] & 0xf0) << 8);
-                    var blue = (uint)((buffer[s + 0] & 0x0f) << 4);
-                    var color = red | green | blue | alpha;
-                    dest[(int)x, (int)y] = UintRgba32ToRgba32(color);
+                for (int x = 0; x < width; x++)
+                {                    
+                    var blue = (byte)((buffer[srcOffset + 0] & 0x0f) << 4);
+                    var green = (byte)(buffer[srcOffset++] & 0xf0);
+                    var red = (byte)((buffer[srcOffset] & 0x0f) << 4);
+                    var alpha = (byte)(buffer[srcOffset++] & 0xf0);
+                    dest[x, y] = new Rgba32(red, green, blue, alpha);
                 }
             }
         }
@@ -320,23 +293,21 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             var buffer = new byte[dest.Width * dest.Height * 2];
             Unswizzle(src, 2, (uint)dest.Width, (uint)dest.Height, ref buffer);
 
-            var width = (uint)dest.Width;
-            var height = (uint)dest.Height;
-            for (uint y = 0; y < height; y++)
+            var srcOffset = 0;
+            var width = dest.Width;
+            var height = dest.Height;
+            for (int y = 0; y < height; y++)
             {
-                for (uint x = 0; x < width; x++)
+                for (int x = 0; x < width; x++)
                 {
-                    uint s = (y * width + x) * 2;
-                    var red = (uint)(buffer[s + 1] & 0xf8) << 16;
-                    var green1 = (uint)((buffer[s + 1] & 0x07) << 13);
-                    var green2 = (uint)((buffer[s + 0] & 0xe0) << 5);
-                    var blue = (uint)((buffer[s + 0] & 0x1f) << 3);
-                    var color = red | green1 | green2 | blue | 0xff000000;
-                    dest[(int)x, (int)y] = UintRgba32ToRgba32(color);
+                    var blue = (byte)((buffer[srcOffset] & 0x1f) << 3);
+                    var green = (byte)((buffer[srcOffset++] & 0xe0) >> 3);
+                    green |= (byte)((buffer[srcOffset] & 0x07) << 5);
+                    var red = (byte)(buffer[srcOffset++] & 0xf8);
+                    dest[x, y] = new Rgba32(red, green, blue, 255);
                 }
             }
         }
-
 
         public static bool ConvertDdsToPng(byte[]? input, out byte[]? output)
         {
@@ -358,36 +329,45 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
             var header = StructUtility.ByteToType<DdsHeader>(reader);
 
-            if (header.PixelFormat.FourCC == 0x31545844) //DXT1
+
+            if (header.PixelFormat.FourCC == 0x31545844)
             {
-                using var image = new Image<Rgba32>((int)header.Width, (int)header.Height);
-                var imageData = reader.ReadBytes((int)header.PitchOrLinearSize);
-                ConvertDXT1(imageData, image);
+                try
+                {
+                    using var image = new Image<Rgba32>((int)header.Width, (int)header.Height);
+                    var imageData = reader.ReadBytes((int)((header.Width * header.Height) << 1));
+                    ConvertDXT1(imageData, image);
 
-                using var outputStream = new MemoryStream();
-                image.SaveAsPng(outputStream);
-                output = outputStream.ToArray();
-                var q = 1;
+                    using var outputStream = new MemoryStream();
+                    image.SaveAsPng(outputStream);
+                    output = outputStream.ToArray();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    return false;
+                }
             }
-            else if (header.PixelFormat.FourCC == 0x33545844) //DXT3
+            else if (header.PixelFormat.FourCC == 0x33545844)
             {
-                using var image = new Image<Rgba32>((int)header.Width, (int)header.Height);
-                var imageData = reader.ReadBytes((int)header.PitchOrLinearSize);
-                ConvertDXT3(imageData, image);
+                try
+                {
+                    using var image = new Image<Rgba32>((int)header.Width, (int)header.Height);
+                    var imageData = reader.ReadBytes((int)(header.Width * header.Height));
+                    ConvertDXT3(imageData, image);
 
-                using var outputStream = new MemoryStream();
-                image.SaveAsPng(outputStream);
-                output = outputStream.ToArray();
-                var q = 1;
+                    using var outputStream = new MemoryStream();
+                    image.SaveAsPng(outputStream);
+                    output = outputStream.ToArray();
+                    return true;
+
+                }
+                catch (Exception ex)
+                {
+                    return false;
+                }
             }
-            else
-            {
-                var x = 1;
-            }
-
-            //33545844
-
-            return true; 
+            return false; 
         }
 
 

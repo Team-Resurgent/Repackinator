@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Resurgent.UtilityBelt.Library.Utilities;
 using Resurgent.UtilityBelt.Library.Utilities.XbeModels;
 using Repackinator;
+using static Resurgent.UtilityBelt.Library.Utilities.XbeUtility;
 
 var shouldShowHelp = false;
 var input = "";
@@ -64,15 +65,15 @@ try
     //    }
     //}
 
-    //using var ms = new FileStream(@"H:\Download\Hitman 2 - Silent Assassin (USA)\Hitman 2 - Silent Assassin (USA).iso", FileMode.Open);
+    // using var ms = new FileStream(@"H:\Download\Hitman 2 - Silent Assassin (USA)\Hitman 2 - Silent Assassin (USA).iso", FileMode.Open);
     //using var os = new MemoryStream();
     //string error = "";
     //XisoUtility.TryExtractDefaultFromXiso(ms, os, ref error);
     //File.WriteAllBytes(@"d:\hitman.xbe", os.ToArray());
 
-    //var outputPath = $"F:\\XboxTool\\XbeImagesFix";
-    //var a = new XbeUtility();
-    //var files = Directory.GetFiles(@"F:\XboxTool\XbesFix");
+    //var outputPath = $"F:\\XboxTool\\XbeImages";
+
+    //var files = Directory.GetFiles(@"H:\Xbes");
     //foreach (var file in files)
     //{
     //    Console.WriteLine(file);
@@ -80,38 +81,38 @@ try
     //    var fileinput = File.ReadAllBytes(file);
 
     //    var logoUtility = new LogoUtility();
-    //    a.TryGetXbeImage(fileinput, ImageType.LogoImage, out var fileoutput1);
+    //    XbeUtility.TryGetXbeImage(fileinput, ImageType.LogoImage, out var fileoutput1);
     //    logoUtility.DecodeLogoImage(fileoutput1, out var imageoutput1);
     //    if (imageoutput1 != null)
     //    {
-    //        File.WriteAllBytes(Path.Combine(outputPath, $"{name}-banner.png"), imageoutput1);
+    //        //File.WriteAllBytes(Path.Combine(outputPath, $"{name}-banner.png"), imageoutput1);
     //    }
 
-    //    var xprUtility = new XprUtility();
-    //    if (a.TryGetXbeImage(fileinput, ImageType.TitleImage, out var fileoutput2))
+    //    if (XbeUtility.TryGetXbeImage(fileinput, ImageType.TitleImage, out var fileoutput2))
     //    {
-    //        if (xprUtility.ConvertXprToPng(fileoutput2, out var imageoutput2))
+    //        if (XprUtility.ConvertXprToPng(fileoutput2, out var imageoutput2))
     //        {
     //            File.WriteAllBytes(Path.Combine(outputPath, $"{name}-title.png"), imageoutput2);
     //        }
     //        else
     //        {
-    //            Console.WriteLine("");
+    //            Console.WriteLine("Error");
     //        }
     //    }
 
-    //    if (a.TryGetXbeImage(fileinput, ImageType.SaveImage, out var fileoutput3))
+    //    if (XbeUtility.TryGetXbeImage(fileinput, ImageType.SaveImage, out var fileoutput3))
     //    {
-    //        if (xprUtility.ConvertXprToPng(fileoutput3, out var imageoutput3))
+    //        if (XprUtility.ConvertXprToPng(fileoutput3, out var imageoutput3))
     //        {
     //            File.WriteAllBytes(Path.Combine(outputPath, $"{name}-save.png"), imageoutput3);
     //        }
     //        else
     //        {
-    //            Console.WriteLine("");
+    //            Console.WriteLine("Error");
     //        }
     //    }
     //}
+   
 
     optionset.Parse(args);
     if (shouldShowHelp || args.Length == 0)
