@@ -149,20 +149,14 @@ namespace QuikIso
                         var attach = ResourceLoader.GetEmbeddedResourceBytes("attach.xbe");
                         var xbe = outputStream.ToArray();
 
-                        if (XbeUtility.ReplaceCertInfo(attach, xbe, gameData.XBETitleAndFolderName, out var patchedAttach))
-                        {
-                            File.WriteAllBytes(Path.Combine(outputPath, gameData.XBETitleAndFolderName, $"default.xbe"), patchedAttach);
-                        }
-                        else
-                        {
-                            Log($"Error: failed creatign attach xbe");
-                        }
-
                         if (XbeUtility.TryGetXbeImage(xbe, XbeUtility.ImageType.TitleImage, out var xprImage))
                         {
                             if (XprUtility.ConvertXprToPng(xprImage, out var pngImage))
                             {
-                                File.WriteAllBytes(Path.Combine(outputPath, gameData.XBETitleAndFolderName, "icon.png"), pngImage);
+                                if (!XbeUtility.TryReplaceXbeTitleImage(attach, pngImage))
+                                {
+                                    Log($"Error: failed to replace image");
+                                }
                             }
                             else
                             {
@@ -173,6 +167,16 @@ namespace QuikIso
                         {
                             Log($"Error: failed to extract xpr");
                         }
+                                                
+                        if (XbeUtility.ReplaceCertInfo(attach, xbe, gameData.XBETitleAndFolderName, out var patchedAttach))
+                        {
+                            File.WriteAllBytes(Path.Combine(outputPath, gameData.XBETitleAndFolderName, $"default.xbe"), patchedAttach);
+                        }
+                        else
+                        {
+                            Log($"Error: failed creatign attach xbe");
+                        }
+
                     }
                     else
                     {
@@ -222,7 +226,7 @@ namespace QuikIso
                     LogStream = File.OpenWrite(log);
                 }
 
-                var exePath = Assembly.GetExecutingAssembly().Location;
+                var exePath = AppDomain.CurrentDomain.BaseDirectory;
                 var repackList = Path.Combine(Path.GetDirectoryName(exePath), "RepackList.json");
                 if (!File.Exists(repackList))
                 {

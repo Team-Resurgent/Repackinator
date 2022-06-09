@@ -5,6 +5,9 @@ using Resurgent.UtilityBelt.Library.Utilities;
 using Resurgent.UtilityBelt.Library.Utilities.XbeModels;
 using Repackinator;
 using static Resurgent.UtilityBelt.Library.Utilities.XbeUtility;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 
 var shouldShowHelp = false;
 var input = "";
@@ -55,10 +58,16 @@ try
     //var files = Directory.GetFiles(@"F:\XboxTool\Xbes");
     //foreach (var file in files)
     //{
-    //    var xbe = new XbeUtility();
     //    var game = File.ReadAllBytes(file);
-    //    xbe.ReplaceCertInfo(attach, game, out var outputGame);
     //    var name = Path.GetFileNameWithoutExtension(file);
+
+    //    if (XbeUtility.TryGetXbeImage(game, ImageType.TitleImage, out var outputGameIcon)) {        
+    //        if (XprUtility.ConvertXprToPng(outputGameIcon, out var outputGameImage)) {
+    //            XbeUtility.TryReplaceXbeTitleImage(attach, outputGameImage);
+    //        }
+    //    }
+
+    //    XbeUtility.ReplaceCertInfo(attach, game, "EqUiNoX", out var outputGame);
     //    if (outputGame != null)
     //    {
     //        File.WriteAllBytes($"F:\\XboxTool\\AttachXbes\\{name}-attach.xbe", outputGame);
