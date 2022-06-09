@@ -13,7 +13,7 @@
     <None Remove="Resources\attach.xbe" />
     <None Remove="Resources\dd.exe" />
     <None Remove="Resources\fSplit.exe" />
-    <None Remove="Resources\XbeDataList.json" />
+    <None Remove="Resources\RepackList.json" />
     <None Remove="Resources\XbeDataList.txt" />
     <None Remove="Resources\xdvdfs_maker.exe" />
   </ItemGroup>
@@ -24,7 +24,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\attach.xbe" />
     <EmbeddedResource Include="Resources\dd.exe" />
-    <EmbeddedResource Include="Resources\XbeDataList.json" />
+    <Content Include="RepackList.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
