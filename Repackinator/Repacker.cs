@@ -174,7 +174,7 @@ namespace QuikIso
                         }
                         else
                         {
-                            Log($"Error: failed creatign attach xbe");
+                            Log($"Error: failed creating attach xbe");
                         }
 
                     }
