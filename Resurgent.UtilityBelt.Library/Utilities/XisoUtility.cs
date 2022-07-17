@@ -29,9 +29,10 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
         public static bool TryExtractDefaultFromXiso(Stream inputStream, Stream outputStream, ref string error)
         {
-            const int XGD1_LSEEK_OFFSET = 0x18300000;
-            const int SectorSize = 2048;
-            const int VolumeSector = 32;
+            const long XGD1_LSEEK_OFFSET = 0x18300000;
+           // const long XGD1_LSEEK_OFFSET = 0x100000000;
+            const long SectorSize = 2048;
+            const long VolumeSector = 32;
 
             byte[] Magic = Encoding.ASCII.GetBytes("MICROSOFT*XBOX*MEDIA");
 
@@ -39,14 +40,14 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             {
                 using var binaryReader = new BinaryReader(inputStream);
 
-                int headerOffset = 0;
+                long headerOffset = 0;
                 inputStream.Position = VolumeSector * SectorSize;
-                var volumeDescriptor = binaryReader.ReadBytes(SectorSize);
+                var volumeDescriptor = binaryReader.ReadBytes((int)SectorSize);
                 if (!PatternMatch(volumeDescriptor, 0, Magic))
                 {
                     headerOffset = XGD1_LSEEK_OFFSET;
                     inputStream.Position = headerOffset + VolumeSector * SectorSize;
-                    volumeDescriptor = binaryReader.ReadBytes(SectorSize);
+                    volumeDescriptor = binaryReader.ReadBytes((int)SectorSize);
                     if (!PatternMatch(volumeDescriptor, 0, Magic))
                     {
                         error = "Invalid volume descriptor detected.";
@@ -93,7 +94,10 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
                     if (filename.Equals("default.xbe", StringComparison.CurrentCultureIgnoreCase))
                     {
-                        inputStream.Position = headerOffset + fileSector * SectorSize;
+                        long offset = headerOffset + fileSector * SectorSize;
+                        inputStream.Seek(offset, SeekOrigin.Begin);
+
+                        inputStream.Position = offset;
                         var fileData = binaryReader.ReadBytes((int)fileSize);
                         outputStream.Write(fileData);
                         return true;
