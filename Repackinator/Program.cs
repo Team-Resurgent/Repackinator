@@ -39,7 +39,7 @@ try
 
     //var summarystring = new StringWriter();
     //var summaries = new List<XbeSummary>();
-    //var files = Directory.GetFiles(@"G:\EasyFinancial\EQT\EQT");
+    //var files = Directory.GetFiles(@"G:\EasyFinancial\New Xbes");
     //foreach (var file in files)
     //{
     //    Console.WriteLine(file);
@@ -50,9 +50,7 @@ try
     //    summarystring.WriteLine(cert.Value.ToSummaryString(Path.GetFileNameWithoutExtension(file)));
     //}
 
-    //var json = JsonConvert.SerializeObject(summaries);
-    //File.WriteAllText(@"D:\XbeData.txt", json);
-    //   File.WriteAllText(@"G:\EasyFinancial\EQT\XbeDataListMedia.txt", summarystring.ToString());
+    //File.WriteAllText(@"G:\EasyFinancial\New Xbes\XbeDataListMedia.txt", summarystring.ToString());
 
     //var attach = ResourceLoader.GetEmbeddedResourceBytes("attach.xbe");
     //var files = Directory.GetFiles(@"F:\XboxTool\Xbes");
@@ -74,11 +72,11 @@ try
     //    }
     //}
 
-    using var ms = new FileStream(@"G:\EasyFinancial\ESPN NHL 2K5 (USA)\NHL 2K6 (USA).iso", FileMode.Open);
-    using var os = new MemoryStream();
-    string error = "";
-    XisoUtility.TryExtractDefaultFromXiso(ms, os, ref error);
-    File.WriteAllBytes(@"G:\EasyFinancial\ESPN NHL 2K5 (USA)\NHL 2K6 (USA).xbe", os.ToArray());
+    //using var ms = new FileStream(@"G:\EasyFinancial\ESPN NHL 2K5 (USA)\NHL 2K6 (USA).iso", FileMode.Open);
+    //using var os = new MemoryStream();
+    //string error = "";
+    //XisoUtility.TryExtractDefaultFromXiso(ms, os, ref error);
+    //File.WriteAllBytes(@"G:\EasyFinancial\ESPN NHL 2K5 (USA)\NHL 2K6 (USA).xbe", os.ToArray());
 
     //var outputPath = $"F:\\XboxTool\\XbeImages";
 
