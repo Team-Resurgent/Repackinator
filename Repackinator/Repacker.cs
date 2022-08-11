@@ -156,16 +156,31 @@ namespace QuikIso
                                 if (!XbeUtility.TryReplaceXbeTitleImage(attach, pngImage))
                                 {
                                     Log($"Error: failed to replace image");
+                                    if (unpacked)
+                                    {
+                                        File.Delete(input);
+                                    }
+                                    return;
                                 }
                             }
                             else
                             {
                                 Log($"Error: failed to create png");
+                                if (unpacked)
+                                {
+                                    File.Delete(input);
+                                }
+                                return;
                             }
                         }
                         else
                         {
                             Log($"Error: failed to extract xpr");
+                            if (unpacked)
+                            {
+                                File.Delete(input);
+                            }
+                            return;
                         }
                                                 
                         if (XbeUtility.ReplaceCertInfo(attach, xbe, gameData.XBETitleAndFolderName, out var patchedAttach))
@@ -175,12 +190,22 @@ namespace QuikIso
                         else
                         {
                             Log($"Error: failed creating attach xbe");
+                            if (unpacked)
+                            {
+                                File.Delete(input);
+                            }
+                            return;
                         }
 
                     }
                     else
                     {
                         Log($"Error: {error}");
+                        if (unpacked)
+                        {
+                            File.Delete(input);
+                        }
+                        return;
                     }
                 }
 
@@ -191,8 +216,7 @@ namespace QuikIso
                     {
                         Arguments = $"if=\"{input}\" of=\"{input}.novideo\" skip=387 bs=1M",
                         UseShellExecute = false,
-                        RedirectStandardOutput = true
-
+                        RedirectStandardOutput = true,
                     }
                 };
                 process2.Start();
@@ -262,6 +286,21 @@ namespace QuikIso
                     // do nothing
                 }
                 DdFile = ddFile;
+
+
+              //  var process2 = new Process
+              //  {
+              //      StartInfo = new ProcessStartInfo(DdFile)
+              //      {
+              //          Arguments = $"",
+              //          c
+              //          UseShellExecute = false,
+              //        //  RedirectStandardOutput = true,
+              //      }
+              //  };
+              //  process2.Start();
+              ////  var q = process2.StandardOutput.ReadToEnd();
+              //  process2.WaitForExit();
 
                 var files = Directory.GetFiles(input);                
                 foreach (var file in files)

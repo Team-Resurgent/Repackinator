@@ -120,7 +120,6 @@ try
     //    }
     //}
 
-
     optionset.Parse(args);
     if (shouldShowHelp || args.Length == 0)
     {

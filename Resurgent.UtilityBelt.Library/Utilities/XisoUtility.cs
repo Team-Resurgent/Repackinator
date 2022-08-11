@@ -71,8 +71,15 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 var entryOffset = 0;
                 while (entryOffset < directoryTable.Length)
                 {
-                    //var leftOffset = BitConverter.ToUInt16(directoryTable, 0x0 + entryOffset);
-                    //var rightOffset = BitConverter.ToUInt16(directoryTable, 0x2 + entryOffset);
+                    var leftOffset = BitConverter.ToUInt16(directoryTable, 0x0 + entryOffset);
+                    var rightOffset = BitConverter.ToUInt16(directoryTable, 0x2 + entryOffset);
+                    if (leftOffset == 0xffff && rightOffset == 0xffff)
+                    {
+                        entryOffset += 4;
+                        continue;
+                    }
+
+
                     var fileSector = BitConverter.ToUInt32(directoryTable, 0x4 + entryOffset);
                     var fileSize = BitConverter.ToUInt32(directoryTable, 0x8 + entryOffset);
                     var fileAttributes = directoryTable[0xc + entryOffset];
@@ -126,10 +133,13 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             }
             fs.Position = 0;
 
-            var parts = fileLength / 4292870144;
-            if (fileLength % 4292870144 > 0)
+
+            const long sectorSplit = 4096L * 1024L * 1024L; //4294967296 - 32768;
+
+            var parts = fileLength / sectorSplit;
+            if (fileLength % sectorSplit > 0)
             {
-                parts = parts + 1;
+                parts++;
             }
 
             var fileParts = new List<FileStream>();
@@ -144,15 +154,11 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             var bytesRead = 0L;
             while (bytesRead < fileLength)
             {
-                if (bytesRead % 4292870144 == 0)
+                if (bytesRead % sectorSplit == 0)
                 {
                     part++;
                 }
                 var read = fs.Read(buffer, 0, buffer.Length);
-                if (read < 1)
-                {
-                    var a = 1;
-                }
                 bytesRead += read;
                 fileParts[part].Write(buffer);
             }
