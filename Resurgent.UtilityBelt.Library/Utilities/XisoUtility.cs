@@ -133,8 +133,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             }
             fs.Position = 0;
 
-
-            const long sectorSplit = 4096L * 1024L * 1024L; //4294967296 - 32768;
+            long sectorSplit = (fileLength / 4096) * 2048;
 
             var parts = fileLength / sectorSplit;
             if (fileLength % sectorSplit > 0)

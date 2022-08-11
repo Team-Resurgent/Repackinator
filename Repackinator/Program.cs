@@ -125,6 +125,7 @@ try
     {
         Console.WriteLine("Usage: Repackinator");
         Console.WriteLine("Repackinator by EqUiNoX original xbox utility.");
+        Console.WriteLine("Credits go to HoRnEyDvL, Hazeno, Rocky5, Team Cerbios.");
         Console.WriteLine();
         Console.WriteLine("Usage: Repackinator [options]+");
         Console.WriteLine();
