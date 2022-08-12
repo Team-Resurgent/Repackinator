@@ -30,7 +30,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
         public static bool TryExtractDefaultFromXiso(Stream inputStream, Stream outputStream, ref string error)
         {
             const long XGD1_LSEEK_OFFSET = 0x18300000;
-           // const long XGD1_LSEEK_OFFSET = 0x100000000;
+            // const long XGD1_LSEEK_OFFSET = 0x100000000;
             const long SectorSize = 2048;
             const long VolumeSector = 32;
 
@@ -121,7 +121,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             return false;
         }
 
-        public static bool Split(string input, string outputPath, string isoname)
+        public static bool Split(string input, string outputPath, string isoname, bool removeVideoPartition)
         {
             using var fs = new FileStream(input, FileMode.Open, FileAccess.Read);
             fs.Seek(0, SeekOrigin.End);
@@ -133,10 +133,13 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             }
             fs.Position = 0;
 
-            long sectorSplit = (fileLength / 4096) * 2048;
+            const long dvdSize = 7825162240;
+            long videoSize = 387 * 1024 * 1024;
+            long skipSize = (removeVideoPartition == true && fileLength == dvdSize) ? videoSize : 0;
+            long sectorSplit = ((fileLength - skipSize) / 4096) * 2048;
 
-            var parts = fileLength / sectorSplit;
-            if (fileLength % sectorSplit > 0)
+            var parts = (fileLength - skipSize) / sectorSplit;
+            if ((fileLength - skipSize) % sectorSplit > 0)
             {
                 parts++;
             }
@@ -148,10 +151,12 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 fileParts.Add(new FileStream(Path.Combine(outputPath, filename), FileMode.Create, FileAccess.Write));
             }
 
+            fs.Position = skipSize;
+
             byte[] buffer = new byte[2048];
             var part = -1;
             var bytesRead = 0L;
-            while (bytesRead < fileLength)
+            while (bytesRead < (fileLength - skipSize))
             {
                 if (bytesRead % sectorSplit == 0)
                 {

@@ -11,7 +11,6 @@
 	<ItemGroup>
     <None Remove="Resources\7za.exe" />
     <None Remove="Resources\attach.xbe" />
-    <None Remove="Resources\dd.exe" />
     <None Remove="Resources\fSplit.exe" />
     <None Remove="Resources\RepackList.json" />
     <None Remove="Resources\XbeDataList.txt" />
@@ -23,7 +22,6 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\attach.xbe" />
-    <EmbeddedResource Include="Resources\dd.exe" />
     <Content Include="RepackList.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

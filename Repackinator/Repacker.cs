@@ -15,8 +15,6 @@ namespace QuikIso
 
         private static string SevenZipFile { get; set; }
 
-        private static string DdFile { get; set; }
-
         private static GameData[] GameData { get; set; }
 
         private static void Log(string message)
@@ -45,7 +43,7 @@ namespace QuikIso
                 var extension = Path.GetExtension(inputFile).ToLower();
                 if (!extension.Equals(".iso") && !extension.Equals(".zip") && !extension.Equals(".iso"))
                 {
-                    Log($"Skipping '{Path.GetFileName(inputFile)}' as unsupported exension.");
+                    Log($"Skipping '{Path.GetFileName(inputFile)}' as unsupported extension.");
                     return;
                 }
 
@@ -106,6 +104,11 @@ namespace QuikIso
                     processList.Start();
                     var outputList = processList.StandardOutput.ReadToEnd();
                     processList.WaitForExit();
+                    if (processList.ExitCode != 0)
+                    {
+                        Log("Error: failed to get archive info.");
+                        return;
+                    }
 
                     input = $"{Path.GetFileNameWithoutExtension(inputFile)}.iso";
                     var outputLines = outputList.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
@@ -119,18 +122,25 @@ namespace QuikIso
                     }
                     input = Path.Combine(unpackPath, input);
 
-                    var process = new Process
+                    using var process = new Process
                     {
                         StartInfo = new ProcessStartInfo(SevenZipFile)
                         {
                             Arguments = $"x -y -o\"{unpackPath}\" \"{inputFile}\"", //input file is the zip
                             UseShellExecute = false,
-                            RedirectStandardOutput = true
+                            RedirectStandardOutput = true,
+                            RedirectStandardError = true
                         },
                     };
                     process.Start();
-                    process.StandardOutput.ReadToEnd();
+                    process.BeginErrorReadLine();
+                    process.BeginOutputReadLine();
                     process.WaitForExit();
+                    if (process.ExitCode != 0)
+                    {
+                        Log("Error: failed to extract archive.");
+                        return;
+                    }
 
                     unpacked = true;
                 }
@@ -209,22 +219,8 @@ namespace QuikIso
                     }
                 }
 
-                Log("DD ISO...");
-                var process2 = new Process
-                {
-                    StartInfo = new ProcessStartInfo(DdFile)
-                    {
-                        Arguments = $"if=\"{input}\" of=\"{input}.novideo\" skip=387 bs=1M",
-                        UseShellExecute = false,
-                        RedirectStandardOutput = true,
-                    }
-                };
-                process2.Start();
-                process2.StandardOutput.ReadToEnd();
-                process2.WaitForExit();
-
-                Log("Splitting ISO...");
-                XisoUtility.Split($"{input}.novideo", Path.Combine(outputPath, gameData.XBETitleAndFolderName), gameData.ISOName);
+                Log("Remove Vdieo Partition & Split ISO...");
+                XisoUtility.Split($"{input}", Path.Combine(outputPath, gameData.XBETitleAndFolderName), gameData.ISOName, true);
 
                 if (unpacked)
                 {
@@ -274,33 +270,6 @@ namespace QuikIso
                     // do nothing
                 }
                 SevenZipFile = sevenZipFile;
-
-                var ddBytes = ResourceLoader.GetEmbeddedResourceBytes("dd.exe");
-                var ddFile = Path.Combine(temp, "dd.exe");
-                try
-                {                
-                    File.WriteAllBytes(ddFile, ddBytes);
-                }
-                catch
-                {
-                    // do nothing
-                }
-                DdFile = ddFile;
-
-
-              //  var process2 = new Process
-              //  {
-              //      StartInfo = new ProcessStartInfo(DdFile)
-              //      {
-              //          Arguments = $"",
-              //          c
-              //          UseShellExecute = false,
-              //        //  RedirectStandardOutput = true,
-              //      }
-              //  };
-              //  process2.Start();
-              ////  var q = process2.StandardOutput.ReadToEnd();
-              //  process2.WaitForExit();
 
                 var files = Directory.GetFiles(input);                
                 foreach (var file in files)
