@@ -13,11 +13,13 @@ var shouldShowHelp = false;
 var input = "";
 var output = "";
 var temp = "";
+var grouping = "NONE";
 var log = "";
 
 var optionset = new OptionSet {
     { "i|input=", "Input folder", i => input = i },
     { "o|output=", "Output folder", o => output = o },
+    { "g|grouping=", "Grouping (None *default*, Region, Letter)", g => grouping = g.ToUpper() },
     { "t|temp=", "Temp folder", t => temp = t },
     { "l|log=", "log file", l => log = l },
     { "h|help", "show this message and exit", h => shouldShowHelp = h != null },
@@ -124,7 +126,7 @@ try
     if (shouldShowHelp || args.Length == 0)
     {
         Console.WriteLine("Usage: Repackinator");
-        Console.WriteLine("Repackinator by EqUiNoX original xbox utility.");
+        Console.WriteLine("Repackinator by EqUiNoX, original xbox utility.");
         Console.WriteLine("Credits go to HoRnEyDvL, Hazeno, Rocky5, Team Cerbios.");
         Console.WriteLine();
         Console.WriteLine("Usage: Repackinator [options]+");
@@ -149,6 +151,11 @@ try
         throw new OptionException("output not specified.", "output");
     }
 
+    if (!string.Equals(grouping, "NONE") && !string.Equals(grouping, "REGION") && !string.Equals(grouping, "LETTER"))
+    {
+        throw new OptionException("grouping is not valid.", "grouping");
+    }
+
     output = Path.GetFullPath(output);
     if (!Directory.Exists(output))
     {
@@ -171,7 +178,7 @@ try
         log = Path.GetFullPath(log);
     }
      
-    Repacker.StartConversion(input, output, temp, log);
+    Repacker.StartConversion(input, output, grouping, temp, log);
 
     Console.WriteLine("Done!");
     Console.ReadLine();
