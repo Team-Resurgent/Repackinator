@@ -4,6 +4,7 @@ using System.Text;
 using Newtonsoft.Json;
 using Repackinator;
 using Resurgent.UtilityBelt.Library.Utilities;
+using Resurgent.UtilityBelt.Library.Utilities.XbeModels;
 
 namespace QuikIso
 {
@@ -28,7 +29,7 @@ namespace QuikIso
             LogStream.Write(bytes);
         }
 
-        private static void ProcessFile(string inputFile, string outputPath)
+        private static void ProcessFile(string inputFile, string outputPath, string grouping)
         {
             var unpackPath = Path.Combine(TempFolder, "Unpack");
 
@@ -47,43 +48,12 @@ namespace QuikIso
                     return;
                 }
 
-                GameData? gameData = null;
-                foreach (var game in GameData)
-                {
-                    if (game.ArchiveName.Equals(Path.GetFileNameWithoutExtension(inputFile), StringComparison.CurrentCultureIgnoreCase))
-                    {
-                        if (game.Process.Equals("Y", StringComparison.CurrentCultureIgnoreCase))
-                        {
-                            gameData = game;
-                        }
-                        break;
-                    }
-                } 
-
-                if (gameData == null)
-                {
-                    Log($"Skipping '{Path.GetFileName(inputFile)}' as requested to skip in dataset.");
-                    return;
-                }
-
                 Log($"Processing '{Path.GetFileName(inputFile)}'...");
 
                 if (!Directory.Exists(unpackPath))
                 {
                     Directory.CreateDirectory(unpackPath);
                 }
-
-                if (!Directory.Exists(outputPath))
-                {
-                    Directory.CreateDirectory(outputPath);
-                }
-
-                //var outpot = Path.Combine(outputPath, $"{Path.GetFileNameWithoutExtension(inputFile)}.xbe");
-                //if (File.Exists(outpot) && new FileInfo(outpot).Length > 0)
-                //{
-                //    Log("Skipping as already processed.");
-                //    return;
-                //}
 
                 var unpacked = false;
 
@@ -106,7 +76,7 @@ namespace QuikIso
                     processList.WaitForExit();
                     if (processList.ExitCode != 0)
                     {
-                        Log("Error: failed to get archive info.");
+                        Log("Error: failed to get archive info");
                         return;
                     }
 
@@ -138,79 +108,25 @@ namespace QuikIso
                     process.WaitForExit();
                     if (process.ExitCode != 0)
                     {
-                        Log("Error: failed to extract archive.");
+                        Log("Error: failed to extract archive");
                         return;
                     }
 
                     unpacked = true;
                 }
 
-             //   var gameName = Path.GetFileNameWithoutExtension(inputFile);
-            //    gameName = gameData.ISOName;
-
-                Directory.CreateDirectory(Path.Combine(outputPath, gameData.XBETitleAndFolderName));
-
+                var xbeData = Array.Empty<byte>();
                 using (var inputStream = new FileStream(input, FileMode.Open))
                 using (var outputStream = new MemoryStream())
                 {
                     var error = string.Empty;
                     if (XisoUtility.TryExtractDefaultFromXiso(inputStream, outputStream, ref error))
                     {
-                        var attach = ResourceLoader.GetEmbeddedResourceBytes("attach.xbe");
-                        var xbe = outputStream.ToArray();
-
-                        if (XbeUtility.TryGetXbeImage(xbe, XbeUtility.ImageType.TitleImage, out var xprImage))
-                        {
-                            if (XprUtility.ConvertXprToPng(xprImage, out var pngImage))
-                            {
-                                if (!XbeUtility.TryReplaceXbeTitleImage(attach, pngImage))
-                                {
-                                    Log($"Error: failed to replace image");
-                                    if (unpacked)
-                                    {
-                                        File.Delete(input);
-                                    }
-                                    return;
-                                }
-                            }
-                            else
-                            {
-                                Log($"Error: failed to create png");
-                                if (unpacked)
-                                {
-                                    File.Delete(input);
-                                }
-                                return;
-                            }
-                        }
-                        else
-                        {
-                            Log($"Error: failed to extract xpr");
-                            if (unpacked)
-                            {
-                                File.Delete(input);
-                            }
-                            return;
-                        }
-                                                
-                        if (XbeUtility.ReplaceCertInfo(attach, xbe, gameData.XBETitleAndFolderName, out var patchedAttach))
-                        {
-                            File.WriteAllBytes(Path.Combine(outputPath, gameData.XBETitleAndFolderName, $"default.xbe"), patchedAttach);
-                        }
-                        else
-                        {
-                            Log($"Error: failed creating attach xbe");
-                            if (unpacked)
-                            {
-                                File.Delete(input);
-                            }
-                            return;
-                        }
-
+                        xbeData = outputStream.ToArray();
                     }
                     else
                     {
-                        Log($"Error: {error}");
+                        Log($"Error: Unable to extract default.xbe");
                         if (unpacked)
                         {
                             File.Delete(input);
@@ -219,15 +135,122 @@ namespace QuikIso
                     }
                 }
 
-                Log("Remove Vdieo Partition & Split ISO...");
+                if (!XbeUtility.TryGetXbeCert(xbeData, out var cert) || cert == null)
+                {
+                    Log($"Error: Unable to get data from default.xbe");
+                    if (unpacked)
+                    {
+                        File.Delete(input);
+                    }
+                    return;
+                }
+
+                
+                var titleId = cert.Value.Title_Id.ToString("X2");
+                var gameRegion = XbeCertificate.GameRegionToString(cert.Value.Game_Region);
+                var version = cert.Value.Version.ToString("X2");
+
+                bool found = false;
+
+                GameData? gameData = null;
+                foreach (var game in GameData)
+                {
+                    if (game.TitleID == titleId && game.Region == gameRegion && game.Version == version)
+                    {
+                        found = true;
+                        if (game.Process.Equals("Y", StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            gameData = game;
+                        }
+                        break;
+                    }
+                } 
+
+                if (gameData == null)
+                {
+                    if (found)
+                    {
+                        Log($"Skipping '{Path.GetFileName(inputFile)}' as requested to skip in dataset.");
+                    }
+                    else
+                    {
+                        Log($"Skipping '{Path.GetFileName(inputFile)}' as titleid, region and version not found in dataset.");
+                    }
+                    return;
+                }
+
+                if (string.Equals(grouping, "REGION"))
+                {
+                    outputPath = Path.Combine(outputPath, gameData.Region);
+                }
+                else if (string.Equals(grouping, "LETTER"))
+                {
+                    outputPath = Path.Combine(outputPath, gameData.XBETitleAndFolderName.Substring(1));
+                }
+
+                if (!Directory.Exists(outputPath))
+                {
+                    Directory.CreateDirectory(outputPath);
+                }
+
+                Directory.CreateDirectory(Path.Combine(outputPath, gameData.XBETitleAndFolderName));
+
+                var attach = ResourceLoader.GetEmbeddedResourceBytes("attach.xbe");
+                if (XbeUtility.TryGetXbeImage(xbeData, XbeUtility.ImageType.TitleImage, out var xprImage))
+                {
+                    if (XprUtility.ConvertXprToPng(xprImage, out var pngImage))
+                    {
+                        if (!XbeUtility.TryReplaceXbeTitleImage(attach, pngImage))
+                        {
+                            Log($"Error: failed to replace image");
+                            if (unpacked)
+                            {
+                                File.Delete(input);
+                            }
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        Log($"Error: failed to create png");
+                        if (unpacked)
+                        {
+                            File.Delete(input);
+                        }
+                        return;
+                    }
+                }
+                else
+                {
+                    Log($"Error: failed to extract xpr");
+                    if (unpacked)
+                    {
+                        File.Delete(input);
+                    }
+                    return;
+                }
+                                                
+                if (XbeUtility.ReplaceCertInfo(attach, xbeData, gameData.XBETitleAndFolderName, out var patchedAttach))
+                {
+                    File.WriteAllBytes(Path.Combine(outputPath, gameData.XBETitleAndFolderName, $"default.xbe"), patchedAttach);
+                }
+                else
+                {
+                    Log($"Error: failed creating attach xbe");
+                    if (unpacked)
+                    {
+                        File.Delete(input);
+                    }
+                    return;
+                }
+
+                Log("Removing Video Partition & Splitting ISO...");
                 XisoUtility.Split($"{input}", Path.Combine(outputPath, gameData.XBETitleAndFolderName), gameData.ISOName, true);
 
                 if (unpacked)
                 {
                     File.Delete(input);
                 }
-
-                File.Delete($"{input}.novideo");
             }
             catch (Exception ex)
             {
@@ -235,7 +258,7 @@ namespace QuikIso
             }
         }
 
-        public static void StartConversion(string input, string output, string temp, string log)
+        public static void StartConversion(string input, string output, string grouping, string temp, string log)
         {
             FileStream? logStream = null;
 
@@ -274,7 +297,7 @@ namespace QuikIso
                 var files = Directory.GetFiles(input);                
                 foreach (var file in files)
                 {
-                    ProcessFile(file, output);                    
+                    ProcessFile(file, output, grouping);                    
                 }
             } 
             finally

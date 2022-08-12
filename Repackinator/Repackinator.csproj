@@ -5,6 +5,7 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+		<ApplicationIcon>icon.ico</ApplicationIcon>
 	</PropertyGroup>
 
 
@@ -22,6 +23,7 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\attach.xbe" />
+    <Content Include="icon.ico" />
     <Content Include="RepackList.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

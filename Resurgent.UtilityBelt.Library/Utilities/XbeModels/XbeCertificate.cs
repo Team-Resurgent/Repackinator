@@ -31,7 +31,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities.XbeModels
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
         public byte[] Title_Alt_Sig_Key;
 
-        private static string GameRegionToString(uint region)
+        public static string GameRegionToString(uint region)
         {
             var gameRegion = string.Empty;
             var debug = (region & 0x80000000) == 0x80000000;
@@ -136,7 +136,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities.XbeModels
                 Version = Version.ToString("X2"),
                 GameRegion = GameRegionToString(Game_Region),
                 OriginalName = originalName,
-                CleanedName = CleanText(originalName) + " " + GameRegionToString(Game_Region),
+                CleanedName = CleanText(originalName) + " (" + GameRegionToString(Game_Region) + ")",
                 AllowedMedia = AllowedMedioaToString(Allowed_Media)
             };
         }
