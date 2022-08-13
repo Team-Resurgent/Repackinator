@@ -12,11 +12,11 @@ namespace QuikIso
     {
         private static FileStream? LogStream { get; set; }
 
-        private static string TempFolder { get; set; }
+        private static string? TempFolder { get; set; }
 
-        private static string SevenZipFile { get; set; }
+        private static string? SevenZipFile { get; set; }
 
-        private static GameData[] GameData { get; set; }
+        private static GameData[]? GameData { get; set; }
 
         private static void Log(string message)
         {
@@ -31,6 +31,24 @@ namespace QuikIso
 
         private static void ProcessFile(string inputFile, string outputPath, string grouping)
         {
+            if (TempFolder == null)
+            {
+                Log($"Error: TempFolder should not be null.");
+                return;
+            }
+
+            if (SevenZipFile == null)
+            {
+                Log($"Error: SevenZipFile should not be null.");
+                return;
+            }
+
+            if (GameData == null)
+            {
+                Log($"Error: GameData should not be null.");
+                return;
+            }
+
             var unpackPath = Path.Combine(TempFolder, "Unpack");
 
             try
@@ -76,7 +94,7 @@ namespace QuikIso
                     processList.WaitForExit();
                     if (processList.ExitCode != 0)
                     {
-                        Log("Error: failed to get archive info");
+                        Log("Error: failed to get archive info.");
                         return;
                     }
 
@@ -108,7 +126,7 @@ namespace QuikIso
                     process.WaitForExit();
                     if (process.ExitCode != 0)
                     {
-                        Log("Error: failed to extract archive");
+                        Log("Error: failed to extract archive.");
                         return;
                     }
 
@@ -126,7 +144,7 @@ namespace QuikIso
                     }
                     else
                     {
-                        Log($"Error: Unable to extract default.xbe");
+                        Log($"Error: Unable to extract default.xbe.");
                         if (unpacked)
                         {
                             File.Delete(input);
@@ -137,7 +155,7 @@ namespace QuikIso
 
                 if (!XbeUtility.TryGetXbeCert(xbeData, out var cert) || cert == null)
                 {
-                    Log($"Error: Unable to get data from default.xbe");
+                    Log($"Error: Unable to get data from default.xbe.");
                     if (unpacked)
                     {
                         File.Delete(input);
@@ -158,7 +176,7 @@ namespace QuikIso
                     if (game.TitleID == titleId && game.Region == gameRegion && game.Version == version)
                     {
                         found = true;
-                        if (game.Process.Equals("Y", StringComparison.CurrentCultureIgnoreCase))
+                        if (game?.Process != null && game.Process.Equals("Y", StringComparison.CurrentCultureIgnoreCase))
                         {
                             gameData = game;
                         }
@@ -179,13 +197,31 @@ namespace QuikIso
                     return;
                 }
 
+                if (gameData.Region == null)
+                {
+                    Log($"Error: region is null in dataset.");
+                    return;
+                }
+
+                if (gameData.XBETitleAndFolderName == null)
+                {
+                    Log($"Error: XBE title & folder name is null in dataset.");
+                    return;
+                }
+
+                if (gameData.ISOName == null)
+                {
+                    Log($"Error: ISO name is null in dataset.");
+                    return;
+                }
+
                 if (string.Equals(grouping, "REGION"))
                 {
                     outputPath = Path.Combine(outputPath, gameData.Region);
                 }
                 else if (string.Equals(grouping, "LETTER"))
                 {
-                    outputPath = Path.Combine(outputPath, gameData.XBETitleAndFolderName.Substring(1));
+                    outputPath = Path.Combine(outputPath, gameData.XBETitleAndFolderName[1..].ToUpper());
                 }
 
                 if (!Directory.Exists(outputPath))
@@ -202,7 +238,7 @@ namespace QuikIso
                     {
                         if (!XbeUtility.TryReplaceXbeTitleImage(attach, pngImage))
                         {
-                            Log($"Error: failed to replace image");
+                            Log($"Error: failed to replace image.");
                             if (unpacked)
                             {
                                 File.Delete(input);
@@ -212,7 +248,7 @@ namespace QuikIso
                     }
                     else
                     {
-                        Log($"Error: failed to create png");
+                        Log($"Error: failed to create png.");
                         if (unpacked)
                         {
                             File.Delete(input);
@@ -222,7 +258,7 @@ namespace QuikIso
                 }
                 else
                 {
-                    Log($"Error: failed to extract xpr");
+                    Log($"Error: failed to extract xpr.");
                     if (unpacked)
                     {
                         File.Delete(input);
@@ -230,13 +266,13 @@ namespace QuikIso
                     return;
                 }
                                                 
-                if (XbeUtility.ReplaceCertInfo(attach, xbeData, gameData.XBETitleAndFolderName, out var patchedAttach))
+                if (XbeUtility.ReplaceCertInfo(attach, xbeData, gameData.XBETitleAndFolderName, out var patchedAttach) && patchedAttach != null)
                 {
                     File.WriteAllBytes(Path.Combine(outputPath, gameData.XBETitleAndFolderName, $"default.xbe"), patchedAttach);
                 }
                 else
                 {
-                    Log($"Error: failed creating attach xbe");
+                    Log($"Error: failed creating attach xbe.");
                     if (unpacked)
                     {
                         File.Delete(input);
@@ -270,7 +306,20 @@ namespace QuikIso
                 }
 
                 var exePath = AppDomain.CurrentDomain.BaseDirectory;
-                var repackList = Path.Combine(Path.GetDirectoryName(exePath), "RepackList.json");
+                if (exePath == null)
+                {
+                    Log("Error: Unable to get path of executable.");
+                    return;
+                }
+
+                var repackPath = Path.GetDirectoryName(exePath);
+                if (repackPath == null)
+                {
+                    Log("Error: Unable to get path from executable parg.");
+                    return;
+                }
+
+                var repackList = Path.Combine(repackPath, "RepackList.json");
                 if (!File.Exists(repackList))
                 {
                     Log("Error: RepackList.json not found.");

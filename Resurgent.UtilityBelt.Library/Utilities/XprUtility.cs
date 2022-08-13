@@ -343,7 +343,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                     output = outputStream.ToArray();
                     return true;
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     return false;
                 }
@@ -362,7 +362,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                     return true;
 
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     return false;
                 }
