@@ -8,7 +8,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
         {
             byte[] bytes = reader.ReadBytes(Marshal.SizeOf(typeof(T)));
             GCHandle handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
-            var theStructure = (T?)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(T));
+            T? theStructure = (T?)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(T));
             handle.Free();
             return theStructure;
         }
