@@ -16,20 +16,14 @@ namespace Repackinator
         [JsonProperty("Region")]
         public string? Region { get; set; }
 
-        [JsonProperty("Archive Name")]
-        public string? ArchiveName { get; set; }
+        [JsonProperty("Letter")]
+        public string? Letter { get; set; }
 
         [JsonProperty("XBE Title & Folder Name")]
         public string? XBETitleAndFolderName { get; set; }
 
-        [JsonProperty("XBE Title Length")]
-        public string? XBETitleLength { get; set; }
-
         [JsonProperty("ISO Name")]
         public string? ISOName { get; set; }
-
-        [JsonProperty("ISO Name Length")]
-        public string? ISONameLength { get; set; }
 
         [JsonProperty("Process")]
         public string? Process { get; set; }

@@ -19,7 +19,7 @@ var log = "";
 var optionset = new OptionSet {
     { "i|input=", "Input folder", i => input = i },
     { "o|output=", "Output folder", o => output = o },
-    { "g|grouping=", "Grouping (None *default*, Region, Letter)", g => grouping = g.ToUpper() },
+    { "g|grouping=", "Grouping (None *default*, Region, Letter, RegionLetter, LetterRegion)", g => grouping = g.ToUpper() },
     { "t|temp=", "Temp folder", t => temp = t },
     { "l|log=", "log file", l => log = l },
     { "h|help", "show this message and exit", h => shouldShowHelp = h != null },
@@ -151,7 +151,7 @@ try
         throw new OptionException("output not specified.", "output");
     }
 
-    if (!string.Equals(grouping, "NONE") && !string.Equals(grouping, "REGION") && !string.Equals(grouping, "LETTER"))
+    if (!string.Equals(grouping, "NONE") && !string.Equals(grouping, "REGION") && !string.Equals(grouping, "LETTER") && !string.Equals(grouping, "REGIONLETTER") && !string.Equals(grouping, "LETTERREGION"))
     {
         throw new OptionException("grouping is not valid.", "grouping");
     }
