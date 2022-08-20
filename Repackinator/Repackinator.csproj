@@ -38,4 +38,6 @@
     <ProjectReference Include="..\Resurgent.UtilityBelt.Library\Resurgent.UtilityBelt.Library.csproj" />
   </ItemGroup>
 
+  <ProjectExtensions><VisualStudio><UserProperties repacklist_1json__JsonSchema="https://download.stackhawk.com/hawk/jsonconfig/hawkconfig.json" /></VisualStudio></ProjectExtensions>
+
 </Project>

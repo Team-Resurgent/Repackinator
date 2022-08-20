@@ -215,13 +215,27 @@ namespace QuikIso
                     return;
                 }
 
+                if (gameData.Letter == null)
+                {
+                    Log($"Error: Letter is null in dataset.");
+                    return;
+                }
+
                 if (string.Equals(grouping, "REGION"))
                 {
                     outputPath = Path.Combine(outputPath, gameData.Region);
                 }
                 else if (string.Equals(grouping, "LETTER"))
                 {
-                    outputPath = Path.Combine(outputPath, gameData.XBETitleAndFolderName[1..].ToUpper());
+                    outputPath = Path.Combine(outputPath, gameData.XBETitleAndFolderName[0].ToString().ToUpper());
+                }
+                else if (string.Equals(grouping, "REGIONLETTER"))
+                {
+                    outputPath = Path.Combine(outputPath, gameData.Region, gameData.Letter);
+                }
+                else if (string.Equals(grouping, "LETTERREGION"))
+                {
+                    outputPath = Path.Combine(outputPath, gameData.Letter, gameData.Region);
                 }
 
                 if (!Directory.Exists(outputPath))

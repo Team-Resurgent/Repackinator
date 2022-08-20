@@ -40,10 +40,10 @@ namespace Resurgent.UtilityBelt.Library.Utilities.XbeModels
                 gameRegion = "Debug";
             }
 
-            var world = (region & 0x00000007) == 0x00000007;
-            if (world)
+            var global = (region & 0x00000007) == 0x00000007;
+            if (global)
             {
-                gameRegion = gameRegion.Length > 0 ? $"World, {gameRegion}" : "World";
+                gameRegion = gameRegion.Length > 0 ? $"Global, {gameRegion}" : "Global";
             }
             else
             {
@@ -61,7 +61,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities.XbeModels
                 }
             }
 
-            return gameRegion.Length == 0 ? "" : $"({gameRegion})";
+            return gameRegion.Length == 0 ? "" : gameRegion;
         }
 
         public string AllowedMedioaToString(uint media)
