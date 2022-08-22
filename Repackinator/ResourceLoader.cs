@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace QuikIso
+namespace Repackinator
 {
     public static class ResourceLoader
     {

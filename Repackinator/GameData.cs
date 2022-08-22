@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Text.RegularExpressions;
 
 namespace Repackinator
 {
@@ -22,8 +23,14 @@ namespace Repackinator
         [JsonProperty("XBE Title & Folder Name")]
         public string? XBETitleAndFolderName { get; set; }
 
+        [JsonProperty("XBE Title & Folder Name Alt")]
+        public string? XBETitleAndFolderNameAlt { get; set; }
+
         [JsonProperty("ISO Name")]
         public string? ISOName { get; set; }
+
+        [JsonProperty("ISO Name Alt")]
+        public string? ISONameAlt { get; set; }
 
         [JsonProperty("Process")]
         public string? Process { get; set; }

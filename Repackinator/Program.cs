@@ -1,25 +1,19 @@
-﻿using QuikIso;
+﻿using Repackinator;
 using Mono.Options;
-using Newtonsoft.Json;
-using Resurgent.UtilityBelt.Library.Utilities;
-using Resurgent.UtilityBelt.Library.Utilities.XbeModels;
-using Repackinator;
-using static Resurgent.UtilityBelt.Library.Utilities.XbeUtility;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
 
 var shouldShowHelp = false;
 var input = "";
 var output = "";
 var temp = "";
 var grouping = "NONE";
+var alternate = "NO";
 var log = "";
 
 var optionset = new OptionSet {
     { "i|input=", "Input folder", i => input = i },
     { "o|output=", "Output folder", o => output = o },
     { "g|grouping=", "Grouping (None *default*, Region, Letter, RegionLetter, LetterRegion)", g => grouping = g.ToUpper() },
+    { "a|alt=", "Alternate Naming (No *default*, Yes)", a => alternate = a.ToUpper() },
     { "t|temp=", "Temp folder", t => temp = t },
     { "l|log=", "log file", l => log = l },
     { "h|help", "show this message and exit", h => shouldShowHelp = h != null },
@@ -156,6 +150,11 @@ try
         throw new OptionException("grouping is not valid.", "grouping");
     }
 
+    if (!string.Equals(alternate, "NO") && !string.Equals(alternate, "YES"))
+    {
+        throw new OptionException("alternate is not valid.", "alternate");
+    }
+
     output = Path.GetFullPath(output);
     if (!Directory.Exists(output))
     {
@@ -178,7 +177,7 @@ try
         log = Path.GetFullPath(log);
     }
      
-    Repacker.StartConversion(input, output, grouping, temp, log);
+    Repacker.StartConversion(input, output, grouping, alternate, temp, log);
 
     Console.WriteLine("Done!");
     Console.ReadLine();
