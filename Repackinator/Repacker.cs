@@ -1,12 +1,10 @@
 ﻿using System.Diagnostics;
-using System.Reflection;
 using System.Text;
 using Newtonsoft.Json;
-using Repackinator;
 using Resurgent.UtilityBelt.Library.Utilities;
 using Resurgent.UtilityBelt.Library.Utilities.XbeModels;
 
-namespace QuikIso
+namespace Repackinator
 {
     public static class Repacker
     {
@@ -29,7 +27,7 @@ namespace QuikIso
             LogStream.Write(bytes);
         }
 
-        private static void ProcessFile(string inputFile, string outputPath, string grouping)
+        private static void ProcessFile(string inputFile, string outputPath, string grouping, string alternate)
         {
             if (TempFolder == null)
             {
@@ -50,6 +48,7 @@ namespace QuikIso
             }
 
             var unpackPath = Path.Combine(TempFolder, "Unpack");
+            var useAlternate = alternate.Equals("YES");
 
             try
             {
@@ -209,9 +208,21 @@ namespace QuikIso
                     return;
                 }
 
+                if (gameData.XBETitleAndFolderNameAlt == null)
+                {
+                    Log($"Error: XBE title & folder name alt is null in dataset.");
+                    return;
+                }
+
                 if (gameData.ISOName == null)
                 {
                     Log($"Error: ISO name is null in dataset.");
+                    return;
+                }
+
+                if (gameData.ISONameAlt == null)
+                {
+                    Log($"Error: ISO name alt is null in dataset.");
                     return;
                 }
 
@@ -227,7 +238,7 @@ namespace QuikIso
                 }
                 else if (string.Equals(grouping, "LETTER"))
                 {
-                    outputPath = Path.Combine(outputPath, gameData.XBETitleAndFolderName[0].ToString().ToUpper());
+                    outputPath = Path.Combine(outputPath, gameData.Letter);
                 }
                 else if (string.Equals(grouping, "REGIONLETTER"))
                 {
@@ -243,14 +254,20 @@ namespace QuikIso
                     Directory.CreateDirectory(outputPath);
                 }
 
-                Directory.CreateDirectory(Path.Combine(outputPath, gameData.XBETitleAndFolderName));
+                var xbeTitleAndFolderName = useAlternate ? gameData.XBETitleAndFolderNameAlt : gameData.XBETitleAndFolderName;
+
+                Directory.CreateDirectory(Path.Combine(outputPath, xbeTitleAndFolderName));
 
                 var attach = ResourceLoader.GetEmbeddedResourceBytes("attach.xbe");
                 if (XbeUtility.TryGetXbeImage(xbeData, XbeUtility.ImageType.TitleImage, out var xprImage))
                 {
-                    if (XprUtility.ConvertXprToPng(xprImage, out var pngImage))
+                    if (XprUtility.ConvertXprToJpeg(xprImage, out var jpgImage))
                     {
-                        if (!XbeUtility.TryReplaceXbeTitleImage(attach, pngImage))
+                        if (jpgImage != null)
+                        {
+                            File.WriteAllBytes(Path.Combine(outputPath, xbeTitleAndFolderName, $"default.tbn"), jpgImage);
+                        }
+                        if (!XbeUtility.TryReplaceXbeTitleImage(attach, jpgImage))
                         {
                             Log($"Error: failed to replace image.");
                             if (unpacked)
@@ -280,9 +297,9 @@ namespace QuikIso
                     return;
                 }
                                                 
-                if (XbeUtility.ReplaceCertInfo(attach, xbeData, gameData.XBETitleAndFolderName, out var patchedAttach) && patchedAttach != null)
+                if (XbeUtility.ReplaceCertInfo(attach, xbeData, xbeTitleAndFolderName, out var patchedAttach) && patchedAttach != null)
                 {
-                    File.WriteAllBytes(Path.Combine(outputPath, gameData.XBETitleAndFolderName, $"default.xbe"), patchedAttach);
+                    File.WriteAllBytes(Path.Combine(outputPath, xbeTitleAndFolderName, $"default.xbe"), patchedAttach);
                 }
                 else
                 {
@@ -295,7 +312,7 @@ namespace QuikIso
                 }
 
                 Log("Removing Video Partition & Splitting ISO...");
-                XisoUtility.Split($"{input}", Path.Combine(outputPath, gameData.XBETitleAndFolderName), gameData.ISOName, true);
+                XisoUtility.Split($"{input}", Path.Combine(outputPath, xbeTitleAndFolderName), useAlternate ? gameData.ISONameAlt : gameData.ISOName, true);
 
                 if (unpacked)
                 {
@@ -308,7 +325,7 @@ namespace QuikIso
             }
         }
 
-        public static void StartConversion(string input, string output, string grouping, string temp, string log)
+        public static void StartConversion(string input, string output, string grouping, string alternate, string temp, string log)
         {
             FileStream? logStream = null;
 
@@ -343,6 +360,8 @@ namespace QuikIso
                 var gameDataJson = File.ReadAllText(repackList);
                 GameData = JsonConvert.DeserializeObject<GameData[]>(gameDataJson);
 
+                File.WriteAllText(@"D:\New RepackList.json", JsonConvert.SerializeObject(GameData, Formatting.Indented));
+
                 TempFolder = temp;
 
                 var sevenZipBytes = ResourceLoader.GetEmbeddedResourceBytes("7za.exe");
@@ -360,7 +379,7 @@ namespace QuikIso
                 var files = Directory.GetFiles(input);                
                 foreach (var file in files)
                 {
-                    ProcessFile(file, output, grouping);                    
+                    ProcessFile(file, output, grouping, alternate);                    
                 }
             } 
             finally

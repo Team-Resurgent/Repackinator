@@ -371,7 +371,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
         }
 
 
-        public static bool ConvertXprToPng(byte[]? input, out byte[]? output)
+        public static bool ConvertXprToJpeg(byte[]? input, out byte[]? output)
         {
             output = null;
 
@@ -504,7 +504,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             }
 
             using var outputStream = new MemoryStream();
-            image.SaveAsPng(outputStream);
+            image.SaveAsJpeg(outputStream);
             output = outputStream.ToArray();
 
             var result = inputStream.Position == totalSize;
