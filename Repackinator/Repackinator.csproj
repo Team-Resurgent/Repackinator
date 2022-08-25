@@ -5,26 +5,12 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<ApplicationIcon>icon2.ico</ApplicationIcon>
+		<ApplicationIcon>..\Artwork\icon1.ico</ApplicationIcon>
 	</PropertyGroup>
 
-
-	<ItemGroup>
-    <None Remove="Resources\7za.exe" />
-    <None Remove="Resources\attach.xbe" />
-    <None Remove="Resources\fSplit.exe" />
-    <None Remove="Resources\RepackList.json" />
-    <None Remove="Resources\XbeDataList.txt" />
-    <None Remove="Resources\xdvdfs_maker.exe" />
-  </ItemGroup>
-
   <ItemGroup>
-    <EmbeddedResource Include="Resources\7za.exe">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Resources\attach.xbe" />
-    <Content Include="icon2.ico" />
-    <Content Include="RepackList.json">
+    <Content Include="..\Artwork\icon1.ico" />
+    <Content Include="..\RepackList.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -35,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Repackinator.Shared\Repackinator.Shared.csproj" />
     <ProjectReference Include="..\Resurgent.UtilityBelt.Library\Resurgent.UtilityBelt.Library.csproj" />
   </ItemGroup>
 
