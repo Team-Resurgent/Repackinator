@@ -1,4 +1,4 @@
-﻿using Repackinator;
+﻿using Repackinator.Shared;
 using Mono.Options;
 
 var shouldShowHelp = false;
