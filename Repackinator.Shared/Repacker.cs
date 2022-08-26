@@ -269,6 +269,7 @@ namespace Repackinator.Shared
                 }
 
                 var xbeTitleAndFolderName = alternate ? gameData.XBETitleAndFolderNameAlt : gameData.XBETitleAndFolderName;
+                var isoFileName = alternate ? gameData.ISONameAlt : gameData.ISOName;
 
                 Directory.CreateDirectory(Path.Combine(outputPath, xbeTitleAndFolderName));
 
@@ -279,7 +280,7 @@ namespace Repackinator.Shared
                     {
                         if (jpgImage != null)
                         {
-                            File.WriteAllBytes(Path.Combine(outputPath, xbeTitleAndFolderName, $"default.tbn"), jpgImage);
+                            File.WriteAllBytes(Path.Combine(outputPath, xbeTitleAndFolderName, "default.tbn"), jpgImage);
                         }
                         if (!XbeUtility.TryReplaceXbeTitleImage(attach, jpgImage))
                         {
@@ -313,7 +314,7 @@ namespace Repackinator.Shared
                                                 
                 if (XbeUtility.ReplaceCertInfo(attach, xbeData, xbeTitleAndFolderName, out var patchedAttach) && patchedAttach != null)
                 {
-                    File.WriteAllBytes(Path.Combine(outputPath, xbeTitleAndFolderName, $"default.xbe"), patchedAttach);
+                    File.WriteAllBytes(Path.Combine(outputPath, isoFileName, "default.xbe"), patchedAttach);
                 }
                 else
                 {
@@ -326,7 +327,7 @@ namespace Repackinator.Shared
                 }
 
                 Log("Removing Video Partition & Splitting ISO...");
-                XisoUtility.Split($"{input}", Path.Combine(outputPath, xbeTitleAndFolderName), alternate ? gameData.ISONameAlt : gameData.ISOName, true);
+                XisoUtility.Split($"{input}", Path.Combine(outputPath, xbeTitleAndFolderName), isoFileName, true);
 
                 if (unpacked)
                 {

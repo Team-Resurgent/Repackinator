@@ -1,3 +1,4 @@
 ﻿using RepackinatorUI;
 
-Application.Run();
+var application = new Application();
+application.Run();

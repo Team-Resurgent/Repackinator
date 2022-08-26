@@ -1,6 +1,8 @@
 ﻿using ImGuiNET;
 using Repackinator.Shared;
 using SharpDX.D3DCompiler;
+using System.Diagnostics;
+using System.Diagnostics.Metrics;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -12,31 +14,96 @@ namespace RepackinatorUI
 {
     public class Application
     {
-        private static Sdl2Window? m_window;
-        private static GraphicsDevice? m_graphicsDevice;
-        private static CommandList? m_commandList;
-        private static ImGuiController? m_controller;
-        private static GameData[]? m_gameDataList;
-        private static PathPicker? m_folderPicker;
-        private static PathPicker? m_filePicker;
+        private Sdl2Window? m_window;
+        private GraphicsDevice? m_graphicsDevice;
+        private CommandList? m_commandList;
+        private ImGuiController? m_controller;
+        private GameData[]? m_gameDataList;
+        private PathPicker? m_inputFolderPicker;
+        private PathPicker? m_outputFolderPicker;
+        private PathPicker? m_tempFolderPicker;
+        
+        private int m_searchField;
+        private string? m_searchText;
+        private int m_processField;
+        private bool m_alternate;
+        private string? m_inputFolder;
+        private string? m_outputFolder;
+        private string? m_tempFolder;
 
-        public static void Run()
+        private bool IsFiltered(int index)
+        {
+            if (string.IsNullOrEmpty(m_searchText) || m_gameDataList == null || m_gameDataList[index] == null)
+            {
+                return false;
+            }
+
+            GameData gameData = m_gameDataList[index];
+
+            if (m_searchField == 0 && gameData.TitleID != null)
+            {
+                return !gameData.TitleID.Contains(m_searchText, StringComparison.CurrentCultureIgnoreCase);
+            }
+            else if (m_searchField == 1 && gameData.Region != null)
+            {
+                return !gameData.Region.Contains(m_searchText, StringComparison.CurrentCultureIgnoreCase);
+            }
+            else if (m_searchField == 2 && gameData.TitleName != null)
+            {
+                return !gameData.TitleName.Contains(m_searchText, StringComparison.CurrentCultureIgnoreCase);
+            }
+            else if (m_searchField == 3 && gameData.Letter != null)
+            {
+                return !gameData.Letter.Contains(m_searchText, StringComparison.CurrentCultureIgnoreCase);
+            }
+            else if (m_searchField == 4 && gameData.XBETitleAndFolderName != null)
+            {
+                return !gameData.XBETitleAndFolderName.Contains(m_searchText, StringComparison.CurrentCultureIgnoreCase);
+            }
+            else if (m_searchField == 5 && gameData.XBETitleAndFolderNameAlt != null)
+            {
+                return !gameData.XBETitleAndFolderNameAlt.Contains(m_searchText, StringComparison.CurrentCultureIgnoreCase);
+            }
+            else if (m_searchField == 6 && gameData.ISOName != null)
+            {
+                return !gameData.ISOName.Contains(m_searchText, StringComparison.CurrentCultureIgnoreCase);
+            }
+            else if (m_searchField == 7 && gameData.ISONameAlt != null)
+            {
+                return !gameData.ISONameAlt.Contains(m_searchText, StringComparison.CurrentCultureIgnoreCase);
+            }
+            return false;
+        }
+
+        public void Run()
         {
             //File.Delete("imgui.ini");
+
+            m_searchText = string.Empty;
 
             VeldridStartup.CreateWindowAndGraphicsDevice(new WindowCreateInfo(50, 50, 1280, 720, WindowState.Normal, "Repackinator"), new GraphicsDeviceOptions(true, null, true, ResourceBindingModel.Improved, true, true), out m_window, out m_graphicsDevice);
 
             m_controller = new ImGuiController(m_graphicsDevice, m_graphicsDevice.MainSwapchain.Framebuffer.OutputDescription, m_window.Width, m_window.Height);
 
-            m_folderPicker = new PathPicker
+            m_inputFolderPicker = new PathPicker
             {
                 Mode = PathPicker.PickerMode.Folder
             };
 
-            m_filePicker = new PathPicker
+            m_outputFolderPicker = new PathPicker
             {
-                Mode = PathPicker.PickerMode.File
+                Mode = PathPicker.PickerMode.Folder
             };
+
+            m_tempFolderPicker = new PathPicker
+            {
+                Mode = PathPicker.PickerMode.Folder
+            };
+
+            m_alternate = false;
+            m_inputFolder = string.Empty;
+            m_outputFolder = string.Empty;
+            m_tempFolder = System.IO.Path.GetTempPath();
 
             m_gameDataList = GameData.LoadGameData();
             if (m_gameDataList == null)
@@ -79,28 +146,49 @@ namespace RepackinatorUI
             m_graphicsDevice.Dispose();
         }
 
-        private static void RenderUI()
+        private void RenderUI()
         {
-            if (m_window == null || m_folderPicker == null || m_filePicker == null)
+            if (m_window == null || m_inputFolderPicker == null || m_outputFolderPicker == null || m_tempFolderPicker == null || m_searchText == null || m_gameDataList == null || m_inputFolder == null || m_outputFolder == null || m_tempFolder == null)
             {
                 return;
             }
 
-            if (m_folderPicker.Render() && !m_folderPicker.Cancelled)
+            if (m_inputFolderPicker.Render() && !m_inputFolderPicker.Cancelled)
             {
-                var path = m_folderPicker.SelectedFolder;
+                m_inputFolder = m_inputFolderPicker.SelectedFolder;
             }
 
-            if (m_filePicker.Render() && !m_folderPicker.Cancelled)
+            if (m_outputFolderPicker.Render() && !m_outputFolderPicker.Cancelled)
             {
-                var path = m_filePicker.SelectedFile;
+                m_outputFolder = m_outputFolderPicker.SelectedFolder;
+            }
+
+            if (m_tempFolderPicker.Render() && !m_tempFolderPicker.Cancelled)
+            {
+                m_tempFolder = m_tempFolderPicker.SelectedFolder;
             }
 
             ImGui.Begin("Main", ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize);
             ImGui.SetWindowSize(new Vector2(m_window.Width, m_window.Height));
             ImGui.SetWindowPos(new Vector2(0, 0), ImGuiCond.Always);
 
-            ImGui.Text("Search goes here");
+            string[] searchItems = new string[] { "Title ID", "Region", "Title Name", "Letter", "XBE Title And Folder Name", "XBE Title And Folder Name Alt", "Iso Name", "Iso Name Alt" };
+         
+            ImGui.Text("Search:");
+            ImGui.PushItemWidth(200);
+            if (ImGui.Combo("##searchField", ref m_searchField, searchItems, searchItems.Length))
+            {
+                m_searchText = string.Empty;
+            }
+            ImGui.PopItemWidth();
+            ImGui.SameLine();
+            ImGui.Text("for");
+            ImGui.SameLine();
+            ImGui.PushItemWidth(200);
+            ImGui.InputText($"##searchText", ref m_searchText, 100);
+            ImGui.PopItemWidth();
+
+            ImGui.Spacing();
 
             const int MyItemColumnID_Process = 0;
             const int MyItemColumnID_TitleID = 1;            
@@ -112,11 +200,9 @@ namespace RepackinatorUI
             const int MyItemColumnID_XBETitleAndFolderNameAlt = 7;
             const int MyItemColumnID_IsoName = 8;
             const int MyItemColumnID_IsoNameAlt = 9;
-            
-            const int TEXT_BASE_HEIGHT = 20;
-     
+
             ImGuiTableFlags flags = ImGuiTableFlags.Resizable | ImGuiTableFlags.Borders | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable | ImGuiTableFlags.Sortable | ImGuiTableFlags.ScrollX | ImGuiTableFlags.ScrollY | ImGuiTableFlags.RowBg;
-            if (ImGui.BeginTable("table_sorting", 10, flags, new Vector2(0.0f, TEXT_BASE_HEIGHT * 15), 0.0f))
+            if (ImGui.BeginTable("table_sorting", 10, flags, new Vector2(0.0f, m_window.Height - 240), 0.0f))
             {
                 ImGui.TableSetupColumn("Process", ImGuiTableColumnFlags.WidthFixed, 75.0f, MyItemColumnID_Process);
                 ImGui.TableSetupColumn("Title ID", ImGuiTableColumnFlags.WidthFixed, 75.0f, MyItemColumnID_TitleID);
@@ -192,8 +278,13 @@ namespace RepackinatorUI
                     // Xbe File name length - extension (.xbe) = 38 chars
                     // Iso File name length - extension (.x.iso) = 36 chars
 
-                    for (int i = 0; i < m_gameDataList.Length; i++)
+                    for (var i = 0; i < m_gameDataList.Length; i++)
                     {
+                        if (m_gameDataList[i] == null || IsFiltered(i))
+                        {
+                            continue;
+                        }
+
                         ImGui.PushID(i);
                         ImGui.TableNextRow();
                         
@@ -226,37 +317,45 @@ namespace RepackinatorUI
                         ImGui.TableNextColumn();
                         string xbeTitleAndFolderName = m_gameDataList[i].XBETitleAndFolderName ?? "";
                         ImGui.PushItemWidth(ImGui.GetColumnWidth());
-                        if (ImGui.InputText($"##xbeTitleAndFolderName{i}", ref xbeTitleAndFolderName, 38))
+                        ImGui.PushStyleColor(ImGuiCol.Text, xbeTitleAndFolderName.Length > 40 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.5f, 0.5f, 1)) : ImGui.ColorConvertFloat4ToU32(new Vector4(1, 1, 1, 1)));
+                        if (ImGui.InputText($"##xbeTitleAndFolderName{i}", ref xbeTitleAndFolderName, 40))
                         {
                             m_gameDataList[i].XBETitleAndFolderName = xbeTitleAndFolderName;
                         }
+                        ImGui.PopStyleColor();
                         ImGui.PopItemWidth();
 
                         ImGui.TableNextColumn();
                         string xbeTitleAndFolderNameAlt = m_gameDataList[i].XBETitleAndFolderNameAlt ?? "";
                         ImGui.PushItemWidth(ImGui.GetColumnWidth());
-                        if (ImGui.InputText($"##xbeTitleAndFolderNameAlt{i}", ref xbeTitleAndFolderNameAlt, 38))
+                        ImGui.PushStyleColor(ImGuiCol.Text, xbeTitleAndFolderNameAlt.Length > 40 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.5f, 0.5f, 1)) : ImGui.ColorConvertFloat4ToU32(new Vector4(1, 1, 1, 1)));
+                        if (ImGui.InputText($"##xbeTitleAndFolderNameAlt{i}", ref xbeTitleAndFolderNameAlt, 40))
                         {
                             m_gameDataList[i].XBETitleAndFolderNameAlt = xbeTitleAndFolderNameAlt;
                         }
+                        ImGui.PopStyleColor();
                         ImGui.PopItemWidth();
 
                         ImGui.TableNextColumn();
                         string isoName = m_gameDataList[i].ISOName ?? "";
                         ImGui.PushItemWidth(ImGui.GetColumnWidth());
+                        ImGui.PushStyleColor(ImGuiCol.Text, isoName.Length > 36 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.5f, 0.5f, 1)) : ImGui.ColorConvertFloat4ToU32(new Vector4(1, 1, 1, 1)));
                         if (ImGui.InputText($"##isoName{i}", ref isoName, 36))
                         {
                             m_gameDataList[i].ISOName = isoName;
                         }
+                        ImGui.PopStyleColor();
                         ImGui.PopItemWidth();
 
                         ImGui.TableNextColumn();
                         string isoNameAlt = m_gameDataList[i].ISONameAlt ?? "";
                         ImGui.PushItemWidth(ImGui.GetColumnWidth());
+                        ImGui.PushStyleColor(ImGuiCol.Text, isoNameAlt.Length > 36 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.5f, 0.5f, 1)) : ImGui.ColorConvertFloat4ToU32(new Vector4(1, 1, 1, 1)));
                         if (ImGui.InputText($"##isoNameAlt{i}", ref isoNameAlt, 36))
                         {
                             m_gameDataList[i].ISONameAlt = isoNameAlt;
                         }
+                        ImGui.PopStyleColor();
                         ImGui.PopItemWidth();
 
                         ImGui.PopID();
@@ -266,109 +365,100 @@ namespace RepackinatorUI
 
             }
 
-            ImGui.Text("Some file picker demos...");
+            string[] processItems = new string[] { "", "All", "None", "Inverse" };
 
-            if (ImGui.Button("Folder Picker", new Vector2(100, 30)))
+            ImGui.Text("Process Selection:");
+            ImGui.SameLine();
+            ImGui.SetCursorPosX(125);
+            ImGui.PushItemWidth(100);
+            if (ImGui.Combo("##processField", ref m_processField, processItems, processItems.Length))
             {
-                m_folderPicker.ShowModal(Directory.GetCurrentDirectory());
+                if (m_gameDataList != null)
+                {
+                    for (var i = 0; i < m_gameDataList.Length; i++)
+                    {
+                        if (m_gameDataList[i] == null || IsFiltered(i))
+                        {
+                            continue;
+                        }
+                        if (m_processField == 1)
+                        {
+                            m_gameDataList[i].Process = "Y";
+                        }
+                        else if (m_processField == 2)
+                        {
+                            m_gameDataList[i].Process = "N";
+                        }
+                        else if (m_processField == 3)
+                        {
+                            m_gameDataList[i].Process = string.Equals(m_gameDataList[i].Process, "Y", StringComparison.CurrentCultureIgnoreCase) ? "N" : "Y";
+                        }
+                    }
+                    m_processField = 0;
+                }
+            }
+            ImGui.PopItemWidth();
+
+            ImGui.Text("Use Alternate:");
+            ImGui.SameLine();
+            ImGui.SetCursorPosX(125);
+            ImGui.Checkbox($"##alternate", ref m_alternate);
+
+            ImGui.Text("Input Folder:");
+            ImGui.SameLine();
+            ImGui.SetCursorPosX(125);
+            ImGui.PushItemWidth(400);
+            ImGui.InputText("##inputFolder", ref m_inputFolder, 260);
+            ImGui.PopItemWidth();
+            ImGui.SameLine();
+            if (ImGui.Button("...##inputPicker", new Vector2(30, 21)))
+            {
+                m_inputFolderPicker.ShowModal(Directory.GetCurrentDirectory());
+                
             }
 
-            if (ImGui.Button("File Picker", new Vector2(100, 30)))
+            ImGui.Text("Output Folder:");
+            ImGui.SameLine();
+            ImGui.SetCursorPosX(125);
+            ImGui.PushItemWidth(400);
+            ImGui.InputText("##outputFolder", ref m_outputFolder, 260);
+            ImGui.PopItemWidth();
+            ImGui.SameLine();
+            if (ImGui.Button("...##outputPicker", new Vector2(30, 21)))
             {
-                m_filePicker.ShowModal(Directory.GetCurrentDirectory());
+                m_outputFolderPicker.ShowModal(Directory.GetCurrentDirectory());
+            }
+
+            ImGui.Text("Temp Folder:");
+            ImGui.SameLine();
+            ImGui.SetCursorPosX(125);
+            ImGui.PushItemWidth(400);
+            ImGui.InputText("##tenpFolder", ref m_tempFolder, 260);
+            ImGui.PopItemWidth();
+            ImGui.SameLine();
+            if (ImGui.Button("...##tenpPicker", new Vector2(30, 21)))
+            {
+                m_tempFolderPicker.ShowModal(Directory.GetCurrentDirectory());
             }
 
             ImGui.Spacing();
-            ImGui.Text("Coded by EqUiNoX");
-            ImGui.End();
-          
 
+            ImGui.SetCursorPos(new Vector2(8, m_window.Height - 40));
+            if (ImGui.Button("Validate", new Vector2(100, 30)))
+            {
+                // m_filePicker.ShowModal(Directory.GetCurrentDirectory());
+            }
+            ImGui.SameLine();
+            if (ImGui.Button("Process", new Vector2(100, 30)))
+            {
+               // m_filePicker.ShowModal(Directory.GetCurrentDirectory());
+            }
 
-            //ImGui.Begin("Main2");
-
-            //// 3. Show the ImGui demo window. Most of the sample code is in ImGui.ShowDemoWindow(). Read its code to learn more about Dear ImGui!
-            //if (_showImGuiDemoWindow)
-            //{
-            //    // Normally user code doesn't need/want to call this because positions are saved in .ini file anyway.
-            //    // Here we just want to make the demo initial state a bit more friendly!
-            //    ImGui.SetNextWindowPos(new Vector2(650, 20), ImGuiCond.FirstUseEver);
-            //    ImGui.ShowDemoWindow(ref _showImGuiDemoWindow);
-            //}
-
-            //if (ImGui.TreeNode("Tabs"))
-            //{
-            //    if (ImGui.TreeNode("Basic"))
-            //    {
-            //        ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags.None;
-            //        if (ImGui.BeginTabBar("MyTabBar", tab_bar_flags))
-            //        {
-            //            if (ImGui.BeginTabItem("Avocado"))
-            //            {
-            //                ImGui.Text("This is the Avocado tab!\nblah blah blah blah blah");
-            //                ImGui.EndTabItem();
-            //            }
-            //            if (ImGui.BeginTabItem("Broccoli"))
-            //            {
-            //                ImGui.Text("This is the Broccoli tab!\nblah blah blah blah blah");
-            //                ImGui.EndTabItem();
-            //            }
-            //            if (ImGui.BeginTabItem("Cucumber"))
-            //            {
-            //                ImGui.Text("This is the Cucumber tab!\nblah blah blah blah blah");
-            //                ImGui.EndTabItem();
-            //            }
-            //            ImGui.EndTabBar();
-            //        }
-            //        ImGui.Separator();
-            //        ImGui.TreePop();
-            //    }
-
-            //    if (ImGui.TreeNode("Advanced & Close Button"))
-            //    {
-            //        // Expose a couple of the available flags. In most cases you may just call BeginTabBar() with no flags (0).
-            //        ImGui.CheckboxFlags("ImGuiTabBarFlags_Reorderable", ref s_tab_bar_flags, (uint)ImGuiTabBarFlags.Reorderable);
-            //        ImGui.CheckboxFlags("ImGuiTabBarFlags_AutoSelectNewTabs", ref s_tab_bar_flags, (uint)ImGuiTabBarFlags.AutoSelectNewTabs);
-            //        ImGui.CheckboxFlags("ImGuiTabBarFlags_NoCloseWithMiddleMouseButton", ref s_tab_bar_flags, (uint)ImGuiTabBarFlags.NoCloseWithMiddleMouseButton);
-            //        if ((s_tab_bar_flags & (uint)ImGuiTabBarFlags.FittingPolicyMask) == 0)
-            //            s_tab_bar_flags |= (uint)ImGuiTabBarFlags.FittingPolicyDefault;
-            //        if (ImGui.CheckboxFlags("ImGuiTabBarFlags_FittingPolicyResizeDown", ref s_tab_bar_flags, (uint)ImGuiTabBarFlags.FittingPolicyResizeDown))
-            //            s_tab_bar_flags &= ~((uint)ImGuiTabBarFlags.FittingPolicyMask ^ (uint)ImGuiTabBarFlags.FittingPolicyResizeDown);
-            //        if (ImGui.CheckboxFlags("ImGuiTabBarFlags_FittingPolicyScroll", ref s_tab_bar_flags, (uint)ImGuiTabBarFlags.FittingPolicyScroll))
-            //            s_tab_bar_flags &= ~((uint)ImGuiTabBarFlags.FittingPolicyMask ^ (uint)ImGuiTabBarFlags.FittingPolicyScroll);
-
-            //        // Tab Bar
-            //        string[] names = { "Artichoke", "Beetroot", "Celery", "Daikon" };
-
-            //        for (int n = 0; n < s_opened.Length; n++)
-            //        {
-            //            if (n > 0) { ImGui.SameLine(); }
-            //            ImGui.Checkbox(names[n], ref s_opened[n]);
-            //        }
-
-            //        // Passing a bool* to BeginTabItem() is similar to passing one to Begin(): the underlying bool will be set to false when the tab is closed.
-            //        if (ImGui.BeginTabBar("MyTabBar", (ImGuiTabBarFlags)s_tab_bar_flags))
-            //        {
-            //            for (int n = 0; n < s_opened.Length; n++)
-            //                if (s_opened[n] && ImGui.BeginTabItem(names[n], ref s_opened[n]))
-            //                {
-            //                    ImGui.Text($"This is the {names[n]} tab!");
-            //                    if ((n & 1) != 0)
-            //                        ImGui.Text("I am an odd tab.");
-            //                    ImGui.EndTabItem();
-            //                }
-            //            ImGui.EndTabBar();
-            //        }
-            //        ImGui.Separator();
-            //        ImGui.TreePop();
-            //    }
-            //    ImGui.TreePop();
-            //}
-
-            //ImGuiIOPtr io = ImGui.GetIO();
-            //SetThing(out io.DeltaTime, 2f);
-
-
-            //ImGui.End();
+            var message = "Coded by EqUiNoX";
+            var messageSize = ImGui.CalcTextSize(message);
+            ImGui.SetCursorPos(new Vector2(m_window.Width - messageSize.X - 10, m_window.Height - messageSize.Y - 10));            
+            ImGui.Text(message);
+            ImGui.End();          
         }
     }
 }
