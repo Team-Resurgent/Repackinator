@@ -17,6 +17,15 @@ namespace Repackinator.Shared
 
         private static GameData[]? GameDataList { get; set; }
 
+        public enum GroupingEnum
+        {
+            None,
+            Region,
+            Letter,
+            RegionLetter,
+            LetterRegion
+        }
+
         private static void Log(string message)
         {
             Console.WriteLine(message);
@@ -28,7 +37,7 @@ namespace Repackinator.Shared
             LogStream.Write(bytes);
         }
 
-        private static void ProcessFile(string inputFile, string outputPath, string grouping, string alternate)
+        private static void ProcessFile(string inputFile, string outputPath, GroupingEnum grouping, bool alternate)
         {
             if (TempFolder == null)
             {
@@ -49,7 +58,6 @@ namespace Repackinator.Shared
             }
 
             var unpackPath = Path.Combine(TempFolder, "Unpack");
-            var useAlternate = alternate.Equals("YES");
 
             try
             {
@@ -233,19 +241,19 @@ namespace Repackinator.Shared
                     return;
                 }
 
-                if (string.Equals(grouping, "REGION"))
+                if (grouping == GroupingEnum.Region)
                 {
                     outputPath = Path.Combine(outputPath, gameData.Region);
                 }
-                else if (string.Equals(grouping, "LETTER"))
+                else if (grouping == GroupingEnum.Letter)
                 {
                     outputPath = Path.Combine(outputPath, gameData.Letter);
                 }
-                else if (string.Equals(grouping, "REGIONLETTER"))
+                else if (grouping == GroupingEnum.RegionLetter)
                 {
                     outputPath = Path.Combine(outputPath, gameData.Region, gameData.Letter);
                 }
-                else if (string.Equals(grouping, "LETTERREGION"))
+                else if (grouping == GroupingEnum.LetterRegion)
                 {
                     outputPath = Path.Combine(outputPath, gameData.Letter, gameData.Region);
                 }
@@ -255,7 +263,7 @@ namespace Repackinator.Shared
                     Directory.CreateDirectory(outputPath);
                 }
 
-                var xbeTitleAndFolderName = useAlternate ? gameData.XBETitleAndFolderNameAlt : gameData.XBETitleAndFolderName;
+                var xbeTitleAndFolderName = alternate ? gameData.XBETitleAndFolderNameAlt : gameData.XBETitleAndFolderName;
 
                 Directory.CreateDirectory(Path.Combine(outputPath, xbeTitleAndFolderName));
 
@@ -313,7 +321,7 @@ namespace Repackinator.Shared
                 }
 
                 Log("Removing Video Partition & Splitting ISO...");
-                XisoUtility.Split($"{input}", Path.Combine(outputPath, xbeTitleAndFolderName), useAlternate ? gameData.ISONameAlt : gameData.ISOName, true);
+                XisoUtility.Split($"{input}", Path.Combine(outputPath, xbeTitleAndFolderName), alternate ? gameData.ISONameAlt : gameData.ISOName, true);
 
                 if (unpacked)
                 {
@@ -326,7 +334,7 @@ namespace Repackinator.Shared
             }
         }
 
-        public static void StartConversion(string input, string output, string grouping, string alternate, string temp, string log)
+        public static void StartConversion(string input, string output, string temp, GroupingEnum grouping, bool alternate, string log)
         {
             FileStream? logStream = null;
 
