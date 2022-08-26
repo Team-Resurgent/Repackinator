@@ -176,8 +176,29 @@ try
     {
         log = Path.GetFullPath(log);
     }
-     
-    Repacker.StartConversion(input, output, grouping, alternate, temp, log);
+
+    var alternateValue = alternate.Equals("YES");
+
+    var groupingValue = Repacker.GroupingEnum.None;
+
+    if (string.Equals(grouping, "REGION"))
+    {
+        groupingValue = Repacker.GroupingEnum.Region;
+    }
+    else if (string.Equals(grouping, "LETTER"))
+    {
+        groupingValue = Repacker.GroupingEnum.Letter;
+    }
+    else if (string.Equals(grouping, "REGIONLETTER"))
+    {
+        groupingValue = Repacker.GroupingEnum.RegionLetter;
+    }
+    else if (string.Equals(grouping, "LETTERREGION"))
+    {
+        groupingValue = Repacker.GroupingEnum.LetterRegion;
+    }
+
+    Repacker.StartConversion(input, output, temp, groupingValue, alternateValue, log);
 
     Console.WriteLine("Done!");
     Console.ReadLine();
