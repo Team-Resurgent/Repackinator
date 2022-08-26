@@ -1,7 +1,6 @@
 ﻿using Repackinator.Shared;
 using Mono.Options;
 using System.Text;
-using System.Linq.Expressions;
 
 var shouldShowHelp = false;
 var input = "";
@@ -210,7 +209,7 @@ try
     {
         Console.WriteLine(message);
         var bytes = Encoding.UTF8.GetBytes(message);
-        if (logStream != null)
+        if (logStream == null)
         {
             return;
         }
