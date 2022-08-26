@@ -476,6 +476,13 @@ namespace RepackinatorUI
 
             ImGui.Spacing();
 
+            if (ImGui.Button("Save Game Data", new Vector2(100, 30)))
+            {
+                // m_filePicker.ShowModal(Directory.GetCurrentDirectory());
+            }
+
+            ImGui.SameLine();
+
             if (ImGui.Button("Process", new Vector2(100, 30)))
             {
                // m_filePicker.ShowModal(Directory.GetCurrentDirectory());
