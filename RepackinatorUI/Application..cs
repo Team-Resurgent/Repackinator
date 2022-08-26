@@ -26,6 +26,7 @@ namespace RepackinatorUI
         private int m_searchField;
         private string? m_searchText;
         private int m_processField;
+        private bool m_showInvalid;
         private bool m_alternate;
         private string? m_inputFolder;
         private string? m_outputFolder;
@@ -75,6 +76,34 @@ namespace RepackinatorUI
             return false;
         }
 
+        private bool IsValidRow(int index)
+        {
+            if (string.IsNullOrEmpty(m_searchText) || m_gameDataList == null || m_gameDataList[index] == null)
+            {
+                return false;
+            }
+
+            GameData gameData = m_gameDataList[index];
+
+            if (gameData.XBETitleAndFolderName != null && gameData.XBETitleAndFolderName.Length > 40)
+            {
+                return false;
+            }
+            else if (gameData.XBETitleAndFolderNameAlt != null && gameData.XBETitleAndFolderNameAlt.Length > 40)
+            {
+                return false;
+            }
+            else if (gameData.ISOName != null && gameData.ISOName.Length > 36)
+            {
+                return false;
+            }
+            else if (gameData.ISONameAlt != null && gameData.ISONameAlt.Length > 36)
+            {
+                return false;
+            }
+            return true;
+        }
+
         public void Run()
         {
             //File.Delete("imgui.ini");
@@ -100,6 +129,7 @@ namespace RepackinatorUI
                 Mode = PathPicker.PickerMode.Folder
             };
 
+            m_showInvalid = false; 
             m_alternate = false;
             m_inputFolder = string.Empty;
             m_outputFolder = string.Empty;
@@ -188,6 +218,9 @@ namespace RepackinatorUI
             ImGui.InputText($"##searchText", ref m_searchText, 100);
             ImGui.PopItemWidth();
 
+            ImGui.SameLine();
+            ImGui.Checkbox("Show Invalid##showInvalid", ref m_showInvalid);
+
             ImGui.Spacing();
 
             const int MyItemColumnID_Process = 0;
@@ -273,14 +306,14 @@ namespace RepackinatorUI
                         sortSpects.SpecsDirty = false;
                     }
 
-                    // Files have a max length of 42 chars
-                    // Xbe Title name length = 40 chars
-                    // Xbe File name length - extension (.xbe) = 38 chars
-                    // Iso File name length - extension (.x.iso) = 36 chars
-
                     for (var i = 0; i < m_gameDataList.Length; i++)
                     {
                         if (m_gameDataList[i] == null || IsFiltered(i))
+                        {
+                            continue;
+                        }
+
+                        if (m_showInvalid && !IsValidRow(i))
                         {
                             continue;
                         }
@@ -443,12 +476,6 @@ namespace RepackinatorUI
 
             ImGui.Spacing();
 
-            ImGui.SetCursorPos(new Vector2(8, m_window.Height - 40));
-            if (ImGui.Button("Validate", new Vector2(100, 30)))
-            {
-                // m_filePicker.ShowModal(Directory.GetCurrentDirectory());
-            }
-            ImGui.SameLine();
             if (ImGui.Button("Process", new Vector2(100, 30)))
             {
                // m_filePicker.ShowModal(Directory.GetCurrentDirectory());
