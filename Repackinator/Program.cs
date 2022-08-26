@@ -1,5 +1,7 @@
 ﻿using Repackinator.Shared;
 using Mono.Options;
+using System.Text;
+using System.Linq.Expressions;
 
 var shouldShowHelp = false;
 var input = "";
@@ -198,7 +200,30 @@ try
         groupingValue = Repacker.GroupingEnum.LetterRegion;
     }
 
-    Repacker.StartConversion(input, output, temp, groupingValue, alternateValue, log);
+    FileStream? logStream = null;
+    if (!string.IsNullOrEmpty(log))
+    {
+        logStream = File.OpenWrite(log);
+    }
+
+    var logger = new Action<string>((message) =>
+    {
+        Console.WriteLine(message);
+        var bytes = Encoding.UTF8.GetBytes(message);
+        if (logStream != null)
+        {
+            return;
+        }
+        logStream.Write(bytes);
+    });
+
+    var repacker = new Repacker();
+    repacker.StartConversion(input, output, temp, groupingValue, alternateValue, null, logger);
+
+    if (logStream != null)
+    {
+        logStream.Dispose();
+    }
 
     Console.WriteLine("Done!");
     Console.ReadLine();

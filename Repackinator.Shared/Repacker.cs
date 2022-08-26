@@ -7,15 +7,22 @@ using Resurgent.UtilityBelt.Library.Utilities.XbeModels;
 
 namespace Repackinator.Shared
 {
-    public static class Repacker
+    public class Repacker
     {
-        private static FileStream? LogStream { get; set; }
+        public struct ProgressInfo
+        {
 
-        private static string? TempFolder { get; set; }
+        }
 
-        private static string? SevenZipFile { get; set; }
+        private Action<string>? Logger { get; set; }
 
-        private static GameData[]? GameDataList { get; set; }
+        private Action<ProgressInfo>? Progress { get; set; }
+
+        private string? TempFolder { get; set; }
+
+        private string? SevenZipFile { get; set; }
+
+        private GameData[]? GameDataList { get; set; }
 
         public enum GroupingEnum
         {
@@ -26,18 +33,16 @@ namespace Repackinator.Shared
             LetterRegion
         }
 
-        private static void Log(string message)
-        {
-            Console.WriteLine(message);
-            if (LogStream == null)
+        private void Log(string message)
+        {            
+            if (Logger == null)
             {
                 return;
             }
-            var bytes = Encoding.UTF8.GetBytes(message);
-            LogStream.Write(bytes);
+            Logger(message);            
         }
 
-        private static void ProcessFile(string inputFile, string outputPath, GroupingEnum grouping, bool alternate)
+        private void ProcessFile(string inputFile, string outputPath, GroupingEnum grouping, bool alternate)
         {
             if (TempFolder == null)
             {
@@ -334,17 +339,12 @@ namespace Repackinator.Shared
             }
         }
 
-        public static void StartConversion(string input, string output, string temp, GroupingEnum grouping, bool alternate, string log)
+        public void StartConversion(string input, string output, string temp, GroupingEnum grouping, bool alternate, Action<ProgressInfo>? progress, Action<string> logger)
         {
-            FileStream? logStream = null;
-
             try
-            {
-                if (!string.IsNullOrEmpty(log))
-                {
-                    LogStream = File.OpenWrite(log);
-                }
-                
+            {               
+                Logger = logger;
+
                 GameDataList = GameData.LoadGameData();
                 if (GameDataList == null)
                 {
@@ -371,15 +371,11 @@ namespace Repackinator.Shared
                 {
                     ProcessFile(file, output, grouping, alternate);                    
                 }
-            } 
-            finally
-            {
-                if (logStream != null)
-                {
-                    logStream.Dispose();
-                }
             }
-
+            catch (Exception ex)
+            {
+                logger($"Error: {ex}");
+            }
         }
     }
 }
