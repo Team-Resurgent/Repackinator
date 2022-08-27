@@ -462,8 +462,11 @@ namespace RepackinatorUI
             ImGui.SetCursorPosX(125);
             ImGui.PushItemWidth(400);
             string inputPath = m_config.InputPath;
-            ImGui.InputText("##inputFolder", ref inputPath, 260);
-            m_config.InputPath = inputPath;
+            if (ImGui.InputText("##inputFolder", ref inputPath, 260))
+            {
+                m_config.InputPath = inputPath;
+                Config.SaveConfig(m_config);
+            }
             ImGui.PopItemWidth();
             ImGui.SameLine();
             if (ImGui.Button("...##inputPicker", new Vector2(30, 21)))
@@ -476,8 +479,11 @@ namespace RepackinatorUI
             ImGui.SetCursorPosX(125);
             ImGui.PushItemWidth(400);
             string outputPath = m_config.OutputPath;
-            ImGui.InputText("##outputFolder", ref outputPath, 260);
-            m_config.OutputPath = outputPath;
+            if (ImGui.InputText("##outputFolder", ref outputPath, 260))
+            {
+                m_config.OutputPath = outputPath;
+                Config.SaveConfig(m_config);
+            }
             ImGui.PopItemWidth();
             ImGui.SameLine();
             if (ImGui.Button("...##outputPicker", new Vector2(30, 21)))
@@ -490,8 +496,11 @@ namespace RepackinatorUI
             ImGui.SetCursorPosX(125);
             ImGui.PushItemWidth(400);
             string tempPath = m_config.TempPath;
-            ImGui.InputText("##tenpFolder", ref tempPath, 260);
-            m_config.TempPath = tempPath; 
+            if (ImGui.InputText("##tenpFolder", ref tempPath, 260))
+            {
+                m_config.TempPath = tempPath;
+                Config.SaveConfig(m_config);
+            }            
             ImGui.PopItemWidth();
             ImGui.SameLine();
             if (ImGui.Button("...##tenpPicker", new Vector2(30, 21)))
