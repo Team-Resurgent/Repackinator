@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Repackinator.Shared;
+using static Repackinator.Shared.Repacker;
 
 namespace RepackinatorUI
 {
@@ -10,6 +11,8 @@ namespace RepackinatorUI
         public string OutputPath { get; set; } = string.Empty;
         
         public string TempPath { get; set; } = Path.GetTempPath();
+
+        public GroupingEnum Grouping { get; set; } = GroupingEnum.None;
 
         public bool Alternative { get; set; } = false;
 
