@@ -1,9 +1,7 @@
 ﻿using ImGuiNET;
 using Repackinator.Shared;
-using System;
 using System.Numerics;
 using System.Reflection;
-using System.Reflection.PortableExecutable;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Veldrid;
@@ -29,6 +27,7 @@ namespace RepackinatorUI
         private ResourceSet? _fontTextureResourceSet;
 
         private IntPtr _fontAtlasID = (IntPtr)1;
+        private IntPtr _iniNamePtr = IntPtr.Zero;
         private bool _controlDown;
         private bool _shiftDown;
         private bool _altDown;
@@ -78,7 +77,7 @@ namespace RepackinatorUI
             ImGuiNative.ImFontConfig_destroy(nativeConfig);
         }
 
-        public ImGuiController(GraphicsDevice gd, OutputDescription outputDescription, int width, int height)
+        public unsafe ImGuiController(GraphicsDevice gd, OutputDescription outputDescription, int width, int height)
         {
             _gd = gd;
             _windowWidth = width;
@@ -88,6 +87,9 @@ namespace RepackinatorUI
             ImGui.SetCurrentContext(context);
 
             CreateFont(15.0f);
+
+            _iniNamePtr = Marshal.StringToCoTaskMemUTF8("settings.ini");
+            ImGui.GetIO().NativePtr->IniFilename = (byte*)_iniNamePtr;
 
             ImGui.GetIO().BackendFlags |= ImGuiBackendFlags.RendererHasVtxOffset;
 
@@ -250,9 +252,13 @@ namespace RepackinatorUI
             {
                 return Array.Empty<byte>();
             }
-            using Stream s = assembly.GetManifestResourceStream(resourceName);
-            byte[] ret = new byte[s.Length];
-            s.Read(ret, 0, (int)s.Length);
+            using Stream? stream = assembly.GetManifestResourceStream(resourceName);
+            if (stream == null)
+            {
+                return Array.Empty<byte>();
+            }
+            byte[] ret = new byte[stream.Length];
+            stream.Read(ret, 0, (int)stream.Length);
             return ret;
         }
 
@@ -527,6 +533,8 @@ namespace RepackinatorUI
             {
                 resource.Dispose();
             }
+
+            Marshal.ZeroFreeCoTaskMemUTF8(_iniNamePtr);
         }
 
         private struct ResourceSetInfo
