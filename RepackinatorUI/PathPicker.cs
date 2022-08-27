@@ -28,17 +28,17 @@ namespace RepackinatorUI
 
         public PickerMode Mode { get; set; }
 
-        private string _selectedFolder;
+        private string _selectedFolder = string.Empty;
         public string SelectedFolder
         {
             get => _selectedFolder;
             set => _selectedFolder = value;
         }
 
-        public string SelectedFile { get; private set; }
-        public bool Cancelled { get; private set; }
-        public string[] AllowedFiles { get; set; }
-        public bool ShowHidden { get; set; }
+        public string SelectedFile { get; private set; } = string.Empty;
+        public bool Cancelled { get; private set; } = false;
+        public string[] AllowedFiles { get; set; } = Array.Empty<string>();
+        public bool ShowHidden { get; set; } = false;
 
         public void ShowModal(string path)
         {
