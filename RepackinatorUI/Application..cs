@@ -9,6 +9,7 @@ using System.Text;
 using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
+using static Repackinator.Shared.Repacker;
 
 namespace RepackinatorUI
 {
@@ -248,7 +249,7 @@ namespace RepackinatorUI
             const int MyItemColumnID_IsoNameAlt = 9;
 
             ImGuiTableFlags flags = ImGuiTableFlags.Resizable | ImGuiTableFlags.Borders | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable | ImGuiTableFlags.Sortable | ImGuiTableFlags.ScrollX | ImGuiTableFlags.ScrollY | ImGuiTableFlags.RowBg;
-            if (ImGui.BeginTable("table_sorting", 10, flags, new Vector2(0.0f, m_window.Height - 240), 0.0f))
+            if (ImGui.BeginTable("table_sorting", 10, flags, new Vector2(0.0f, m_window.Height - 260), 0.0f))
             {
                 ImGui.TableSetupColumn("Process", ImGuiTableColumnFlags.WidthFixed, 75.0f, MyItemColumnID_Process);
                 ImGui.TableSetupColumn("Title ID", ImGuiTableColumnFlags.WidthFixed, 75.0f, MyItemColumnID_TitleID);
@@ -447,6 +448,20 @@ namespace RepackinatorUI
 
             ImGui.Spacing();
 
+            string[] groupingItems = new string[] { "None", "Region", "Letter", "Region Letter", "Letter Region" };
+
+            ImGui.Text("Grouping Selection:");
+            ImGui.SameLine();
+            ImGui.SetCursorPosX(125);
+            ImGui.PushItemWidth(100);
+            int grouping = (int)m_config.Grouping;
+            if (ImGui.Combo("##groupingField", ref grouping, groupingItems, groupingItems.Length))
+            {
+                m_config.Grouping = (GroupingEnum)grouping;
+                Config.SaveConfig(m_config);
+            }
+            ImGui.PopItemWidth();
+
             ImGui.Text("Use Alternate:");
             ImGui.SameLine();
             ImGui.SetCursorPosX(125);
@@ -542,7 +557,7 @@ namespace RepackinatorUI
                 }
                 else
                 {
-                    m_repackDialog.ShowModal();
+                    m_repackDialog.ShowModal(m_config);
                 }
             }
 

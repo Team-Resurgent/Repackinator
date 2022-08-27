@@ -1,5 +1,7 @@
 ﻿using System.Numerics;
 using ImGuiNET;
+using Repackinator.Shared;
+using SharpDX.DXGI;
 
 namespace RepackinatorUI
 {
@@ -10,13 +12,15 @@ namespace RepackinatorUI
         private string _progress2Text = string.Empty;
         private float _progress2 = 0f;
         private string _log = string.Empty;
+        private Config? _config;
 
         private bool _showModal;
         private bool _open;
         private bool _completed;
 
-        public void ShowModal()
+        public void ShowModal(Config config)
         {
+            _config = config;
             _showModal = true;
         }
 
@@ -28,7 +32,17 @@ namespace RepackinatorUI
 
         void Repack()
         {
-            _log += "Dropping the F Bomn\n";
+            if (_config == null)
+            {
+                _log = "Error: Unable to repack due to null config.";
+                _completed = true;
+                return;
+            }
+
+            var repacker = new Repacker();
+           // repacker.StartConversion(_config.InputPath, _config.OutputPath, _config.TempPath, groupingValue, _config.Alternative, null, logger);
+
+            _log += "Dropping the F Bomb\n";
             for (int i = 0; i <= 1000; i++)
             {
                 _progress1Text = $"Processing {i} of 1000";
