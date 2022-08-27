@@ -5,8 +5,15 @@ namespace RepackinatorUI
 {
     public class RepackDialog
     {
+        private string _progress1Text = string.Empty;
+        private float _progress1 = 0f;
+        private string _progress2Text = string.Empty;
+        private float _progress2 = 0f;
+        private string _log = string.Empty;
+
         private bool _showModal;
         private bool _open;
+        private bool _completed;
 
         public void ShowModal()
         {
@@ -19,11 +26,45 @@ namespace RepackinatorUI
             ImGui.CloseCurrentPopup();
         }
 
+        void Repack()
+        {
+            _log += "Dropping the F Bomn\n";
+            for (int i = 0; i <= 1000; i++)
+            {
+                _progress1Text = $"Processing {i} of 1000";
+                _progress1 = i / 1000.0f;
+                Thread.Sleep(1);
+            }
+
+            _log += "Calculating Meaning of Life\n";
+            for (int i = 0; i <= 1000; i++)
+            {
+                _progress2Text = $"Spliiting DVD {i / 10}%%";
+                _progress2 = i / 1000.0f;
+                Thread.Sleep(1);
+            }
+
+            _log += "Done\n";
+            _completed = true;
+        }
+
         public bool Render()
         {
             if (_showModal)
             {
                 _showModal = false;
+
+                _completed = false;
+                _progress1Text = string.Empty;
+                _progress1 = 0;
+                _progress2Text = string.Empty;
+                _progress2 = 0;
+
+                _log = string.Empty; 
+
+                var repackThread = new Thread(Repack);
+                repackThread.Start();
+
                 _open = true;
                 ImGui.OpenPopup("Repacking");
             }
@@ -46,18 +87,17 @@ namespace RepackinatorUI
                 ImGui.SetWindowSize(new Vector2(500, 300));
             }
 
-            string repackLog = "Log";
-            ImGui.Text("Processing 1 of 1000");
-            ImGui.ProgressBar(0.5f, new Vector2(484, 20));
+            ImGui.Text(_progress1Text);
+            ImGui.ProgressBar(_progress1, new Vector2(484, 20));
             ImGui.Spacing();
-            ImGui.Text("Spliiting DVD");
-            ImGui.ProgressBar(0.25f, new Vector2(484, 20));
+            ImGui.Text(_progress2Text);
+            ImGui.ProgressBar(_progress2, new Vector2(484, 20));
             ImGui.Spacing();
-            ImGui.InputTextMultiline("##reoackLog", ref repackLog, (uint)repackLog.Length, new Vector2(484, 125), ImGuiInputTextFlags.ReadOnly);
+            ImGui.InputTextMultiline("##reoackLog", ref _log, (uint)_log.Length, new Vector2(484, 125), ImGuiInputTextFlags.ReadOnly);
             
             ImGui.SetCursorPosY(300 - 40);
 
-            if (ImGui.Button("Cancel", new Vector2(100, 30)))
+            if (ImGui.Button(_completed ? "Close" : "Cancel", new Vector2(100, 30)))
             {
                 result = true;
                 CloseModal();
