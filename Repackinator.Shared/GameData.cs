@@ -35,28 +35,6 @@ namespace Repackinator.Shared
         [JsonProperty("Process")]
         public string? Process { get; set; }
 
-        public static GameData[]? LoadGameData(string path)
-        {
-            var gameDataJson = File.ReadAllText(path);
-            var result = JsonConvert.DeserializeObject<GameData[]>(gameDataJson);           
-            return result;
-        }
 
-        public static GameData[]? LoadGameData()
-        {
-            var applicationPath = Utility.GetApplicationPath();
-            if (applicationPath == null)
-            {
-                return null;
-            }
-
-            var repackListPath = Path.Combine(applicationPath, "RepackList.json");
-            if (!File.Exists(repackListPath))
-            {
-                return null;
-            }
-
-            return LoadGameData(repackListPath);
-        }
     }
 }

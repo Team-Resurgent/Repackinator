@@ -346,7 +346,7 @@ namespace Repackinator.Shared
             {               
                 Logger = logger;
 
-                GameDataList = GameData.LoadGameData();
+                GameDataList = GameDataHelper.LoadGameData();
                 if (GameDataList == null)
                 {
                     Log("Error: RepackList.json not found.");

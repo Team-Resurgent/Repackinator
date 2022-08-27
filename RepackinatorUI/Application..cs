@@ -22,16 +22,15 @@ namespace RepackinatorUI
         private PathPicker? m_inputFolderPicker;
         private PathPicker? m_outputFolderPicker;
         private PathPicker? m_tempFolderPicker;
-        
+        private OkDialog? m_okDialog;
+        private RepackDialog? m_repackDialog;
+        private Config m_config = new Config();
+
         private int m_searchField;
         private string? m_searchText;
         private int m_processField;
         private bool m_showInvalid;
-        private bool m_alternate;
-        private string? m_inputFolder;
-        private string? m_outputFolder;
-        private string? m_tempFolder;
-
+        
         private bool IsFiltered(int index)
         {
             if (string.IsNullOrEmpty(m_searchText) || m_gameDataList == null || m_gameDataList[index] == null)
@@ -129,13 +128,14 @@ namespace RepackinatorUI
                 Mode = PathPicker.PickerMode.Folder
             };
 
-            m_showInvalid = false; 
-            m_alternate = false;
-            m_inputFolder = string.Empty;
-            m_outputFolder = string.Empty;
-            m_tempFolder = System.IO.Path.GetTempPath();
+            m_okDialog = new OkDialog();
+            m_repackDialog = new RepackDialog();
 
-            m_gameDataList = GameData.LoadGameData();
+            m_showInvalid = false;
+
+            m_config = Config.LoadConfig();
+          
+            m_gameDataList = GameDataHelper.LoadGameData();
             if (m_gameDataList == null)
             {
                 return;
@@ -178,25 +178,38 @@ namespace RepackinatorUI
 
         private void RenderUI()
         {
-            if (m_window == null || m_inputFolderPicker == null || m_outputFolderPicker == null || m_tempFolderPicker == null || m_searchText == null || m_gameDataList == null || m_inputFolder == null || m_outputFolder == null || m_tempFolder == null)
+            if (m_window == null || 
+                m_inputFolderPicker == null || 
+                m_outputFolderPicker == null || 
+                m_tempFolderPicker == null || 
+                m_okDialog == null || 
+                m_repackDialog == null || 
+                m_searchText == null || 
+                m_gameDataList == null)
             {
                 return;
             }
 
             if (m_inputFolderPicker.Render() && !m_inputFolderPicker.Cancelled)
             {
-                m_inputFolder = m_inputFolderPicker.SelectedFolder;
+                m_config.InputPath = m_inputFolderPicker.SelectedFolder;
+                Config.SaveConfig(m_config);
             }
 
             if (m_outputFolderPicker.Render() && !m_outputFolderPicker.Cancelled)
             {
-                m_outputFolder = m_outputFolderPicker.SelectedFolder;
+                m_config.OutputPath = m_outputFolderPicker.SelectedFolder;
+                Config.SaveConfig(m_config);
             }
 
             if (m_tempFolderPicker.Render() && !m_tempFolderPicker.Cancelled)
             {
-                m_tempFolder = m_tempFolderPicker.SelectedFolder;
+                m_config.TempPath = m_tempFolderPicker.SelectedFolder;
+                Config.SaveConfig(m_config);
             }
+
+            m_okDialog.Render();     
+            m_repackDialog.Render();
 
             ImGui.Begin("Main", ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize);
             ImGui.SetWindowSize(new Vector2(m_window.Width, m_window.Height));
@@ -432,29 +445,39 @@ namespace RepackinatorUI
             }
             ImGui.PopItemWidth();
 
+            ImGui.Spacing();
+
             ImGui.Text("Use Alternate:");
             ImGui.SameLine();
             ImGui.SetCursorPosX(125);
-            ImGui.Checkbox($"##alternate", ref m_alternate);
+            bool alternative = m_config.Alternative;
+            if (ImGui.Checkbox($"##alternate", ref alternative))
+            {
+                m_config.Alternative = alternative;
+                Config.SaveConfig(m_config);
+            }
 
             ImGui.Text("Input Folder:");
             ImGui.SameLine();
             ImGui.SetCursorPosX(125);
             ImGui.PushItemWidth(400);
-            ImGui.InputText("##inputFolder", ref m_inputFolder, 260);
+            string inputPath = m_config.InputPath;
+            ImGui.InputText("##inputFolder", ref inputPath, 260);
+            m_config.InputPath = inputPath;
             ImGui.PopItemWidth();
             ImGui.SameLine();
             if (ImGui.Button("...##inputPicker", new Vector2(30, 21)))
             {
                 m_inputFolderPicker.ShowModal(Directory.GetCurrentDirectory());
-                
             }
 
             ImGui.Text("Output Folder:");
             ImGui.SameLine();
             ImGui.SetCursorPosX(125);
             ImGui.PushItemWidth(400);
-            ImGui.InputText("##outputFolder", ref m_outputFolder, 260);
+            string outputPath = m_config.OutputPath;
+            ImGui.InputText("##outputFolder", ref outputPath, 260);
+            m_config.OutputPath = outputPath;
             ImGui.PopItemWidth();
             ImGui.SameLine();
             if (ImGui.Button("...##outputPicker", new Vector2(30, 21)))
@@ -466,7 +489,9 @@ namespace RepackinatorUI
             ImGui.SameLine();
             ImGui.SetCursorPosX(125);
             ImGui.PushItemWidth(400);
-            ImGui.InputText("##tenpFolder", ref m_tempFolder, 260);
+            string tempPath = m_config.TempPath;
+            ImGui.InputText("##tenpFolder", ref tempPath, 260);
+            m_config.TempPath = tempPath; 
             ImGui.PopItemWidth();
             ImGui.SameLine();
             if (ImGui.Button("...##tenpPicker", new Vector2(30, 21)))
@@ -474,18 +499,42 @@ namespace RepackinatorUI
                 m_tempFolderPicker.ShowModal(Directory.GetCurrentDirectory());
             }
 
-            ImGui.Spacing();
+            ImGui.SetCursorPosY(m_window.Height - 40);
 
             if (ImGui.Button("Save Game Data", new Vector2(100, 30)))
             {
-                // m_filePicker.ShowModal(Directory.GetCurrentDirectory());
+                GameDataHelper.SaveGameData(m_gameDataList);
+                m_okDialog.Title = "Saved";
+                m_okDialog.Message = "Game data list has been saved.";
+                m_okDialog.ShowModal();
             }
 
             ImGui.SameLine();
 
             if (ImGui.Button("Process", new Vector2(100, 30)))
             {
-               // m_filePicker.ShowModal(Directory.GetCurrentDirectory());
+                //if (!Directory.Exists(m_inputFolder))
+                //{
+                //    m_okDialog.Title = "Error";
+                //    m_okDialog.Message = "Input folder is invalid.";
+                //    m_okDialog.ShowModal();
+                //}
+                //else if (!Directory.Exists(m_outputFolder))
+                //{
+                //    m_okDialog.Title = "Error";
+                //    m_okDialog.Message = "Output folder is invalid.";
+                //    m_okDialog.ShowModal();
+                //}
+                //else if (!Directory.Exists(m_tempFolder))
+                //{
+                //    m_okDialog.Title = "Error";
+                //    m_okDialog.Message = "Temp folder is invalid.";
+                //    m_okDialog.ShowModal();
+                //}
+                //else
+                {
+                    m_repackDialog.ShowModal();
+                }
             }
 
             var message = "Coded by EqUiNoX";
