@@ -522,25 +522,25 @@ namespace RepackinatorUI
 
             if (ImGui.Button("Process", new Vector2(100, 30)))
             {
-                //if (!Directory.Exists(m_inputFolder))
-                //{
-                //    m_okDialog.Title = "Error";
-                //    m_okDialog.Message = "Input folder is invalid.";
-                //    m_okDialog.ShowModal();
-                //}
-                //else if (!Directory.Exists(m_outputFolder))
-                //{
-                //    m_okDialog.Title = "Error";
-                //    m_okDialog.Message = "Output folder is invalid.";
-                //    m_okDialog.ShowModal();
-                //}
-                //else if (!Directory.Exists(m_tempFolder))
-                //{
-                //    m_okDialog.Title = "Error";
-                //    m_okDialog.Message = "Temp folder is invalid.";
-                //    m_okDialog.ShowModal();
-                //}
-                //else
+                if (!Directory.Exists(m_config.InputPath))
+                {
+                    m_okDialog.Title = "Error";
+                    m_okDialog.Message = "Input folder is invalid.";
+                    m_okDialog.ShowModal();
+                }
+                else if (!Directory.Exists(m_config.OutputPath))
+                {
+                    m_okDialog.Title = "Error";
+                    m_okDialog.Message = "Output folder is invalid.";
+                    m_okDialog.ShowModal();
+                }
+                else if (!Directory.Exists(m_config.TempPath))
+                {
+                    m_okDialog.Title = "Error";
+                    m_okDialog.Message = "Temp folder is invalid.";
+                    m_okDialog.ShowModal();
+                }
+                else
                 {
                     m_repackDialog.ShowModal();
                 }
