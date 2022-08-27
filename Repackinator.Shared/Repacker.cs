@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Text;
+using System.Threading;
 using Newtonsoft.Json;
 using Repackinator.Shared;
 using Resurgent.UtilityBelt.Library.Utilities;
@@ -9,14 +10,11 @@ namespace Repackinator.Shared
 {
     public class Repacker
     {
-        public struct ProgressInfo
-        {
-
-        }
-
         private Action<string>? Logger { get; set; }
 
         private Action<ProgressInfo>? Progress { get; set; }
+
+        private ProgressInfo CurrentProgress { get; set; } = new ProgressInfo();
 
         private string? TempFolder { get; set; }
 
@@ -24,13 +22,13 @@ namespace Repackinator.Shared
 
         private GameData[]? GameDataList { get; set; }
 
-        public enum GroupingEnum
+        private void SendProgress()
         {
-            None,
-            Region,
-            Letter,
-            RegionLetter,
-            LetterRegion
+            if (Progress == null)
+            {
+                return;
+            }
+            Progress(CurrentProgress);
         }
 
         private void Log(string message)
@@ -42,7 +40,7 @@ namespace Repackinator.Shared
             Logger(message);            
         }
 
-        private void ProcessFile(string inputFile, string outputPath, GroupingEnum grouping, bool alternate)
+        private void ProcessFile(string inputFile, string outputPath, GroupingEnum grouping, bool alternate, CancellationToken cancellationToken)
         {
             if (TempFolder == null)
             {
@@ -91,7 +89,6 @@ namespace Repackinator.Shared
                 var input = inputFile;
                 if (!extension.Equals(".iso"))
                 {
-
                     Log("Extracting Archive...");
                     var processList = new Process
                     {
@@ -327,7 +324,15 @@ namespace Repackinator.Shared
                 }
 
                 Log("Removing Video Partition & Splitting ISO...");
-                XisoUtility.Split($"{input}", Path.Combine(outputPath, xbeTitleAndFolderName), isoFileName, true);
+
+                var splitProgress = new Action<float>((progress) =>
+                {
+                    CurrentProgress.Progress2 = progress;
+                    CurrentProgress.Progress2Text = $"Splitting ISO...";
+                    SendProgress();
+                });
+
+                XisoUtility.Split($"{input}", Path.Combine(outputPath, xbeTitleAndFolderName), isoFileName, true, splitProgress, cancellationToken);
 
                 if (unpacked)
                 {
@@ -340,11 +345,12 @@ namespace Repackinator.Shared
             }
         }
 
-        public void StartConversion(string input, string output, string temp, GroupingEnum grouping, bool alternate, Action<ProgressInfo>? progress, Action<string> logger)
+        public void StartConversion(Config config, Action<ProgressInfo>? progress, Action<string> logger, CancellationToken cancellationToken)
         {
             try
             {               
                 Logger = logger;
+                Progress = progress;
 
                 GameDataList = GameDataHelper.LoadGameData();
                 if (GameDataList == null)
@@ -353,10 +359,10 @@ namespace Repackinator.Shared
                     return;
                 }
 
-                TempFolder = temp;
+                TempFolder = config.TempPath;
 
                 var sevenZipBytes = ResourceLoader.GetEmbeddedResourceBytes("7za.exe");
-                var sevenZipFile = Path.Combine(temp, "7za.exe");
+                var sevenZipFile = Path.Combine(config.TempPath, "7za.exe");
                 try
                 {
                     File.WriteAllBytes(sevenZipFile, sevenZipBytes);
@@ -366,11 +372,21 @@ namespace Repackinator.Shared
                     // do nothing
                 }
                 SevenZipFile = sevenZipFile;
+                
 
-                var files = Directory.GetFiles(input);                
-                foreach (var file in files)
+                var files = Directory.GetFiles(config.InputPath);
+                for (int i = 0; i < files.Length; i++)
                 {
-                    ProcessFile(file, output, grouping, alternate);                    
+                    string? file = files[i];
+                    CurrentProgress.Progress1 = (i + 1) / (float)files.Length;
+                    CurrentProgress.Progress1Text = $"Processing {i + 1} of {files.Length}";
+                    SendProgress();
+
+                    ProcessFile(file, config.OutputPath, config.Grouping, config.Alternative, cancellationToken);         
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        break;
+                    }
                 }
             }
             catch (Exception ex)

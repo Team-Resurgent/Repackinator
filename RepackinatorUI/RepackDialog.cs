@@ -1,7 +1,9 @@
 ﻿using System.Numerics;
+using System.Text;
 using ImGuiNET;
 using Repackinator.Shared;
 using SharpDX.DXGI;
+using SharpDX.Win32;
 
 namespace RepackinatorUI
 {
@@ -13,6 +15,7 @@ namespace RepackinatorUI
         private float _progress2 = 0f;
         private string _log = string.Empty;
         private Config? _config;
+        private CancellationTokenSource _cancellationTokenSource;
 
         private bool _showModal;
         private bool _open;
@@ -39,26 +42,24 @@ namespace RepackinatorUI
                 return;
             }
 
+            var logger = new Action<string>((message) =>
+            {
+                _log += $"{message}\n";
+            });
+
+            var progress = new Action<ProgressInfo>((progress) =>
+            {
+                _progress1 = progress.Progress1;
+                _progress1Text = progress.Progress1Text;
+                _progress2 = progress.Progress2;
+                _progress2Text = progress.Progress2Text;
+            });
+
+            _cancellationTokenSource = new CancellationTokenSource();
+
             var repacker = new Repacker();
-           // repacker.StartConversion(_config.InputPath, _config.OutputPath, _config.TempPath, groupingValue, _config.Alternative, null, logger);
+            repacker.StartConversion(_config, progress, logger, _cancellationTokenSource.Token);
 
-            _log += "Dropping the F Bomb\n";
-            for (int i = 0; i <= 1000; i++)
-            {
-                _progress1Text = $"Processing {i} of 1000";
-                _progress1 = i / 1000.0f;
-                Thread.Sleep(1);
-            }
-
-            _log += "Calculating Meaning of Life\n";
-            for (int i = 0; i <= 1000; i++)
-            {
-                _progress2Text = $"Spliiting DVD {i / 10}%%";
-                _progress2 = i / 1000.0f;
-                Thread.Sleep(1);
-            }
-
-            _log += "Done\n";
             _completed = true;
         }
 
@@ -111,10 +112,17 @@ namespace RepackinatorUI
             
             ImGui.SetCursorPosY(300 - 40);
 
-            if (ImGui.Button(_completed ? "Close" : "Cancel", new Vector2(100, 30)))
+            if (ImGui.Button(_completed ? "Close" : (_cancellationTokenSource.IsCancellationRequested ? "Cancelling..." : "Cancel"), new Vector2(100, 30)))
             {
-                result = true;
-                CloseModal();
+                if (!_completed)
+                {
+                    _cancellationTokenSource.Cancel();
+                }
+                else
+                {
+                    result = true;
+                    CloseModal();
+                }
             }
             ImGui.EndPopup();
 

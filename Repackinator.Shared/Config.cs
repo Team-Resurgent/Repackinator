@@ -1,9 +1,16 @@
 ﻿using Newtonsoft.Json;
-using Repackinator.Shared;
-using static Repackinator.Shared.Repacker;
 
-namespace RepackinatorUI
+namespace Repackinator.Shared
 {
+    public enum GroupingEnum
+    {
+        None,
+        Region,
+        Letter,
+        RegionLetter,
+        LetterRegion
+    }
+
     public class Config
     {
         public string InputPath { get; set; } = string.Empty;

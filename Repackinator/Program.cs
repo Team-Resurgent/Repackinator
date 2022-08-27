@@ -180,23 +180,23 @@ try
 
     var alternateValue = alternate.Equals("YES");
 
-    var groupingValue = Repacker.GroupingEnum.None;
+    var groupingValue = GroupingEnum.None;
 
     if (string.Equals(grouping, "REGION"))
     {
-        groupingValue = Repacker.GroupingEnum.Region;
+        groupingValue = GroupingEnum.Region;
     }
     else if (string.Equals(grouping, "LETTER"))
     {
-        groupingValue = Repacker.GroupingEnum.Letter;
+        groupingValue = GroupingEnum.Letter;
     }
     else if (string.Equals(grouping, "REGIONLETTER"))
     {
-        groupingValue = Repacker.GroupingEnum.RegionLetter;
+        groupingValue = GroupingEnum.RegionLetter;
     }
     else if (string.Equals(grouping, "LETTERREGION"))
     {
-        groupingValue = Repacker.GroupingEnum.LetterRegion;
+        groupingValue = GroupingEnum.LetterRegion;
     }
 
     FileStream? logStream = null;
@@ -216,8 +216,19 @@ try
         logStream.Write(bytes);
     });
 
+    var config = new Config
+    {
+        InputPath = input,
+        OutputPath = output,
+        TempPath = temp,
+        Grouping = groupingValue,
+        Alternative = alternateValue
+    };
+
+    var cancellationTokenSource = new CancellationTokenSource();
+
     var repacker = new Repacker();
-    repacker.StartConversion(input, output, temp, groupingValue, alternateValue, null, logger);
+    repacker.StartConversion(config, null, logger, cancellationTokenSource.Token);
 
     if (logStream != null)
     {

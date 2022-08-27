@@ -121,7 +121,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             return false;
         }
 
-        public static bool Split(string input, string outputPath, string isoname, bool removeVideoPartition)
+        public static bool Split(string input, string outputPath, string isoname, bool removeVideoPartition, Action<float>? progress, CancellationToken cancellationToken)
         {
             using var fs = new FileStream(input, FileMode.Open, FileAccess.Read);
             fs.Seek(0, SeekOrigin.End);
@@ -158,6 +158,14 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             var bytesRead = 0L;
             while (bytesRead < (fileLength - skipSize))
             {
+                if (progress != null)
+                {
+                    progress((bytesRead + 1) / (float)(fileLength - skipSize));
+                }
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    break;
+                }
                 if (bytesRead % sectorSplit == 0)
                 {
                     part++;
