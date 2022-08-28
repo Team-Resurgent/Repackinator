@@ -94,17 +94,21 @@ namespace Repackinator.Shared
                                     continue;
                                 }
                                 input = Path.Combine(unpackPath, "unpacked.iso");
-                                using var fileStream = new FileStream(input, FileMode.Create);
-
-                                var extractProgress = new Action<float>((progress) =>
+                                using (var fileStream = new FileStream(input, FileMode.Create))
                                 {
-                                    CurrentProgress.Progress2 = progress;
-                                    CurrentProgress.Progress2Text = $"Extracting ISO...";
-                                    SendProgress();
-                                });
 
-                                using var progrtessStream = new ProgressStream(fileStream, (long)entry.Size, extractProgress);
-                                entry.Extract(progrtessStream);
+                                    var extractProgress = new Action<float>((progress) =>
+                                    {
+                                        CurrentProgress.Progress2 = progress;
+                                        CurrentProgress.Progress2Text = $"Extracting ISO...";
+                                        SendProgress();
+                                    });
+
+                                    using (var progrtessStream = new ProgressStream(fileStream, (long)entry.Size, extractProgress))
+                                    {
+                                        entry.Extract(progrtessStream);
+                                    }
+                                }
                             }
                         }
                     } 
@@ -307,6 +311,9 @@ namespace Repackinator.Shared
 
                 XisoUtility.Split($"{input}", Path.Combine(outputPath, xbeTitleAndFolderName), isoFileName, true, splitProgress, cancellationToken);
 
+                CurrentProgress.Progress2 = 1.0f;
+                SendProgress();
+
                 if (unpacked)
                 {
                     File.Delete(input);
@@ -348,6 +355,8 @@ namespace Repackinator.Shared
                         break;
                     }
                 }
+                CurrentProgress.Progress1 = 1.0f;                
+                SendProgress();
             }
             catch (Exception ex)
             {
