@@ -160,7 +160,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             {
                 if (progress != null)
                 {
-                    progress((bytesRead + 1) / (float)(fileLength - skipSize));
+                    progress(bytesRead / (float)(fileLength - skipSize));
                 }
                 if (cancellationToken.IsCancellationRequested)
                 {

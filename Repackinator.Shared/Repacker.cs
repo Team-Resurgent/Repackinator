@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Repackinator.Shared;
 using Resurgent.UtilityBelt.Library.Utilities;
 using Resurgent.UtilityBelt.Library.Utilities.XbeModels;
+using SevenZipExtractor;
 
 namespace Repackinator.Shared
 {
@@ -17,8 +18,6 @@ namespace Repackinator.Shared
         private ProgressInfo CurrentProgress { get; set; } = new ProgressInfo();
 
         private string? TempFolder { get; set; }
-
-        private string? SevenZipFile { get; set; }
 
         private GameData[]? GameDataList { get; set; }
 
@@ -48,12 +47,6 @@ namespace Repackinator.Shared
                 return;
             }
 
-            if (SevenZipFile == null)
-            {
-                Log($"Error: SevenZipFile should not be null.");
-                return;
-            }
-
             if (GameDataList == null)
             {
                 Log($"Error: GameData should not be null.");
@@ -71,7 +64,7 @@ namespace Repackinator.Shared
                 }
 
                 var extension = Path.GetExtension(inputFile).ToLower();
-                if (!extension.Equals(".iso") && !extension.Equals(".zip") && !extension.Equals(".iso"))
+                if (!extension.Equals(".iso") && !extension.Equals(".zip") && !extension.Equals(".7z") && !extension.Equals(".rar") && !extension.Equals(".iso"))
                 {
                     Log($"Skipping '{Path.GetFileName(inputFile)}' as unsupported extension.");
                     return;
@@ -90,56 +83,36 @@ namespace Repackinator.Shared
                 if (!extension.Equals(".iso"))
                 {
                     Log("Extracting Archive...");
-                    var processList = new Process
+                    try
                     {
-                        StartInfo = new ProcessStartInfo(SevenZipFile)
+                        using (ArchiveFile archiveFile = new ArchiveFile(inputFile))
                         {
-                            Arguments = $"-ba -slt l \"{inputFile}\"",
-                            UseShellExecute = false,
-                            RedirectStandardOutput = true
-                        },
-                    };
-                    processList.Start();
-                    var outputList = processList.StandardOutput.ReadToEnd();
-                    processList.WaitForExit();
-                    if (processList.ExitCode != 0)
-                    {
-                        Log("Error: failed to get archive info.");
-                        return;
-                    }
+                            foreach (Entry entry in archiveFile.Entries)
+                            {
+                                if (!Path.GetExtension(entry.FileName).Equals(".iso", StringComparison.CurrentCultureIgnoreCase))
+                                {
+                                    continue;
+                                }
+                                input = Path.Combine(unpackPath, "unpacked.iso");
+                                using var fileStream = new FileStream(input, FileMode.Create);
 
-                    input = $"{Path.GetFileNameWithoutExtension(inputFile)}.iso";
-                    var outputLines = outputList.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-                    foreach (var line in outputLines)
-                    {
-                        if (line.StartsWith("Path = "))
-                        {
-                            input = line.Substring(7);
-                            break;
+                                var extractProgress = new Action<float>((progress) =>
+                                {
+                                    CurrentProgress.Progress2 = progress;
+                                    CurrentProgress.Progress2Text = $"Extracting ISO...";
+                                    SendProgress();
+                                });
+
+                                using var progrtessStream = new ProgressStream(fileStream, (long)entry.Size, extractProgress);
+                                entry.Extract(progrtessStream);
+                            }
                         }
-                    }
-                    input = Path.Combine(unpackPath, input);
-
-                    using var process = new Process
-                    {
-                        StartInfo = new ProcessStartInfo(SevenZipFile)
-                        {
-                            Arguments = $"x -y -o\"{unpackPath}\" \"{inputFile}\"", //input file is the zip
-                            UseShellExecute = false,
-                            RedirectStandardOutput = true,
-                            RedirectStandardError = true
-                        },
-                    };
-                    process.Start();
-                    process.BeginErrorReadLine();
-                    process.BeginOutputReadLine();
-                    process.WaitForExit();
-                    if (process.ExitCode != 0)
+                    } 
+                    catch
                     {
                         Log("Error: failed to extract archive.");
                         return;
-                    }
-
+                    }                    
                     unpacked = true;
                 }
 
@@ -311,7 +284,7 @@ namespace Repackinator.Shared
                                                 
                 if (XbeUtility.ReplaceCertInfo(attach, xbeData, xbeTitleAndFolderName, out var patchedAttach) && patchedAttach != null)
                 {
-                    File.WriteAllBytes(Path.Combine(outputPath, isoFileName, "default.xbe"), patchedAttach);
+                    File.WriteAllBytes(Path.Combine(outputPath, xbeTitleAndFolderName, "default.xbe"), patchedAttach);
                 }
                 else
                 {
@@ -359,26 +332,13 @@ namespace Repackinator.Shared
                     return;
                 }
 
-                TempFolder = config.TempPath;
-
-                var sevenZipBytes = ResourceLoader.GetEmbeddedResourceBytes("7za.exe");
-                var sevenZipFile = Path.Combine(config.TempPath, "7za.exe");
-                try
-                {
-                    File.WriteAllBytes(sevenZipFile, sevenZipBytes);
-                }
-                catch
-                {
-                    // do nothing
-                }
-                SevenZipFile = sevenZipFile;
-                
+                TempFolder = config.TempPath;              
 
                 var files = Directory.GetFiles(config.InputPath);
                 for (int i = 0; i < files.Length; i++)
                 {
                     string? file = files[i];
-                    CurrentProgress.Progress1 = (i + 1) / (float)files.Length;
+                    CurrentProgress.Progress1 = i / (float)files.Length;
                     CurrentProgress.Progress1Text = $"Processing {i + 1} of {files.Length}";
                     SendProgress();
 

@@ -15,7 +15,7 @@ namespace RepackinatorUI
         private float _progress2 = 0f;
         private string _log = string.Empty;
         private Config? _config;
-        private CancellationTokenSource _cancellationTokenSource;
+        private CancellationTokenSource _cancellationTokenSource = new();
 
         private bool _showModal;
         private bool _open;
