@@ -82,7 +82,7 @@ namespace Repackinator.Shared
                 var input = inputFile;
                 if (!extension.Equals(".iso"))
                 {
-                    Log("Extracting Archive...");
+                    Log("Extracting ISO...");
                     try
                     {
                         using (ArchiveFile archiveFile = new ArchiveFile(inputFile))
