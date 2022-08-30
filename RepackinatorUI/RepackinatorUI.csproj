@@ -7,14 +7,18 @@
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 	<ApplicationIcon>..\Artwork\icon1.ico</ApplicationIcon>
+	<PublishReadyToRun>true</PublishReadyToRun>
+	<Platforms>AnyCPU;x86</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="Resources\ARIALUNI.TTF" />
+    <None Remove="Resources\NEWGEN.MOD" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\ARIALUNI.TTF" />
+    <EmbeddedResource Include="Resources\NEWGEN.MOD" />
     <EmbeddedResource Include="Shaders/GLSL/imgui-vertex.glsl" LogicalName="imgui-vertex.glsl" />
     <EmbeddedResource Include="Shaders/GLSL/imgui-frag.glsl" LogicalName="imgui-frag.glsl" />
     <EmbeddedResource Include="Shaders/HLSL/imgui-vertex.hlsl.bytes" LogicalName="imgui-vertex.hlsl.bytes" />
@@ -39,6 +43,18 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Repackinator.Shared\Repackinator.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="BassMOD.Net">
+      <HintPath>BassMOD.Net.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="BassMOD.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

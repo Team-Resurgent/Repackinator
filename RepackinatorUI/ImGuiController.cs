@@ -70,6 +70,7 @@ namespace RepackinatorUI
             }, GCHandleType.Pinned);
 
             ImGui.GetIO().Fonts.AddFontFromMemoryTTF(addressFontData, fontData.Length, fontSize, nativeConfig, glyphRangeHandle.AddrOfPinnedObject());
+
             pinnedFontData.Free();
             glyphRangeHandle.Free();
 

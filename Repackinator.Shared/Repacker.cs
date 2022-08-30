@@ -112,9 +112,9 @@ namespace Repackinator.Shared
                             }
                         }
                     } 
-                    catch
+                    catch (Exception ex)
                     {
-                        Log("Error: failed to extract archive.");
+                        Log($"Error: failed to extract archive - {ex}");
                         return;
                     }                    
                     unpacked = true;
