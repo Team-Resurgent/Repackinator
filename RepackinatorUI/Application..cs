@@ -24,6 +24,7 @@ namespace RepackinatorUI
         private PathPicker? m_outputFolderPicker;
         private PathPicker? m_tempFolderPicker;
         private OkDialog? m_okDialog;
+        private CreditsDialog? m_creditsDialog;
         private RepackDialog? m_repackDialog;
         private Config m_config = new Config();
 
@@ -130,6 +131,7 @@ namespace RepackinatorUI
             };
 
             m_okDialog = new OkDialog();
+            m_creditsDialog = new CreditsDialog();
             m_repackDialog = new RepackDialog();
 
             m_showInvalid = false;
@@ -183,7 +185,8 @@ namespace RepackinatorUI
                 m_inputFolderPicker == null || 
                 m_outputFolderPicker == null || 
                 m_tempFolderPicker == null || 
-                m_okDialog == null || 
+                m_okDialog == null ||
+                m_creditsDialog == null ||
                 m_repackDialog == null || 
                 m_searchText == null || 
                 m_gameDataList == null)
@@ -209,7 +212,8 @@ namespace RepackinatorUI
                 Config.SaveConfig(m_config);
             }
 
-            m_okDialog.Render();     
+            m_okDialog.Render();
+            m_creditsDialog.Render();
             m_repackDialog.Render();
 
             ImGui.Begin("Main", ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize);
@@ -561,10 +565,16 @@ namespace RepackinatorUI
                 }
             }
 
-            var message = "Coded by EqUiNoX";
+            var message = "Coded by EqUiNoX - Team Resurgent";
             var messageSize = ImGui.CalcTextSize(message);
             ImGui.SetCursorPos(new Vector2(m_window.Width - messageSize.X - 10, m_window.Height - messageSize.Y - 10));            
             ImGui.Text(message);
+            ImGui.SetCursorPos(new Vector2(m_window.Width - messageSize.X - 10, m_window.Height - messageSize.Y - 10));
+            if (ImGui.InvisibleButton("##credits", messageSize))
+            {
+                m_creditsDialog.ShowModal();
+            }
+            
             ImGui.End();          
         }
     }
