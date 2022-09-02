@@ -452,7 +452,7 @@ namespace RepackinatorUI
 
             ImGui.Spacing();
 
-            string[] groupingItems = new string[] { "None", "Region", "Letter", "Region Letter", "Letter Region" };
+            string[] groupingItems = new string[] { "Default", "Region", "Letter", "Region Letter", "Letter Region" };
 
             ImGui.Text("Grouping Selection:");
             ImGui.SameLine();
