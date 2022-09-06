@@ -14,7 +14,7 @@ namespace RepackinatorUI
         private string _progress2Text = string.Empty;
         private float _progress2 = 0f;
         private string _log = string.Empty;
-        private Config? _config;
+        private Config _config;
         private CancellationTokenSource _cancellationTokenSource = new();
 
         private bool _showModal;
@@ -35,13 +35,6 @@ namespace RepackinatorUI
 
         void Repack()
         {
-            if (_config == null)
-            {
-                _log = "Error: Unable to repack due to null config.";
-                _completed = true;
-                return;
-            }
-
             var logger = new Action<LogMessage>((logMessage) =>
             {
                 var formattedTime = logMessage.Time.ToString("HH:mm:ss");

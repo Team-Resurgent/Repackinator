@@ -20,7 +20,6 @@ namespace RepackinatorUI
         private float charOffset = 0;
         private float scrollPos = 0;
         private float sin = 0;
-        private float sinOffset = 0;
 
         public void ShowModal()
         {
@@ -92,7 +91,7 @@ namespace RepackinatorUI
                 }
                 x += 10;
 
-                sin+=0.05f;
+                sin += 0.05f;
                 if (sin >= 360) 
                 {
                     sin = sin - 360;
@@ -105,7 +104,7 @@ namespace RepackinatorUI
             {
                 scrollPos = 0;
                 charOffset++;
-               if (charOffset == Message.Length)
+                if (charOffset == Message.Length)
                 {
                     charOffset = 0;
                 }

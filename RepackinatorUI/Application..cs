@@ -35,7 +35,7 @@ namespace RepackinatorUI
         
         private bool IsFiltered(int index)
         {
-            if (string.IsNullOrEmpty(m_searchText) || m_gameDataList == null || m_gameDataList[index] == null)
+            if (string.IsNullOrEmpty(m_searchText) || m_gameDataList == null)
             {
                 return false;
             }
@@ -79,7 +79,7 @@ namespace RepackinatorUI
 
         private bool IsValidRow(int index)
         {
-            if (string.IsNullOrEmpty(m_searchText) || m_gameDataList == null || m_gameDataList[index] == null)
+            if (string.IsNullOrEmpty(m_searchText) || m_gameDataList == null)
             {
                 return false;
             }
@@ -326,7 +326,7 @@ namespace RepackinatorUI
 
                     for (var i = 0; i < m_gameDataList.Length; i++)
                     {
-                        if (m_gameDataList[i] == null || IsFiltered(i))
+                        if (IsFiltered(i))
                         {
                             continue;
                         }
@@ -428,7 +428,7 @@ namespace RepackinatorUI
                 {
                     for (var i = 0; i < m_gameDataList.Length; i++)
                     {
-                        if (m_gameDataList[i] == null || IsFiltered(i))
+                        if (IsFiltered(i))
                         {
                             continue;
                         }
