@@ -153,26 +153,39 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
             fs.Position = skipSize;
 
-            byte[] buffer = new byte[2048];
-            var part = -1;
-            var bytesRead = 0L;
-            while (bytesRead < (fileLength - skipSize))
+            byte[] buffer = new byte[32768];
+
+            if (progress != null)
             {
-                if (progress != null)
-                {
-                    progress(bytesRead / (float)(fileLength - skipSize));
-                }
+                progress(0);
+            }
+
+            for (var i = 0; i < parts; i++)
+            {
                 if (cancellationToken.IsCancellationRequested)
                 {
                     break;
                 }
-                if (bytesRead % sectorSplit == 0)
+
+                var bytesRead = 0L;
+
+                while (bytesRead < sectorSplit)
                 {
-                    part++;
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        break;
+                    }
+                    var bytesToRead = (int)Math.Min(buffer.Length, sectorSplit - bytesRead); 
+                    var chunkRead = fs.Read(buffer, 0, bytesToRead);
+                    bytesRead += chunkRead;
+                    fileParts[i].Write(buffer, 0, chunkRead);
+
+                    if (progress != null)
+                    {
+                        progress((bytesRead + (i * sectorSplit)) / (float)(fileLength - skipSize));
+                    }
                 }
-                var read = fs.Read(buffer, 0, buffer.Length);
-                bytesRead += read;
-                fileParts[part].Write(buffer);
+
             }
 
             for (var i = 0; i < parts; i++)

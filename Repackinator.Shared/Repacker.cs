@@ -1,9 +1,4 @@
-﻿using System.Diagnostics;
-using System.Text;
-using System.Threading;
-using Newtonsoft.Json;
-using Repackinator.Shared;
-using Resurgent.UtilityBelt.Library.Utilities;
+﻿using Resurgent.UtilityBelt.Library.Utilities;
 using Resurgent.UtilityBelt.Library.Utilities.XbeModels;
 using SevenZipExtractor;
 
@@ -11,7 +6,7 @@ namespace Repackinator.Shared
 {
     public class Repacker
     {
-        private Action<string>? Logger { get; set; }
+        private Action<LogMessage>? Logger { get; set; }
 
         private Action<ProgressInfo>? Progress { get; set; }
 
@@ -30,26 +25,26 @@ namespace Repackinator.Shared
             Progress(CurrentProgress);
         }
 
-        private void Log(string message)
+        private void Log(LogMessageLevel level, string message)
         {            
             if (Logger == null)
             {
                 return;
             }
-            Logger(message);            
+            Logger(new LogMessage(level, message));            
         }
 
         private void ProcessFile(string inputFile, string outputPath, GroupingEnum grouping, bool alternate, CancellationToken cancellationToken)
         {
             if (TempFolder == null)
             {
-                Log($"Error: TempFolder should not be null.");
+                Log(LogMessageLevel.Error, "TempFolder should not be null.");
                 return;
             }
 
             if (GameDataList == null)
             {
-                Log($"Error: GameData should not be null.");
+                Log(LogMessageLevel.Error, "GameData should not be null.");
                 return;
             }
 
@@ -62,18 +57,18 @@ namespace Repackinator.Shared
             {
                 if (!File.Exists(inputFile))
                 {
-                    Log($"Skipping '{Path.GetFileName(inputFile)}' as does not exist.");
+                    Log(LogMessageLevel.Warning, $"Skipping '{Path.GetFileName(inputFile)}' as does not exist.");
                     return;
                 }
 
                 var extension = Path.GetExtension(inputFile).ToLower();
                 if (!extension.Equals(".iso") && !extension.Equals(".zip") && !extension.Equals(".7z") && !extension.Equals(".rar") && !extension.Equals(".iso"))
                 {
-                    Log($"Skipping '{Path.GetFileName(inputFile)}' as unsupported extension."); 
+                    Log(LogMessageLevel.Warning, $"Skipping '{Path.GetFileName(inputFile)}' as unsupported extension."); 
                     return;
                 }
 
-                Log($"Processing '{Path.GetFileName(inputFile)}'...");
+                Log(LogMessageLevel.Info, $"Processing '{Path.GetFileName(inputFile)}'...");
 
                 if (!Directory.Exists(unpackPath))
                 {
@@ -82,7 +77,7 @@ namespace Repackinator.Shared
 
                 if (!extension.Equals(".iso"))
                 {
-                    Log("Extracting ISO...");
+                    Log(LogMessageLevel.Info, "Extracting ISO...");
                     try
                     {
                         using (ArchiveFile archiveFile = new ArchiveFile(inputFile))
@@ -104,7 +99,7 @@ namespace Repackinator.Shared
                                         SendProgress();
                                     });
 
-                                    using (var progressStream = new ProgressStream(fileStream, (long)entry.Size, extractProgress))
+                                    using (var progressStream = new ProgressStream(fileStream, (long)entry.Size, true, extractProgress))
                                     {
                                         entry.Extract(progressStream);
                                     }
@@ -114,7 +109,7 @@ namespace Repackinator.Shared
                     } 
                     catch (Exception ex)
                     {
-                        Log($"Error: failed to extract archive - {ex}");
+                        Log(LogMessageLevel.Error, $"Failed to extract archive - {ex}");
                         return;
                     }                    
                     unpacked = true;
@@ -131,14 +126,14 @@ namespace Repackinator.Shared
                     }
                     else
                     {
-                        Log($"Error: Unable to extract default.xbe.");
+                        Log(LogMessageLevel.Error, "Unable to extract default.xbe.");
                         return;
                     }
                 }
 
                 if (!XbeUtility.TryGetXbeCert(xbeData, out var cert) || cert == null)
                 {
-                    Log($"Error: Unable to get data from default.xbe.");
+                    Log(LogMessageLevel.Error, $"Unable to get data from default.xbe.");
                     return;
                 }
 
@@ -167,48 +162,48 @@ namespace Repackinator.Shared
                 {
                     if (found)
                     {
-                        Log($"Skipping '{Path.GetFileName(inputFile)}' as requested to skip in dataset.");
+                        Log(LogMessageLevel.Warning, $"Skipping '{Path.GetFileName(inputFile)}' as requested to skip in dataset.");
                     }
                     else
                     {
-                        Log($"Skipping '{Path.GetFileName(inputFile)}' as titleid, region and version not found in dataset.");
+                        Log(LogMessageLevel.Warning, $"Skipping '{Path.GetFileName(inputFile)}' as titleid, region and version not found in dataset.");
                     }
                     return;
                 }
 
                 if (gameData.Region == null)
                 {
-                    Log($"Error: region is null in dataset.");
+                    Log(LogMessageLevel.Error, "Region is null in dataset.");
                     return;
                 }
 
                 if (gameData.XBETitleAndFolderName == null)
                 {
-                    Log($"Error: XBE title & folder name is null in dataset.");
+                    Log(LogMessageLevel.Error, "XBE title & folder name is null in dataset.");
                     return;
                 }
 
                 if (gameData.XBETitleAndFolderNameAlt == null)
                 {
-                    Log($"Error: XBE title & folder name alt is null in dataset.");
+                    Log(LogMessageLevel.Error, "XBE title & folder name alt is null in dataset.");
                     return;
                 }
 
                 if (gameData.ISOName == null)
                 {
-                    Log($"Error: ISO name is null in dataset.");
+                    Log(LogMessageLevel.Error, "ISO name is null in dataset.");
                     return;
                 }
 
                 if (gameData.ISONameAlt == null)
                 {
-                    Log($"Error: ISO name alt is null in dataset.");
+                    Log(LogMessageLevel.Error, "ISO name alt is null in dataset.");
                     return;
                 }
 
                 if (gameData.Letter == null)
                 {
-                    Log($"Error: Letter is null in dataset.");
+                    Log(LogMessageLevel.Error, "Letter is null in dataset.");
                     return;
                 }
 
@@ -229,6 +224,8 @@ namespace Repackinator.Shared
                     outputPath = Path.Combine(outputPath, gameData.Letter, gameData.Region);
                 }
 
+                processOutput = outputPath;
+
                 var xbeTitleAndFolderName = alternate ? gameData.XBETitleAndFolderNameAlt : gameData.XBETitleAndFolderName;
                 var isoFileName = alternate ? gameData.ISONameAlt : gameData.ISOName;
 
@@ -245,19 +242,19 @@ namespace Repackinator.Shared
                         }
                         if (!XbeUtility.TryReplaceXbeTitleImage(attach, jpgImage))
                         {
-                            Log($"Error: failed to replace image.");
+                            Log(LogMessageLevel.Error, "Failed to replace image.");
                             return;
                         }
                     }
                     else
                     {
-                        Log($"Error: failed to create png.");
+                        Log(LogMessageLevel.Error, "Failed to create png.");
                         return;
                     }
                 }
                 else
                 {
-                    Log($"Error: failed to extract xpr.");
+                    Log(LogMessageLevel.Error, "Failed to extract xpr.");
                     return;
                 }
                                                 
@@ -267,11 +264,11 @@ namespace Repackinator.Shared
                 }
                 else
                 {
-                    Log($"Error: failed creating attach xbe.");
+                    Log(LogMessageLevel.Error, "failed creating attach xbe.");
                     return;
                 }
 
-                Log("Removing Video Partition & Splitting ISO...");
+                Log(LogMessageLevel.Info, "Removing Video Partition & Splitting ISO...");
 
                 var splitProgress = new Action<float>((progress) =>
                 {
@@ -284,10 +281,12 @@ namespace Repackinator.Shared
 
                 CurrentProgress.Progress2 = 1.0f;
                 SendProgress();
+
+                Log(LogMessageLevel.Info, $"Completed Processing '{Path.GetFileName(inputFile)}'.");
             }
             catch (Exception ex)
             {
-                Log($"Error Processing '{inputFile}' with error '{ex}'.");
+                Log(LogMessageLevel.Error, $"Processing '{inputFile}' caused error '{ex}'.");
             }
             finally
             {
@@ -302,7 +301,7 @@ namespace Repackinator.Shared
             }
         }
 
-        public void StartConversion(Config config, Action<ProgressInfo>? progress, Action<string> logger, CancellationToken cancellationToken)
+        public void StartConversion(Config config, Action<ProgressInfo>? progress, Action<LogMessage> logger, CancellationToken cancellationToken)
         {
             try
             {               
@@ -312,7 +311,7 @@ namespace Repackinator.Shared
                 GameDataList = GameDataHelper.LoadGameData();
                 if (GameDataList == null)
                 {
-                    Log("Error: RepackList.json not found.");
+                    Log(LogMessageLevel.Error, "RepackList.json not found.");
                     return;
                 }
 
@@ -334,10 +333,12 @@ namespace Repackinator.Shared
                 }
                 CurrentProgress.Progress1 = 1.0f;                
                 SendProgress();
+
+                Log(LogMessageLevel.Info, "Completed Processing.");
             }
             catch (Exception ex)
             {
-                logger($"Error: {ex}");
+                Log(LogMessageLevel.Error, $"Exception occured '{ex}'.");
             }
         }
     }

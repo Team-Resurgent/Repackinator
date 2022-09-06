@@ -45,7 +45,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
             output = new byte[attach.Length];
             Array.Copy(attach, output, attach.Length);
-            Array.Copy(donor, donorCertAddress - donorBaseAddress, output, atatchCertAddress - atatchBaseAddress, 176);
+            Array.Copy(donor, donorCertAddress - donorBaseAddress, output, atatchCertAddress - atatchBaseAddress, Marshal.SizeOf(typeof(XbeCertificate)));
 
             return true;
         }

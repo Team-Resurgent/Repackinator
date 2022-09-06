@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json;
 
 namespace Repackinator.Shared
 {
@@ -26,7 +26,7 @@ namespace Repackinator.Shared
         public static Config LoadConfig(string path)
         {
             var configJson = File.ReadAllText(path);
-            var result = JsonConvert.DeserializeObject<Config>(configJson);
+            var result = JsonSerializer.Deserialize<Config>(configJson);
             return result ?? new Config();
         }
 
@@ -54,7 +54,7 @@ namespace Repackinator.Shared
                 return;
             }
 
-            var result = JsonConvert.SerializeObject(config);
+            var result = JsonSerializer.Serialize(config);
             File.WriteAllText(path, result);
         }
 

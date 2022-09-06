@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json;
 
 namespace Repackinator.Shared
 {
@@ -7,7 +7,7 @@ namespace Repackinator.Shared
         public static GameData[]? LoadGameData(string path)
         {
             var gameDataJson = File.ReadAllText(path);
-            var result = JsonConvert.DeserializeObject<GameData[]>(gameDataJson);
+            var result = JsonSerializer.Deserialize<GameData[]>(gameDataJson);
             return result;
         }
 
@@ -35,7 +35,8 @@ namespace Repackinator.Shared
                 return;
             }
 
-            var result = JsonConvert.SerializeObject(gameData);
+
+            var result = JsonSerializer.Serialize(gameData);
             File.WriteAllText(path, result);
         }
 
