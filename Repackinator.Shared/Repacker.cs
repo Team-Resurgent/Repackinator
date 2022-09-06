@@ -104,7 +104,7 @@ namespace Repackinator.Shared
                                         SendProgress();
                                     });
 
-                                    using (var progressStream = new ProgressStream(fileStream, (long)entry.Size, true, extractProgress))
+                                    using (var progressStream = new ProgressStream(fileStream, (long)entry.Size, extractProgress))
                                     {
                                         entry.Extract(progressStream);
                                     }
