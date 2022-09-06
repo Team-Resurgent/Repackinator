@@ -8,7 +8,6 @@
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 	<ApplicationIcon>..\Artwork\icon1.ico</ApplicationIcon>
 	<PublishReadyToRun>true</PublishReadyToRun>
-	<Platforms>AnyCPU;x86</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

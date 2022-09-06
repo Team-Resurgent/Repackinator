@@ -29,9 +29,12 @@ namespace RepackinatorUI
 
         private void CloseModal()
         {
-            BassMOD.BASSMOD_MusicStop();            
-            BassMOD.BASSMOD_MusicFree(_musicHandle);
-            BassMOD.BASSMOD_Free();
+            if (!Environment.Is64BitProcess)
+            {
+                BassMOD.BASSMOD_MusicStop();
+                BassMOD.BASSMOD_MusicFree(_musicHandle);
+                BassMOD.BASSMOD_Free();
+            }
 
             _open = false;
             ImGui.CloseCurrentPopup();
@@ -49,7 +52,7 @@ namespace RepackinatorUI
                 _showModal = false;
                 _open = true;
 
-                if (BassMOD.BASSMOD_Init(-1, 44100, BASSInit.BASS_DEVICE_DEFAULT))
+                if (!Environment.Is64BitProcess && BassMOD.BASSMOD_Init(-1, 44100, BASSInit.BASS_DEVICE_DEFAULT))
                 {
                     var modData = ResourceLoader.GetEmbeddedResourceBytes("NEWGEN.MOD", typeof(CreditsDialog).GetTypeInfo().Assembly);
                     _musicHandle = BassMOD.BASSMOD_MusicLoad(modData, 0, modData.Length, BASSMusic.BASS_DEFAULT);

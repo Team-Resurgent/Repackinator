@@ -9,13 +9,15 @@ namespace Repackinator.Shared
     public class ProgressStream : Stream
     {
         private Stream m_output;
-        private long m_length = 0;
+        private long m_length;
+        private bool m_removeVideoPartition;
         private Action<float> m_progress;
 
-        public ProgressStream(Stream output, long length, Action<float> progress)
+        public ProgressStream(Stream output, long length, bool removeVideoPartition, Action<float> progress)
         {
             m_output = output;
             m_length = length;
+            m_removeVideoPartition = removeVideoPartition; 
             m_progress = progress;
         }
 
@@ -33,8 +35,16 @@ namespace Repackinator.Shared
 
         public override void Write(byte[] buffer, int offset, int count)
         {
+            const long dvdSize = 7825162240;
+            long videoSize = 387 * 1024 * 1024;
+
+            long skipSize = (m_removeVideoPartition == true && m_length == dvdSize) ? videoSize : 0;
+            long realLength = m_length - skipSize;
+
+            //long sectorSplit = ((fileLength - skipSize) / 4096) * 2048;
+
             m_output.Write(buffer, offset, count);
-            m_progress(m_output.Position / (float)m_length);
+            m_progress(m_output.Position / (float)realLength);
         }
 
         public override long Seek(long offset, SeekOrigin origin)
@@ -47,10 +57,10 @@ namespace Repackinator.Shared
             m_output.SetLength(value);
         }
 
-        public override bool CanRead => true;
-        public override bool CanSeek => false;
-        public override bool CanWrite => false;
-        public override long Length => m_length;
+        public override bool CanRead => m_output.CanRead;
+        public override bool CanSeek => m_output.CanSeek;
+        public override bool CanWrite => m_output.CanWrite;
+        public override long Length => m_output.Length;
         public override long Position
         {
             get { return m_output.Position; }

@@ -1,38 +1,37 @@
-﻿using Newtonsoft.Json;
-using System.Text.RegularExpressions;
+﻿using System.Text.Json.Serialization;
 
 namespace Repackinator.Shared
 {
     public class GameData
     {
-        [JsonProperty("Title ID")]
+        [JsonPropertyName("Title ID")]
         public string? TitleID { get; set; }
 
-        [JsonProperty("Title Name")]
+        [JsonPropertyName("Title Name")]
         public string? TitleName { get; set; }
 
-        [JsonProperty("Version")]
+        [JsonPropertyName("Version")]
         public string? Version { get; set; }
 
-        [JsonProperty("Region")]
+        [JsonPropertyName("Region")]
         public string? Region { get; set; }
 
-        [JsonProperty("Letter")]
+        [JsonPropertyName("Letter")]
         public string? Letter { get; set; }
 
-        [JsonProperty("XBE Title & Folder Name")]
+        [JsonPropertyName("XBE Title & Folder Name")]
         public string? XBETitleAndFolderName { get; set; }
 
-        [JsonProperty("XBE Title & Folder Name Alt")]
+        [JsonPropertyName("XBE Title & Folder Name Alt")]
         public string? XBETitleAndFolderNameAlt { get; set; }
 
-        [JsonProperty("ISO Name")]
+        [JsonPropertyName("ISO Name")]
         public string? ISOName { get; set; }
 
-        [JsonProperty("ISO Name Alt")]
+        [JsonPropertyName("ISO Name Alt")]
         public string? ISONameAlt { get; set; }
 
-        [JsonProperty("Process")]
+        [JsonPropertyName("Process")]
         public string? Process { get; set; }
 
 

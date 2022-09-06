@@ -205,8 +205,10 @@ try
         logStream = File.OpenWrite(log);
     }
 
-    var logger = new Action<string>((message) =>
+    var logger = new Action<LogMessage>((logMessage) =>
     {
+        var formattedTime = logMessage.Time.ToString("HH:mm:ss");
+        var message = $"{formattedTime} {logMessage.Level} - {logMessage.Message}";
         Console.WriteLine(message);
         var bytes = Encoding.UTF8.GetBytes(message);
         if (logStream == null)
