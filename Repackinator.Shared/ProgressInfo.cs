@@ -1,13 +1,21 @@
 ﻿namespace Repackinator.Shared
 {
-    public class ProgressInfo
+    public struct ProgressInfo
     {
-        public float Progress1 { get; set; } = 0;
+        public float Progress1 { get; set; } 
 
-        public string Progress1Text { get; set; } = string.Empty;
+        public string Progress1Text { get; set; }
 
-        public float Progress2 { get; set; } = 0;
+        public float Progress2 { get; set; }
 
-        public string Progress2Text { get; set; } = string.Empty;
+        public string Progress2Text { get; set; }
+
+        public ProgressInfo()
+        {
+            Progress1 = 0;
+            Progress1Text = string.Empty;
+            Progress2 = 0;
+            Progress2Text = string.Empty;
+        }
     }
 }

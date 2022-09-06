@@ -10,7 +10,7 @@ namespace Repackinator.Shared
 
         private Action<ProgressInfo>? Progress { get; set; }
 
-        private ProgressInfo CurrentProgress { get; set; } = new ProgressInfo();
+        private ProgressInfo CurrentProgress = new ProgressInfo();
 
         private string? TempFolder { get; set; }
 
@@ -150,7 +150,7 @@ namespace Repackinator.Shared
                     if (game.TitleID == titleId && game.Region == gameRegion && game.Version == version)
                     {
                         found = true;
-                        if (game?.Process != null && game.Process.Equals("Y", StringComparison.CurrentCultureIgnoreCase))
+                        if (game.Process != null && game.Process.Equals("Y", StringComparison.CurrentCultureIgnoreCase))
                         {
                             gameData = game;
                         }
@@ -158,7 +158,7 @@ namespace Repackinator.Shared
                     }
                 } 
 
-                if (gameData == null)
+                if (!gameData.HasValue)
                 {
                     if (found)
                     {
@@ -171,37 +171,37 @@ namespace Repackinator.Shared
                     return;
                 }
 
-                if (gameData.Region == null)
+                if (gameData.Value.Region == null)
                 {
                     Log(LogMessageLevel.Error, "Region is null in dataset.");
                     return;
                 }
 
-                if (gameData.XBETitleAndFolderName == null)
+                if (gameData.Value.XBETitleAndFolderName == null)
                 {
                     Log(LogMessageLevel.Error, "XBE title & folder name is null in dataset.");
                     return;
                 }
 
-                if (gameData.XBETitleAndFolderNameAlt == null)
+                if (gameData.Value.XBETitleAndFolderNameAlt == null)
                 {
                     Log(LogMessageLevel.Error, "XBE title & folder name alt is null in dataset.");
                     return;
                 }
 
-                if (gameData.ISOName == null)
+                if (gameData.Value.ISOName == null)
                 {
                     Log(LogMessageLevel.Error, "ISO name is null in dataset.");
                     return;
                 }
 
-                if (gameData.ISONameAlt == null)
+                if (gameData.Value.ISONameAlt == null)
                 {
                     Log(LogMessageLevel.Error, "ISO name alt is null in dataset.");
                     return;
                 }
 
-                if (gameData.Letter == null)
+                if (gameData.Value.Letter == null)
                 {
                     Log(LogMessageLevel.Error, "Letter is null in dataset.");
                     return;
@@ -209,25 +209,25 @@ namespace Repackinator.Shared
 
                 if (grouping == GroupingEnum.Region)
                 {
-                    outputPath = Path.Combine(outputPath, gameData.Region);
+                    outputPath = Path.Combine(outputPath, gameData.Value.Region);
                 }
                 else if (grouping == GroupingEnum.Letter)
                 {
-                    outputPath = Path.Combine(outputPath, gameData.Letter);
+                    outputPath = Path.Combine(outputPath, gameData.Value.Letter);
                 }
                 else if (grouping == GroupingEnum.RegionLetter)
                 {
-                    outputPath = Path.Combine(outputPath, gameData.Region, gameData.Letter);
+                    outputPath = Path.Combine(outputPath, gameData.Value.Region, gameData.Value.Letter);
                 }
                 else if (grouping == GroupingEnum.LetterRegion)
                 {
-                    outputPath = Path.Combine(outputPath, gameData.Letter, gameData.Region);
+                    outputPath = Path.Combine(outputPath, gameData.Value.Letter, gameData.Value.Region);
                 }
 
                 processOutput = outputPath;
 
-                var xbeTitleAndFolderName = alternate ? gameData.XBETitleAndFolderNameAlt : gameData.XBETitleAndFolderName;
-                var isoFileName = alternate ? gameData.ISONameAlt : gameData.ISOName;
+                var xbeTitleAndFolderName = alternate ? gameData.Value.XBETitleAndFolderNameAlt : gameData.Value.XBETitleAndFolderName;
+                var isoFileName = alternate ? gameData.Value.ISONameAlt : gameData.Value.ISOName;
 
                 Directory.CreateDirectory(Path.Combine(processOutput, xbeTitleAndFolderName));
 
@@ -334,7 +334,7 @@ namespace Repackinator.Shared
                 CurrentProgress.Progress1 = 1.0f;                
                 SendProgress();
 
-                Log(LogMessageLevel.Info, "Completed Processing.");
+                Log(LogMessageLevel.Info, "Completed Processing List.");
             }
             catch (Exception ex)
             {

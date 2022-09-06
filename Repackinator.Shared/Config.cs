@@ -11,23 +11,32 @@ namespace Repackinator.Shared
         LetterRegion
     }
 
-    public class Config
+    public struct Config
     {
-        public string InputPath { get; set; } = string.Empty;
+        public string InputPath { get; set; } 
 
-        public string OutputPath { get; set; } = string.Empty;
-        
-        public string TempPath { get; set; } = Path.GetTempPath();
+        public string OutputPath { get; set; }
 
-        public GroupingEnum Grouping { get; set; } = GroupingEnum.None;
+        public string TempPath { get; set; } 
 
-        public bool Alternative { get; set; } = false;
+        public GroupingEnum Grouping { get; set; } 
+
+        public bool Alternative { get; set; } 
+
+        public Config()
+        {
+            InputPath = string.Empty;
+            OutputPath = string.Empty;
+            TempPath = Path.GetTempPath();
+            Grouping = GroupingEnum.None;
+            Alternative = false;
+        }
 
         public static Config LoadConfig(string path)
         {
             var configJson = File.ReadAllText(path);
             var result = JsonSerializer.Deserialize<Config>(configJson);
-            return result ?? new Config();
+            return result;
         }
 
         public static Config LoadConfig()
@@ -66,7 +75,7 @@ namespace Repackinator.Shared
                 return;
             }
 
-            var configPath = Path.Combine(applicationPath, "config.json");           
+            var configPath = Path.Combine(applicationPath, "config.json");
             SaveConfig(configPath, config);
         }
 

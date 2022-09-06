@@ -413,6 +413,12 @@ namespace RepackinatorUI
 
         private void RenderImDrawData(ImDrawDataPtr draw_data, GraphicsDevice gd, CommandList cl)
         {
+            if (_vertexBuffer == null ||
+                _indexBuffer == null)
+            {
+                return;
+            }
+
             uint vertexOffsetInVertices = 0;
             uint indexOffsetInElements = 0;
 
@@ -518,17 +524,17 @@ namespace RepackinatorUI
 
         public void Dispose()
         {
-            _vertexBuffer.Dispose();
-            _indexBuffer.Dispose();
-            _projMatrixBuffer.Dispose();
-            _fontTexture.Dispose();
-            _fontTextureView.Dispose();
-            _vertexShader.Dispose();
-            _fragmentShader.Dispose();
-            _layout.Dispose();
-            _textureLayout.Dispose();
-            _pipeline.Dispose();
-            _mainResourceSet.Dispose();
+            _vertexBuffer?.Dispose();
+            _indexBuffer?.Dispose();
+            _projMatrixBuffer?.Dispose();
+            _fontTexture?.Dispose();
+            _fontTextureView?.Dispose();
+            _vertexShader?.Dispose();
+            _fragmentShader?.Dispose();
+            _layout?.Dispose();
+            _textureLayout?.Dispose();
+            _pipeline?.Dispose();
+            _mainResourceSet?.Dispose();
 
             foreach (IDisposable resource in _ownedResources)
             {
