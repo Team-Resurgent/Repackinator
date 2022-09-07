@@ -1,10 +1,12 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using System.Reflection;
-using System.Threading.Channels;
 using ImGuiNET;
-using Un4seen.BassMOD;
 using Repackinator.Shared;
-using SharpDX.Direct3D11;
+using SharpMik.Player;
+using SharpMik.Drivers;
+using SharpMik;
+using System.Diagnostics;
 
 namespace RepackinatorUI
 {
@@ -12,7 +14,9 @@ namespace RepackinatorUI
     {
         private bool  _showModal;
         private bool _open;
-        private int _musicHandle;
+
+        MikModule? _module;
+        MikMod _player;
 
         public string Title { get; set; } = string.Empty;
 
@@ -21,6 +25,32 @@ namespace RepackinatorUI
         private float scrollPos = 0;
         private float sin = 0;
 
+        void PlayerStateChangeEvent(ModPlayer.PlayerState state)
+        {
+            if (_module == null || state != ModPlayer.PlayerState.kStopped)
+            {
+                return;
+            }
+            _player.Play(_module);
+        }
+
+
+        public CreditsDialog()
+        {
+            _player = new MikMod();
+            _player.PlayerStateChangeEvent += new ModPlayer.PlayerStateChangedEvent(PlayerStateChangeEvent);
+
+            ModDriver.Mode = (ushort)(ModDriver.Mode | SharpMikCommon.DMODE_NOISEREDUCTION);
+            try
+            {
+                _player.Init<NaudioDriver>("");
+            }
+            catch 
+            {
+                // do nothing
+            }
+        }
+
         public void ShowModal()
         {
             _showModal = true;
@@ -28,12 +58,8 @@ namespace RepackinatorUI
 
         private void CloseModal()
         {
-            if (!Environment.Is64BitProcess)
-            {
-                BassMOD.BASSMOD_MusicStop();
-                BassMOD.BASSMOD_MusicFree(_musicHandle);
-                BassMOD.BASSMOD_Free();
-            }
+            ModPlayer.Player_Stop();
+            ModDriver.MikMod_Exit();
 
             _open = false;
             ImGui.CloseCurrentPopup();
@@ -44,6 +70,20 @@ namespace RepackinatorUI
             return (Math.PI / 180) * angle;
         }
 
+        private void StartAudio()
+        {
+            var modStream = ResourceLoader.GetEmbeddedResourceStream("COMIC.MOD", typeof(CreditsDialog).GetTypeInfo().Assembly);
+            if (modStream != null)
+            {
+                _module = _player.LoadModule(modStream);
+                if (_module != null)
+                {
+                    _player.Play(_module);
+                }
+            }            
+
+        }
+
         public bool Render()
         {
             if (_showModal)
@@ -51,11 +91,14 @@ namespace RepackinatorUI
                 _showModal = false;
                 _open = true;
 
-                if (!Environment.Is64BitProcess && BassMOD.BASSMOD_Init(-1, 44100, BASSInit.BASS_DEVICE_DEFAULT))
+                var modStream = ResourceLoader.GetEmbeddedResourceStream("NEWGEN.MOD", typeof(CreditsDialog).GetTypeInfo().Assembly);
+                if (modStream != null)
                 {
-                    var modData = ResourceLoader.GetEmbeddedResourceBytes("NEWGEN.MOD", typeof(CreditsDialog).GetTypeInfo().Assembly);
-                    _musicHandle = BassMOD.BASSMOD_MusicLoad(modData, 0, modData.Length, BASSMusic.BASS_DEFAULT);
-                    BassMOD.BASSMOD_MusicPlay();
+                    _module = _player.LoadModule(modStream);
+                    if (_module != null)
+                    {
+                        _player.Play(_module);
+                    }
                 }
 
                 ImGui.OpenPopup(Title);
@@ -94,7 +137,7 @@ namespace RepackinatorUI
                 sin += 0.05f;
                 if (sin >= 360) 
                 {
-                    sin = sin - 360;
+                    sin -= 360;
                 }
                 y += 5;
             }

@@ -137,7 +137,6 @@ namespace Repackinator.Shared
                     return;
                 }
 
-                
                 var titleId = cert.Value.Title_Id.ToString("X2");
                 var gameRegion = XbeCertificate.GameRegionToString(cert.Value.Game_Region);
                 var version = cert.Value.Version.ToString("X2");
