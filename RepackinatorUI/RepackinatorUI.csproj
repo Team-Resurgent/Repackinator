@@ -42,16 +42,14 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Repackinator.Shared\Repackinator.Shared.csproj" />
+    <ProjectReference Include="..\SharpMikNAudio\SharpMikNAudio.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="BassMOD.Net">
-      <HintPath>BassMOD.Net.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="BassMOD.dll">
+	  <ItemGroup>	
+	  
+    <None Update="x64\OpenAL32.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="x86\OpenAL32.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
