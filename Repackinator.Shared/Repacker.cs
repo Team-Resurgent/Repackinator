@@ -80,6 +80,9 @@ namespace Repackinator.Shared
                     Log(LogMessageLevel.Info, "Extracting ISO...");
                     try
                     {
+                        unpacked = true;
+                        processInput = Path.Combine(unpackPath, "unpacked.iso");
+
                         using (ArchiveFile archiveFile = new ArchiveFile(inputFile))
                         {
                             foreach (Entry entry in archiveFile.Entries)
@@ -87,8 +90,7 @@ namespace Repackinator.Shared
                                 if (!Path.GetExtension(entry.FileName).Equals(".iso", StringComparison.CurrentCultureIgnoreCase))
                                 {
                                     continue;
-                                }
-                                processInput = Path.Combine(unpackPath, "unpacked.iso");
+                                }                                
                                 using (var fileStream = new FileStream(processInput, FileMode.Create))
                                 {
 
@@ -112,7 +114,6 @@ namespace Repackinator.Shared
                         Log(LogMessageLevel.Error, $"Failed to extract archive - {ex}");
                         return;
                     }                    
-                    unpacked = true;
                 }
 
                 var xbeData = Array.Empty<byte>();
@@ -223,12 +224,12 @@ namespace Repackinator.Shared
                     outputPath = Path.Combine(outputPath, gameData.Value.Letter, gameData.Value.Region);
                 }
 
-                processOutput = outputPath;
-
                 var xbeTitleAndFolderName = alternate ? gameData.Value.XBETitleAndFolderNameAlt : gameData.Value.XBETitleAndFolderName;
                 var isoFileName = alternate ? gameData.Value.ISONameAlt : gameData.Value.ISOName;
 
-                Directory.CreateDirectory(Path.Combine(processOutput, xbeTitleAndFolderName));
+                processOutput = Path.Combine(outputPath, xbeTitleAndFolderName);
+
+                Directory.CreateDirectory(processOutput);
 
                 var attach = ResourceLoader.GetEmbeddedResourceBytes("attach.xbe");
                 if (XbeUtility.TryGetXbeImage(xbeData, XbeUtility.ImageType.TitleImage, out var xprImage))
@@ -237,7 +238,7 @@ namespace Repackinator.Shared
                     {
                         if (jpgImage != null)
                         {
-                            File.WriteAllBytes(Path.Combine(processOutput, xbeTitleAndFolderName, "default.tbn"), jpgImage);
+                            File.WriteAllBytes(Path.Combine(processOutput, "default.tbn"), jpgImage);
                         }
                         if (!XbeUtility.TryReplaceXbeTitleImage(attach, jpgImage))
                         {
@@ -259,7 +260,7 @@ namespace Repackinator.Shared
                                                 
                 if (XbeUtility.ReplaceCertInfo(attach, xbeData, xbeTitleAndFolderName, out var patchedAttach) && patchedAttach != null)
                 {
-                    File.WriteAllBytes(Path.Combine(processOutput, xbeTitleAndFolderName, "default.xbe"), patchedAttach);
+                    File.WriteAllBytes(Path.Combine(processOutput, "default.xbe"), patchedAttach);
                 }
                 else
                 {
@@ -276,7 +277,7 @@ namespace Repackinator.Shared
                     SendProgress();
                 });
 
-                XisoUtility.Split($"{processInput}", Path.Combine(processOutput, xbeTitleAndFolderName), isoFileName, true, splitProgress, cancellationToken);
+                XisoUtility.Split($"{processInput}", processOutput, isoFileName, true, splitProgress, cancellationToken);
 
                 CurrentProgress.Progress2 = 1.0f;
                 SendProgress();

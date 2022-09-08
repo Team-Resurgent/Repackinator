@@ -28,6 +28,8 @@ namespace SharpMik.Player
 
         static bool s_FixedRandom = false;
 
+        public static bool[] m_notePlayed = new bool[SharpMikCommon.UF_MAXCHAN];
+
         public enum PlayerState
         {
             kStarted,
@@ -40,6 +42,11 @@ namespace SharpMik.Player
 
 
         public static event PlayerStateChangedEvent PlayStateChangedHandle;
+
+        public static bool[] NotePlayed
+        {
+            get { return m_notePlayed; }
+        }
 
         public static MikModule mod
         {
@@ -228,7 +235,7 @@ namespace SharpMik.Player
         #endregion
 
 
-        static byte NumberOfVoices(MikModule mod)
+        public static byte NumberOfVoices(MikModule mod)
         {
             return ModDriver.md_sngchn < mod.numvoices ? ModDriver.md_sngchn : mod.numvoices;
         }
@@ -2896,10 +2903,15 @@ namespace SharpMik.Player
 
                 if ((aout.main.kick == SharpMikCommon.KICK_NOTE) || (aout.main.kick == SharpMikCommon.KICK_KEYOFF))
                 {
+                    m_notePlayed[channel] = true;
                     ModDriver.Voice_Play_internal((sbyte)channel, s,
                         (uint)((aout.main.start == -1) ? ((s.flags & SharpMikCommon.SF_UST_LOOP) == SharpMikCommon.SF_UST_LOOP ? s.loopstart : 0) : aout.main.start));
                     aout.main.fadevol = 32768;
                     aout.aswppos = 0;
+                }
+                else
+                {
+                    m_notePlayed[channel] = false;
                 }
 
                 envvol = 256;

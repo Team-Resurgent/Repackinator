@@ -7,6 +7,9 @@ using SharpMik.Player;
 using SharpMik.Drivers;
 using SharpMik;
 using System.Diagnostics;
+using Veldrid.MetalBindings;
+using System.Threading.Channels;
+using System.Security.Cryptography.X509Certificates;
 
 namespace RepackinatorUI
 {
@@ -17,28 +20,56 @@ namespace RepackinatorUI
 
         MikModule? _module;
         MikMod _player;
+        ImFontPtr _font;
 
         public string Title { get; set; } = string.Empty;
 
-        public string Message { get; set; } = "REPACKINATOR BROUGHT TO YOU BY TEAM RESURGENT AND IN COLLABORATION WITH TEAM CERBIOS, WHAT APPLICATION WOULDNT BE COMPLETE WITHOUT SOME RETRO STYLE CREDITS... REPACKINATOR IS OPEN SOURCE ON OUR GITHUB AND IS OPEN TO THE COMMUNITY TO CONTRIBUTE TO AND HELP EVELOVE THE APPLICATION INTO SOMETHING AMAZING... MUSIC IS FROM THE AWESOME AMIGA'S VISIONS MEGA DEMO II... CODING BY EQUINOX... APPLICATION DESIGN BY EQUINOX, HRNYDVL, HAZENO... TESTING BY HRNYDVL, HAZENO, ROCKY5... SHOUT OUTS GO TO GRIZZLY ADAMS, KEKULE... KEEP YOUR EYE OUT FOR MORE FUTURE APPLICATIONS FROM TEAM RESURGENT... TIL THEN, ENJOY, AND WE WILL SEE ON OUR DISCORD......................................... ";
+        public string Message { get; set; } = "Repackinator brought to you by Team Resurgent and in collaboration with Team Cerbios, what application wouldnt be complete without some retro style credits... Repackinator is Open Source on our GitHub and is open to the Community to contribute to and help evelove the application into something amazing... Music is from the awesome Amiga's S3M Tracker... Coding by EqUiNoX... Application Design by EqUiNoX, HoRnEyDvL, Hazeno... Testing by HoRnEyDvL, Hazeno, Rocky5... Shout outs go to Grizzly Adams, Kekule... Keep your eye out for more future applications from Team Resurgent... Til then, enjoy, and we will see on our discord.................................................................................. ";
         private float charOffset = 0;
         private float scrollPos = 0;
         private float sin = 0;
+        private float[] chan_amplitudes = new float[64];
+        private Vector2[] stars = new Vector2[100];
+        private float[] starsSpeeds = new float[100];
 
         void PlayerStateChangeEvent(ModPlayer.PlayerState state)
         {
-            if (_module == null || state != ModPlayer.PlayerState.kStopped)
+            if (_module == null)
             {
                 return;
             }
-            _player.Play(_module);
+            if (state == ModPlayer.PlayerState.kUpdated)
+            {
+                for (int i = 0; i < ModPlayer.NumberOfVoices(_module); i++)
+                {
+                    if (ModPlayer.NotePlayed[i])
+                    {
+                        chan_amplitudes[i] = 100;
+                    }
+                }
+                return;
+            }
+            else if (state != ModPlayer.PlayerState.kStopped)
+            {
+                return;
+            }
+            PlayModule();
         }
-
 
         public CreditsDialog()
         {
+            var fontAtlas = ImGui.GetIO().Fonts;
+            _font = fontAtlas.Fonts[1];
+
             _player = new MikMod();
             _player.PlayerStateChangeEvent += new ModPlayer.PlayerStateChangedEvent(PlayerStateChangeEvent);
+
+            var random = new Random();
+            for (var i = 0; i <stars.Length; i++)
+            {
+                stars[i] = new Vector2(random.Next(600), random.Next(400));
+                starsSpeeds[i] = ((float)random.NextDouble() * 0.9f) + 0.1f;
+            }
 
             ModDriver.Mode = (ushort)(ModDriver.Mode | SharpMikCommon.DMODE_NOISEREDUCTION);
             try
@@ -70,18 +101,42 @@ namespace RepackinatorUI
             return (Math.PI / 180) * angle;
         }
 
-        private void StartAudio()
+        private static void DrawLines(IReadOnlyList<Vector2> points, Vector2 location)
         {
-            var modStream = ResourceLoader.GetEmbeddedResourceStream("COMIC.MOD", typeof(CreditsDialog).GetTypeInfo().Assembly);
+            var lineColor = ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0, 0, 1));
+            var drawList = ImGui.GetWindowDrawList();
+            for (var i = 0; i < points.Count; i += 2)
+            {
+                var startLocation = location + points[i];
+                var endLocation = location + points[i + 1];
+                drawList.AddLine(startLocation, endLocation, lineColor);
+            }
+        }
+
+        private void DrawStars(Vector2 location)
+        {
+            var pointColor = ImGui.ColorConvertFloat4ToU32(new Vector4(1, 1, 0, 1));
+            var drawList = ImGui.GetWindowDrawList();
+            for (var i = 0; i < stars.Length; i++)
+            {
+                var startLocation = location + stars[i];
+                var endLocation = location + stars[i] + new Vector2(1, 1);
+                drawList.AddLine(startLocation, endLocation, pointColor);
+                stars[i].X = stars[i].X - starsSpeeds[i];
+                if (stars[i].X < 0)
+                {
+                    stars[i].X = 600;
+                }
+            }
+        }
+
+        private void PlayModule()
+        {
+            var modStream = ResourceLoader.GetEmbeddedResourceStream("DINO.S3M", typeof(CreditsDialog).GetTypeInfo().Assembly);
             if (modStream != null)
             {
-                _module = _player.LoadModule(modStream);
-                if (_module != null)
-                {
-                    _player.Play(_module);
-                }
-            }            
-
+                _module = _player.Play(modStream);
+            }
         }
 
         public bool Render()
@@ -91,15 +146,7 @@ namespace RepackinatorUI
                 _showModal = false;
                 _open = true;
 
-                var modStream = ResourceLoader.GetEmbeddedResourceStream("NEWGEN.MOD", typeof(CreditsDialog).GetTypeInfo().Assembly);
-                if (modStream != null)
-                {
-                    _module = _player.LoadModule(modStream);
-                    if (_module != null)
-                    {
-                        _player.Play(_module);
-                    }
-                }
+                PlayModule();
 
                 ImGui.OpenPopup(Title);
             }
@@ -119,31 +166,58 @@ namespace RepackinatorUI
 
             var result = false;
 
+            ImGui.PushFont(_font);
+
+            DrawStars(ImGui.GetWindowPos());
+
+            var points = new List<Vector2>();
+            points.Add(new Vector2(0, 390));
+            for (var chan = 0; chan < ModPlayer.NumberOfVoices(_module); chan++)
+            {
+                if (ModPlayer.NotePlayed[chan])
+                {
+                    chan_amplitudes[chan] = 200;
+                }
+                else
+                {
+                    chan_amplitudes[chan] = chan_amplitudes[chan] * 0.95f;                    
+                }
+
+                points.Add(new Vector2((chan + 1) * (600 / (ModPlayer.NumberOfVoices(_module) + 1)), 390 - chan_amplitudes[chan]));
+                points.Add(new Vector2((chan + 1) * (600 / (ModPlayer.NumberOfVoices(_module) + 1)), 390 - chan_amplitudes[chan]));
+            }
+            points.Add(new Vector2(600, 390));
+            DrawLines(points, ImGui.GetWindowPos());
+
             float x = 0;
             float y = 0;
             int i = (int)charOffset; 
-            while (x < 610)
+            while (x < 620)
             {
-                var aaa = (float)Math.Sin(ConvertToRadians(sin +y ));
-                ImGui.SetCursorPos(new Vector2(x - scrollPos, 200 + (aaa * 100)));
+                
+                var amplitude = 100.0f;
+                var peak = (float)Math.Sin(ConvertToRadians(sin + y));
+                var textSize = ImGui.CalcTextSize(Message[i].ToString());
+                var textXOffset = (20 - textSize.X) / 2;
+                ImGui.SetCursorPos(new Vector2((x - scrollPos) + textXOffset, (amplitude * 2) + (peak * amplitude)));                
                 ImGui.Text(Message[i].ToString());
                 i++;
                 if (i >= Message.Length)
                 {
                     i = 0;
                 }
-                x += 10;
+                x += 20;
 
                 sin += 0.05f;
                 if (sin >= 360) 
                 {
                     sin -= 360;
                 }
-                y += 5;
+                y += 2f;
             }
 
             scrollPos++;
-            if (scrollPos == 10)
+            if (scrollPos == 20)
             {
                 scrollPos = 0;
                 charOffset++;
@@ -153,6 +227,7 @@ namespace RepackinatorUI
                 }
             }
 
+            ImGui.PopFont();
 
             if (ImGui.IsWindowAppearing())
             {

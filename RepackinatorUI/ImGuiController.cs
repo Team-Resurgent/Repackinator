@@ -43,6 +43,23 @@ namespace RepackinatorUI
         private readonly List<IDisposable> _ownedResources = new();
         private int _lastAssignedID = 100;
 
+        private static IntPtr ImportResolver(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
+        {
+            IntPtr libHandle = IntPtr.Zero;
+            if (libraryName == "cimgui")
+            {
+                if (Environment.Is64BitProcess)
+                {
+                    libHandle = NativeLibrary.Load(@"x64\cimgui.dll");
+                }
+                else
+                {
+                    libHandle = NativeLibrary.Load(@"x86\cimgui.dll");
+                }
+            }
+            return libHandle;
+        }
+
         private unsafe static void CreateFont(float fontSize)
         {
             var nativeConfig = ImGuiNative.ImFontConfig_ImFontConfig();
@@ -84,10 +101,13 @@ namespace RepackinatorUI
             _windowWidth = width;
             _windowHeight = height;
 
+            NativeLibrary.SetDllImportResolver(typeof(ImGui).Assembly, ImportResolver);
+
             IntPtr context = ImGui.CreateContext();
             ImGui.SetCurrentContext(context);
 
             CreateFont(15.0f);
+            CreateFont(30.0f);
 
             _iniNamePtr = Marshal.StringToCoTaskMemUTF8("settings.ini");
             ImGui.GetIO().NativePtr->IniFilename = (byte*)_iniNamePtr;
