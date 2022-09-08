@@ -1,23 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
+    <OutputType>exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 	<ApplicationIcon>..\Artwork\icon1.ico</ApplicationIcon>
-	<PublishReadyToRun>true</PublishReadyToRun>
+	<PublishReadyToRun>false</PublishReadyToRun>
+	<IncludeAllContentForSelfExtract>false</IncludeAllContentForSelfExtract>
+	<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="Resources\ARIALUNI.TTF" />
-    <None Remove="Resources\NEWGEN.MOD" />
+    <None Remove="Resources\DINO.S3M" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\ARIALUNI.TTF" />
-    <EmbeddedResource Include="Resources\NEWGEN.MOD" />
+    <EmbeddedResource Include="Resources\DINO.S3M" />
     <EmbeddedResource Include="Shaders/GLSL/imgui-vertex.glsl" LogicalName="imgui-vertex.glsl" />
     <EmbeddedResource Include="Shaders/GLSL/imgui-frag.glsl" LogicalName="imgui-frag.glsl" />
     <EmbeddedResource Include="Shaders/HLSL/imgui-vertex.hlsl.bytes" LogicalName="imgui-vertex.hlsl.bytes" />
@@ -32,6 +34,7 @@
 	    <Content Include="..\Artwork\icon1.ico" />
 	    <Content Include="..\RepackList.json">
 		    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	    </Content>
     </ItemGroup>
 
@@ -44,12 +47,12 @@
     <ProjectReference Include="..\Repackinator.Shared\Repackinator.Shared.csproj" />
     <ProjectReference Include="..\SharpMikNAudio\SharpMikNAudio.csproj" />
   </ItemGroup>
-	  <ItemGroup>	
-	  
-    <None Update="x64\OpenAL32.dll">
+	
+  <ItemGroup>	
+    <None Update="x64\cimgui.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="x86\OpenAL32.dll">
+    </None>	
+    <None Update="x86\cimgui.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

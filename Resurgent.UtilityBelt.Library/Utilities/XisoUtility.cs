@@ -153,7 +153,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
             fs.Position = skipSize;
 
-            byte[] buffer = new byte[32768];
+            byte[] buffer = new byte[65536];
 
             if (progress != null)
             {
