@@ -1,6 +1,5 @@
 ﻿using ImGuiNET;
 using Repackinator.Shared;
-using SharpDX.D3DCompiler;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.Numerics;
@@ -141,7 +140,7 @@ namespace RepackinatorUI
             m_gameDataList = GameDataHelper.LoadGameData();
             if (m_gameDataList == null)
             {
-                return;
+                m_gameDataList = Array.Empty<GameData>();
             }
             m_gameDataList = m_gameDataList.OrderBy(s => s.TitleName).ToArray();
 

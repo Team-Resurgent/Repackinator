@@ -60,21 +60,20 @@ namespace RepackinatorUI
             return libHandle;
         }
 
-        private unsafe static void CreateFont(float fontSize)
+        private static unsafe void InitFonts()
         {
-            var nativeConfig = ImGuiNative.ImFontConfig_ImFontConfig();
-
-            (*nativeConfig).OversampleH = 3;
-            (*nativeConfig).OversampleV = 3;
-            (*nativeConfig).RasterizerMultiply = 1f;
-            (*nativeConfig).GlyphExtraSpacing = new Vector2(0, 0);
-            (*nativeConfig).MergeMode = 0;
-           
             var fontData = ResourceLoader.GetEmbeddedResourceBytes("ARIALUNI.TTF", typeof(ImGuiController).GetTypeInfo().Assembly);
             var pinnedFontData = GCHandle.Alloc(fontData, GCHandleType.Pinned);
             IntPtr addressFontData = pinnedFontData.AddrOfPinnedObject();
 
-            var glyphRangeHandle = GCHandle.Alloc(new ushort[] {
+            ImFontConfigPtr fontConfig = ImGuiNative.ImFontConfig_ImFontConfig();
+            fontConfig.PixelSnapH = true;
+            fontConfig.OversampleH = 3;
+            fontConfig.OversampleV = 3;
+            fontConfig.RasterizerMultiply = 1f;
+            fontConfig.MergeMode = false;
+
+            var glyphRangeHandle1 = GCHandle.Alloc(new ushort[] {
                 0x0020, 0x00FF, // Basic Latin + Latin Supplement
                 0x2000, 0x206F, // General Punctuation
                 0x2100, 0x214f, // Letter Like Symbols
@@ -86,13 +85,23 @@ namespace RepackinatorUI
                 0
             }, GCHandleType.Pinned);
 
-            ImGui.GetIO().Fonts.AddFontFromMemoryTTF(addressFontData, fontData.Length, fontSize, nativeConfig, glyphRangeHandle.AddrOfPinnedObject());
+
+            ImGui.GetIO().Fonts.AddFontFromMemoryTTF(addressFontData, fontData.Length, 15, null, glyphRangeHandle1.AddrOfPinnedObject());
+
+            var glyphRangeHandle2 = GCHandle.Alloc(new ushort[] {
+                0x0020, 0x00FF, // Basic Latin + Latin Supplement
+                0x2000, 0x206F, // General Punctuation               
+                0
+            }, GCHandleType.Pinned);
+
+            ImGui.GetIO().Fonts.AddFontFromMemoryTTF(addressFontData, fontData.Length, 30, fontConfig, glyphRangeHandle2.AddrOfPinnedObject());
+
+            ImGui.GetIO().Fonts.Build();
 
             pinnedFontData.Free();
-            glyphRangeHandle.Free();
-
-
-            ImGuiNative.ImFontConfig_destroy(nativeConfig);
+            glyphRangeHandle1.Free();
+            glyphRangeHandle2.Free();
+            ImGuiNative.ImFontConfig_destroy(fontConfig);
         }
 
         public unsafe ImGuiController(GraphicsDevice gd, OutputDescription outputDescription, int width, int height)
@@ -106,8 +115,7 @@ namespace RepackinatorUI
             IntPtr context = ImGui.CreateContext();
             ImGui.SetCurrentContext(context);
 
-            CreateFont(15.0f);
-            CreateFont(30.0f);
+            InitFonts();
 
             _iniNamePtr = Marshal.StringToCoTaskMemUTF8("settings.ini");
             ImGui.GetIO().NativePtr->IniFilename = (byte*)_iniNamePtr;
@@ -302,7 +310,7 @@ namespace RepackinatorUI
         }
 
         public void Render(GraphicsDevice gd, CommandList cl)
-        {
+        {            
             if (_frameBegun)
             {
                 _frameBegun = false;

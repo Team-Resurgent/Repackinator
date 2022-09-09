@@ -2,8 +2,6 @@
 using System.Text;
 using ImGuiNET;
 using Repackinator.Shared;
-using SharpDX.DXGI;
-using SharpDX.Win32;
 
 namespace RepackinatorUI
 {
