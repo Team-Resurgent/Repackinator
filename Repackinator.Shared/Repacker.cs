@@ -1,6 +1,7 @@
 ﻿using Resurgent.UtilityBelt.Library.Utilities;
 using Resurgent.UtilityBelt.Library.Utilities.XbeModels;
 using SevenZipExtractor;
+using System.Diagnostics;
 
 namespace Repackinator.Shared
 {
@@ -48,6 +49,9 @@ namespace Repackinator.Shared
                 return;
             }
 
+            var processStopwatch = new Stopwatch();
+            processStopwatch.Start();
+
             var unpackPath = Path.Combine(TempFolder, "Unpack");
             var unpacked = false;
             var processInput = inputFile;
@@ -77,6 +81,9 @@ namespace Repackinator.Shared
 
                 if (!extension.Equals(".iso"))
                 {
+                    var extractStopwatch = new Stopwatch();
+                    extractStopwatch.Start();
+
                     Log(LogMessageLevel.Info, "Extracting ISO...");
                     try
                     {
@@ -108,6 +115,8 @@ namespace Repackinator.Shared
                                 }
                             }
                         }
+                        extractStopwatch.Stop();
+                        Log(LogMessageLevel.Info, $"Extract Completed (Time Taken {extractStopwatch.Elapsed.Hours:00}:{extractStopwatch.Elapsed.Minutes:00}:{extractStopwatch.Elapsed.Seconds:00}).");
                     } 
                     catch (Exception ex)
                     {
@@ -268,21 +277,28 @@ namespace Repackinator.Shared
                     return;
                 }
 
+                var splitStopwatch = new Stopwatch();
+                splitStopwatch.Start();
+
                 Log(LogMessageLevel.Info, "Removing Video Partition & Splitting ISO...");
 
                 var splitProgress = new Action<float>((progress) =>
                 {
                     CurrentProgress.Progress2 = progress;
-                    CurrentProgress.Progress2Text = $"Splitting ISO...";
+                    CurrentProgress.Progress2Text = $"Removing Video Partition & Splitting ISO...";
                     SendProgress();
                 });
 
-                XisoUtility.Split($"{processInput}", processOutput, isoFileName, true, splitProgress, cancellationToken);
+                XisoUtility.Split(processInput, processOutput, isoFileName, true, splitProgress, cancellationToken);
+
+                splitStopwatch.Stop();
+                Log(LogMessageLevel.Info, $"Removing Video Partition & Splitting ISO Completed (Time Taken {splitStopwatch.Elapsed.Hours:00}:{splitStopwatch.Elapsed.Minutes:00}:{splitStopwatch.Elapsed.Seconds:00}).");
 
                 CurrentProgress.Progress2 = 1.0f;
                 SendProgress();
 
-                Log(LogMessageLevel.Info, $"Completed Processing '{Path.GetFileName(inputFile)}'.");
+                processStopwatch.Stop();
+                Log(LogMessageLevel.Info, $"Completed Processing '{Path.GetFileName(inputFile)}' (Time Taken {processStopwatch.Elapsed.Hours:00}:{processStopwatch.Elapsed.Minutes:00}:{processStopwatch.Elapsed.Seconds:00}).\n");
             }
             catch (Exception ex)
             {
@@ -301,21 +317,24 @@ namespace Repackinator.Shared
             }
         }
 
-        public void StartConversion(Config config, Action<ProgressInfo>? progress, Action<LogMessage> logger, CancellationToken cancellationToken)
+        public void StartConversion(GameData[]? gameData, Config config, Action<ProgressInfo>? progress, Action<LogMessage> logger, CancellationToken cancellationToken)
         {
             try
             {               
                 Logger = logger;
                 Progress = progress;
 
-                GameDataList = GameDataHelper.LoadGameData();
+                GameDataList = gameData;
                 if (GameDataList == null)
                 {
                     Log(LogMessageLevel.Error, "RepackList.json not found.");
                     return;
                 }
 
-                TempFolder = config.TempPath;              
+                TempFolder = config.TempPath;
+
+                var allStopwatch = new Stopwatch();
+                allStopwatch.Start();
 
                 var files = Directory.GetFiles(config.InputPath);
                 for (int i = 0; i < files.Length; i++)
@@ -334,7 +353,9 @@ namespace Repackinator.Shared
                 CurrentProgress.Progress1 = 1.0f;                
                 SendProgress();
 
-                Log(LogMessageLevel.Info, "Completed Processing List.");
+                allStopwatch.Stop();
+
+                Log(LogMessageLevel.Info, $"Completed Processing List (Time Taken {allStopwatch.Elapsed.Hours:00}:{allStopwatch.Elapsed.Minutes:00}:{allStopwatch.Elapsed.Seconds:00}).");
             }
             catch (Exception ex)
             {

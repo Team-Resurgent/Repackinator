@@ -13,15 +13,17 @@ namespace RepackinatorUI
         private float _progress2 = 0f;
         private string _log = string.Empty;
         private Config _config;
+        private GameData[]? _gameData;
         private CancellationTokenSource _cancellationTokenSource = new();
 
         private bool _showModal;
         private bool _open;
         private bool _completed;
 
-        public void ShowModal(Config config)
+        public void ShowModal(Config config, GameData[]? gameData)
         {
             _config = config;
+            _gameData = gameData;
             _showModal = true;
         }
 
@@ -51,7 +53,7 @@ namespace RepackinatorUI
             _cancellationTokenSource = new CancellationTokenSource();
 
             var repacker = new Repacker();
-            repacker.StartConversion(_config, progress, logger, _cancellationTokenSource.Token);
+            repacker.StartConversion(_gameData, _config, progress, logger, _cancellationTokenSource.Token);
 
             _completed = true;
         }

@@ -229,8 +229,10 @@ try
 
     var cancellationTokenSource = new CancellationTokenSource();
 
+    var gameData = GameDataHelper.LoadGameData();
+
     var repacker = new Repacker();
-    repacker.StartConversion(config, null, logger, cancellationTokenSource.Token);
+    repacker.StartConversion(gameData, config, null, logger, cancellationTokenSource.Token);
 
     if (logStream != null)
     {

@@ -185,7 +185,6 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                         progress((bytesRead + (i * sectorSplit)) / (float)(fileLength - skipSize));
                     }
                 }
-
             }
 
             for (var i = 0; i < parts; i++)
