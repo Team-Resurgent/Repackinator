@@ -81,7 +81,7 @@ namespace RepackinatorUI
                 0x31F0, 0x31FF, // Katakana Phonetic Extensions
                 0xFF00, 0xFFEF, // Half-width characters
                 0xFFFD, 0xFFFD, // Invalid
-                0x4e00, 0x9FAF, // CJK Ideograms }, GCHandleType.Pinned);
+                0x4e00, 0x9FAF, // CJK Ideograms
                 0
             }, GCHandleType.Pinned);
 

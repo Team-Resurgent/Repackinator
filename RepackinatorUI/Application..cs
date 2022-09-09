@@ -560,7 +560,7 @@ namespace RepackinatorUI
                 }
                 else
                 {
-                    m_repackDialog.ShowModal(m_config);
+                    m_repackDialog.ShowModal(m_config, m_gameDataList);
                 }
             }
 
