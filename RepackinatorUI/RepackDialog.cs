@@ -85,7 +85,7 @@ namespace RepackinatorUI
             }
 
             var open = true;
-            if (!ImGui.BeginPopupModal("Repacking", ref open, ImGuiWindowFlags.NoResize))
+            if (!ImGui.BeginPopupModal("Repacking", ref open))
             {
                 return false;
             }
@@ -97,15 +97,17 @@ namespace RepackinatorUI
                 ImGui.SetWindowSize(new Vector2(500, 300));
             }
 
+            Vector2 windowSize = ImGui.GetWindowSize();
+
             ImGui.Text(_progress1Text);
-            ImGui.ProgressBar(_progress1, new Vector2(484, 20));
+            ImGui.ProgressBar(_progress1, new Vector2(windowSize.X - 16, 20));
             ImGui.Spacing();
             ImGui.Text(_progress2Text);
-            ImGui.ProgressBar(_progress2, new Vector2(484, 20));
+            ImGui.ProgressBar(_progress2, new Vector2(windowSize.X - 16, 20));
             ImGui.Spacing();
-            ImGui.InputTextMultiline("##reoackLog", ref _log, (uint)_log.Length, new Vector2(484, 125), ImGuiInputTextFlags.ReadOnly);
+            ImGui.InputTextMultiline("##reoackLog", ref _log, (uint)_log.Length, new Vector2(windowSize.X - 16, windowSize.Y - 175), ImGuiInputTextFlags.ReadOnly);
             
-            ImGui.SetCursorPosY(300 - 40);
+            ImGui.SetCursorPosY(windowSize.Y - 40);
 
             if (ImGui.Button(_completed ? "Close" : (_cancellationTokenSource.IsCancellationRequested ? "Cancelling..." : "Cancel"), new Vector2(100, 30)))
             {

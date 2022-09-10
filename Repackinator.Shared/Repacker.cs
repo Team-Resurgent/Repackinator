@@ -97,8 +97,9 @@ namespace Repackinator.Shared
                                 if (!Path.GetExtension(entry.FileName).Equals(".iso", StringComparison.CurrentCultureIgnoreCase))
                                 {
                                     continue;
-                                }                                
-                                using (var fileStream = new FileStream(processInput, FileMode.Create))
+                                }
+                                using (var fileStream1 = new FileStream(@"F:\part1.iso", FileMode.Create))
+                                using (var fileStream2 = new FileStream(@"F:\part2.iso", FileMode.Create))
                                 {
 
                                     var extractProgress = new Action<float>((progress) =>
@@ -108,7 +109,7 @@ namespace Repackinator.Shared
                                         SendProgress();
                                     });
 
-                                    using (var progressStream = new ProgressStream(fileStream, (long)entry.Size, true, extractProgress))
+                                    using (var progressStream = new ProgressStream(fileStream1, fileStream2, (long)entry.Size, extractProgress))
                                     {
                                         entry.Extract(progressStream);
                                     }
