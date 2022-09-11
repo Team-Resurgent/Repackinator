@@ -17,8 +17,6 @@ namespace Repackinator.Shared
 
         public string OutputPath { get; set; }
 
-        public string TempPath { get; set; } 
-
         public GroupingEnum Grouping { get; set; } 
 
         public bool Alternative { get; set; } 
@@ -27,7 +25,6 @@ namespace Repackinator.Shared
         {
             InputPath = string.Empty;
             OutputPath = string.Empty;
-            TempPath = Path.GetTempPath();
             Grouping = GroupingEnum.None;
             Alternative = false;
         }

@@ -13,8 +13,6 @@ namespace Repackinator.Shared
 
         private ProgressInfo CurrentProgress = new ProgressInfo();
 
-        private string? TempFolder { get; set; }
-
         private GameData[]? GameDataList { get; set; }
 
         private void SendProgress()
@@ -37,59 +35,50 @@ namespace Repackinator.Shared
 
         private void ProcessFile(string inputFile, string outputPath, GroupingEnum grouping, bool alternate, CancellationToken cancellationToken)
         {
-            if (TempFolder == null)
-            {
-                Log(LogMessageLevel.Error, "TempFolder should not be null.");
-                return;
-            }
-
             if (GameDataList == null)
             {
-                Log(LogMessageLevel.Error, "GameData should not be null.");
+                Log(LogMessageLevel.Error, "GameData should not be null.\n");
                 return;
             }
 
             var processStopwatch = new Stopwatch();
             processStopwatch.Start();
 
-            var unpackPath = Path.Combine(TempFolder, "Unpack");
-            var unpacked = false;
-            var processInput = inputFile;
+            var unpackPath = Path.Combine(outputPath, "Repackinator-Temp");
+
+            if (Directory.Exists(unpackPath))
+            {
+                Directory.Delete(unpackPath, true);
+            }
+            Directory.CreateDirectory(unpackPath);
+
             var processOutput = string.Empty;
 
             try
             {
                 if (!File.Exists(inputFile))
                 {
-                    Log(LogMessageLevel.Warning, $"Skipping '{Path.GetFileName(inputFile)}' as does not exist.");
+                    Log(LogMessageLevel.Warning, $"Skipping '{Path.GetFileName(inputFile)}' as does not exist.\n");
                     return;
                 }
 
                 var extension = Path.GetExtension(inputFile).ToLower();
                 if (!extension.Equals(".iso") && !extension.Equals(".zip") && !extension.Equals(".7z") && !extension.Equals(".rar") && !extension.Equals(".iso"))
                 {
-                    Log(LogMessageLevel.Warning, $"Skipping '{Path.GetFileName(inputFile)}' as unsupported extension."); 
+                    Log(LogMessageLevel.Warning, $"Skipping '{Path.GetFileName(inputFile)}' as unsupported extension.\n"); 
                     return;
                 }
 
                 Log(LogMessageLevel.Info, $"Processing '{Path.GetFileName(inputFile)}'...");
-
-                if (!Directory.Exists(unpackPath))
-                {
-                    Directory.CreateDirectory(unpackPath);
-                }
 
                 if (!extension.Equals(".iso"))
                 {
                     var extractStopwatch = new Stopwatch();
                     extractStopwatch.Start();
 
-                    Log(LogMessageLevel.Info, "Extracting ISO...");
+                    Log(LogMessageLevel.Info, "Extracting, Removing Video Partition & Splitting ISO...");
                     try
                     {
-                        unpacked = true;
-                        processInput = Path.Combine(unpackPath, "unpacked.iso");
-
                         using (ArchiveFile archiveFile = new ArchiveFile(inputFile))
                         {
                             foreach (Entry entry in archiveFile.Entries)
@@ -98,17 +87,15 @@ namespace Repackinator.Shared
                                 {
                                     continue;
                                 }
-                                using (var fileStream1 = new FileStream(@"F:\part1.iso", FileMode.Create))
-                                using (var fileStream2 = new FileStream(@"F:\part2.iso", FileMode.Create))
+                                using (var fileStream1 = new FileStream(Path.Combine(unpackPath, @"Repackinator.1.iso"), FileMode.Create))
+                                using (var fileStream2 = new FileStream(Path.Combine(unpackPath, @"Repackinator.2.iso"), FileMode.Create))
                                 {
-
                                     var extractProgress = new Action<float>((progress) =>
                                     {
                                         CurrentProgress.Progress2 = progress;
-                                        CurrentProgress.Progress2Text = $"Extracting ISO...";
+                                        CurrentProgress.Progress2Text = $"Extracting, Removing Video Partition & Splitting ISO...";
                                         SendProgress();
                                     });
-
                                     using (var progressStream = new ProgressStream(fileStream1, fileStream2, (long)entry.Size, extractProgress))
                                     {
                                         entry.Extract(progressStream);
@@ -118,33 +105,56 @@ namespace Repackinator.Shared
                         }
                         extractStopwatch.Stop();
                         Log(LogMessageLevel.Info, $"Extract Completed (Time Taken {extractStopwatch.Elapsed.Hours:00}:{extractStopwatch.Elapsed.Minutes:00}:{extractStopwatch.Elapsed.Seconds:00}).");
-                    } 
+                    }
                     catch (Exception ex)
                     {
-                        Log(LogMessageLevel.Error, $"Failed to extract archive - {ex}");
+                        Log(LogMessageLevel.Error, $"Failed to extract archive - {ex}\n");
                         return;
-                    }                    
+                    }
+                }
+                else
+                {
+                    var splitStopwatch = new Stopwatch();
+                    splitStopwatch.Start();
+
+                    Log(LogMessageLevel.Info, "Removing Video Partition & Splitting ISO...");
+
+                    var splitProgress = new Action<float>((progress) =>
+                    {
+                        CurrentProgress.Progress2 = progress;
+                        CurrentProgress.Progress2Text = $"Removing Video Partition & Splitting ISO...";
+                        SendProgress();
+                    });
+
+                    XisoUtility.Split(inputFile, unpackPath, "Repackinator", true, splitProgress, cancellationToken);
+
+                    splitStopwatch.Stop();
+                    Log(LogMessageLevel.Info, $"Removing Video Partition & Splitting ISO Completed (Time Taken {splitStopwatch.Elapsed.Hours:00}:{splitStopwatch.Elapsed.Minutes:00}:{splitStopwatch.Elapsed.Seconds:00}).");
+
+                    CurrentProgress.Progress2 = 1.0f;
+                    SendProgress();
                 }
 
                 var xbeData = Array.Empty<byte>();
-                using (var inputStream = new FileStream(processInput, FileMode.Open))
+                using (var inputStream1 = new FileStream(Path.Combine(unpackPath, @"Repackinator.1.iso"), FileMode.Open))
+                using (var inputStream2 = new FileStream(Path.Combine(unpackPath, @"Repackinator.2.iso"), FileMode.Open))
                 using (var outputStream = new MemoryStream())
                 {
                     var error = string.Empty;
-                    if (XisoUtility.TryExtractDefaultFromXiso(inputStream, outputStream, ref error))
+                    if (XisoUtility.TryExtractDefaultFromSplitXiso(inputStream1, inputStream2, outputStream, ref error))
                     {
                         xbeData = outputStream.ToArray();
                     }
                     else
                     {
-                        Log(LogMessageLevel.Error, "Unable to extract default.xbe.");
+                        Log(LogMessageLevel.Error, $"Unable to extract default.xbe due to '{error}'.\n");
                         return;
                     }
                 }
 
                 if (!XbeUtility.TryGetXbeCert(xbeData, out var cert) || cert == null)
                 {
-                    Log(LogMessageLevel.Error, $"Unable to get data from default.xbe.");
+                    Log(LogMessageLevel.Error, $"Unable to get data from default.xbe.\n");
                     return;
                 }
 
@@ -172,24 +182,24 @@ namespace Repackinator.Shared
                 {
                     if (found)
                     {
-                        Log(LogMessageLevel.Warning, $"Skipping '{Path.GetFileName(inputFile)}' as requested to skip in dataset.");
+                        Log(LogMessageLevel.Warning, $"Skipping '{Path.GetFileName(inputFile)}' as requested to skip in dataset.\n");
                     }
                     else
                     {
-                        Log(LogMessageLevel.Warning, $"Skipping '{Path.GetFileName(inputFile)}' as titleid, region and version not found in dataset.");
+                        Log(LogMessageLevel.Warning, $"Skipping '{Path.GetFileName(inputFile)}' as titleid, region and version not found in dataset.\n");
                     }
                     return;
                 }
 
                 if (gameData.Value.Region == null)
                 {
-                    Log(LogMessageLevel.Error, "Region is null in dataset.");
+                    Log(LogMessageLevel.Error, "Region is null in dataset.\n");
                     return;
                 }
 
                 if (gameData.Value.XBETitleAndFolderName == null)
                 {
-                    Log(LogMessageLevel.Error, "XBE title & folder name is null in dataset.");
+                    Log(LogMessageLevel.Error, "XBE title & folder name is null in dataset.\n");
                     return;
                 }
 
@@ -201,19 +211,19 @@ namespace Repackinator.Shared
 
                 if (gameData.Value.ISOName == null)
                 {
-                    Log(LogMessageLevel.Error, "ISO name is null in dataset.");
+                    Log(LogMessageLevel.Error, "ISO name is null in dataset.\n");
                     return;
                 }
 
                 if (gameData.Value.ISONameAlt == null)
                 {
-                    Log(LogMessageLevel.Error, "ISO name alt is null in dataset.");
+                    Log(LogMessageLevel.Error, "ISO name alt is null in dataset.\n");
                     return;
                 }
 
                 if (gameData.Value.Letter == null)
                 {
-                    Log(LogMessageLevel.Error, "Letter is null in dataset.");
+                    Log(LogMessageLevel.Error, "Letter is null in dataset.\n");
                     return;
                 }
 
@@ -239,7 +249,14 @@ namespace Repackinator.Shared
 
                 processOutput = Path.Combine(outputPath, xbeTitleAndFolderName);
 
+                if (Directory.Exists(processOutput))
+                {
+                    Directory.Delete(processOutput, true);
+                }    
                 Directory.CreateDirectory(processOutput);
+
+                File.Move(Path.Combine(unpackPath, @"Repackinator.1.iso"), Path.Combine(processOutput, $"{isoFileName}.1.iso"));
+                File.Move(Path.Combine(unpackPath, @"Repackinator.2.iso"), Path.Combine(processOutput, $"{isoFileName}.2.iso"));
 
                 var attach = ResourceLoader.GetEmbeddedResourceBytes("attach.xbe");
                 if (XbeUtility.TryGetXbeImage(xbeData, XbeUtility.ImageType.TitleImage, out var xprImage))
@@ -252,19 +269,19 @@ namespace Repackinator.Shared
                         }
                         if (!XbeUtility.TryReplaceXbeTitleImage(attach, jpgImage))
                         {
-                            Log(LogMessageLevel.Error, "Failed to replace image.");
+                            Log(LogMessageLevel.Error, "Failed to replace image.\n");
                             return;
                         }
                     }
                     else
                     {
-                        Log(LogMessageLevel.Error, "Failed to create png.");
+                        Log(LogMessageLevel.Error, "Failed to create png.\n");
                         return;
                     }
                 }
                 else
                 {
-                    Log(LogMessageLevel.Error, "Failed to extract xpr.");
+                    Log(LogMessageLevel.Error, "Failed to extract xpr.\n");
                     return;
                 }
                                                 
@@ -274,42 +291,22 @@ namespace Repackinator.Shared
                 }
                 else
                 {
-                    Log(LogMessageLevel.Error, "failed creating attach xbe.");
+                    Log(LogMessageLevel.Error, "failed creating attach xbe.\n");
                     return;
                 }
-
-                var splitStopwatch = new Stopwatch();
-                splitStopwatch.Start();
-
-                Log(LogMessageLevel.Info, "Removing Video Partition & Splitting ISO...");
-
-                var splitProgress = new Action<float>((progress) =>
-                {
-                    CurrentProgress.Progress2 = progress;
-                    CurrentProgress.Progress2Text = $"Removing Video Partition & Splitting ISO...";
-                    SendProgress();
-                });
-
-                XisoUtility.Split(processInput, processOutput, isoFileName, true, splitProgress, cancellationToken);
-
-                splitStopwatch.Stop();
-                Log(LogMessageLevel.Info, $"Removing Video Partition & Splitting ISO Completed (Time Taken {splitStopwatch.Elapsed.Hours:00}:{splitStopwatch.Elapsed.Minutes:00}:{splitStopwatch.Elapsed.Seconds:00}).");
-
-                CurrentProgress.Progress2 = 1.0f;
-                SendProgress();
 
                 processStopwatch.Stop();
                 Log(LogMessageLevel.Info, $"Completed Processing '{Path.GetFileName(inputFile)}' (Time Taken {processStopwatch.Elapsed.Hours:00}:{processStopwatch.Elapsed.Minutes:00}:{processStopwatch.Elapsed.Seconds:00}).\n");
             }
             catch (Exception ex)
             {
-                Log(LogMessageLevel.Error, $"Processing '{inputFile}' caused error '{ex}'.");
+                Log(LogMessageLevel.Error, $"Processing '{inputFile}' caused error '{ex}'.\n");
             }
             finally
             {
-                if (unpacked && File.Exists(processInput))
+                if (Directory.Exists(unpackPath))
                 {
-                    File.Delete(processInput);
+                    Directory.Delete(unpackPath, true);
                 }
                 if (cancellationToken.IsCancellationRequested && Directory.Exists(processOutput))
                 {
@@ -331,8 +328,6 @@ namespace Repackinator.Shared
                     Log(LogMessageLevel.Error, "RepackList.json not found.");
                     return;
                 }
-
-                TempFolder = config.TempPath;
 
                 var allStopwatch = new Stopwatch();
                 allStopwatch.Start();
