@@ -5,7 +5,6 @@ using System.Text;
 var shouldShowHelp = false;
 var input = "";
 var output = "";
-var temp = "";
 var grouping = "NONE";
 var alternate = "NO";
 var log = "";
@@ -15,7 +14,6 @@ var optionset = new OptionSet {
     { "o|output=", "Output folder", o => output = o },
     { "g|grouping=", "Grouping (None *default*, Region, Letter, RegionLetter, LetterRegion)", g => grouping = g.ToUpper() },
     { "a|alt=", "Alternate Naming (No *default*, Yes)", a => alternate = a.ToUpper() },
-    { "t|temp=", "Temp folder", t => temp = t },
     { "l|log=", "log file", l => log = l },
     { "h|help", "show this message and exit", h => shouldShowHelp = h != null },
 };
@@ -162,17 +160,6 @@ try
         Directory.CreateDirectory(output);
     }
 
-    if (string.IsNullOrEmpty(temp))
-    {
-        temp = Path.Combine(Path.GetTempPath(), "Repackinator");
-    }
-
-    temp = Path.GetFullPath(temp);
-    if (!Directory.Exists(temp))
-    {
-        Directory.CreateDirectory(temp);
-    }
-
     if (!string.IsNullOrEmpty(log))
     {
         log = Path.GetFullPath(log);
@@ -222,7 +209,6 @@ try
     {
         InputPath = input,
         OutputPath = output,
-        TempPath = temp,
         Grouping = groupingValue,
         Alternative = alternateValue
     };

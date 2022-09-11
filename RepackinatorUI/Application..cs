@@ -21,7 +21,6 @@ namespace RepackinatorUI
         private GameData[]? m_gameDataList;
         private PathPicker? m_inputFolderPicker;
         private PathPicker? m_outputFolderPicker;
-        private PathPicker? m_tempFolderPicker;
         private OkDialog? m_okDialog;
         private CreditsDialog? m_creditsDialog;
         private RepackDialog? m_repackDialog;
@@ -124,11 +123,6 @@ namespace RepackinatorUI
                 Mode = PathPicker.PickerMode.Folder
             };
 
-            m_tempFolderPicker = new PathPicker
-            {
-                Mode = PathPicker.PickerMode.Folder
-            };
-
             m_okDialog = new OkDialog();
             m_creditsDialog = new CreditsDialog();
             m_repackDialog = new RepackDialog();
@@ -183,7 +177,6 @@ namespace RepackinatorUI
             if (m_window == null || 
                 m_inputFolderPicker == null || 
                 m_outputFolderPicker == null || 
-                m_tempFolderPicker == null || 
                 m_okDialog == null ||
                 m_creditsDialog == null ||
                 m_repackDialog == null || 
@@ -202,12 +195,6 @@ namespace RepackinatorUI
             if (m_outputFolderPicker.Render() && !m_outputFolderPicker.Cancelled)
             {
                 m_config.OutputPath = m_outputFolderPicker.SelectedFolder;
-                Config.SaveConfig(m_config);
-            }
-
-            if (m_tempFolderPicker.Render() && !m_tempFolderPicker.Cancelled)
-            {
-                m_config.TempPath = m_tempFolderPicker.SelectedFolder;
                 Config.SaveConfig(m_config);
             }
 
@@ -252,7 +239,7 @@ namespace RepackinatorUI
             const int MyItemColumnID_IsoNameAlt = 9;
 
             ImGuiTableFlags flags = ImGuiTableFlags.Resizable | ImGuiTableFlags.Borders | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable | ImGuiTableFlags.Sortable | ImGuiTableFlags.ScrollX | ImGuiTableFlags.ScrollY | ImGuiTableFlags.RowBg;
-            if (ImGui.BeginTable("table_sorting", 10, flags, new Vector2(0.0f, m_window.Height - 260), 0.0f))
+            if (ImGui.BeginTable("table_sorting", 10, flags, new Vector2(0.0f, m_window.Height - 234), 0.0f))
             {
                 ImGui.TableSetupColumn("Process", ImGuiTableColumnFlags.WidthFixed, 75.0f, MyItemColumnID_Process);
                 ImGui.TableSetupColumn("Title ID", ImGuiTableColumnFlags.WidthFixed, 75.0f, MyItemColumnID_TitleID);
@@ -509,23 +496,6 @@ namespace RepackinatorUI
                 m_outputFolderPicker.ShowModal(Directory.GetCurrentDirectory());
             }
 
-            ImGui.Text("Temp Folder:");
-            ImGui.SameLine();
-            ImGui.SetCursorPosX(125);
-            ImGui.PushItemWidth(400);
-            string tempPath = m_config.TempPath;
-            if (ImGui.InputText("##tenpFolder", ref tempPath, 260))
-            {
-                m_config.TempPath = tempPath;
-                Config.SaveConfig(m_config);
-            }            
-            ImGui.PopItemWidth();
-            ImGui.SameLine();
-            if (ImGui.Button("...##tenpPicker", new Vector2(30, 21)))
-            {
-                m_tempFolderPicker.ShowModal(Directory.GetCurrentDirectory());
-            }
-
             ImGui.SetCursorPosY(m_window.Height - 40);
 
             if (ImGui.Button("Save Game Data", new Vector2(100, 30)))
@@ -550,12 +520,6 @@ namespace RepackinatorUI
                 {
                     m_okDialog.Title = "Error";
                     m_okDialog.Message = "Output folder is invalid.";
-                    m_okDialog.ShowModal();
-                }
-                else if (!Directory.Exists(m_config.TempPath))
-                {
-                    m_okDialog.Title = "Error";
-                    m_okDialog.Message = "Temp folder is invalid.";
                     m_okDialog.ShowModal();
                 }
                 else

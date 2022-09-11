@@ -7,12 +7,14 @@ namespace SevenZipExtractor
     {
         private readonly string fileName;
         private readonly uint fileNumber;
-        private OutStreamWrapper fileStream; // to be removed
+        private readonly CancellationToken cancellationToken;
+        private OutStreamWrapper fileStream; // to be removed        
 
-        public ArchiveFileCallback(uint fileNumber, string fileName)
+        public ArchiveFileCallback(uint fileNumber, string fileName, CancellationToken cancellationToken)
         {
             this.fileNumber = fileNumber;
             this.fileName = fileName;
+            this.cancellationToken = cancellationToken;
         }
 
         public void SetTotal(ulong total)
@@ -38,7 +40,7 @@ namespace SevenZipExtractor
                 Directory.CreateDirectory(fileDir);
             }
 
-            this.fileStream = new OutStreamWrapper(File.Create(this.fileName));
+            this.fileStream = new OutStreamWrapper(File.Create(this.fileName), this.cancellationToken);
 
             outStream = this.fileStream;
 

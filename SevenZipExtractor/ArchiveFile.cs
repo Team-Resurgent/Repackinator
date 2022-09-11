@@ -11,12 +11,14 @@ namespace SevenZipExtractor
         private SevenZipHandle sevenZipHandle;
         private readonly IInArchive archive;
         private readonly InStreamWrapper archiveStream;
+        private readonly CancellationToken cancellationToken;
         private IList<Entry> entries;
 
         private string libraryFilePath;
 
-        public ArchiveFile(string archiveFilePath, string libraryFilePath = null)
+        public ArchiveFile(string archiveFilePath, CancellationToken cancellationToken, string libraryFilePath = null)
         {
+            this.cancellationToken = cancellationToken;
             this.libraryFilePath = libraryFilePath;
 
             this.InitializeAndValidateLibrary();
@@ -46,8 +48,9 @@ namespace SevenZipExtractor
             this.archiveStream = new InStreamWrapper(File.OpenRead(archiveFilePath));
         }
 
-        public ArchiveFile(Stream archiveStream, SevenZipFormat? format = null, string libraryFilePath = null)
+        public ArchiveFile(Stream archiveStream, CancellationToken cancellationToken, SevenZipFormat? format = null, string libraryFilePath = null)
         {
+            this.cancellationToken = cancellationToken;
             this.libraryFilePath = libraryFilePath;
 
             this.InitializeAndValidateLibrary();
@@ -128,7 +131,7 @@ namespace SevenZipExtractor
                     fileStreams.Add(File.Create(outputPath));
                 }
 
-                this.archive.Extract(null, 0xFFFFFFFF, 0, new ArchiveStreamsCallback(fileStreams));
+                this.archive.Extract(null, 0xFFFFFFFF, 0, new ArchiveStreamsCallback(fileStreams, this.cancellationToken));
             }
             finally
             {
