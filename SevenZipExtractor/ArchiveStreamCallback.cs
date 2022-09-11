@@ -7,11 +7,13 @@ namespace SevenZipExtractor
     {
         private readonly uint fileNumber;
         private readonly Stream stream;
+        private readonly CancellationToken cancellationToken;
 
-        public ArchiveStreamCallback(uint fileNumber, Stream stream)
+        public ArchiveStreamCallback(uint fileNumber, Stream stream, CancellationToken cancellationToken)
         {
             this.fileNumber = fileNumber;
             this.stream = stream;
+            this.cancellationToken = cancellationToken;
         }
 
         public void SetTotal(ulong total)
@@ -30,7 +32,7 @@ namespace SevenZipExtractor
                 return 0;
             }
 
-            outStream = new OutStreamWrapper(this.stream);
+            outStream = new OutStreamWrapper(this.stream, this.cancellationToken);
 
             return 0;
         }

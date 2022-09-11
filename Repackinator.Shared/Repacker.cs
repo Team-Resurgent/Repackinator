@@ -53,6 +53,7 @@ namespace Repackinator.Shared
             Directory.CreateDirectory(unpackPath);
 
             var processOutput = string.Empty;
+            var deleteProcessOutput = false;
 
             try
             {
@@ -79,7 +80,7 @@ namespace Repackinator.Shared
                     Log(LogMessageLevel.Info, "Extracting, Removing Video Partition & Splitting ISO...");
                     try
                     {
-                        using (ArchiveFile archiveFile = new ArchiveFile(inputFile))
+                        using (ArchiveFile archiveFile = new ArchiveFile(inputFile, cancellationToken))
                         {
                             foreach (Entry entry in archiveFile.Entries)
                             {
@@ -98,17 +99,22 @@ namespace Repackinator.Shared
                                     });
                                     using (var progressStream = new ProgressStream(fileStream1, fileStream2, (long)entry.Size, extractProgress))
                                     {
-                                        entry.Extract(progressStream);
+                                        entry.Extract(progressStream, cancellationToken);
                                     }
                                 }
                             }
                         }
                         extractStopwatch.Stop();
-                        Log(LogMessageLevel.Info, $"Extract Completed (Time Taken {extractStopwatch.Elapsed.Hours:00}:{extractStopwatch.Elapsed.Minutes:00}:{extractStopwatch.Elapsed.Seconds:00}).");
+                        Log(LogMessageLevel.Info, $"Extracting, Removing Video Partition & Splitting ISO Completed (Time Taken {extractStopwatch.Elapsed.Hours:00}:{extractStopwatch.Elapsed.Minutes:00}:{extractStopwatch.Elapsed.Seconds:00}).");
                     }
                     catch (Exception ex)
                     {
                         Log(LogMessageLevel.Error, $"Failed to extract archive - {ex}\n");
+                        return;
+                    }
+
+                    if (cancellationToken.IsCancellationRequested)
+                    {
                         return;
                     }
                 }
@@ -269,20 +275,21 @@ namespace Repackinator.Shared
                         }
                         if (!XbeUtility.TryReplaceXbeTitleImage(attach, jpgImage))
                         {
+                            deleteProcessOutput = true;
                             Log(LogMessageLevel.Error, "Failed to replace image.\n");
                             return;
                         }
                     }
                     else
                     {
+                        deleteProcessOutput = true;
                         Log(LogMessageLevel.Error, "Failed to create png.\n");
                         return;
                     }
                 }
                 else
                 {
-                    Log(LogMessageLevel.Error, "Failed to extract xpr.\n");
-                    return;
+                    Log(LogMessageLevel.Warning, "Failed to extract xpr as probably missing.\n");                    
                 }
                                                 
                 if (XbeUtility.ReplaceCertInfo(attach, xbeData, xbeTitleAndFolderName, out var patchedAttach) && patchedAttach != null)
@@ -291,6 +298,7 @@ namespace Repackinator.Shared
                 }
                 else
                 {
+                    deleteProcessOutput = true;
                     Log(LogMessageLevel.Error, "failed creating attach xbe.\n");
                     return;
                 }
@@ -300,10 +308,15 @@ namespace Repackinator.Shared
             }
             catch (Exception ex)
             {
+                deleteProcessOutput = true;
                 Log(LogMessageLevel.Error, $"Processing '{inputFile}' caused error '{ex}'.\n");
             }
             finally
             {
+                if (deleteProcessOutput && Directory.Exists(processOutput))
+                {
+                    Directory.Delete(processOutput, true);
+                }                
                 if (Directory.Exists(unpackPath))
                 {
                     Directory.Delete(unpackPath, true);

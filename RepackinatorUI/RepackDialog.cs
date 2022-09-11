@@ -94,7 +94,7 @@ namespace RepackinatorUI
 
             if (ImGui.IsWindowAppearing())
             {
-                ImGui.SetWindowSize(new Vector2(500, 300));
+                ImGui.SetWindowSize(new Vector2(700, 400));
             }
 
             Vector2 windowSize = ImGui.GetWindowSize();

@@ -434,9 +434,11 @@ namespace SevenZipExtractor
 
     internal class OutStreamWrapper : StreamWrapper, ISequentialOutStream, IOutStream
     {
-        public OutStreamWrapper(Stream baseStream) : base(baseStream)
-        {
+        private readonly CancellationToken cancellationToken;
 
+        public OutStreamWrapper(Stream baseStream, CancellationToken cancellationToken) : base(baseStream)
+        {
+            this.cancellationToken = cancellationToken;
         }
 
         public int SetSize(long newSize)
@@ -447,6 +449,11 @@ namespace SevenZipExtractor
 
         public int Write(byte[] data, uint size, IntPtr processedSize)
         {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                throw new SevenZipAbortException();
+            }
+
             this.BaseStream.Write(data, 0, (int) size);
 
             if (processedSize != IntPtr.Zero)
