@@ -6,10 +6,12 @@ namespace SevenZipExtractor
     internal class ArchiveStreamsCallback : IArchiveExtractCallback
     {
         private readonly IList<Stream> streams;
+        private readonly CancellationToken cancellationToken;
 
-        public ArchiveStreamsCallback(IList<Stream> streams) 
+        public ArchiveStreamsCallback(IList<Stream> streams, CancellationToken cancellationToken) 
         {
             this.streams = streams;
+            this.cancellationToken = cancellationToken;
         }
 
         public void SetTotal(ulong total)
@@ -42,7 +44,7 @@ namespace SevenZipExtractor
                 return 0;
             }
 
-            outStream = new OutStreamWrapper(stream);
+            outStream = new OutStreamWrapper(stream, cancellationToken);
 
             return 0;
         }

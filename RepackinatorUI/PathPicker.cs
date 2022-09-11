@@ -262,7 +262,7 @@ namespace RepackinatorUI
             ImGui.InputText("###file-path", ref _selectedFolder, 300, ImGuiInputTextFlags.ReadOnly);
             ImGui.Spacing();
 
-            if (ImGui.BeginChildFrame(1, new Vector2(200, size.Y - 100), ImGuiWindowFlags.None))
+            if (ImGui.BeginChildFrame(1, new Vector2(200, size.Y - 104), ImGuiWindowFlags.None))
             {
                 var specialFolders = GetSpecialFolders();
                 foreach (var specialFolder in specialFolders)
@@ -277,7 +277,7 @@ namespace RepackinatorUI
             }
 
             ImGui.SameLine();
-            if (ImGui.BeginChildFrame(2, new Vector2(size.X - 224, size.Y - 100), ImGuiWindowFlags.None))
+            if (ImGui.BeginChildFrame(2, new Vector2(size.X - 224, size.Y - 104), ImGuiWindowFlags.None))
             {
                 var directoryInfo = new DirectoryInfo(_selectedFolder);
                 if (directoryInfo.Parent != null)
