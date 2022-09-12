@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Repackinator.Shared
 {
-    public class ProgressStream : Stream
+    public class ExtractSplitStream : Stream
     {
         private int m_currentPart;
         private Stream[] m_outputParts;
@@ -14,7 +14,7 @@ namespace Repackinator.Shared
         private long m_isoLength;
         private Action<float> m_progress;
 
-        public ProgressStream(Stream outputPart1, Stream outputPart2, long isoLength, Action<float> progress)
+        public ExtractSplitStream(Stream outputPart1, Stream outputPart2, long isoLength, Action<float> progress)
         {
             m_currentPart = 0;
             m_outputParts = new Stream[] { outputPart1, outputPart2 };

@@ -97,9 +97,9 @@ namespace Repackinator.Shared
                                         CurrentProgress.Progress2Text = $"Extracting, Removing Video Partition & Splitting ISO...";
                                         SendProgress();
                                     });
-                                    using (var progressStream = new ProgressStream(fileStream1, fileStream2, (long)entry.Size, extractProgress))
+                                    using (var extractSplitStream = new ExtractSplitStream(fileStream1, fileStream2, (long)entry.Size, extractProgress))
                                     {
-                                        entry.Extract(progressStream, cancellationToken);
+                                        entry.Extract(extractSplitStream, cancellationToken);
                                     }
                                 }
                             }
