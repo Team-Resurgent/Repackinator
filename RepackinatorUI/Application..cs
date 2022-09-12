@@ -40,37 +40,57 @@ namespace RepackinatorUI
 
             GameData gameData = m_gameDataList[index];
 
-            if (m_searchField == 0 && gameData.TitleID != null)
+            if (m_searchField == 0 && gameData.Process != null)
+            {
+                return !gameData.Process.Contains(m_searchText, StringComparison.CurrentCultureIgnoreCase);
+            }
+            else if (m_searchField == 1 && gameData.TitleID != null)
             {
                 return !gameData.TitleID.Contains(m_searchText, StringComparison.CurrentCultureIgnoreCase);
             }
-            else if (m_searchField == 1 && gameData.Region != null)
+            else if (m_searchField == 2 && gameData.Region != null)
             {
                 return !gameData.Region.Contains(m_searchText, StringComparison.CurrentCultureIgnoreCase);
             }
-            else if (m_searchField == 2 && gameData.TitleName != null)
+            else if (m_searchField == 3 && gameData.Version != null)
+            {
+                return !gameData.Version.Contains(m_searchText, StringComparison.CurrentCultureIgnoreCase);
+            }
+            else if (m_searchField == 4 && gameData.TitleName != null)
             {
                 return !gameData.TitleName.Contains(m_searchText, StringComparison.CurrentCultureIgnoreCase);
             }
-            else if (m_searchField == 3 && gameData.Letter != null)
+            else if (m_searchField == 5 && gameData.Letter != null)
             {
                 return !gameData.Letter.Contains(m_searchText, StringComparison.CurrentCultureIgnoreCase);
             }
-            else if (m_searchField == 4 && gameData.XBETitleAndFolderName != null)
+            else if (m_searchField == 6 && gameData.XBETitle != null)
             {
-                return !gameData.XBETitleAndFolderName.Contains(m_searchText, StringComparison.CurrentCultureIgnoreCase);
+                return !gameData.XBETitle.Contains(m_searchText, StringComparison.CurrentCultureIgnoreCase);
             }
-            else if (m_searchField == 5 && gameData.XBETitleAndFolderNameAlt != null)
+            else if (m_searchField == 7 && gameData.XBETitleAlt != null)
             {
-                return !gameData.XBETitleAndFolderNameAlt.Contains(m_searchText, StringComparison.CurrentCultureIgnoreCase);
+                return !gameData.XBETitleAlt.Contains(m_searchText, StringComparison.CurrentCultureIgnoreCase);
             }
-            else if (m_searchField == 6 && gameData.ISOName != null)
+            else if (m_searchField == 8 && gameData.FolderName != null)
+            {
+                return !gameData.FolderName.Contains(m_searchText, StringComparison.CurrentCultureIgnoreCase);
+            }
+            else if (m_searchField == 9 && gameData.FolderNameAlt != null)
+            {
+                return !gameData.FolderNameAlt.Contains(m_searchText, StringComparison.CurrentCultureIgnoreCase);
+            }
+            else if (m_searchField == 10 && gameData.ISOName != null)
             {
                 return !gameData.ISOName.Contains(m_searchText, StringComparison.CurrentCultureIgnoreCase);
             }
-            else if (m_searchField == 7 && gameData.ISONameAlt != null)
+            else if (m_searchField == 11 && gameData.ISONameAlt != null)
             {
                 return !gameData.ISONameAlt.Contains(m_searchText, StringComparison.CurrentCultureIgnoreCase);
+            }
+            else if (m_searchField == 12 && gameData.ISOChecksum != null)
+            {
+                return !gameData.ISOChecksum.Contains(m_searchText, StringComparison.CurrentCultureIgnoreCase);
             }
             return false;
         }
@@ -97,11 +117,19 @@ namespace RepackinatorUI
 
             GameData gameData = m_gameDataList[index];
 
-            if (gameData.XBETitleAndFolderName != null && gameData.XBETitleAndFolderName.Length > 40 && ValidateFatX(gameData.XBETitleAndFolderName))
+            if (gameData.XBETitle != null && gameData.XBETitle.Length > 40 && ValidateFatX(gameData.XBETitle))
             {
                 return false;
             }
-            else if (gameData.XBETitleAndFolderNameAlt != null && gameData.XBETitleAndFolderNameAlt.Length > 40 && ValidateFatX(gameData.XBETitleAndFolderNameAlt))
+            else if (gameData.XBETitleAlt != null && gameData.XBETitleAlt.Length > 40 && ValidateFatX(gameData.XBETitleAlt))
+            {
+                return false;
+            }
+            if (gameData.FolderName != null && gameData.FolderName.Length > 42 && ValidateFatX(gameData.FolderName))
+            {
+                return false;
+            }
+            else if (gameData.FolderNameAlt != null && gameData.FolderNameAlt.Length > 42 && ValidateFatX(gameData.FolderNameAlt))
             {
                 return false;
             }
@@ -219,7 +247,7 @@ namespace RepackinatorUI
             ImGui.SetWindowSize(new Vector2(m_window.Width, m_window.Height));
             ImGui.SetWindowPos(new Vector2(0, 0), ImGuiCond.Always);
 
-            string[] searchItems = new string[] { "Title ID", "Region", "Title Name", "Letter", "XBE Title And Folder Name", "XBE Title And Folder Name Alt", "Iso Name", "Iso Name Alt" };
+            string[] searchItems = new string[] { "Process", "Title ID", "Region", "Version", "Title Name", "Letter", "XBE Title", "XBE Title Alt", "Folder Name", "Folder Name Alt", "Iso Name", "Iso Name Alt", "Iso Checksum" };
          
             ImGui.Text("Search:");
             ImGui.PushItemWidth(200);
@@ -246,13 +274,16 @@ namespace RepackinatorUI
             const int MyItemColumnID_Region = 3;
             const int MyItemColumnID_TitleName = 4;
             const int MyItemColumnID_Letter = 5;
-            const int MyItemColumnID_XBETitleAndFolderName = 6;
-            const int MyItemColumnID_XBETitleAndFolderNameAlt = 7;
-            const int MyItemColumnID_IsoName = 8;
-            const int MyItemColumnID_IsoNameAlt = 9;
+            const int MyItemColumnID_XBETitle = 6;
+            const int MyItemColumnID_XBETitleAlt = 7;
+            const int MyItemColumnID_FolderName = 8;
+            const int MyItemColumnID_FolderNameAlt = 9;
+            const int MyItemColumnID_IsoName = 10;
+            const int MyItemColumnID_IsoNameAlt = 11;
+            const int MyItemColumnID_IsoChecksum = 12;
 
             ImGuiTableFlags flags = ImGuiTableFlags.Resizable | ImGuiTableFlags.Borders | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable | ImGuiTableFlags.Sortable | ImGuiTableFlags.ScrollX | ImGuiTableFlags.ScrollY | ImGuiTableFlags.RowBg;
-            if (ImGui.BeginTable("table_sorting", 10, flags, new Vector2(0.0f, m_window.Height - 234), 0.0f))
+            if (ImGui.BeginTable("table_sorting", 13, flags, new Vector2(0.0f, m_window.Height - 234), 0.0f))
             {
                 ImGui.TableSetupColumn("Process", ImGuiTableColumnFlags.WidthFixed, 75.0f, MyItemColumnID_Process);
                 ImGui.TableSetupColumn("Title ID", ImGuiTableColumnFlags.WidthFixed, 75.0f, MyItemColumnID_TitleID);
@@ -260,10 +291,13 @@ namespace RepackinatorUI
                 ImGui.TableSetupColumn("Region", ImGuiTableColumnFlags.WidthFixed, 100.0f, MyItemColumnID_Region);
                 ImGui.TableSetupColumn("Title Name", ImGuiTableColumnFlags.WidthFixed, 300.0f, MyItemColumnID_TitleName);
                 ImGui.TableSetupColumn("Letter", ImGuiTableColumnFlags.WidthFixed, 75.0f, MyItemColumnID_Letter);
-                ImGui.TableSetupColumn("XBE Title And Folder Name", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.DefaultSort, 300.0f, MyItemColumnID_XBETitleAndFolderName);
-                ImGui.TableSetupColumn("XBE Title And Folder Name Alt", ImGuiTableColumnFlags.WidthFixed, 300.0f, MyItemColumnID_XBETitleAndFolderNameAlt);
+                ImGui.TableSetupColumn("XBE Title", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.DefaultSort, 300.0f, MyItemColumnID_XBETitle);
+                ImGui.TableSetupColumn("XBE Title Alt", ImGuiTableColumnFlags.WidthFixed, 300.0f, MyItemColumnID_XBETitleAlt);
+                ImGui.TableSetupColumn("Folder Name", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.DefaultSort, 300.0f, MyItemColumnID_FolderName);
+                ImGui.TableSetupColumn("Folder Name Alt", ImGuiTableColumnFlags.WidthFixed, 300.0f, MyItemColumnID_FolderNameAlt);
                 ImGui.TableSetupColumn("Iso Name", ImGuiTableColumnFlags.WidthFixed, 300.0f, MyItemColumnID_IsoName);
                 ImGui.TableSetupColumn("Iso Name Alt", ImGuiTableColumnFlags.WidthFixed, 300.0f, MyItemColumnID_IsoNameAlt);
+                ImGui.TableSetupColumn("Iso Checksum", ImGuiTableColumnFlags.WidthFixed, 100.0f, MyItemColumnID_IsoChecksum);
                 ImGui.TableSetupScrollFreeze(0, 1);
                 ImGui.TableHeadersRow();
 
@@ -305,19 +339,31 @@ namespace RepackinatorUI
                             }
                             else if (colIndex == 6)
                             {
-                                m_gameDataList = (specs.SortDirection == ImGuiSortDirection.Ascending ? m_gameDataList.OrderBy(s => s.XBETitleAndFolderName) : m_gameDataList.OrderByDescending(s => s.XBETitleAndFolderName)).ToArray();
+                                m_gameDataList = (specs.SortDirection == ImGuiSortDirection.Ascending ? m_gameDataList.OrderBy(s => s.XBETitle) : m_gameDataList.OrderByDescending(s => s.XBETitle)).ToArray();
                             }
                             else if (colIndex == 7)
                             {
-                                m_gameDataList = (specs.SortDirection == ImGuiSortDirection.Ascending ? m_gameDataList.OrderBy(s => s.XBETitleAndFolderNameAlt) : m_gameDataList.OrderByDescending(s => s.XBETitleAndFolderNameAlt)).ToArray();
+                                m_gameDataList = (specs.SortDirection == ImGuiSortDirection.Ascending ? m_gameDataList.OrderBy(s => s.XBETitleAlt) : m_gameDataList.OrderByDescending(s => s.XBETitleAlt)).ToArray();
                             }
                             else if (colIndex == 8)
                             {
-                                m_gameDataList = (specs.SortDirection == ImGuiSortDirection.Ascending ? m_gameDataList.OrderBy(s => s.ISOName) : m_gameDataList.OrderByDescending(s => s.ISOName)).ToArray();
+                                m_gameDataList = (specs.SortDirection == ImGuiSortDirection.Ascending ? m_gameDataList.OrderBy(s => s.FolderName) : m_gameDataList.OrderByDescending(s => s.FolderName)).ToArray();
                             }
                             else if (colIndex == 9)
                             {
+                                m_gameDataList = (specs.SortDirection == ImGuiSortDirection.Ascending ? m_gameDataList.OrderBy(s => s.FolderNameAlt) : m_gameDataList.OrderByDescending(s => s.FolderNameAlt)).ToArray();
+                            }
+                            else if (colIndex == 10)
+                            {
+                                m_gameDataList = (specs.SortDirection == ImGuiSortDirection.Ascending ? m_gameDataList.OrderBy(s => s.ISOName) : m_gameDataList.OrderByDescending(s => s.ISOName)).ToArray();
+                            }
+                            else if (colIndex == 11)
+                            {
                                 m_gameDataList = (specs.SortDirection == ImGuiSortDirection.Ascending ? m_gameDataList.OrderBy(s => s.ISONameAlt) : m_gameDataList.OrderByDescending(s => s.ISONameAlt)).ToArray();
+                            }
+                            else if (colIndex == 12)
+                            {
+                                m_gameDataList = (specs.SortDirection == ImGuiSortDirection.Ascending ? m_gameDataList.OrderBy(s => s.ISOChecksum) : m_gameDataList.OrderByDescending(s => s.ISOChecksum)).ToArray();
                             }
                         }
                         sortSpects.SpecsDirty = false;
@@ -365,23 +411,45 @@ namespace RepackinatorUI
                         ImGui.PopItemWidth();
 
                         ImGui.TableNextColumn();
-                        string xbeTitleAndFolderName = m_gameDataList[i].XBETitleAndFolderName ?? "";
+                        string xbeTitle = m_gameDataList[i].XBETitle ?? "";
                         ImGui.PushItemWidth(ImGui.GetColumnWidth());
-                        ImGui.PushStyleColor(ImGuiCol.Text, xbeTitleAndFolderName.Length > 40 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.5f, 0.5f, 1)) : ImGui.ColorConvertFloat4ToU32(new Vector4(1, 1, 1, 1)));
-                        if (ImGui.InputText($"##xbeTitleAndFolderName{i}", ref xbeTitleAndFolderName, 40))
+                        ImGui.PushStyleColor(ImGuiCol.Text, xbeTitle.Length > 40 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.5f, 0.5f, 1)) : ImGui.ColorConvertFloat4ToU32(new Vector4(1, 1, 1, 1)));
+                        if (ImGui.InputText($"##xbeTitle{i}", ref xbeTitle, 40))
                         {
-                            m_gameDataList[i].XBETitleAndFolderName = xbeTitleAndFolderName;
+                            m_gameDataList[i].XBETitle = xbeTitle;
                         }
                         ImGui.PopStyleColor();
                         ImGui.PopItemWidth();
 
                         ImGui.TableNextColumn();
-                        string xbeTitleAndFolderNameAlt = m_gameDataList[i].XBETitleAndFolderNameAlt ?? "";
+                        string xbeTitleAlt = m_gameDataList[i].XBETitleAlt ?? "";
                         ImGui.PushItemWidth(ImGui.GetColumnWidth());
-                        ImGui.PushStyleColor(ImGuiCol.Text, xbeTitleAndFolderNameAlt.Length > 40 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.5f, 0.5f, 1)) : ImGui.ColorConvertFloat4ToU32(new Vector4(1, 1, 1, 1)));
-                        if (ImGui.InputText($"##xbeTitleAndFolderNameAlt{i}", ref xbeTitleAndFolderNameAlt, 40))
+                        ImGui.PushStyleColor(ImGuiCol.Text, xbeTitleAlt.Length > 40 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.5f, 0.5f, 1)) : ImGui.ColorConvertFloat4ToU32(new Vector4(1, 1, 1, 1)));
+                        if (ImGui.InputText($"##xbeTitleAlt{i}", ref xbeTitleAlt, 40))
                         {
-                            m_gameDataList[i].XBETitleAndFolderNameAlt = xbeTitleAndFolderNameAlt;
+                            m_gameDataList[i].XBETitleAlt = xbeTitleAlt;
+                        }
+                        ImGui.PopStyleColor();
+                        ImGui.PopItemWidth();
+
+                        ImGui.TableNextColumn();
+                        string folderName = m_gameDataList[i].FolderName ?? "";
+                        ImGui.PushItemWidth(ImGui.GetColumnWidth());
+                        ImGui.PushStyleColor(ImGuiCol.Text, folderName.Length > 40 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.5f, 0.5f, 1)) : ImGui.ColorConvertFloat4ToU32(new Vector4(1, 1, 1, 1)));
+                        if (ImGui.InputText($"##folderName{i}", ref folderName, 40))
+                        {
+                            m_gameDataList[i].FolderName = folderName;
+                        }
+                        ImGui.PopStyleColor();
+                        ImGui.PopItemWidth();
+
+                        ImGui.TableNextColumn();
+                        string folderNameAlt = m_gameDataList[i].FolderNameAlt ?? "";
+                        ImGui.PushItemWidth(ImGui.GetColumnWidth());
+                        ImGui.PushStyleColor(ImGuiCol.Text, folderNameAlt.Length > 40 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.5f, 0.5f, 1)) : ImGui.ColorConvertFloat4ToU32(new Vector4(1, 1, 1, 1)));
+                        if (ImGui.InputText($"##folderNameAlt{i}", ref folderNameAlt, 40))
+                        {
+                            m_gameDataList[i].FolderNameAlt = folderNameAlt;
                         }
                         ImGui.PopStyleColor();
                         ImGui.PopItemWidth();
@@ -404,6 +472,17 @@ namespace RepackinatorUI
                         if (ImGui.InputText($"##isoNameAlt{i}", ref isoNameAlt, 36))
                         {
                             m_gameDataList[i].ISONameAlt = isoNameAlt;
+                        }
+                        ImGui.PopStyleColor();
+                        ImGui.PopItemWidth();
+
+                        ImGui.TableNextColumn();
+                        string isoChecksum = m_gameDataList[i].ISOChecksum ?? "";
+                        ImGui.PushItemWidth(ImGui.GetColumnWidth());
+                        ImGui.PushStyleColor(ImGuiCol.Text, isoChecksum.Length > 36 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.5f, 0.5f, 1)) : ImGui.ColorConvertFloat4ToU32(new Vector4(1, 1, 1, 1)));
+                        if (ImGui.InputText($"##isoChecksum{i}", ref isoChecksum, 36))
+                        {
+                            m_gameDataList[i].ISOChecksum = isoChecksum;
                         }
                         ImGui.PopStyleColor();
                         ImGui.PopItemWidth();

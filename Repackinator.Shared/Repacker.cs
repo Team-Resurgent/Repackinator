@@ -203,15 +203,27 @@ namespace Repackinator.Shared
                     return;
                 }
 
-                if (gameData.Value.XBETitleAndFolderName == null)
+                if (gameData.Value.XBETitle == null)
                 {
-                    Log(LogMessageLevel.Error, "XBE title & folder name is null in dataset.\n");
+                    Log(LogMessageLevel.Error, "XBE title is null in dataset.\n");
                     return;
                 }
 
-                if (gameData.Value.XBETitleAndFolderNameAlt == null)
+                if (gameData.Value.XBETitleAlt == null)
                 {
-                    Log(LogMessageLevel.Error, "XBE title & folder name alt is null in dataset.");
+                    Log(LogMessageLevel.Error, "XBE title alt is null in dataset.");
+                    return;
+                }
+
+                if (gameData.Value.FolderName == null)
+                {
+                    Log(LogMessageLevel.Error, "Folder name is null in dataset.\n");
+                    return;
+                }
+
+                if (gameData.Value.FolderNameAlt == null)
+                {
+                    Log(LogMessageLevel.Error, "Folder name alt is null in dataset.");
                     return;
                 }
 
@@ -250,10 +262,11 @@ namespace Repackinator.Shared
                     outputPath = Path.Combine(outputPath, gameData.Value.Letter, gameData.Value.Region);
                 }
 
-                var xbeTitleAndFolderName = alternate ? gameData.Value.XBETitleAndFolderNameAlt : gameData.Value.XBETitleAndFolderName;
+                var xbeTitle = alternate ? gameData.Value.XBETitleAlt : gameData.Value.XBETitle;
+                var folderName = alternate ? gameData.Value.FolderNameAlt : gameData.Value.FolderName;
                 var isoFileName = alternate ? gameData.Value.ISONameAlt : gameData.Value.ISOName;
 
-                processOutput = Path.Combine(outputPath, xbeTitleAndFolderName);
+                processOutput = Path.Combine(outputPath, folderName);
 
                 if (Directory.Exists(processOutput))
                 {
@@ -292,7 +305,7 @@ namespace Repackinator.Shared
                     Log(LogMessageLevel.Warning, "Failed to extract xpr as probably missing.\n");                    
                 }
                                                 
-                if (XbeUtility.ReplaceCertInfo(attach, xbeData, xbeTitleAndFolderName, out var patchedAttach) && patchedAttach != null)
+                if (XbeUtility.ReplaceCertInfo(attach, xbeData, xbeTitle, out var patchedAttach) && patchedAttach != null)
                 {
                     File.WriteAllBytes(Path.Combine(processOutput, "default.xbe"), patchedAttach);
                 }
