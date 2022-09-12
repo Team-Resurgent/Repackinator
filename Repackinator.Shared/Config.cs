@@ -60,7 +60,7 @@ namespace Repackinator.Shared
                 return;
             }
 
-            var result = JsonSerializer.Serialize(config);
+            var result = JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(path, result);
         }
 

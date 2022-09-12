@@ -36,7 +36,7 @@ namespace Repackinator.Shared
             }
 
 
-            var result = JsonSerializer.Serialize(gameData);
+            var result = JsonSerializer.Serialize(gameData, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(path, result);
         }
 
