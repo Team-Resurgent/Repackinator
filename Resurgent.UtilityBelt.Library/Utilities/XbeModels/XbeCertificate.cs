@@ -37,27 +37,27 @@ namespace Resurgent.UtilityBelt.Library.Utilities.XbeModels
             var debug = (region & 0x80000000) == 0x80000000;
             if (debug)
             {
-                gameRegion = "Debug";
+                gameRegion = "DBG";
             }
 
             var global = (region & 0x00000007) == 0x00000007;
             if (global)
             {
-                gameRegion = gameRegion.Length > 0 ? $"Global, {gameRegion}" : "Global";
+                gameRegion = gameRegion.Length > 0 ? $"GLO-{gameRegion}" : "GLO";
             }
             else
             {
                 if ((region & 0x00000004) == 0x00000004)
                 {
-                    gameRegion = gameRegion.Length > 0 ? $"Europe, {gameRegion}" : "Europe";
+                    gameRegion = gameRegion.Length > 0 ? $"PAL-{gameRegion}" : "PAL";
                 }
                 if ((region & 0x00000002) == 0x00000002)
                 {
-                    gameRegion = gameRegion.Length > 0 ? $"Japan, {gameRegion}" : "Japan";
+                    gameRegion = gameRegion.Length > 0 ? $"JAP-{gameRegion}" : "JAP";
                 }
                 if ((region & 0x00000001) == 0x00000001)
                 {
-                    gameRegion = gameRegion.Length > 0 ? $"USA, {gameRegion}" : "USA";
+                    gameRegion = gameRegion.Length > 0 ? $"USA-{gameRegion}" : "USA";
                 }
             }
 

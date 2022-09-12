@@ -75,6 +75,19 @@ namespace RepackinatorUI
             return false;
         }
 
+        private bool ValidateFatX(string path)
+        {
+            const string validChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz 0123456789!#$%&'()-.@[]^_`{}~";
+            foreach (var c in path)
+            {
+                if (!validChars.Contains(c))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         private bool IsValidRow(int index)
         {
             if (string.IsNullOrEmpty(m_searchText) || m_gameDataList == null)
@@ -84,19 +97,19 @@ namespace RepackinatorUI
 
             GameData gameData = m_gameDataList[index];
 
-            if (gameData.XBETitleAndFolderName != null && gameData.XBETitleAndFolderName.Length > 40)
+            if (gameData.XBETitleAndFolderName != null && gameData.XBETitleAndFolderName.Length > 40 && ValidateFatX(gameData.XBETitleAndFolderName))
             {
                 return false;
             }
-            else if (gameData.XBETitleAndFolderNameAlt != null && gameData.XBETitleAndFolderNameAlt.Length > 40)
+            else if (gameData.XBETitleAndFolderNameAlt != null && gameData.XBETitleAndFolderNameAlt.Length > 40 && ValidateFatX(gameData.XBETitleAndFolderNameAlt))
             {
                 return false;
             }
-            else if (gameData.ISOName != null && gameData.ISOName.Length > 36)
+            else if (gameData.ISOName != null && gameData.ISOName.Length > 36 && ValidateFatX(gameData.ISOName))
             {
                 return false;
             }
-            else if (gameData.ISONameAlt != null && gameData.ISONameAlt.Length > 36)
+            else if (gameData.ISONameAlt != null && gameData.ISONameAlt.Length > 36 && ValidateFatX(gameData.ISONameAlt))
             {
                 return false;
             }
