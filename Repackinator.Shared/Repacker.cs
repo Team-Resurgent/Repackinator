@@ -164,9 +164,9 @@ namespace Repackinator.Shared
                     return;
                 }
 
-                var titleId = cert.Value.Title_Id.ToString("X2");
+                var titleId = cert.Value.Title_Id.ToString("0:X8");
                 var gameRegion = XbeCertificate.GameRegionToString(cert.Value.Game_Region);
-                var version = cert.Value.Version.ToString("X2");
+                var version = cert.Value.Version.ToString("0:X8");
 
                 bool found = false;
 

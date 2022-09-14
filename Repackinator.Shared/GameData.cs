@@ -4,6 +4,9 @@ namespace Repackinator.Shared
 {
     public struct GameData
     {
+        [JsonIgnore]
+        public bool Selected { get; set; }
+
         [JsonPropertyName("Title ID")]
         public string TitleID { get; set; }
 
