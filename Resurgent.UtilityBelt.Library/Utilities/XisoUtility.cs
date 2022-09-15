@@ -267,8 +267,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
             fs.Position = skipSize;
 
-            byte[] buffer = new byte[16 * 65536];
-            byte[] backBuffer = new byte[65536];
+            byte[] buffer = new byte[65536];
 
             if (progress != null)
             {
@@ -284,58 +283,22 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
                 var bytesRead = 0L;
 
-                //var bytesToRead = (int)Math.Min(buffer.Length, sectorSplit - bytesRead);
-                //var readResult = fs.BeginRead(buffer, 0, bytesToRead, null, null);
-                //do
-                //{
-                //    var chunkRead = fs.EndRead(readResult);
-                //    bytesRead += chunkRead;
-
-                //    var writeResult = fileParts[i].BeginWrite(buffer, 0, chunkRead, null, null);
-                //    var writeBuffer = buffer;
-
-                //    if (chunkRead > 0)
-                //    {
-                //        bytesToRead = (int)Math.Min(buffer.Length, sectorSplit - bytesRead);
-                //        readResult = fs.BeginRead(backBuffer, 0, backBuffer.Length, null, null);
-                //        backBuffer = Interlocked.Exchange(ref buffer, backBuffer);
-                //    }
-
-                //    fileParts[i].EndWrite(writeResult);
-                //}
-                //while (bytesRead < sectorSplit);
-
-                var bytesToRead = (int)Math.Min(buffer.Length, sectorSplit - bytesRead);
-                var readResult = fs.BeginRead(buffer, 0, bytesToRead, null, null);
-
-                do
+                while (bytesRead < sectorSplit)
                 {
                     if (cancellationToken.IsCancellationRequested)
                     {
                         break;
                     }
-
-                    var chunkRead = fs.EndRead(readResult);
-
+                    var bytesToRead = (int)Math.Min(buffer.Length, sectorSplit - bytesRead);
+                    var chunkRead = fs.Read(buffer, 0, bytesToRead);
                     bytesRead += chunkRead;
-
-                    var writeResult = fileParts[i].BeginWrite(buffer, 0, chunkRead, null, null);
-
-                    if (chunkRead > 0)
-                    {
-                        bytesToRead = (int)Math.Min(buffer.Length, sectorSplit - bytesRead);
-                        readResult = fs.BeginRead(backBuffer, 0, backBuffer.Length, null, null);
-                        backBuffer = Interlocked.Exchange(ref buffer, backBuffer);
-                    }
-
-                    fileParts[i].EndWrite(writeResult);
+                    fileParts[i].Write(buffer, 0, chunkRead);
 
                     if (progress != null)
                     {
                         progress((bytesRead + (i * sectorSplit)) / (float)(fileLength - skipSize));
                     }
                 }
-                while (bytesRead < sectorSplit);
             }
 
             for (var i = 0; i < parts; i++)
@@ -343,7 +306,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 fileParts[i].Dispose();
             }
 
-            return true; 
+            return true;
         }
     }
 }
