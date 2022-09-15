@@ -2,6 +2,7 @@
 using Resurgent.UtilityBelt.Library.Utilities.XbeModels;
 using SevenZipExtractor;
 using System.Diagnostics;
+using System.Text;
 
 namespace Repackinator.Shared
 {
@@ -88,19 +89,39 @@ namespace Repackinator.Shared
                                 {
                                     continue;
                                 }
-                                using (var fileStream1 = new FileStream(Path.Combine(unpackPath, @"Repackinator.1.iso"), FileMode.Create))
-                                using (var fileStream2 = new FileStream(Path.Combine(unpackPath, @"Repackinator.2.iso"), FileMode.Create))
+
+                                var entryCRC = entry.CRC.ToString("X8");
+
+                                bool processArchive = true;
+                                foreach (var game in GameDataList)
                                 {
-                                    var extractProgress = new Action<float>((progress) =>
-                                    {
-                                        CurrentProgress.Progress2 = progress;
-                                        CurrentProgress.Progress2Text = $"Extracting, Removing Video Partition & Splitting ISO...";
-                                        SendProgress();
-                                    });
-                                    using (var extractSplitStream = new ExtractSplitStream(fileStream1, fileStream2, (long)entry.Size, extractProgress))
-                                    {
-                                        entry.Extract(extractSplitStream, cancellationToken);
+                                    if (game.ISOChecksum.PadLeft(8, '0').Equals(entryCRC, StringComparison.CurrentCultureIgnoreCase))
+                                    {                                        
+                                        processArchive = game.Process.Equals("Y", StringComparison.CurrentCultureIgnoreCase);
+                                        break;
                                     }
+                                }
+
+                                if (processArchive)
+                                {
+                                    using (var fileStream1 = new FileStream(Path.Combine(unpackPath, @"Repackinator.1.iso"), FileMode.Create))
+                                    using (var fileStream2 = new FileStream(Path.Combine(unpackPath, @"Repackinator.2.iso"), FileMode.Create))
+                                    {
+                                        var extractProgress = new Action<float>((progress) =>
+                                        {
+                                            CurrentProgress.Progress2 = progress;
+                                            CurrentProgress.Progress2Text = $"Extracting, Removing Video Partition & Splitting ISO...";
+                                            SendProgress();
+                                        });
+                                        using (var extractSplitStream = new ExtractSplitStream(fileStream1, fileStream2, (long)entry.Size, extractProgress))
+                                        {
+                                            entry.Extract(extractSplitStream, cancellationToken);
+                                        }
+                                    }
+                                }
+                                else 
+                                {
+                                    Log(LogMessageLevel.Warning, $"Skipping '{Path.GetFileName(inputFile)}' as requested to skip in dataset based on checksum.\n");
                                 }
                             }
                         }
@@ -164,9 +185,9 @@ namespace Repackinator.Shared
                     return;
                 }
 
-                var titleId = cert.Value.Title_Id.ToString("X2");
+                var titleId = cert.Value.Title_Id.ToString("X8");
                 var gameRegion = XbeCertificate.GameRegionToString(cert.Value.Game_Region);
-                var version = cert.Value.Version.ToString("X2");
+                var version = cert.Value.Version.ToString("X8");
 
                 bool found = false;
 
@@ -188,7 +209,7 @@ namespace Repackinator.Shared
                 {
                     if (found)
                     {
-                        Log(LogMessageLevel.Warning, $"Skipping '{Path.GetFileName(inputFile)}' as requested to skip in dataset.\n");
+                        Log(LogMessageLevel.Warning, $"Skipping '{Path.GetFileName(inputFile)}' as requested to skip in dataset based on xbe info.\n");
                     }
                     else
                     {

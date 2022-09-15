@@ -28,6 +28,13 @@ namespace RepackinatorUI
 
         public PickerMode Mode { get; set; }
 
+        private string _buttonName = "Open";
+        public string ButtonName
+        {
+            get => _buttonName;
+            set => _buttonName = value;
+        }
+
         private string _selectedFolder = string.Empty;
         public string SelectedFolder
         {
@@ -308,7 +315,7 @@ namespace RepackinatorUI
                 CloseModal();
             }
             ImGui.SameLine();
-            if (ImGui.Button("Open", new Vector2(100, 30)))
+            if (ImGui.Button(ButtonName, new Vector2(100, 30)))
             {
                 var valid = false;
                 valid |= Mode == PickerMode.File && !string.IsNullOrEmpty(SelectedFile);

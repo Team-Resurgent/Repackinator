@@ -87,6 +87,7 @@ namespace RepackinatorUI
             var open = true;
             if (!ImGui.BeginPopupModal("Repacking", ref open))
             {
+                _cancellationTokenSource.Cancel();
                 return false;
             }
 
