@@ -23,6 +23,7 @@ namespace RepackinatorUI
         private GameData[]? m_gameDataList;
         private PathPicker? m_inputFolderPicker;
         private PathPicker? m_outputFolderPicker;
+        private PathPicker? m_exportFolderPicker;
         private EditDialog? m_editDialog;
         private OkDialog? m_okDialog;
         private CreditsDialog? m_creditsDialog;
@@ -167,6 +168,12 @@ namespace RepackinatorUI
                 Mode = PathPicker.PickerMode.Folder
             };
 
+            m_exportFolderPicker = new PathPicker
+            {
+                Mode = PathPicker.PickerMode.Folder,
+                ButtonName = "Save"
+            };
+
             m_editDialog = new EditDialog();
             m_okDialog = new OkDialog();
             m_creditsDialog = new CreditsDialog();
@@ -222,6 +229,7 @@ namespace RepackinatorUI
             if (m_window == null || 
                 m_inputFolderPicker == null || 
                 m_outputFolderPicker == null ||
+                m_exportFolderPicker == null ||
                 m_editDialog == null ||
                 m_okDialog == null ||
                 m_creditsDialog == null ||
@@ -244,7 +252,39 @@ namespace RepackinatorUI
                 Config.SaveConfig(m_config);
             }
 
-            m_editDialog.Render();
+            if (m_exportFolderPicker.Render() && !m_exportFolderPicker.Cancelled)
+            {
+                var exportFile = Path.Combine(m_exportFolderPicker.SelectedFolder, "Repackinator-Export.txt");
+                var stringBuilder = new StringBuilder();
+                stringBuilder.AppendLine(
+                    "Title ID".PadRight(8) + " : " + 
+                    "Title Name".PadRight(40) + " : " + 
+                    "Version".PadRight(8) + " : " + 
+                    "Region".PadRight(30) + " : " +
+                    "Letter".PadRight(6) + " : " +
+                    "XBE Title".PadRight(40) + " : " +
+                    "XBE Title Alt".PadRight(40) + " : " +  
+                    "Folder Name".PadRight(42) + " : " +  
+                    "Folder Name Alt".PadRight(42) + " : " +  
+                    "ISO Name".PadRight(36) + " : " +  
+                    "ISO Name Alt".PadRight(36) + " : " + 
+                    "ISO Checksum".PadRight(8));
+                foreach (var item in m_gameDataList)
+                {
+                    if (!item.Selected)
+                    {
+                        continue;
+                    }
+                    stringBuilder.AppendLine($"{item.TitleID.PadRight(8)} : {item.TitleName.PadRight(40)} : {item.Version.PadRight(8)} : {item.Region.PadRight(30)} : {item.Letter.PadRight(6)} : {item.XBETitle.PadRight(40)} : {item.XBETitleAlt.PadRight(40)} : {item.FolderName.PadRight(42)} : {item.FolderNameAlt.PadRight(42)} : {item.ISOName.PadRight(36)} : {item.ISONameAlt.PadRight(36)} : {item.ISOChecksum.PadRight(8)}");
+                }
+                File.WriteAllText(exportFile, stringBuilder.ToString());
+            }
+
+            if (m_editDialog.Render())
+            {
+                m_gameDataList[m_editDialog.Index] = m_editDialog.GameData;
+            }
+
             m_okDialog.Render();
             m_creditsDialog.Render();
             m_repackDialog.Render();
@@ -294,9 +334,9 @@ namespace RepackinatorUI
             {
                 ImGui.TableSetupColumn("Index", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.NoHide | ImGuiTableColumnFlags.NoSort, 75.0f, MyItemColumnID_Index);
                 ImGui.TableSetupColumn("Process", ImGuiTableColumnFlags.WidthFixed, 75.0f, MyItemColumnID_Process);
-                ImGui.TableSetupColumn("Title ID", ImGuiTableColumnFlags.WidthFixed, 75.0f, MyItemColumnID_TitleID);
-                ImGui.TableSetupColumn("Version", ImGuiTableColumnFlags.WidthFixed, 75.0f, MyItemColumnID_Version);
-                ImGui.TableSetupColumn("Region", ImGuiTableColumnFlags.WidthFixed, 100.0f, MyItemColumnID_Region);
+                ImGui.TableSetupColumn("Title ID", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.DefaultHide, 75.0f, MyItemColumnID_TitleID);
+                ImGui.TableSetupColumn("Version", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.DefaultHide, 75.0f, MyItemColumnID_Version);
+                ImGui.TableSetupColumn("Region", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.DefaultHide, 100.0f, MyItemColumnID_Region);
                 ImGui.TableSetupColumn("Title Name", ImGuiTableColumnFlags.WidthFixed, 300.0f, MyItemColumnID_TitleName);
                 ImGui.TableSetupColumn("Letter", ImGuiTableColumnFlags.WidthFixed, 75.0f, MyItemColumnID_Letter);
                 ImGui.TableSetupColumn("XBE Title", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.DefaultSort, 300.0f, MyItemColumnID_XBETitle);
@@ -404,7 +444,7 @@ namespace RepackinatorUI
                             m_gameDataList[i].Selected = !m_gameDataList[i].Selected;
                             if (ImGui.IsMouseDoubleClicked(0))
                             {
-                                m_editDialog.ShowModal();
+                                m_editDialog.ShowModal(m_gameDataList[i], i);
                             }
                         }
 
@@ -412,10 +452,7 @@ namespace RepackinatorUI
                         bool process = string.Equals(m_gameDataList[i].Process, "Y", StringComparison.CurrentCultureIgnoreCase);
                         var colStartXProcess = ImGui.GetCursorPosX();
                         ImGui.SetCursorPosX(colStartXProcess + (((ImGui.GetColumnWidth()) - 20.0f) * 0.5f));
-                        if (ImGui.Checkbox($"##process{i}", ref process))
-                        {
-                            m_gameDataList[i].Process = process ? "Y" : "N";
-                        }
+                        ImGui.Checkbox($"##process{i}", ref process);
 
                         ImGui.TableNextColumn();
                         ImGui.TextUnformatted(m_gameDataList[i].TitleID);                        
@@ -428,21 +465,15 @@ namespace RepackinatorUI
 
                         ImGui.TableNextColumn();
                         string letter = m_gameDataList[i].Letter ?? "";
-                        ImGui.PushItemWidth(75.0f);
-                        if (ImGui.InputText($"##letter{i}", ref letter, 1))
-                        {
-                            m_gameDataList[i].Letter = letter;
-                        }
+                        ImGui.PushItemWidth(ImGui.GetColumnWidth());
+                        ImGui.TextUnformatted(m_gameDataList[i].Letter);
                         ImGui.PopItemWidth();
 
                         ImGui.TableNextColumn();
                         string xbeTitle = m_gameDataList[i].XBETitle ?? "";
                         ImGui.PushItemWidth(ImGui.GetColumnWidth());                       
                         ImGui.PushStyleColor(ImGuiCol.Text, xbeTitle.Length > 40 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.5f, 0.5f, 1)) : ImGui.ColorConvertFloat4ToU32(textColor));
-                        if (ImGui.InputText($"##xbeTitle{i}", ref xbeTitle, 40))
-                        {
-                            m_gameDataList[i].XBETitle = xbeTitle;
-                        }
+                        ImGui.TextUnformatted(m_gameDataList[i].XBETitle);
                         ImGui.PopStyleColor();
                         ImGui.PopItemWidth();
 
@@ -450,10 +481,7 @@ namespace RepackinatorUI
                         string xbeTitleAlt = m_gameDataList[i].XBETitleAlt ?? "";
                         ImGui.PushItemWidth(ImGui.GetColumnWidth());
                         ImGui.PushStyleColor(ImGuiCol.Text, xbeTitleAlt.Length > 40 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.5f, 0.5f, 1)) : ImGui.ColorConvertFloat4ToU32(textColor));
-                        if (ImGui.InputText($"##xbeTitleAlt{i}", ref xbeTitleAlt, 40))
-                        {
-                            m_gameDataList[i].XBETitleAlt = xbeTitleAlt;
-                        }
+                        ImGui.TextUnformatted(m_gameDataList[i].XBETitleAlt);
                         ImGui.PopStyleColor();
                         ImGui.PopItemWidth();
 
@@ -461,10 +489,7 @@ namespace RepackinatorUI
                         string folderName = m_gameDataList[i].FolderName ?? "";
                         ImGui.PushItemWidth(ImGui.GetColumnWidth());
                         ImGui.PushStyleColor(ImGuiCol.Text, folderName.Length > 42 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.5f, 0.5f, 1)) : ImGui.ColorConvertFloat4ToU32(textColor));
-                        if (ImGui.InputText($"##folderName{i}", ref folderName, 42))
-                        {
-                            m_gameDataList[i].FolderName = folderName;
-                        }
+                        ImGui.TextUnformatted(m_gameDataList[i].FolderName);
                         ImGui.PopStyleColor();
                         ImGui.PopItemWidth();
 
@@ -472,10 +497,7 @@ namespace RepackinatorUI
                         string folderNameAlt = m_gameDataList[i].FolderNameAlt ?? "";
                         ImGui.PushItemWidth(ImGui.GetColumnWidth());
                         ImGui.PushStyleColor(ImGuiCol.Text, folderNameAlt.Length > 42 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.5f, 0.5f, 1)) : ImGui.ColorConvertFloat4ToU32(textColor));
-                        if (ImGui.InputText($"##folderNameAlt{i}", ref folderNameAlt, 42))
-                        {
-                            m_gameDataList[i].FolderNameAlt = folderNameAlt;
-                        }
+                        ImGui.TextUnformatted(m_gameDataList[i].FolderNameAlt);
                         ImGui.PopStyleColor();
                         ImGui.PopItemWidth();
 
@@ -483,10 +505,7 @@ namespace RepackinatorUI
                         string isoName = m_gameDataList[i].ISOName ?? "";
                         ImGui.PushItemWidth(ImGui.GetColumnWidth());
                         ImGui.PushStyleColor(ImGuiCol.Text, isoName.Length > 36 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.5f, 0.5f, 1)) : ImGui.ColorConvertFloat4ToU32(textColor));
-                        if (ImGui.InputText($"##isoName{i}", ref isoName, 36))
-                        {
-                            m_gameDataList[i].ISOName = isoName;
-                        }
+                        ImGui.TextUnformatted(m_gameDataList[i].ISOName);
                         ImGui.PopStyleColor();
                         ImGui.PopItemWidth();
 
@@ -494,20 +513,14 @@ namespace RepackinatorUI
                         string isoNameAlt = m_gameDataList[i].ISONameAlt ?? "";
                         ImGui.PushItemWidth(ImGui.GetColumnWidth());
                         ImGui.PushStyleColor(ImGuiCol.Text, isoNameAlt.Length > 36 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.5f, 0.5f, 1)) : ImGui.ColorConvertFloat4ToU32(textColor));
-                        if (ImGui.InputText($"##isoNameAlt{i}", ref isoNameAlt, 36))
-                        {
-                            m_gameDataList[i].ISONameAlt = isoNameAlt;
-                        }
+                        ImGui.TextUnformatted(m_gameDataList[i].ISONameAlt);
                         ImGui.PopStyleColor();
                         ImGui.PopItemWidth();
 
                         ImGui.TableNextColumn();
                         string isoChecksum = m_gameDataList[i].ISOChecksum ?? "";
                         ImGui.PushItemWidth(ImGui.GetColumnWidth());
-                        if (ImGui.InputText($"##isoChecksum{i}", ref isoChecksum, 8))
-                        {
-                            m_gameDataList[i].ISOChecksum = isoChecksum.ToUpper();
-                        }
+                        ImGui.TextUnformatted(m_gameDataList[i].ISOChecksum);
                         ImGui.PopItemWidth();
 
                         ImGui.PopID();
@@ -619,6 +632,17 @@ namespace RepackinatorUI
                 m_okDialog.Title = "Saved";
                 m_okDialog.Message = "Game data list has been saved.";
                 m_okDialog.ShowModal();
+            }
+
+            ImGui.SameLine();
+
+            if (ImGui.Button("Save Selected", new Vector2(100, 30)))
+            {
+                var applicationPath = Utility.GetApplicationPath();
+                if (applicationPath != null)
+                {                 
+                    m_exportFolderPicker.ShowModal(applicationPath);
+                }
             }
 
             ImGui.SameLine();

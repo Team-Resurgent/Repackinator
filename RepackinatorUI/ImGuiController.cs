@@ -110,7 +110,7 @@ namespace RepackinatorUI
             _windowWidth = width;
             _windowHeight = height;
 
-            NativeLibrary.SetDllImportResolver(typeof(ImGui).Assembly, ImportResolver);
+            //NativeLibrary.SetDllImportResolver(typeof(ImGui).Assembly, ImportResolver);
 
             IntPtr context = ImGui.CreateContext();
             ImGui.SetCurrentContext(context);

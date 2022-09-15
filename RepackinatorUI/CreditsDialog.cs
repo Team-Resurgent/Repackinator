@@ -170,24 +170,27 @@ namespace RepackinatorUI
 
             DrawStars(ImGui.GetWindowPos());
 
-            var points = new List<Vector2>();
-            points.Add(new Vector2(0, 390));
-            for (var chan = 0; chan < ModPlayer.NumberOfVoices(_module); chan++)
+            if (_module != null)
             {
-                if (ModPlayer.NotePlayed[chan])
+                var points = new List<Vector2>();
+                points.Add(new Vector2(0, 390));
+                for (var chan = 0; chan < ModPlayer.NumberOfVoices(_module); chan++)
                 {
-                    chan_amplitudes[chan] = 200;
-                }
-                else
-                {
-                    chan_amplitudes[chan] = chan_amplitudes[chan] * 0.95f;                    
-                }
+                    if (ModPlayer.NotePlayed[chan])
+                    {
+                        chan_amplitudes[chan] = 200;
+                    }
+                    else
+                    {
+                        chan_amplitudes[chan] = chan_amplitudes[chan] * 0.95f;
+                    }
 
-                points.Add(new Vector2((chan + 1) * (600 / (ModPlayer.NumberOfVoices(_module) + 1)), 390 - chan_amplitudes[chan]));
-                points.Add(new Vector2((chan + 1) * (600 / (ModPlayer.NumberOfVoices(_module) + 1)), 390 - chan_amplitudes[chan]));
+                    points.Add(new Vector2((chan + 1) * (600 / (ModPlayer.NumberOfVoices(_module) + 1)), 390 - chan_amplitudes[chan]));
+                    points.Add(new Vector2((chan + 1) * (600 / (ModPlayer.NumberOfVoices(_module) + 1)), 390 - chan_amplitudes[chan]));
+                }
+                points.Add(new Vector2(600, 390));
+                DrawLines(points, ImGui.GetWindowPos());
             }
-            points.Add(new Vector2(600, 390));
-            DrawLines(points, ImGui.GetWindowPos());
 
             float x = 0;
             float y = 0;
