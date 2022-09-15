@@ -312,10 +312,16 @@ namespace RepackinatorUI
             ImGui.SameLine();
             ImGui.Checkbox("Show Invalid##showInvalid", ref m_showInvalid);
 
+            ImGui.SameLine();
+            ImGui.SetCursorPosX(m_window.Width - 240);
+            ImGui.PushItemWidth(200);
+            ImGui.ShowStyleSelector("Style");
+            ImGui.PopItemWidth();
+
             ImGui.Spacing();
 
-            const int MyItemColumnID_Index = 0;
-            const int MyItemColumnID_Process = 1;
+            const int MyItemColumnID_Process = 0;
+            const int MyItemColumnID_Index = 1;            
             const int MyItemColumnID_TitleID = 2;            
             const int MyItemColumnID_Version = 3;
             const int MyItemColumnID_Region = 4;
@@ -332,8 +338,8 @@ namespace RepackinatorUI
             ImGuiTableFlags flags = ImGuiTableFlags.Resizable | ImGuiTableFlags.Borders | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable | ImGuiTableFlags.Sortable | ImGuiTableFlags.ScrollX | ImGuiTableFlags.ScrollY | ImGuiTableFlags.RowBg;
             if (ImGui.BeginTable("table_sorting", 14, flags, new Vector2(0.0f, m_window.Height - 234), 0.0f))
             {
-                ImGui.TableSetupColumn("Index", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.NoHide | ImGuiTableColumnFlags.NoSort, 75.0f, MyItemColumnID_Index);
                 ImGui.TableSetupColumn("Process", ImGuiTableColumnFlags.WidthFixed, 75.0f, MyItemColumnID_Process);
+                ImGui.TableSetupColumn("Index", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.NoHide | ImGuiTableColumnFlags.NoSort, 75.0f, MyItemColumnID_Index);                
                 ImGui.TableSetupColumn("Title ID", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.DefaultHide, 75.0f, MyItemColumnID_TitleID);
                 ImGui.TableSetupColumn("Version", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.DefaultHide, 75.0f, MyItemColumnID_Version);
                 ImGui.TableSetupColumn("Region", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.DefaultHide, 100.0f, MyItemColumnID_Region);
@@ -362,7 +368,7 @@ namespace RepackinatorUI
                             var colIndex = specs.ColumnIndex;
 
 
-                            if (colIndex == 1) 
+                            if (colIndex == 0) 
                             {
                                 m_gameDataList =  (specs.SortDirection == ImGuiSortDirection.Ascending ? m_gameDataList.OrderBy(s => s.Process) : m_gameDataList.OrderByDescending(s => s.Process)).ToArray();
                             }
@@ -418,7 +424,7 @@ namespace RepackinatorUI
                         sortSpects.SpecsDirty = false;
                     }
 
-                    var textColor = ImGui.GetStyle().Colors[(int)ImGuiCol.Text];
+                    var textColor = ImGui.GetStyle().Colors[(int)ImGuiCol.Text];                    
 
                     for (var i = 0; i < m_gameDataList.Length; i++)
                     {
@@ -433,13 +439,22 @@ namespace RepackinatorUI
                         }
                        
                         ImGui.PushID(i);
-                        ImGui.TableNextRow(ImGuiTableRowFlags.None, 24);
+                        ImGui.TableNextRow(ImGuiTableRowFlags.None, 22);
+
+                        ImGui.TableNextColumn();
+                        bool process = string.Equals(m_gameDataList[i].Process, "Y", StringComparison.CurrentCultureIgnoreCase);
+                        var colStartXProcess = ImGui.GetCursorPosX();
+                        ImGui.SetCursorPosX(colStartXProcess + (((ImGui.GetColumnWidth()) - 20.0f) * 0.5f));
+                        if (ImGui.Checkbox($"##process{i}", ref process))
+                        {
+                            m_gameDataList[i].Process = process ? "Y" : "N";
+                        }
 
                         ImGui.TableNextColumn();
                         var textSizeIndex = ImGui.CalcTextSize(i.ToString());
                         var colStartXIndex = ImGui.GetCursorPosX();
                         ImGui.SetCursorPosX(colStartXIndex + (((ImGui.GetColumnWidth()) - textSizeIndex.X) * 0.5f));
-                        if (ImGui.Selectable(i.ToString(), m_gameDataList[i].Selected, ImGuiSelectableFlags.SpanAllColumns | ImGuiSelectableFlags.AllowDoubleClick, new Vector2(0, 20)))
+                        if (ImGui.Selectable(i.ToString(), m_gameDataList[i].Selected, ImGuiSelectableFlags.SpanAllColumns | ImGuiSelectableFlags.AllowDoubleClick, new Vector2(0, 16)))
                         {
                             m_gameDataList[i].Selected = !m_gameDataList[i].Selected;
                             if (ImGui.IsMouseDoubleClicked(0))
@@ -447,12 +462,6 @@ namespace RepackinatorUI
                                 m_editDialog.ShowModal(m_gameDataList[i], i);
                             }
                         }
-
-                        ImGui.TableNextColumn();
-                        bool process = string.Equals(m_gameDataList[i].Process, "Y", StringComparison.CurrentCultureIgnoreCase);
-                        var colStartXProcess = ImGui.GetCursorPosX();
-                        ImGui.SetCursorPosX(colStartXProcess + (((ImGui.GetColumnWidth()) - 20.0f) * 0.5f));
-                        ImGui.Checkbox($"##process{i}", ref process);
 
                         ImGui.TableNextColumn();
                         ImGui.TextUnformatted(m_gameDataList[i].TitleID);                        
