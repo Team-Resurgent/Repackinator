@@ -115,8 +115,6 @@ namespace Resurgent.UtilityBelt.Library.Utilities.XbeModels
             {
                 allowedMedia = allowedMedia.Length > 0 ? $"NONSECURE_MODE, {allowedMedia}" : "NONSECURE_MODE";
             }           
-
-            //#define XBEIMAGE_MEDIA_TYPE_MEDIA_MASK          0x00FFFFFF
             return allowedMedia;
         }
 
@@ -131,9 +129,9 @@ namespace Resurgent.UtilityBelt.Library.Utilities.XbeModels
         {
             return new XbeSummary
             {
-                TitleId = Title_Id.ToString("X2"),
+                TitleId = Title_Id.ToString("X8"),
                 TitleName = StringHelper.GetUnicodeString(Title_Name),
-                Version = Version.ToString("X2"),
+                Version = Version.ToString("X8"),
                 GameRegion = GameRegionToString(Game_Region),
                 OriginalName = originalName,
                 CleanedName = CleanText(originalName) + " (" + GameRegionToString(Game_Region) + ")",
