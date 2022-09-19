@@ -1,12 +1,8 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
+﻿using ImGuiNET;
 using System.Diagnostics;
-using System.IO;
 using System.Numerics;
-using System.Text.RegularExpressions;
-using ImGuiNET;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 
 namespace RepackinatorUI
 {

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Diagnostics;
-
-namespace SharpMik.Player
+﻿namespace SharpMik.Player
 {
     /*
 	 * This file is a mishmash of player functions and mod update and effects.
@@ -255,55 +249,55 @@ namespace SharpMik.Player
                 switch (style)
                 {
                     case 0:     /* mod style: N, N+x, N+y */
-                    switch (tick % 3)
-                    {
-                        /* case 0: unchanged */
-                        case 1:
-                        note += (byte)(a.arpmem >> 4);
+                        switch (tick % 3)
+                        {
+                            /* case 0: unchanged */
+                            case 1:
+                                note += (byte)(a.arpmem >> 4);
+                                break;
+                            case 2:
+                                note += (byte)(a.arpmem & 0xf);
+                                break;
+                        }
                         break;
-                        case 2:
-                        note += (byte)(a.arpmem & 0xf);
-                        break;
-                    }
-                    break;
                     case 3:     /* okt arpeggio 3: N-x, N, N+y */
-                    switch (tick % 3)
-                    {
-                        case 0:
-                        note -= (byte)(a.arpmem >> 4);
+                        switch (tick % 3)
+                        {
+                            case 0:
+                                note -= (byte)(a.arpmem >> 4);
+                                break;
+                            /* case 1: unchanged */
+                            case 2:
+                                note += (byte)(a.arpmem & 0xf);
+                                break;
+                        }
                         break;
-                        /* case 1: unchanged */
-                        case 2:
-                        note += (byte)(a.arpmem & 0xf);
-                        break;
-                    }
-                    break;
                     case 4:     /* okt arpeggio 4: N, N+y, N, N-x */
-                    switch (tick % 4)
-                    {
-                        /* case 0, case 2: unchanged */
-                        case 1:
-                        note += (byte)(a.arpmem & 0xf);
+                        switch (tick % 4)
+                        {
+                            /* case 0, case 2: unchanged */
+                            case 1:
+                                note += (byte)(a.arpmem & 0xf);
+                                break;
+                            case 3:
+                                note -= (byte)(a.arpmem >> 4);
+                                break;
+                        }
                         break;
-                        case 3:
-                        note -= (byte)(a.arpmem >> 4);
-                        break;
-                    }
-                    break;
                     case 5:     /* okt arpeggio 5: N-x, N+y, N, and nothing at tick 0 */
-                    if (tick == 0)
+                        if (tick == 0)
+                            break;
+                        switch (tick % 3)
+                        {
+                            /* case 0: unchanged */
+                            case 1:
+                                note -= (byte)(a.arpmem >> 4);
+                                break;
+                            case 2:
+                                note += (byte)(a.arpmem & 0xf);
+                                break;
+                        }
                         break;
-                    switch (tick % 3)
-                    {
-                        /* case 0: unchanged */
-                        case 1:
-                        note -= (byte)(a.arpmem >> 4);
-                        break;
-                        case 2:
-                        note += (byte)(a.arpmem & 0xf);
-                        break;
-                    }
-                    break;
                 }
                 a.main.period = (ushort)GetPeriod(flags, (ushort)(note << 1), a.speed);
                 a.ownper = 1;
@@ -417,19 +411,19 @@ namespace SharpMik.Player
             switch (a.wavecontrol & 3)
             {
                 case 0: /* sine */
-                temp = VibratoTable[q];
-                break;
+                    temp = VibratoTable[q];
+                    break;
                 case 1: /* ramp down */
-                q <<= 3;
-                if (a.vibpos < 0) q = (byte)(255 - q);
-                temp = q;
-                break;
+                    q <<= 3;
+                    if (a.vibpos < 0) q = (byte)(255 - q);
+                    temp = q;
+                    break;
                 case 2: /* square wave */
-                temp = 255;
-                break;
+                    temp = 255;
+                    break;
                 case 3: /* random wave */
-                temp = (ushort)getrandom(256);
-                break;
+                    temp = (ushort)getrandom(256);
+                    break;
             }
 
             temp *= a.vibdepth;
@@ -512,19 +506,19 @@ namespace SharpMik.Player
                 switch ((a.wavecontrol >> 4) & 3)
                 {
                     case 0: /* sine */
-                    temp = VibratoTable[q];
-                    break;
+                        temp = VibratoTable[q];
+                        break;
                     case 1: /* ramp down */
-                    q <<= 3;
-                    if (a.trmpos < 0) q = (byte)(255 - q);
-                    temp = q;
-                    break;
+                        q <<= 3;
+                        if (a.trmpos < 0) q = (byte)(255 - q);
+                        temp = q;
+                        break;
                     case 2: /* square wave */
-                    temp = 255;
-                    break;
+                        temp = 255;
+                        break;
                     case 3: /* random wave */
-                    temp = (ushort)getrandom(256);
-                    break;
+                        temp = (ushort)getrandom(256);
+                        break;
                 }
                 temp *= a.trmdepth;
                 temp >>= 6;
@@ -709,142 +703,142 @@ namespace SharpMik.Player
             switch (dat >> 4)
             {
                 case 0x0: /* hardware filter toggle, not supported */
-                break;
-                case 0x1: /* fineslide up */
-                if (a.main.period != 0)
-                    if (tick == 0)
-                        a.tmpperiod -= (byte)(nib << 2);
-                break;
-                case 0x2: /* fineslide dn */
-                if (a.main.period != 0)
-                    if (tick == 0)
-                        a.tmpperiod += (byte)(nib << 2);
-                break;
-                case 0x3: /* glissando ctrl */
-                a.glissando = nib;
-                break;
-                case 0x4: /* set vibrato waveform */
-                a.wavecontrol &= 0xf0;
-                a.wavecontrol |= nib;
-                break;
-                case 0x5: /* set finetune */
-                if (a.main.period != 0)
-                {
-                    if ((flags & SharpMikCommon.UF_XMPERIODS) == SharpMikCommon.UF_XMPERIODS)
-                        a.speed = (byte)(nib + 128);
-                    else
-                        a.speed = SharpMikCommon.finetune[nib];
-                    a.tmpperiod = GetPeriod(flags, (ushort)(a.main.note << 1), a.speed);
-                }
-                break;
-                case 0x6: /* set patternloop */
-                if (tick != 0)
                     break;
-                if (nib != 0)
-                { /* set reppos or repcnt ? */
-                  /* set repcnt, so check if repcnt already is set, which means we
-                     are already looping */
-                    if (a.pat_repcnt != 0)
-                        a.pat_repcnt--; /* already looping, decrease counter */
-                    else
+                case 0x1: /* fineslide up */
+                    if (a.main.period != 0)
+                        if (tick == 0)
+                            a.tmpperiod -= (byte)(nib << 2);
+                    break;
+                case 0x2: /* fineslide dn */
+                    if (a.main.period != 0)
+                        if (tick == 0)
+                            a.tmpperiod += (byte)(nib << 2);
+                    break;
+                case 0x3: /* glissando ctrl */
+                    a.glissando = nib;
+                    break;
+                case 0x4: /* set vibrato waveform */
+                    a.wavecontrol &= 0xf0;
+                    a.wavecontrol |= nib;
+                    break;
+                case 0x5: /* set finetune */
+                    if (a.main.period != 0)
                     {
+                        if ((flags & SharpMikCommon.UF_XMPERIODS) == SharpMikCommon.UF_XMPERIODS)
+                            a.speed = (byte)(nib + 128);
+                        else
+                            a.speed = SharpMikCommon.finetune[nib];
+                        a.tmpperiod = GetPeriod(flags, (ushort)(a.main.note << 1), a.speed);
+                    }
+                    break;
+                case 0x6: /* set patternloop */
+                    if (tick != 0)
+                        break;
+                    if (nib != 0)
+                    { /* set reppos or repcnt ? */
+                        /* set repcnt, so check if repcnt already is set, which means we
+                           are already looping */
+                        if (a.pat_repcnt != 0)
+                            a.pat_repcnt--; /* already looping, decrease counter */
+                        else
+                        {
 #if BLAH
 				/* this would make walker.xm, shipped with Xsoundtracker,
 				   play correctly, but it's better to remain compatible
 				   with FT2 */
 				if ((!(flags&UF_NOWRAP))||(a.pat_reppos!=SharpMikCommon.POS_NONE))
 #endif
-                        a.pat_repcnt = nib; /* not yet looping, so set repcnt */
-                    }
-
-                    if (a.pat_repcnt != 0)
-                    { /* jump to reppos if repcnt>0 */
-                        if (a.pat_reppos == SharpMikCommon.POS_NONE)
-                            a.pat_reppos = (short)(mod.patpos - 1);
-                        if (a.pat_reppos == -1)
-                        {
-                            mod.pat_repcrazy = 1;
-                            mod.patpos = 0;
+                            a.pat_repcnt = nib; /* not yet looping, so set repcnt */
                         }
-                        else
-                            mod.patpos = (ushort)a.pat_reppos;
-                    }
-                    else a.pat_reppos = SharpMikCommon.POS_NONE;
-                }
-                else
-                {
-                    a.pat_reppos = (short)(mod.patpos - 1); /* set reppos - can be (-1) */
 
-                    /* emulate the FT2 pattern loop (E60) bug:
-                     * http://milkytracker.org/docs/MilkyTracker.html#fxE6x
-                     * roadblas.xm plays correctly with this. */
-                    if ((flags & SharpMikCommon.UF_FT2QUIRKS) == SharpMikCommon.UF_FT2QUIRKS)
-                        mod.patbrk = mod.patpos;
-                }
-                break;
-                case 0x7: /* set tremolo waveform */
-                a.wavecontrol &= 0x0f;
-                a.wavecontrol |= (byte)(nib << 4);
-                break;
-                case 0x8: /* set panning */
-                if (mod.panflag)
-                {
-                    if (nib <= 8) nib <<= 4;
-                    else nib *= 17;
-                    a.main.panning = nib;
-                    mod.panning[channel] = nib;
-                }
-                break;
-                case 0x9: /* retrig note */
-                          /* do not retrigger on tick 0, until we are emulating FT2 and effect
-                             data is zero */
-                if (tick == 0 && !((flags & SharpMikCommon.UF_FT2QUIRKS) == SharpMikCommon.UF_FT2QUIRKS && (nib == 0)))
-                    break;
-                /* only retrigger if data nibble > 0, or if tick 0 (FT2 compat) */
-                if (nib != 0 || tick == 0)
-                {
-                    if (a.retrig == 0)
-                    {
-                        /* when retrig counter reaches 0, reset counter and restart
-                           the sample */
-                        if (a.main.period != 0) a.main.kick = SharpMikCommon.KICK_NOTE;
-                        a.retrig = (sbyte)nib;
+                        if (a.pat_repcnt != 0)
+                        { /* jump to reppos if repcnt>0 */
+                            if (a.pat_reppos == SharpMikCommon.POS_NONE)
+                                a.pat_reppos = (short)(mod.patpos - 1);
+                            if (a.pat_reppos == -1)
+                            {
+                                mod.pat_repcrazy = 1;
+                                mod.patpos = 0;
+                            }
+                            else
+                                mod.patpos = (ushort)a.pat_reppos;
+                        }
+                        else a.pat_reppos = SharpMikCommon.POS_NONE;
                     }
-                    a.retrig--; /* countdown */
-                }
-                break;
+                    else
+                    {
+                        a.pat_reppos = (short)(mod.patpos - 1); /* set reppos - can be (-1) */
+
+                        /* emulate the FT2 pattern loop (E60) bug:
+                         * http://milkytracker.org/docs/MilkyTracker.html#fxE6x
+                         * roadblas.xm plays correctly with this. */
+                        if ((flags & SharpMikCommon.UF_FT2QUIRKS) == SharpMikCommon.UF_FT2QUIRKS)
+                            mod.patbrk = mod.patpos;
+                    }
+                    break;
+                case 0x7: /* set tremolo waveform */
+                    a.wavecontrol &= 0x0f;
+                    a.wavecontrol |= (byte)(nib << 4);
+                    break;
+                case 0x8: /* set panning */
+                    if (mod.panflag)
+                    {
+                        if (nib <= 8) nib <<= 4;
+                        else nib *= 17;
+                        a.main.panning = nib;
+                        mod.panning[channel] = nib;
+                    }
+                    break;
+                case 0x9: /* retrig note */
+                    /* do not retrigger on tick 0, until we are emulating FT2 and effect
+                       data is zero */
+                    if (tick == 0 && !((flags & SharpMikCommon.UF_FT2QUIRKS) == SharpMikCommon.UF_FT2QUIRKS && (nib == 0)))
+                        break;
+                    /* only retrigger if data nibble > 0, or if tick 0 (FT2 compat) */
+                    if (nib != 0 || tick == 0)
+                    {
+                        if (a.retrig == 0)
+                        {
+                            /* when retrig counter reaches 0, reset counter and restart
+                               the sample */
+                            if (a.main.period != 0) a.main.kick = SharpMikCommon.KICK_NOTE;
+                            a.retrig = (sbyte)nib;
+                        }
+                        a.retrig--; /* countdown */
+                    }
+                    break;
                 case 0xa: /* fine volume slide up */
-                if (tick != 0)
+                    if (tick != 0)
+                        break;
+                    a.tmpvolume += nib;
+                    if (a.tmpvolume > 64) a.tmpvolume = 64;
                     break;
-                a.tmpvolume += nib;
-                if (a.tmpvolume > 64) a.tmpvolume = 64;
-                break;
                 case 0xb: /* fine volume slide dn  */
-                if (tick != 0)
+                    if (tick != 0)
+                        break;
+                    a.tmpvolume -= nib;
+                    if (a.tmpvolume < 0) a.tmpvolume = 0;
                     break;
-                a.tmpvolume -= nib;
-                if (a.tmpvolume < 0) a.tmpvolume = 0;
-                break;
                 case 0xc: /* cut note */
-                          /* When tick reaches the cut-note value, turn the volume to
-                             zero (just like on the amiga) */
-                if (tick >= nib)
-                    a.tmpvolume = 0; /* just turn the volume down */
-                break;
+                    /* When tick reaches the cut-note value, turn the volume to
+                       zero (just like on the amiga) */
+                    if (tick >= nib)
+                        a.tmpvolume = 0; /* just turn the volume down */
+                    break;
                 case 0xd: /* note delay */
-                          /* delay the start of the sample until tick==nib */
-                if (tick == 0)
-                    a.main.notedelay = nib;
-                else if (a.main.notedelay != 0)
-                    a.main.notedelay--;
-                break;
+                    /* delay the start of the sample until tick==nib */
+                    if (tick == 0)
+                        a.main.notedelay = nib;
+                    else if (a.main.notedelay != 0)
+                        a.main.notedelay--;
+                    break;
                 case 0xe: /* pattern delay */
-                if (tick == 0)
-                    if (mod.patdly2 == 0)
-                        mod.patdly = (byte)(nib + 1); /* only once, when tick=0 */
-                break;
+                    if (tick == 0)
+                        if (mod.patdly2 == 0)
+                            mod.patdly = (byte)(nib + 1); /* only once, when tick=0 */
+                    break;
                 case 0xf: /* invert loop, not supported  */
-                break;
+                    break;
             }
         }
 
@@ -1077,27 +1071,27 @@ namespace SharpMik.Player
                                 case 3:
                                 case 4:
                                 case 5:
-                                a.tmpvolume -= (short)(1 << (a.s3mrtgslide - 1));
-                                break;
+                                    a.tmpvolume -= (short)(1 << (a.s3mrtgslide - 1));
+                                    break;
                                 case 6:
-                                a.tmpvolume = (short)((2 * a.tmpvolume) / 3);
-                                break;
+                                    a.tmpvolume = (short)((2 * a.tmpvolume) / 3);
+                                    break;
                                 case 7:
-                                a.tmpvolume >>= 1;
-                                break;
+                                    a.tmpvolume >>= 1;
+                                    break;
                                 case 9:
                                 case 0xa:
                                 case 0xb:
                                 case 0xc:
                                 case 0xd:
-                                a.tmpvolume += (short)(1 << (a.s3mrtgslide - 9));
-                                break;
+                                    a.tmpvolume += (short)(1 << (a.s3mrtgslide - 9));
+                                    break;
                                 case 0xe:
-                                a.tmpvolume = (short)((3 * a.tmpvolume) >> 1);
-                                break;
+                                    a.tmpvolume = (short)((3 * a.tmpvolume) >> 1);
+                                    break;
                                 case 0xf:
-                                a.tmpvolume = (short)(a.tmpvolume << 1);
-                                break;
+                                    a.tmpvolume = (short)(a.tmpvolume << 1);
+                                    break;
                             }
                             if (a.tmpvolume < 0)
                                 a.tmpvolume = 0;
@@ -1129,19 +1123,19 @@ namespace SharpMik.Player
             switch ((a.wavecontrol >> 4) & 3)
             {
                 case 0: /* sine */
-                temp = VibratoTable[q];
-                break;
+                    temp = VibratoTable[q];
+                    break;
                 case 1: /* ramp down */
-                q <<= 3;
-                if (a.trmpos < 0) q = (byte)(255 - q);
-                temp = q;
-                break;
+                    q <<= 3;
+                    if (a.trmpos < 0) q = (byte)(255 - q);
+                    temp = q;
+                    break;
                 case 2: /* square wave */
-                temp = 255;
-                break;
+                    temp = 255;
+                    break;
                 case 3: /* random */
-                temp = (ushort)getrandom(256);
-                break;
+                    temp = (ushort)getrandom(256);
+                    break;
             }
 
             temp *= a.trmdepth;
@@ -1200,19 +1194,19 @@ namespace SharpMik.Player
                 switch (a.wavecontrol & 3)
                 {
                     case 0: /* sine */
-                    temp = VibratoTable[q];
-                    break;
+                        temp = VibratoTable[q];
+                        break;
                     case 1: /* ramp down */
-                    q <<= 3;
-                    if (a.vibpos < 0) q = (byte)(255 - q);
-                    temp = q;
-                    break;
+                        q <<= 3;
+                        if (a.vibpos < 0) q = (byte)(255 - q);
+                        temp = q;
+                        break;
                     case 2: /* square wave */
-                    temp = 255;
-                    break;
+                        temp = 255;
+                        break;
                     case 3: /* random */
-                    temp = (ushort)getrandom(256);
-                    break;
+                        temp = (ushort)getrandom(256);
+                        break;
                 }
 
                 temp *= a.vibdepth;
@@ -1559,19 +1553,19 @@ namespace SharpMik.Player
             switch (a.wavecontrol & 3)
             {
                 case 0: /* sine */
-                temp = VibratoTable[q];
-                break;
+                    temp = VibratoTable[q];
+                    break;
                 case 1: /* square wave */
-                temp = 255;
-                break;
+                    temp = 255;
+                    break;
                 case 2: /* ramp down */
-                q <<= 3;
-                if (a.vibpos < 0) q = (byte)(255 - q);
-                temp = q;
-                break;
+                    q <<= 3;
+                    if (a.vibpos < 0) q = (byte)(255 - q);
+                    temp = q;
+                    break;
                 case 3: /* random */
-                temp = (ushort)getrandom(256);
-                break;
+                    temp = (ushort)getrandom(256);
+                    break;
             }
 
             temp *= a.vibdepth;
@@ -1750,19 +1744,19 @@ namespace SharpMik.Player
                 switch (a.wavecontrol & 3)
                 {
                     case 0: /* sine */
-                    temp = VibratoTable[q];
-                    break;
+                        temp = VibratoTable[q];
+                        break;
                     case 1: /* square wave */
-                    temp = 255;
-                    break;
+                        temp = 255;
+                        break;
                     case 2: /* ramp down */
-                    q <<= 3;
-                    if (a.vibpos < 0) q = (byte)(255 - q);
-                    temp = q;
-                    break;
+                        q <<= 3;
+                        if (a.vibpos < 0) q = (byte)(255 - q);
+                        temp = q;
+                        break;
                     case 3: /* random */
-                    temp = (ushort)getrandom(256);
-                    break;
+                        temp = (ushort)getrandom(256);
+                        break;
                 }
 
                 temp *= a.vibdepth;
@@ -1841,18 +1835,18 @@ namespace SharpMik.Player
                 switch (a.panbwave)
                 {
                     case 0: /* sine */
-                    temp = PanbrelloTable[q];
-                    break;
+                        temp = PanbrelloTable[q];
+                        break;
                     case 1: /* square wave */
-                    temp = (q < 0x80) ? 64 : 0;
-                    break;
+                        temp = (q < 0x80) ? 64 : 0;
+                        break;
                     case 2: /* ramp down */
-                    q <<= 3;
-                    temp = q;
-                    break;
+                        q <<= 3;
+                        temp = q;
+                        break;
                     case 3: /* random */
-                    temp = getrandom(256);
-                    break;
+                        temp = getrandom(256);
+                        break;
                 }
 
                 temp *= a.panbdepth;
@@ -1907,79 +1901,79 @@ namespace SharpMik.Player
             switch (c)
             {
                 case (byte)SharpMikCommon.ExtentedEffects.SS_GLISSANDO: /* S1x set glissando voice */
-                DoEEffects(tick, flags, a, mod, channel, (byte)(0x30 | inf));
-                break;
+                    DoEEffects(tick, flags, a, mod, channel, (byte)(0x30 | inf));
+                    break;
 
                 case (byte)SharpMikCommon.ExtentedEffects.SS_FINETUNE: /* S2x set finetune */
-                DoEEffects(tick, flags, a, mod, channel, (byte)(0x50 | inf));
-                break;
+                    DoEEffects(tick, flags, a, mod, channel, (byte)(0x50 | inf));
+                    break;
 
                 case (byte)SharpMikCommon.ExtentedEffects.SS_VIBWAVE: /* S3x set vibrato waveform */
-                DoEEffects(tick, flags, a, mod, channel, (byte)(0x40 | inf));
-                break;
+                    DoEEffects(tick, flags, a, mod, channel, (byte)(0x40 | inf));
+                    break;
 
                 case (byte)SharpMikCommon.ExtentedEffects.SS_TREMWAVE: /* S4x set tremolo waveform */
-                DoEEffects(tick, flags, a, mod, channel, (byte)(0x70 | inf));
-                break;
+                    DoEEffects(tick, flags, a, mod, channel, (byte)(0x70 | inf));
+                    break;
 
                 case (byte)SharpMikCommon.ExtentedEffects.SS_PANWAVE: /* S5x panbrello */
-                a.panbwave = inf;
-                break;
+                    a.panbwave = inf;
+                    break;
 
                 case (byte)SharpMikCommon.ExtentedEffects.SS_FRAMEDELAY: /* S6x delay x number of frames (patdly) */
-                DoEEffects(tick, flags, a, mod, channel, (byte)(0xe0 | inf));
-                break;
+                    DoEEffects(tick, flags, a, mod, channel, (byte)(0xe0 | inf));
+                    break;
 
                 case (byte)SharpMikCommon.ExtentedEffects.SS_S7EFFECTS: /* S7x instrument / NNA commands */
-                DoNNAEffects(mod, a, inf);
-                break;
+                    DoNNAEffects(mod, a, inf);
+                    break;
 
                 case (byte)SharpMikCommon.ExtentedEffects.SS_PANNING: /* S8x set panning position */
-                DoEEffects(tick, flags, a, mod, channel, (byte)(0x80 | inf));
-                break;
+                    DoEEffects(tick, flags, a, mod, channel, (byte)(0x80 | inf));
+                    break;
 
                 case (byte)SharpMikCommon.ExtentedEffects.SS_SURROUND: /* S9x set surround sound */
-                {
-                    if (mod.panflag)
                     {
-                        a.main.panning = (short)SharpMikCommon.PAN_SURROUND;
-                        mod.panning[channel] = (ushort)SharpMikCommon.PAN_SURROUND;
-                    }
-                    break;
-                }
-                case (byte)SharpMikCommon.ExtentedEffects.SS_HIOFFSET: /* SAy set high order sample offset yxx00h */
-                {
-                    if (tick == 0)
-                    {
-                        a.hioffset = (uint)(inf << 16);
-                        a.main.start = a.hioffset | a.soffset;
-
-                        if ((a.main.s != null) && (a.main.start > a.main.s.length))
+                        if (mod.panflag)
                         {
-                            a.main.start = (a.main.s.flags & (SharpMikCommon.SF_LOOP | SharpMikCommon.SF_BIDI)) != 0 ?
-                                a.main.s.loopstart : a.main.s.length;
+                            a.main.panning = (short)SharpMikCommon.PAN_SURROUND;
+                            mod.panning[channel] = (ushort)SharpMikCommon.PAN_SURROUND;
                         }
-
+                        break;
                     }
-                    break;
-                }
+                case (byte)SharpMikCommon.ExtentedEffects.SS_HIOFFSET: /* SAy set high order sample offset yxx00h */
+                    {
+                        if (tick == 0)
+                        {
+                            a.hioffset = (uint)(inf << 16);
+                            a.main.start = a.hioffset | a.soffset;
+
+                            if ((a.main.s != null) && (a.main.start > a.main.s.length))
+                            {
+                                a.main.start = (a.main.s.flags & (SharpMikCommon.SF_LOOP | SharpMikCommon.SF_BIDI)) != 0 ?
+                                    a.main.s.loopstart : a.main.s.length;
+                            }
+
+                        }
+                        break;
+                    }
 
                 case (byte)SharpMikCommon.ExtentedEffects.SS_PATLOOP: /* SBx pattern loop */
-                DoEEffects(tick, flags, a, mod, channel, (byte)(0x60 | inf));
-                break;
+                    DoEEffects(tick, flags, a, mod, channel, (byte)(0x60 | inf));
+                    break;
 
                 case (byte)SharpMikCommon.ExtentedEffects.SS_NOTECUT: /* SCx notecut */
-                if (inf == 0) inf = 1;
-                DoEEffects(tick, flags, a, mod, channel, (byte)(0xC0 | inf));
-                break;
+                    if (inf == 0) inf = 1;
+                    DoEEffects(tick, flags, a, mod, channel, (byte)(0xC0 | inf));
+                    break;
 
                 case (byte)SharpMikCommon.ExtentedEffects.SS_NOTEDELAY: /* SDx notedelay */
-                DoEEffects(tick, flags, a, mod, channel, (byte)(0xD0 | inf));
-                break;
+                    DoEEffects(tick, flags, a, mod, channel, (byte)(0xD0 | inf));
+                    break;
 
                 case (byte)SharpMikCommon.ExtentedEffects.SS_PATDELAY: /* SEx patterndelay */
-                DoEEffects(tick, flags, a, mod, channel, (byte)(0xE0 | inf));
-                break;
+                    DoEEffects(tick, flags, a, mod, channel, (byte)(0xE0 | inf));
+                    break;
             }
 
             return 0;
@@ -2014,31 +2008,31 @@ namespace SharpMik.Player
                 switch (c)
                 {
                     case (byte)SharpMikCommon.ITColumnEffect.VOL_VOLUME:
-                    if (tick != 0) break;
-                    if (inf > 64) inf = 64;
-                    a.tmpvolume = inf;
-                    break;
+                        if (tick != 0) break;
+                        if (inf > 64) inf = 64;
+                        a.tmpvolume = inf;
+                        break;
                     case (byte)SharpMikCommon.ITColumnEffect.VOL_PANNING:
-                    if (mod.panflag)
-                        a.main.panning = inf;
-                    break;
+                        if (mod.panflag)
+                            a.main.panning = inf;
+                        break;
                     case (byte)SharpMikCommon.ITColumnEffect.VOL_VOLSLIDE:
-                    DoS3MVolSlide(tick, flags, a, inf);
-                    return 1;
+                        DoS3MVolSlide(tick, flags, a, inf);
+                        return 1;
                     case (byte)SharpMikCommon.ITColumnEffect.VOL_PITCHSLIDEDN:
-                    if (a.main.period != 0)
-                        DoS3MSlideDn(tick, a, inf);
-                    break;
+                        if (a.main.period != 0)
+                            DoS3MSlideDn(tick, a, inf);
+                        break;
                     case (byte)SharpMikCommon.ITColumnEffect.VOL_PITCHSLIDEUP:
-                    if (a.main.period != 0)
-                        DoS3MSlideUp(tick, a, inf);
-                    break;
+                        if (a.main.period != 0)
+                            DoS3MSlideUp(tick, a, inf);
+                        break;
                     case (byte)SharpMikCommon.ITColumnEffect.VOL_PORTAMENTO:
-                    DoITToneSlide(tick, a, inf);
-                    break;
+                        DoITToneSlide(tick, a, inf);
+                        break;
                     case (byte)SharpMikCommon.ITColumnEffect.VOL_VIBRATO:
-                    DoITVibrato(tick, a, inf);
-                    break;
+                        DoITVibrato(tick, a, inf);
+                        break;
                 }
 
             return 0;
@@ -2135,61 +2129,61 @@ namespace SharpMik.Player
             switch (dat)
             {
                 case 0x0: /* past note cut */
-                for (t = 0; t < NumberOfVoices(mod); t++)
-                    if (mod.voice[t].master == a)
-                        mod.voice[t].main.fadevol = 0;
-                break;
+                    for (t = 0; t < NumberOfVoices(mod); t++)
+                        if (mod.voice[t].master == a)
+                            mod.voice[t].main.fadevol = 0;
+                    break;
                 case 0x1: /* past note off */
-                for (t = 0; t < NumberOfVoices(mod); t++)
-                    if (mod.voice[t].master == a)
-                    {
-                        mod.voice[t].main.keyoff |= SharpMikCommon.KEY_OFF;
-                        if (!((mod.voice[t].venv.flg & SharpMikCommon.EF_ON) == SharpMikCommon.EF_ON) ||
-                           (mod.voice[t].venv.flg & SharpMikCommon.EF_LOOP) == SharpMikCommon.EF_LOOP)
-                            mod.voice[t].main.keyoff = SharpMikCommon.KEY_KILL;
-                    }
-                break;
+                    for (t = 0; t < NumberOfVoices(mod); t++)
+                        if (mod.voice[t].master == a)
+                        {
+                            mod.voice[t].main.keyoff |= SharpMikCommon.KEY_OFF;
+                            if (!((mod.voice[t].venv.flg & SharpMikCommon.EF_ON) == SharpMikCommon.EF_ON) ||
+                               (mod.voice[t].venv.flg & SharpMikCommon.EF_LOOP) == SharpMikCommon.EF_LOOP)
+                                mod.voice[t].main.keyoff = SharpMikCommon.KEY_KILL;
+                        }
+                    break;
                 case 0x2: /* past note fade */
-                for (t = 0; t < NumberOfVoices(mod); t++)
-                    if (mod.voice[t].master == a)
-                        mod.voice[t].main.keyoff |= SharpMikCommon.KEY_FADE;
-                break;
+                    for (t = 0; t < NumberOfVoices(mod); t++)
+                        if (mod.voice[t].master == a)
+                            mod.voice[t].main.keyoff |= SharpMikCommon.KEY_FADE;
+                    break;
                 case 0x3: /* set NNA note cut */
-                a.main.nna = (byte)((a.main.nna & ~SharpMikCommon.NNA_MASK) | SharpMikCommon.NNA_CUT);
-                break;
+                    a.main.nna = (byte)((a.main.nna & ~SharpMikCommon.NNA_MASK) | SharpMikCommon.NNA_CUT);
+                    break;
                 case 0x4: /* set NNA note continue */
-                a.main.nna = (byte)((a.main.nna & ~SharpMikCommon.NNA_MASK) | SharpMikCommon.NNA_CONTINUE);
-                break;
+                    a.main.nna = (byte)((a.main.nna & ~SharpMikCommon.NNA_MASK) | SharpMikCommon.NNA_CONTINUE);
+                    break;
                 case 0x5: /* set NNA note off */
-                a.main.nna = (byte)((a.main.nna & ~SharpMikCommon.NNA_MASK) | SharpMikCommon.NNA_OFF);
-                break;
+                    a.main.nna = (byte)((a.main.nna & ~SharpMikCommon.NNA_MASK) | SharpMikCommon.NNA_OFF);
+                    break;
                 case 0x6: /* set NNA note fade */
-                a.main.nna = (byte)((a.main.nna & ~SharpMikCommon.NNA_MASK) | SharpMikCommon.NNA_FADE);
-                break;
+                    a.main.nna = (byte)((a.main.nna & ~SharpMikCommon.NNA_MASK) | SharpMikCommon.NNA_FADE);
+                    break;
                 case 0x7: /* disable volume envelope */
-                if (aout != null)
-                    aout.main.volflg = (byte)(aout.main.volflg & ~SharpMikCommon.EF_ON);
-                break;
+                    if (aout != null)
+                        aout.main.volflg = (byte)(aout.main.volflg & ~SharpMikCommon.EF_ON);
+                    break;
                 case 0x8: /* enable volume envelope  */
-                if (aout != null)
-                    aout.main.volflg |= SharpMikCommon.EF_ON;
-                break;
+                    if (aout != null)
+                        aout.main.volflg |= SharpMikCommon.EF_ON;
+                    break;
                 case 0x9: /* disable panning envelope */
-                if (aout != null)
-                    aout.main.panflg = (byte)(aout.main.panflg & ~SharpMikCommon.EF_ON);
-                break;
+                    if (aout != null)
+                        aout.main.panflg = (byte)(aout.main.panflg & ~SharpMikCommon.EF_ON);
+                    break;
                 case 0xa: /* enable panning envelope */
-                if (aout != null)
-                    aout.main.panflg |= SharpMikCommon.EF_ON;
-                break;
+                    if (aout != null)
+                        aout.main.panflg |= SharpMikCommon.EF_ON;
+                    break;
                 case 0xb: /* disable pitch envelope */
-                if (aout != null)
-                    aout.main.pitflg = (byte)(aout.main.panflg & ~SharpMikCommon.EF_ON);
-                break;
+                    if (aout != null)
+                        aout.main.pitflg = (byte)(aout.main.panflg & ~SharpMikCommon.EF_ON);
+                    break;
                 case 0xc: /* enable pitch envelope */
-                if (aout != null)
-                    aout.main.pitflg |= SharpMikCommon.EF_ON;
-                break;
+                    if (aout != null)
+                        aout.main.pitflg |= SharpMikCommon.EF_ON;
+                    break;
             }
         }
 
@@ -2385,66 +2379,66 @@ namespace SharpMik.Player
                 switch (option)
                 {
                     case SharpMikCommon.MuteOptions.MuteRangeInclusive:
-                    {
-                        if (list.Length == 2)
                         {
-                            int start = list[0];
-                            int end = list[1];
-                            if (start < end && end < s_Module.numchn && start > -1)
+                            if (list.Length == 2)
                             {
-                                for (int i = start; i < end; i++)
+                                int start = list[0];
+                                int end = list[1];
+                                if (start < end && end < s_Module.numchn && start > -1)
                                 {
-                                    Player_Mute_Channel(i);
-                                }
+                                    for (int i = start; i < end; i++)
+                                    {
+                                        Player_Mute_Channel(i);
+                                    }
 
-                                result = true;
+                                    result = true;
+                                }
                             }
+                            break;
                         }
-                        break;
-                    }
 
 
                     case SharpMikCommon.MuteOptions.MuteRangeExclusive:
-                    {
-                        if (list.Length == 2)
                         {
-                            int start = list[0] + 1;
-                            int end = list[1] - 1;
-                            if (start < end && end < s_Module.numchn && start > -1)
+                            if (list.Length == 2)
                             {
-                                for (int i = start; i < end; i++)
+                                int start = list[0] + 1;
+                                int end = list[1] - 1;
+                                if (start < end && end < s_Module.numchn && start > -1)
                                 {
-                                    Player_Mute_Channel(i);
-                                }
+                                    for (int i = start; i < end; i++)
+                                    {
+                                        Player_Mute_Channel(i);
+                                    }
 
-                                result = true;
+                                    result = true;
+                                }
                             }
+                            break;
                         }
-                        break;
-                    }
 
 
                     case SharpMikCommon.MuteOptions.MuteList:
-                    {
-                        for (int i = 0; i < list.Length; i++)
                         {
-                            Player_Mute_Channel(list[i]);
+                            for (int i = 0; i < list.Length; i++)
+                            {
+                                Player_Mute_Channel(list[i]);
+                            }
+                            break;
                         }
-                        break;
-                    }
 
 
                     case SharpMikCommon.MuteOptions.MuteAll:
-                    {
-                        for (int i = 0; i < s_Module.control.Length; i++)
                         {
-                            Player_Mute_Channel(i);
+                            for (int i = 0; i < s_Module.control.Length; i++)
+                            {
+                                Player_Mute_Channel(i);
+                            }
+                            break;
                         }
-                        break;
-                    }
 
                     default:
-                    break;
+                        break;
                 }
             }
 
@@ -2470,66 +2464,66 @@ namespace SharpMik.Player
                 switch (option)
                 {
                     case SharpMikCommon.MuteOptions.MuteRangeInclusive:
-                    {
-                        if (list.Length == 2)
                         {
-                            int start = list[0];
-                            int end = list[1];
-                            if (start < end && end < s_Module.numchn && start > -1)
+                            if (list.Length == 2)
                             {
-                                for (int i = start; i < end; i++)
+                                int start = list[0];
+                                int end = list[1];
+                                if (start < end && end < s_Module.numchn && start > -1)
                                 {
-                                    Player_UnMute_Channel(i);
-                                }
+                                    for (int i = start; i < end; i++)
+                                    {
+                                        Player_UnMute_Channel(i);
+                                    }
 
-                                result = true;
+                                    result = true;
+                                }
                             }
+                            break;
                         }
-                        break;
-                    }
 
 
                     case SharpMikCommon.MuteOptions.MuteRangeExclusive:
-                    {
-                        if (list.Length == 2)
                         {
-                            int start = list[0] + 1;
-                            int end = list[1] - 1;
-                            if (start < end && end < s_Module.numchn && start > -1)
+                            if (list.Length == 2)
                             {
-                                for (int i = start; i < end; i++)
+                                int start = list[0] + 1;
+                                int end = list[1] - 1;
+                                if (start < end && end < s_Module.numchn && start > -1)
                                 {
-                                    Player_UnMute_Channel(i);
-                                }
+                                    for (int i = start; i < end; i++)
+                                    {
+                                        Player_UnMute_Channel(i);
+                                    }
 
-                                result = true;
+                                    result = true;
+                                }
                             }
+                            break;
                         }
-                        break;
-                    }
 
 
                     case SharpMikCommon.MuteOptions.MuteList:
-                    {
-                        for (int i = 0; i < list.Length; i++)
                         {
-                            Player_UnMute_Channel(list[i]);
+                            for (int i = 0; i < list.Length; i++)
+                            {
+                                Player_UnMute_Channel(list[i]);
+                            }
+                            break;
                         }
-                        break;
-                    }
 
 
                     case SharpMikCommon.MuteOptions.MuteAll:
-                    {
-                        for (int i = 0; i < s_Module.control.Length; i++)
                         {
-                            Player_UnMute_Channel(i);
+                            for (int i = 0; i < s_Module.control.Length; i++)
+                            {
+                                Player_UnMute_Channel(i);
+                            }
+                            break;
                         }
-                        break;
-                    }
 
                     default:
-                    break;
+                        break;
                 }
             }
 
@@ -2668,7 +2662,7 @@ namespace SharpMik.Player
 
 
         public static void Player_NextPosition()
-        {            
+        {
             if (s_Module != null)
             {
                 int t;
@@ -2691,11 +2685,11 @@ namespace SharpMik.Player
                 }
 
                 s_Module.forbid = false;
-            }            
+            }
         }
 
         public static void Player_PrevPosition()
-        {            
+        {
             if (s_Module != null)
             {
                 int t;
@@ -2707,7 +2701,7 @@ namespace SharpMik.Player
 
                 for (t = 0; t < NumberOfVoices(s_Module); t++)
                 {
-                    ModDriver.Voice_Stop_internal((byte)t);                    
+                    ModDriver.Voice_Stop_internal((byte)t);
                     s_Module.voice[t].main.i = null;
                     s_Module.voice[t].main.s = null;
                 }
@@ -2719,7 +2713,7 @@ namespace SharpMik.Player
 
                 s_Module.forbid = false;
             }
-            
+
         }
 
 
@@ -2989,21 +2983,21 @@ namespace SharpMik.Player
                     switch (s.vibtype)
                     {
                         case 0:
-                        vibval = avibtab[s.avibpos & 127];
-                        if ((aout.avibpos & 0x80) == 0x80)
-                            vibval = -vibval;
-                        break;
+                            vibval = avibtab[s.avibpos & 127];
+                            if ((aout.avibpos & 0x80) == 0x80)
+                                vibval = -vibval;
+                            break;
                         case 1:
-                        vibval = 64;
-                        if ((aout.avibpos & 0x80) == 0x80)
-                            vibval = -vibval;
-                        break;
+                            vibval = 64;
+                            if ((aout.avibpos & 0x80) == 0x80)
+                                vibval = -vibval;
+                            break;
                         case 2:
-                        vibval = 63 - (((aout.avibpos + 128) & 255) >> 1);
-                        break;
+                            vibval = 63 - (((aout.avibpos + 128) & 255) >> 1);
+                            break;
                         default:
-                        vibval = (((aout.avibpos + 128) & 255) >> 1) - 64;
-                        break;
+                            vibval = (((aout.avibpos + 128) & 255) >> 1) - 64;
+                            break;
                     }
                 }
                 else
@@ -3248,16 +3242,16 @@ namespace SharpMik.Player
                             switch (aout.main.nna)
                             {
                                 case SharpMikCommon.NNA_CONTINUE: /* continue note, do nothing */
-                                break;
+                                    break;
                                 case SharpMikCommon.NNA_OFF: /* note off */
-                                aout.main.keyoff |= SharpMikCommon.KEY_OFF;
-                                if ((!((aout.main.volflg & SharpMikCommon.EF_ON) == SharpMikCommon.EF_ON)) ||
-                                      (aout.main.volflg & SharpMikCommon.EF_LOOP) == SharpMikCommon.EF_LOOP)
-                                    aout.main.keyoff = SharpMikCommon.KEY_KILL;
-                                break;
+                                    aout.main.keyoff |= SharpMikCommon.KEY_OFF;
+                                    if ((!((aout.main.volflg & SharpMikCommon.EF_ON) == SharpMikCommon.EF_ON)) ||
+                                          (aout.main.volflg & SharpMikCommon.EF_LOOP) == SharpMikCommon.EF_LOOP)
+                                        aout.main.keyoff = SharpMikCommon.KEY_KILL;
+                                    break;
                                 case SharpMikCommon.NNA_FADE:
-                                aout.main.keyoff |= SharpMikCommon.KEY_FADE;
-                                break;
+                                    aout.main.keyoff |= SharpMikCommon.KEY_FADE;
+                                    break;
                             }
                         }
                     }
@@ -3275,32 +3269,32 @@ namespace SharpMik.Player
                                 switch (a.dct)
                                 {
                                     case SharpMikCommon.DCT_NOTE:
-                                    if (a.main.note == mod.voice[t].main.note)
-                                        kill = true;
-                                    break;
+                                        if (a.main.note == mod.voice[t].main.note)
+                                            kill = true;
+                                        break;
                                     case SharpMikCommon.DCT_SAMPLE:
-                                    if (a.main.handle == mod.voice[t].main.handle)
-                                        kill = true;
-                                    break;
+                                        if (a.main.handle == mod.voice[t].main.handle)
+                                            kill = true;
+                                        break;
                                     case SharpMikCommon.DCT_INST:
-                                    kill = true;
-                                    break;
+                                        kill = true;
+                                        break;
                                 }
                                 if (kill)
                                     switch (a.dca)
                                     {
                                         case SharpMikCommon.DCA_CUT:
-                                        mod.voice[t].main.fadevol = 0;
-                                        break;
+                                            mod.voice[t].main.fadevol = 0;
+                                            break;
                                         case SharpMikCommon.DCA_OFF:
-                                        mod.voice[t].main.keyoff |= SharpMikCommon.KEY_OFF;
-                                        if ((!((mod.voice[t].main.volflg & SharpMikCommon.EF_ON) == SharpMikCommon.EF_ON)) ||
-                                            (mod.voice[t].main.volflg & SharpMikCommon.EF_LOOP) == SharpMikCommon.EF_LOOP)
-                                            mod.voice[t].main.keyoff = SharpMikCommon.KEY_KILL;
-                                        break;
+                                            mod.voice[t].main.keyoff |= SharpMikCommon.KEY_OFF;
+                                            if ((!((mod.voice[t].main.volflg & SharpMikCommon.EF_ON) == SharpMikCommon.EF_ON)) ||
+                                                (mod.voice[t].main.volflg & SharpMikCommon.EF_LOOP) == SharpMikCommon.EF_LOOP)
+                                                mod.voice[t].main.keyoff = SharpMikCommon.KEY_KILL;
+                                            break;
                                         case SharpMikCommon.DCA_FADE:
-                                        mod.voice[t].main.keyoff |= SharpMikCommon.KEY_FADE;
-                                        break;
+                                            mod.voice[t].main.keyoff |= SharpMikCommon.KEY_FADE;
+                                            break;
                                     }
                             }
                     }
@@ -3459,49 +3453,49 @@ namespace SharpMik.Player
                     switch (c)
                     {
                         case (byte)SharpMikCommon.Commands.UNI_NOTE:
-                        {
-                            funky |= 1;
-                            a.oldnote = a.anote;
-                            a.anote = s_UniTrack.UniGetByte();
-                            a.main.kick = SharpMikCommon.KICK_NOTE;
-                            a.main.start = -1;
-                            a.sliding = 0;
+                            {
+                                funky |= 1;
+                                a.oldnote = a.anote;
+                                a.anote = s_UniTrack.UniGetByte();
+                                a.main.kick = SharpMikCommon.KICK_NOTE;
+                                a.main.start = -1;
+                                a.sliding = 0;
 
-                            /* retrig tremolo and vibrato waves ? */
-                            if (!((a.wavecontrol & 0x80) == 0x80))
-                                a.trmpos = 0;
+                                /* retrig tremolo and vibrato waves ? */
+                                if (!((a.wavecontrol & 0x80) == 0x80))
+                                    a.trmpos = 0;
 
-                            if (!((a.wavecontrol & 0x08) == 0x08))
-                                a.vibpos = 0;
+                                if (!((a.wavecontrol & 0x08) == 0x08))
+                                    a.vibpos = 0;
 
-                            if (a.panbwave == 0)
-                                a.panbpos = 0;
+                                if (a.panbwave == 0)
+                                    a.panbpos = 0;
 
-                            break;
-                        }
+                                break;
+                            }
 
                         case (byte)SharpMikCommon.Commands.UNI_INSTRUMENT:
-                        {
+                            {
 
-                            inst = s_UniTrack.UniGetByte();
-                            if (inst >= mod.numins)
-                                break; /* safety valve */
+                                inst = s_UniTrack.UniGetByte();
+                                if (inst >= mod.numins)
+                                    break; /* safety valve */
 
-                            funky |= 2;
-                            a.main.i = (mod.flags & SharpMikCommon.UF_INST) == SharpMikCommon.UF_INST ? mod.instruments[inst] : null;
-                            a.retrig = 0;
-                            a.s3mtremor = 0;
-                            a.ultoffset = 0;
-                            a.main.sample = inst;
-                            break;
-                        }
+                                funky |= 2;
+                                a.main.i = (mod.flags & SharpMikCommon.UF_INST) == SharpMikCommon.UF_INST ? mod.instruments[inst] : null;
+                                a.retrig = 0;
+                                a.s3mtremor = 0;
+                                a.ultoffset = 0;
+                                a.main.sample = inst;
+                                break;
+                            }
 
 
                         default:
-                        {
-                            s_UniTrack.UniSkipOpcode();
-                            break;
-                        }
+                            {
+                                s_UniTrack.UniSkipOpcode();
+                                break;
+                            }
                     }
                 }
 

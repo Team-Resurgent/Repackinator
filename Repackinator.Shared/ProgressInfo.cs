@@ -2,7 +2,7 @@
 {
     public struct ProgressInfo
     {
-        public float Progress1 { get; set; } 
+        public float Progress1 { get; set; }
 
         public string Progress1Text { get; set; }
 

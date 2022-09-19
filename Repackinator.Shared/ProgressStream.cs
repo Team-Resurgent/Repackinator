@@ -12,7 +12,7 @@
             m_length = length;
             m_progress = progress;
         }
-        
+
         public override int Read(byte[] buffer, int offset, int count)
         {
             var result = m_stream.Read(buffer, offset, count);
@@ -25,7 +25,7 @@
             m_stream.Write(buffer, offset, count);
             m_progress(m_stream.Position / (float)m_length);
         }
-        
+
         public override void Flush()
         {
             m_stream.Flush();
@@ -33,7 +33,7 @@
 
         public override long Seek(long offset, SeekOrigin origin)
         {
-            return m_stream.Seek(offset, origin); 
+            return m_stream.Seek(offset, origin);
         }
         public override void SetLength(long value)
         {

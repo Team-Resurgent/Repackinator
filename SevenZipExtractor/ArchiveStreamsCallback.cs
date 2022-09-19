@@ -1,14 +1,11 @@
-﻿using System.Collections.Generic;
-using System.IO;
-
-namespace SevenZipExtractor
+﻿namespace SevenZipExtractor
 {
     internal class ArchiveStreamsCallback : IArchiveExtractCallback
     {
         private readonly IList<Stream> streams;
         private readonly CancellationToken cancellationToken;
 
-        public ArchiveStreamsCallback(IList<Stream> streams, CancellationToken cancellationToken) 
+        public ArchiveStreamsCallback(IList<Stream> streams, CancellationToken cancellationToken)
         {
             this.streams = streams;
             this.cancellationToken = cancellationToken;
@@ -36,7 +33,7 @@ namespace SevenZipExtractor
                 return 0;
             }
 
-            Stream stream = this.streams[(int) index];
+            Stream stream = this.streams[(int)index];
 
             if (stream == null)
             {

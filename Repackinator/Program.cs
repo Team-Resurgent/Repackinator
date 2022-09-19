@@ -1,5 +1,5 @@
-﻿using Repackinator.Shared;
-using Mono.Options;
+﻿using Mono.Options;
+using Repackinator.Shared;
 using System.Text;
 
 var shouldShowHelp = false;

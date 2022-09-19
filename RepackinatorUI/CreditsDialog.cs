@@ -1,21 +1,16 @@
-﻿using System;
+﻿using ImGuiNET;
+using Repackinator.Shared;
+using SharpMik;
+using SharpMik.Drivers;
+using SharpMik.Player;
 using System.Numerics;
 using System.Reflection;
-using ImGuiNET;
-using Repackinator.Shared;
-using SharpMik.Player;
-using SharpMik.Drivers;
-using SharpMik;
-using System.Diagnostics;
-using Veldrid.MetalBindings;
-using System.Threading.Channels;
-using System.Security.Cryptography.X509Certificates;
 
 namespace RepackinatorUI
 {
     public class CreditsDialog
     {
-        private bool  _showModal;
+        private bool _showModal;
         private bool _open;
 
         MikModule? _module;
@@ -65,7 +60,7 @@ namespace RepackinatorUI
             _player.PlayerStateChangeEvent += new ModPlayer.PlayerStateChangedEvent(PlayerStateChangeEvent);
 
             var random = new Random();
-            for (var i = 0; i <stars.Length; i++)
+            for (var i = 0; i < stars.Length; i++)
             {
                 stars[i] = new Vector2(random.Next(600), random.Next(400));
                 starsSpeeds[i] = ((float)random.NextDouble() * 0.9f) + 0.1f;
@@ -76,7 +71,7 @@ namespace RepackinatorUI
             {
                 _player.Init<NaudioDriver>("");
             }
-            catch 
+            catch
             {
                 // do nothing
             }
@@ -194,15 +189,15 @@ namespace RepackinatorUI
 
             float x = 0;
             float y = 0;
-            int i = (int)charOffset; 
+            int i = (int)charOffset;
             while (x < 620)
             {
-                
+
                 var amplitude = 100.0f;
                 var peak = (float)Math.Sin(ConvertToRadians(sin + y));
                 var textSize = ImGui.CalcTextSize(Message[i].ToString());
                 var textXOffset = (20 - textSize.X) / 2;
-                ImGui.SetCursorPos(new Vector2((x - scrollPos) + textXOffset, (amplitude * 2) + (peak * amplitude)));                
+                ImGui.SetCursorPos(new Vector2((x - scrollPos) + textXOffset, (amplitude * 2) + (peak * amplitude)));
                 ImGui.Text(Message[i].ToString());
                 i++;
                 if (i >= Message.Length)
@@ -212,7 +207,7 @@ namespace RepackinatorUI
                 x += 20;
 
                 sin += 0.05f;
-                if (sin >= 360) 
+                if (sin >= 360)
                 {
                     sin -= 360;
                 }

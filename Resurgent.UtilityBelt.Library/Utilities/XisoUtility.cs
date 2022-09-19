@@ -162,8 +162,8 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             try
             {
                 long headerOffset = 0;
-                
-                var volumeDescriptor = ReadBytesFromSplitIso(binaryReader1, binaryReader2, VolumeSector * SectorSize, (int)SectorSize);                
+
+                var volumeDescriptor = ReadBytesFromSplitIso(binaryReader1, binaryReader2, VolumeSector * SectorSize, (int)SectorSize);
                 if (!PatternMatch(volumeDescriptor, 0, Magic))
                 {
                     headerOffset = XGD1_LSEEK_OFFSET;

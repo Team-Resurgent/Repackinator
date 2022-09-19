@@ -7,9 +7,8 @@ try
 }
 catch (Exception ex)
 {
-    Console.WriteLine(ex.ToString());
-    Console.WriteLine("Press enter to close.");
-    Console.ReadLine();
+    var now = DateTime.Now.ToString("MMddyyyyHHmmss");
+    File.WriteAllText($"Crashlog-{now}.txt", ex.ToString());
 }
 
 

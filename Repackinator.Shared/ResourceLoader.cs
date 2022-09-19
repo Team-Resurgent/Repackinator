@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace Repackinator.Shared
 {
@@ -28,8 +25,8 @@ namespace Repackinator.Shared
 
         public static Stream? GetEmbeddedResourceStream(string resourceFileName, Assembly? assembly = null)
         {
-            string resourcePath = GetResourceFullName(resourceFileName, ref assembly);            
-            return assembly?.GetManifestResourceStream(resourcePath);            
+            string resourcePath = GetResourceFullName(resourceFileName, ref assembly);
+            return assembly?.GetManifestResourceStream(resourcePath);
         }
 
         public static string GetEmbeddedResourceString(string resourceFileName, Assembly? assembly = null)
@@ -48,7 +45,7 @@ namespace Repackinator.Shared
             Stream? stream = GetEmbeddedResourceStream(resourceFileName, assembly);
             if (stream == null)
             {
-                return Array.Empty<byte>(); 
+                return Array.Empty<byte>();
             }
             using var streamReader = new MemoryStream();
             stream.CopyTo(streamReader);

@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace SevenZipExtractor
+﻿namespace SevenZipExtractor
 {
     public class Entry
     {
@@ -45,7 +42,7 @@ namespace SevenZipExtractor
         /// Date and time of the last access of the file (entry)
         /// </summary>
         public DateTime LastAccessTime { get; internal set; }
-        
+
         /// <summary>
         /// CRC hash of the entry
         /// </summary>
@@ -113,7 +110,7 @@ namespace SevenZipExtractor
         }
         public void Extract(Stream stream, CancellationToken cancellationToken)
         {
-            this.archive.Extract(new[] { this.index }, 1, 0, new ArchiveStreamCallback(this.index, stream, cancellationToken));            
+            this.archive.Extract(new[] { this.index }, 1, 0, new ArchiveStreamCallback(this.index, stream, cancellationToken));
         }
     }
 }

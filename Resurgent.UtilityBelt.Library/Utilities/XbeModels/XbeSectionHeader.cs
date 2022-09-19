@@ -16,17 +16,17 @@ namespace Resurgent.UtilityBelt.Library.Utilities.XbeModels
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct XbeSectionHeader
     {
-        public XbeSectionFlags Flags;   
-        public uint Virtual_Addr;    
-        public uint Virtual_Size;      
-        public uint Raw_Addr;           
-        public uint Sizeof_Raw;             
-        public uint Section_Name_Addr;        
-        public uint Section_Reference_Count; 
-        public uint Head_Shared_Ref_Count_Addr; 
-        public uint Tail_Shared_Ref_Count_Addr; 
+        public XbeSectionFlags Flags;
+        public uint Virtual_Addr;
+        public uint Virtual_Size;
+        public uint Raw_Addr;
+        public uint Sizeof_Raw;
+        public uint Section_Name_Addr;
+        public uint Section_Reference_Count;
+        public uint Head_Shared_Ref_Count_Addr;
+        public uint Tail_Shared_Ref_Count_Addr;
 
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 20)]
-        public byte[] Section_Digest;   
+        public byte[] Section_Digest;
     }
 }

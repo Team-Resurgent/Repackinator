@@ -1,7 +1,6 @@
-﻿using System.Numerics;
-using System.Text;
-using ImGuiNET;
+﻿using ImGuiNET;
 using Repackinator.Shared;
+using System.Numerics;
 
 namespace RepackinatorUI
 {
@@ -70,7 +69,7 @@ namespace RepackinatorUI
                 _progress2Text = string.Empty;
                 _progress2 = 0;
 
-                _log = string.Empty; 
+                _log = string.Empty;
 
                 var repackThread = new Thread(Repack);
                 repackThread.Start();
@@ -107,7 +106,7 @@ namespace RepackinatorUI
             ImGui.ProgressBar(_progress2, new Vector2(windowSize.X - 16, 20));
             ImGui.Spacing();
             ImGui.InputTextMultiline("##reoackLog", ref _log, (uint)_log.Length, new Vector2(windowSize.X - 16, windowSize.Y - 175), ImGuiInputTextFlags.ReadOnly);
-            
+
             ImGui.SetCursorPosY(windowSize.Y - 40);
 
             if (ImGui.Button(_completed ? "Close" : (_cancellationTokenSource.IsCancellationRequested ? "Cancelling..." : "Cancel"), new Vector2(100, 30)))

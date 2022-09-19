@@ -1,4 +1,3 @@
-using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 
@@ -18,7 +17,7 @@ namespace SevenZipExtractor
             }
 
             IntPtr functionPtr = Kernel32Dll.GetProcAddress(this.sevenZipSafeHandle, "GetHandlerProperty");
-            
+
             // Not valid dll
             if (functionPtr == IntPtr.Zero)
             {
@@ -56,10 +55,10 @@ namespace SevenZipExtractor
             }
 
             IntPtr procAddress = Kernel32Dll.GetProcAddress(this.sevenZipSafeHandle, "CreateObject");
-            CreateObjectDelegate createObject = (CreateObjectDelegate) Marshal.GetDelegateForFunctionPointer(procAddress, typeof (CreateObjectDelegate));
+            CreateObjectDelegate createObject = (CreateObjectDelegate)Marshal.GetDelegateForFunctionPointer(procAddress, typeof(CreateObjectDelegate));
 
             object result;
-            Guid interfaceId = typeof (IInArchive).GUID;
+            Guid interfaceId = typeof(IInArchive).GUID;
             createObject(ref classId, ref interfaceId, out result);
 
             return result as IInArchive;
