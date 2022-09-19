@@ -1,6 +1,6 @@
-﻿using System.Numerics;
-using ImGuiNET;
+﻿using ImGuiNET;
 using Repackinator.Shared;
+using System.Numerics;
 
 namespace RepackinatorUI
 {

@@ -1,6 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32.SafeHandles;
 using System.Runtime.ConstrainedExecution;
-using Microsoft.Win32.SafeHandles;
 
 namespace SevenZipExtractor
 {

@@ -2,7 +2,6 @@
 using Resurgent.UtilityBelt.Library.Utilities.XbeModels;
 using SevenZipExtractor;
 using System.Diagnostics;
-using System.Text;
 
 namespace Repackinator.Shared
 {
@@ -26,12 +25,12 @@ namespace Repackinator.Shared
         }
 
         private void Log(LogMessageLevel level, string message)
-        {            
+        {
             if (Logger == null)
             {
                 return;
             }
-            Logger(new LogMessage(level, message));            
+            Logger(new LogMessage(level, message));
         }
 
         private void ProcessFile(string inputFile, string outputPath, GroupingEnum grouping, bool alternate, CancellationToken cancellationToken)
@@ -67,7 +66,7 @@ namespace Repackinator.Shared
                 var extension = Path.GetExtension(inputFile).ToLower();
                 if (!extension.Equals(".iso") && !extension.Equals(".zip") && !extension.Equals(".7z") && !extension.Equals(".rar") && !extension.Equals(".iso"))
                 {
-                    Log(LogMessageLevel.Warning, $"Skipping '{Path.GetFileName(inputFile)}' as unsupported extension.\n"); 
+                    Log(LogMessageLevel.Warning, $"Skipping '{Path.GetFileName(inputFile)}' as unsupported extension.\n");
                     return;
                 }
 
@@ -96,7 +95,7 @@ namespace Repackinator.Shared
                                 foreach (var game in GameDataList)
                                 {
                                     if (game.ISOChecksum.PadLeft(8, '0').Equals(entryCRC, StringComparison.CurrentCultureIgnoreCase))
-                                    {                                        
+                                    {
                                         processArchive = game.Process.Equals("Y", StringComparison.CurrentCultureIgnoreCase);
                                         break;
                                     }
@@ -119,7 +118,7 @@ namespace Repackinator.Shared
                                         }
                                     }
                                 }
-                                else 
+                                else
                                 {
                                     Log(LogMessageLevel.Warning, $"Skipping '{Path.GetFileName(inputFile)}' as requested to skip in dataset based on checksum.\n");
                                 }
@@ -203,7 +202,7 @@ namespace Repackinator.Shared
                         }
                         break;
                     }
-                } 
+                }
 
                 if (!gameData.HasValue)
                 {
@@ -292,7 +291,7 @@ namespace Repackinator.Shared
                 if (Directory.Exists(processOutput))
                 {
                     Directory.Delete(processOutput, true);
-                }    
+                }
                 Directory.CreateDirectory(processOutput);
 
                 File.Move(Path.Combine(unpackPath, @"Repackinator.1.iso"), Path.Combine(processOutput, $"{isoFileName}.1.iso"));
@@ -323,9 +322,9 @@ namespace Repackinator.Shared
                 }
                 else
                 {
-                    Log(LogMessageLevel.Warning, "Failed to extract xpr as probably missing.\n");                    
+                    Log(LogMessageLevel.Warning, "Failed to extract xpr as probably missing.\n");
                 }
-                                                
+
                 if (XbeUtility.ReplaceCertInfo(attach, xbeData, xbeTitle, out var patchedAttach) && patchedAttach != null)
                 {
                     File.WriteAllBytes(Path.Combine(processOutput, "default.xbe"), patchedAttach);
@@ -350,7 +349,7 @@ namespace Repackinator.Shared
                 if (deleteProcessOutput && Directory.Exists(processOutput))
                 {
                     Directory.Delete(processOutput, true);
-                }                
+                }
                 if (Directory.Exists(unpackPath))
                 {
                     Directory.Delete(unpackPath, true);
@@ -365,7 +364,7 @@ namespace Repackinator.Shared
         public void StartConversion(GameData[]? gameData, Config config, Action<ProgressInfo>? progress, Action<LogMessage> logger, CancellationToken cancellationToken)
         {
             try
-            {               
+            {
                 Logger = logger;
                 Progress = progress;
 
@@ -387,13 +386,13 @@ namespace Repackinator.Shared
                     CurrentProgress.Progress1Text = $"Processing {i + 1} of {files.Length}";
                     SendProgress();
 
-                    ProcessFile(file, config.OutputPath, config.Grouping, config.Alternative, cancellationToken);         
+                    ProcessFile(file, config.OutputPath, config.Grouping, config.Alternative, cancellationToken);
                     if (cancellationToken.IsCancellationRequested)
                     {
                         break;
                     }
                 }
-                CurrentProgress.Progress1 = 1.0f;                
+                CurrentProgress.Progress1 = 1.0f;
                 SendProgress();
 
                 allStopwatch.Stop();

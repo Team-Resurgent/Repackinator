@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace SevenZipExtractor
+﻿namespace SevenZipExtractor
 {
     internal class ArchiveStreamCallback : IArchiveExtractCallback
     {

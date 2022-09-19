@@ -8,16 +8,16 @@ namespace Resurgent.UtilityBelt.Library.Utilities.XbeModels
     {
         public uint Size;
         public uint Time_Date;
-        public uint Title_Id;   
+        public uint Title_Id;
 
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 80)]
-        public byte[] Title_Name; 
+        public byte[] Title_Name;
 
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
-        public uint[] Alt_Title_Id;    
+        public uint[] Alt_Title_Id;
 
-        public uint Allowed_Media; 
-        public uint Game_Region;      
+        public uint Allowed_Media;
+        public uint Game_Region;
         public uint Game_Ratings;
         public uint Disk_Number;
         public uint Version;
@@ -114,7 +114,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities.XbeModels
             if ((media & 0x80000000) == 0x80000000)
             {
                 allowedMedia = allowedMedia.Length > 0 ? $"NONSECURE_MODE, {allowedMedia}" : "NONSECURE_MODE";
-            }           
+            }
             return allowedMedia;
         }
 

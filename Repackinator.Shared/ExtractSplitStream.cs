@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Repackinator.Shared
+﻿namespace Repackinator.Shared
 {
     public class ExtractSplitStream : Stream
     {
         private int m_currentPart;
         private Stream[] m_outputParts;
-        private long m_bytesProcessed;                
+        private long m_bytesProcessed;
         private long m_isoLength;
         private Action<float> m_progress;
 
@@ -28,7 +22,7 @@ namespace Repackinator.Shared
             const long redumpSize = 7825162240;
             const long videoSize = 387 * 1024 * 1024;
 
-            long skipSize = m_isoLength == redumpSize ? videoSize : 0;           
+            long skipSize = m_isoLength == redumpSize ? videoSize : 0;
 
             if (m_bytesProcessed < skipSize)
             {
@@ -37,13 +31,13 @@ namespace Repackinator.Shared
                 {
                     offset = (count - (int)remainder) + offset;
                     m_bytesProcessed += count;
-                    count = (int)remainder;                    
-                }       
+                    count = (int)remainder;
+                }
                 else
                 {
                     m_bytesProcessed += count;
                     count = 0;
-                }                
+                }
             }
 
             if (count == 0)
@@ -58,7 +52,7 @@ namespace Repackinator.Shared
             {
                 var remainder = (m_bytesProcessed + count) - sectorSplitPosition;
                 if (remainder > 0)
-                {                    
+                {
                     m_bytesProcessed += count;
                     m_outputParts[0].Write(buffer, offset, count - (int)remainder);
 

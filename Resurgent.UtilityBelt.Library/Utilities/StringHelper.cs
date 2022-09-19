@@ -2,7 +2,7 @@
 
 namespace Resurgent.UtilityBelt.Library.Utilities
 {
-    public static  class StringHelper
+    public static class StringHelper
     {
         public static string GetUtf8String(byte[] buffer)
         {

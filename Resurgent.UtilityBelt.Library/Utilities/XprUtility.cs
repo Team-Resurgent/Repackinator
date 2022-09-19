@@ -57,7 +57,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             for (int yOffset = 0; yOffset < 4; yOffset++)
             {
                 var rowVal = src[srcOffset++];
-                for (int xOffset = 0; xOffset < 4; xOffset ++)
+                for (int xOffset = 0; xOffset < 4; xOffset++)
                 {
                     var pixel = color[(rowVal >> (xOffset << 1)) & 0x03];
                     dest[x + xOffset, y + yOffset] = pixel;
@@ -214,11 +214,11 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
-                {                    
+                {
                     var blue = buffer[srcOffset++];
                     var green = buffer[srcOffset++];
                     var red = buffer[srcOffset++];
-                    var alpha = buffer[srcOffset++];                                                          
+                    var alpha = buffer[srcOffset++];
                     dest[x, y] = new Rgba32(red, green, blue, alpha);
                 }
             }
@@ -260,7 +260,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                     var alpha = buffer[srcOffset++];
                     var blue = buffer[srcOffset++];
                     var green = buffer[srcOffset++];
-                    var red = buffer[srcOffset++];                          
+                    var red = buffer[srcOffset++];
                     dest[x, y] = new Rgba32(red, green, blue, alpha);
                 }
             }
@@ -277,7 +277,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
-                {                    
+                {
                     var blue = (byte)((buffer[srcOffset + 0] & 0x0f) << 4);
                     var green = (byte)(buffer[srcOffset++] & 0xf0);
                     var red = (byte)((buffer[srcOffset] & 0x0f) << 4);
@@ -367,7 +367,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                     return false;
                 }
             }
-            return false; 
+            return false;
         }
 
 
@@ -463,7 +463,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             var paddingSize = headerSize - inputStream.Position;
             if (paddingSize > 0)
             {
-                _ = reader.ReadBytes((int)paddingSize);                
+                _ = reader.ReadBytes((int)paddingSize);
             }
 
             var imageSize = totalSize - headerSize;

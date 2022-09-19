@@ -32,7 +32,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             var attachHeader = StructUtility.ByteToType<XbeHheader>(attachReader);
             var atatchBaseAddress = attachHeader.Base;
             var atatchCertAddress = attachHeader.Certificate_Addr;
-            
+
             using var donorStream = new MemoryStream(donor);
             using var donorReader = new BinaryReader(donorStream);
             var donorHeader = StructUtility.ByteToType<XbeHheader>(donorReader);
@@ -173,7 +173,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             if (header.Sections > 0)
             {
                 var sectionAddress = header.Section_Headers_Addr;
-                
+
                 for (int i = 0; i < header.Sections; i++)
                 {
                     stream.Position = (sectionAddress - baseAddress) + (i * Marshal.SizeOf(typeof(XbeSectionHeader)));
@@ -181,7 +181,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
                     var name = "";
                     if (section.Section_Name_Addr != 0)
-                    {           
+                    {
                         stream.Position = section.Section_Name_Addr - baseAddress;
 
                         var sectionNameBytes = reader.ReadBytes(20);
@@ -191,7 +191,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                     var rawaddress = section.Raw_Addr;
                     var rawsize = section.Sizeof_Raw;
                     stream.Position = rawaddress;
-                    
+
                     if (name == "$$XTIMAGE" && imageType == ImageType.TitleImage)
                     {
                         output = reader.ReadBytes((int)rawsize);
@@ -201,7 +201,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                     {
                         output = reader.ReadBytes((int)rawsize);
                         return true;
-                    }                 
+                    }
                 }
             }
 

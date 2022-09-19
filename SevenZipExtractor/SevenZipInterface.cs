@@ -1,11 +1,6 @@
 // Version 1.5
 
-using System;
-using System.Globalization;
-using System.IO;
 using System.Runtime.InteropServices;
-using System.Security.Permissions;
-using System.Threading;
 
 namespace SevenZipExtractor
 {
@@ -33,7 +28,7 @@ namespace SevenZipExtractor
         {
             get
             {
-                return (VarEnum) this.vt;
+                return (VarEnum)this.vt;
             }
         }
 
@@ -411,7 +406,7 @@ namespace SevenZipExtractor
 
         public virtual void Seek(long offset, uint seekOrigin, IntPtr newPosition)
         {
-            long Position = this.BaseStream.Seek(offset, (SeekOrigin) seekOrigin);
+            long Position = this.BaseStream.Seek(offset, (SeekOrigin)seekOrigin);
 
             if (newPosition != IntPtr.Zero)
             {
@@ -428,7 +423,7 @@ namespace SevenZipExtractor
 
         public uint Read(byte[] data, uint size)
         {
-            return (uint) this.BaseStream.Read(data, 0, (int) size);
+            return (uint)this.BaseStream.Read(data, 0, (int)size);
         }
     }
 
@@ -454,11 +449,11 @@ namespace SevenZipExtractor
                 throw new SevenZipAbortException();
             }
 
-            this.BaseStream.Write(data, 0, (int) size);
+            this.BaseStream.Write(data, 0, (int)size);
 
             if (processedSize != IntPtr.Zero)
             {
-                Marshal.WriteInt32(processedSize, (int) size);
+                Marshal.WriteInt32(processedSize, (int)size);
             }
 
             return 0;

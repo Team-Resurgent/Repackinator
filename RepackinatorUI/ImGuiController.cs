@@ -310,7 +310,7 @@ namespace RepackinatorUI
         }
 
         public void Render(GraphicsDevice gd, CommandList cl)
-        {            
+        {
             if (_frameBegun)
             {
                 _frameBegun = false;
