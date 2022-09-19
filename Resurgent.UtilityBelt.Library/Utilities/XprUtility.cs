@@ -395,7 +395,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 try
                 {
                     inputStream.Position = 0;
-                    using var imagex = Image<Rgba32>.Load(input);
+                    using var imagex = Image.Load(input);
                     using var outputStream2 = new MemoryStream();
                     imagex.SaveAsPng(outputStream2);
                     output = outputStream2.ToArray();

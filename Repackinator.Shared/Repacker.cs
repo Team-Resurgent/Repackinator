@@ -132,11 +132,6 @@ namespace Repackinator.Shared
                         Log(LogMessageLevel.Error, $"Failed to extract archive - {ex}\n");
                         return;
                     }
-
-                    if (cancellationToken.IsCancellationRequested)
-                    {
-                        return;
-                    }
                 }
                 else
                 {
@@ -159,6 +154,11 @@ namespace Repackinator.Shared
 
                     CurrentProgress.Progress2 = 1.0f;
                     SendProgress();
+                }
+
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return;
                 }
 
                 var xbeData = Array.Empty<byte>();
