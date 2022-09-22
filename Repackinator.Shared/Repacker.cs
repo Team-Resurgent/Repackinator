@@ -2,6 +2,7 @@
 using Resurgent.UtilityBelt.Library.Utilities.XbeModels;
 using SevenZipExtractor;
 using System.Diagnostics;
+using System.Text;
 
 namespace Repackinator.Shared
 {
@@ -30,14 +31,18 @@ namespace Repackinator.Shared
             {
                 return;
             }
-            Logger(new LogMessage(level, message));
+            var logMessage = new LogMessage(level, message);
+            Logger(logMessage);
+            var bytes = Encoding.UTF8.GetBytes(Utility.FormatLogMessage(logMessage));
+            using var logStream = File.OpenWrite("ProcessLog.txt");
+            logStream.Write(bytes);
         }
 
-        private void ProcessFile(string inputFile, string outputPath, GroupingEnum grouping, bool alternate, CancellationToken cancellationToken)
+        private void ProcessFile(string inputFile, string outputPath, GroupingEnum grouping, bool alternate, bool hasAllCrcs, CancellationToken cancellationToken)
         {
             if (GameDataList == null)
             {
-                Log(LogMessageLevel.Error, "GameData should not be null.\n");
+                Log(LogMessageLevel.Error, "GameData should not be null.");
                 return;
             }
 
@@ -59,14 +64,14 @@ namespace Repackinator.Shared
             {
                 if (!File.Exists(inputFile))
                 {
-                    Log(LogMessageLevel.Warning, $"Skipping '{Path.GetFileName(inputFile)}' as does not exist.\n");
+                    Log(LogMessageLevel.Skipped, $"Skipping '{Path.GetFileName(inputFile)}' as does not exist.");
                     return;
                 }
 
                 var extension = Path.GetExtension(inputFile).ToLower();
                 if (!extension.Equals(".iso") && !extension.Equals(".zip") && !extension.Equals(".7z") && !extension.Equals(".rar") && !extension.Equals(".iso"))
                 {
-                    Log(LogMessageLevel.Warning, $"Skipping '{Path.GetFileName(inputFile)}' as unsupported extension.\n");
+                    Log(LogMessageLevel.Skipped, $"Skipping '{Path.GetFileName(inputFile)}' as unsupported extension.");
                     return;
                 }
 
@@ -91,7 +96,7 @@ namespace Repackinator.Shared
 
                                 var entryCRC = entry.CRC.ToString("X8");
 
-                                bool processArchive = true;
+                                bool processArchive = !hasAllCrcs;
                                 foreach (var game in GameDataList)
                                 {
                                     if (game.ISOChecksum.PadLeft(8, '0').Equals(entryCRC, StringComparison.CurrentCultureIgnoreCase))
@@ -120,7 +125,8 @@ namespace Repackinator.Shared
                                 }
                                 else
                                 {
-                                    Log(LogMessageLevel.Warning, $"Skipping '{Path.GetFileName(inputFile)}' as requested to skip in dataset based on checksum.\n");
+                                    Log(LogMessageLevel.Skipped, $"Skipping '{Path.GetFileName(inputFile)}' as requested to skip in dataset based on checksum.");
+                                    return;
                                 }
                             }
                         }
@@ -129,7 +135,7 @@ namespace Repackinator.Shared
                     }
                     catch (Exception ex)
                     {
-                        Log(LogMessageLevel.Error, $"Failed to extract archive - {ex}\n");
+                        Log(LogMessageLevel.Error, $"Failed to extract archive - {ex}");
                         return;
                     }
                 }
@@ -173,14 +179,14 @@ namespace Repackinator.Shared
                     }
                     else
                     {
-                        Log(LogMessageLevel.Error, $"Unable to extract default.xbe due to '{error}'.\n");
+                        Log(LogMessageLevel.Error, $"Unable to extract default.xbe due to '{error}'.");
                         return;
                     }
                 }
 
                 if (!XbeUtility.TryGetXbeCert(xbeData, out var cert) || cert == null)
                 {
-                    Log(LogMessageLevel.Error, $"Unable to get data from default.xbe.\n");
+                    Log(LogMessageLevel.Error, $"Unable to get data from default.xbe.");
                     return;
                 }
 
@@ -208,24 +214,24 @@ namespace Repackinator.Shared
                 {
                     if (found)
                     {
-                        Log(LogMessageLevel.Warning, $"Skipping '{Path.GetFileName(inputFile)}' as requested to skip in dataset based on xbe info.\n");
+                        Log(LogMessageLevel.Skipped, $"Skipping '{Path.GetFileName(inputFile)}' as requested to skip in dataset based on xbe info.");
                     }
                     else
                     {
-                        Log(LogMessageLevel.Warning, $"Skipping '{Path.GetFileName(inputFile)}' as titleid, region and version not found in dataset.\n");
+                        Log(LogMessageLevel.Skipped, $"Skipping '{Path.GetFileName(inputFile)}' as titleid, region and version not found in dataset.");
                     }
                     return;
                 }
 
                 if (gameData.Value.Region == null)
                 {
-                    Log(LogMessageLevel.Error, "Region is null in dataset.\n");
+                    Log(LogMessageLevel.Error, "Region is null in dataset.");
                     return;
                 }
 
                 if (gameData.Value.XBETitle == null)
                 {
-                    Log(LogMessageLevel.Error, "XBE title is null in dataset.\n");
+                    Log(LogMessageLevel.Error, "XBE title is null in dataset.");
                     return;
                 }
 
@@ -237,7 +243,7 @@ namespace Repackinator.Shared
 
                 if (gameData.Value.FolderName == null)
                 {
-                    Log(LogMessageLevel.Error, "Folder name is null in dataset.\n");
+                    Log(LogMessageLevel.Error, "Folder name is null in dataset.");
                     return;
                 }
 
@@ -249,19 +255,19 @@ namespace Repackinator.Shared
 
                 if (gameData.Value.ISOName == null)
                 {
-                    Log(LogMessageLevel.Error, "ISO name is null in dataset.\n");
+                    Log(LogMessageLevel.Error, "ISO name is null in dataset.");
                     return;
                 }
 
                 if (gameData.Value.ISONameAlt == null)
                 {
-                    Log(LogMessageLevel.Error, "ISO name alt is null in dataset.\n");
+                    Log(LogMessageLevel.Error, "ISO name alt is null in dataset.");
                     return;
                 }
 
                 if (gameData.Value.Letter == null)
                 {
-                    Log(LogMessageLevel.Error, "Letter is null in dataset.\n");
+                    Log(LogMessageLevel.Error, "Letter is null in dataset.");
                     return;
                 }
 
@@ -309,20 +315,20 @@ namespace Repackinator.Shared
                         if (!XbeUtility.TryReplaceXbeTitleImage(attach, jpgImage))
                         {
                             deleteProcessOutput = true;
-                            Log(LogMessageLevel.Error, "Failed to replace image.\n");
+                            Log(LogMessageLevel.Error, "Failed to replace image.");
                             return;
                         }
                     }
                     else
                     {
                         deleteProcessOutput = true;
-                        Log(LogMessageLevel.Error, "Failed to create png.\n");
+                        Log(LogMessageLevel.Error, "Failed to create png.");
                         return;
                     }
                 }
                 else
                 {
-                    Log(LogMessageLevel.Warning, "Failed to extract xpr as probably missing.\n");
+                    Log(LogMessageLevel.Warning, "Failed to extract xpr as probably missing, will use default image.");
                 }
 
                 if (XbeUtility.ReplaceCertInfo(attach, xbeData, xbeTitle, out var patchedAttach) && patchedAttach != null)
@@ -332,17 +338,17 @@ namespace Repackinator.Shared
                 else
                 {
                     deleteProcessOutput = true;
-                    Log(LogMessageLevel.Error, "failed creating attach xbe.\n");
+                    Log(LogMessageLevel.Error, "failed creating attach xbe.");
                     return;
                 }
 
                 processStopwatch.Stop();
-                Log(LogMessageLevel.Info, $"Completed Processing '{Path.GetFileName(inputFile)}' (Time Taken {processStopwatch.Elapsed.Hours:00}:{processStopwatch.Elapsed.Minutes:00}:{processStopwatch.Elapsed.Seconds:00}).\n");
+                Log(LogMessageLevel.Completed, $"Completed Processing '{Path.GetFileName(inputFile)}' (Time Taken {processStopwatch.Elapsed.Hours:00}:{processStopwatch.Elapsed.Minutes:00}:{processStopwatch.Elapsed.Seconds:00}).");
             }
             catch (Exception ex)
             {
                 deleteProcessOutput = true;
-                Log(LogMessageLevel.Error, $"Processing '{inputFile}' caused error '{ex}'.\n");
+                Log(LogMessageLevel.Error, $"Processing '{inputFile}' caused error '{ex}'.");
             }
             finally
             {
@@ -375,8 +381,28 @@ namespace Repackinator.Shared
                     return;
                 }
 
+                int crcMissingCount = 0;
+                foreach (var gameDataItem in GameDataList)
+                {
+                    if (string.IsNullOrEmpty(gameDataItem.ISOChecksum))
+                    {
+                        crcMissingCount++;                        
+                    }
+                }
+
                 var allStopwatch = new Stopwatch();
                 allStopwatch.Start();
+
+                if (File.Exists("ProcessLog.txt"))
+                {
+                    File.Delete("ProcessLog.txt");
+                }
+
+                if (crcMissingCount > 0)
+                {
+                    Log(LogMessageLevel.Warning, $"There are {crcMissingCount} ISO CRC's missing this will cause compressed ISO's to take a while longer.");
+                    Log(LogMessageLevel.None, "");
+                }
 
                 var files = Directory.GetFiles(config.InputPath);
                 for (int i = 0; i < files.Length; i++)
@@ -386,18 +412,24 @@ namespace Repackinator.Shared
                     CurrentProgress.Progress1Text = $"Processing {i + 1} of {files.Length}";
                     SendProgress();
 
-                    ProcessFile(file, config.OutputPath, config.Grouping, config.Alternative, cancellationToken);
+                    ProcessFile(file, config.OutputPath, config.Grouping, config.Alternative, crcMissingCount == 0, cancellationToken);
+
                     if (cancellationToken.IsCancellationRequested)
                     {
+                        Log(LogMessageLevel.None, "");
+                        Log(LogMessageLevel.Info, "Cancelled.");
                         break;
                     }
+
+                    Log(LogMessageLevel.None, "");
+
                 }
                 CurrentProgress.Progress1 = 1.0f;
                 SendProgress();
 
                 allStopwatch.Stop();
 
-                Log(LogMessageLevel.Info, $"Completed Processing List (Time Taken {allStopwatch.Elapsed.Hours:00}:{allStopwatch.Elapsed.Minutes:00}:{allStopwatch.Elapsed.Seconds:00}).");
+                Log(LogMessageLevel.Done, $"Completed Processing List (Time Taken {allStopwatch.Elapsed.Hours:00}:{allStopwatch.Elapsed.Minutes:00}:{allStopwatch.Elapsed.Seconds:00}).");
             }
             catch (Exception ex)
             {

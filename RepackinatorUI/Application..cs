@@ -477,7 +477,7 @@ namespace RepackinatorUI
                         ImGui.TableNextColumn();
                         string xbeTitle = m_gameDataList[i].XBETitle ?? "";
                         ImGui.PushItemWidth(ImGui.GetColumnWidth());
-                        ImGui.PushStyleColor(ImGuiCol.Text, xbeTitle.Length > 40 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.5f, 0.5f, 1)) : ImGui.ColorConvertFloat4ToU32(textColor));
+                        ImGui.PushStyleColor(ImGuiCol.Text, xbeTitle.Length > 40 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.25f, 0.25f, 1)) : ImGui.ColorConvertFloat4ToU32(textColor));
                         ImGui.TextUnformatted(m_gameDataList[i].XBETitle);
                         ImGui.PopStyleColor();
                         ImGui.PopItemWidth();
@@ -485,7 +485,7 @@ namespace RepackinatorUI
                         ImGui.TableNextColumn();
                         string xbeTitleAlt = m_gameDataList[i].XBETitleAlt ?? "";
                         ImGui.PushItemWidth(ImGui.GetColumnWidth());
-                        ImGui.PushStyleColor(ImGuiCol.Text, xbeTitleAlt.Length > 40 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.5f, 0.5f, 1)) : ImGui.ColorConvertFloat4ToU32(textColor));
+                        ImGui.PushStyleColor(ImGuiCol.Text, xbeTitleAlt.Length > 40 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.25f, 0.25f, 1)) : ImGui.ColorConvertFloat4ToU32(textColor));
                         ImGui.TextUnformatted(m_gameDataList[i].XBETitleAlt);
                         ImGui.PopStyleColor();
                         ImGui.PopItemWidth();
@@ -493,7 +493,7 @@ namespace RepackinatorUI
                         ImGui.TableNextColumn();
                         string folderName = m_gameDataList[i].FolderName ?? "";
                         ImGui.PushItemWidth(ImGui.GetColumnWidth());
-                        ImGui.PushStyleColor(ImGuiCol.Text, folderName.Length > 42 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.5f, 0.5f, 1)) : ImGui.ColorConvertFloat4ToU32(textColor));
+                        ImGui.PushStyleColor(ImGuiCol.Text, folderName.Length > 42 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.25f, 0.25f, 1)) : ImGui.ColorConvertFloat4ToU32(textColor));
                         ImGui.TextUnformatted(m_gameDataList[i].FolderName);
                         ImGui.PopStyleColor();
                         ImGui.PopItemWidth();
@@ -501,7 +501,7 @@ namespace RepackinatorUI
                         ImGui.TableNextColumn();
                         string folderNameAlt = m_gameDataList[i].FolderNameAlt ?? "";
                         ImGui.PushItemWidth(ImGui.GetColumnWidth());
-                        ImGui.PushStyleColor(ImGuiCol.Text, folderNameAlt.Length > 42 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.5f, 0.5f, 1)) : ImGui.ColorConvertFloat4ToU32(textColor));
+                        ImGui.PushStyleColor(ImGuiCol.Text, folderNameAlt.Length > 42 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.25f, 0.25f, 1)) : ImGui.ColorConvertFloat4ToU32(textColor));
                         ImGui.TextUnformatted(m_gameDataList[i].FolderNameAlt);
                         ImGui.PopStyleColor();
                         ImGui.PopItemWidth();
@@ -509,7 +509,7 @@ namespace RepackinatorUI
                         ImGui.TableNextColumn();
                         string isoName = m_gameDataList[i].ISOName ?? "";
                         ImGui.PushItemWidth(ImGui.GetColumnWidth());
-                        ImGui.PushStyleColor(ImGuiCol.Text, isoName.Length > 36 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.5f, 0.5f, 1)) : ImGui.ColorConvertFloat4ToU32(textColor));
+                        ImGui.PushStyleColor(ImGuiCol.Text, isoName.Length > 36 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.25f, 0.25f, 1)) : ImGui.ColorConvertFloat4ToU32(textColor));
                         ImGui.TextUnformatted(m_gameDataList[i].ISOName);
                         ImGui.PopStyleColor();
                         ImGui.PopItemWidth();
@@ -517,7 +517,7 @@ namespace RepackinatorUI
                         ImGui.TableNextColumn();
                         string isoNameAlt = m_gameDataList[i].ISONameAlt ?? "";
                         ImGui.PushItemWidth(ImGui.GetColumnWidth());
-                        ImGui.PushStyleColor(ImGuiCol.Text, isoNameAlt.Length > 36 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.5f, 0.5f, 1)) : ImGui.ColorConvertFloat4ToU32(textColor));
+                        ImGui.PushStyleColor(ImGuiCol.Text, isoNameAlt.Length > 36 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.25f, 0.25f, 1)) : ImGui.ColorConvertFloat4ToU32(textColor));
                         ImGui.TextUnformatted(m_gameDataList[i].ISONameAlt);
                         ImGui.PopStyleColor();
                         ImGui.PopItemWidth();
