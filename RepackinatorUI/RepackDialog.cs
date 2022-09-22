@@ -1,5 +1,6 @@
 ﻿using ImGuiNET;
 using Repackinator.Shared;
+using System.Diagnostics;
 using System.Numerics;
 using System.Text;
 
@@ -14,6 +15,7 @@ namespace RepackinatorUI
         private List<LogMessage> _log = new();
         private Config _config;
         private GameData[]? _gameData;
+        private Stopwatch _stopwatch = new();
         private CancellationTokenSource _cancellationTokenSource = new();
 
         private bool _showModal;
@@ -51,7 +53,7 @@ namespace RepackinatorUI
             _cancellationTokenSource = new CancellationTokenSource();
 
             var repacker = new Repacker();
-            repacker.StartConversion(_gameData, _config, progress, logger, _cancellationTokenSource.Token);
+            repacker.StartConversion(_gameData, _config, progress, logger, _stopwatch, _cancellationTokenSource.Token);
 
             _completed = true;
         }
@@ -143,6 +145,7 @@ namespace RepackinatorUI
                 else if (logEntry.Level == LogMessageLevel.Completed)
                 {
                     totalCompleted++;
+                    logColor = new Vector4(0.25f, 1, 0.25f, 1);
                 }
                 else if (logEntry.Level == LogMessageLevel.Done)
                 {
@@ -156,6 +159,10 @@ namespace RepackinatorUI
             ImGui.EndChildFrame();
 
             ImGui.Text($"Totals: Warnings = {totalWarnings}, Errors = {totalErrors}, Skipped = {totalSkipped}, Completed = {totalCompleted}");
+            ImGui.SameLine();
+            var timeTaken = $"Total Time: {_stopwatch.Elapsed.Hours:00}:{_stopwatch.Elapsed.Minutes:00}:{_stopwatch.Elapsed.Seconds:00}";
+            ImGui.SetCursorPosX(windowSize.X - ImGui.CalcTextSize(timeTaken).X - 8);
+            ImGui.Text(timeTaken);
 
             ImGui.SetCursorPosY(windowSize.Y - 40);
                                     
