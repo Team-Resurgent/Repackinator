@@ -13,5 +13,16 @@
             var result = Path.GetDirectoryName(exePath);
             return result;
         }
+
+        public static string FormatLogMessage(LogMessage logMessage)
+        {
+            if (logMessage.Level == LogMessageLevel.None)
+            {
+                return "\n";
+            }
+            var formattedTime = logMessage.Time.ToString("HH:mm:ss");
+            var message = $"{formattedTime} {logMessage.Level} - {logMessage.Message}";
+            return $"{message}\n";
+        }
     }
 }

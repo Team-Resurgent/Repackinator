@@ -1,6 +1,7 @@
 ﻿using ImGuiNET;
 using Repackinator.Shared;
 using System.Numerics;
+using System.Text;
 
 namespace RepackinatorUI
 {
@@ -10,7 +11,7 @@ namespace RepackinatorUI
         private float _progress1 = 0f;
         private string _progress2Text = string.Empty;
         private float _progress2 = 0f;
-        private string _log = string.Empty;
+        private List<LogMessage> _log = new();
         private Config _config;
         private GameData[]? _gameData;
         private CancellationTokenSource _cancellationTokenSource = new();
@@ -32,13 +33,11 @@ namespace RepackinatorUI
             ImGui.CloseCurrentPopup();
         }
 
-        void Repack()
+        private void Repack()
         {
             var logger = new Action<LogMessage>((logMessage) =>
             {
-                var formattedTime = logMessage.Time.ToString("HH:mm:ss");
-                var message = $"{formattedTime} {logMessage.Level} - {logMessage.Message}";
-                _log += $"{message}\n";
+                _log.Add(logMessage);
             });
 
             var progress = new Action<ProgressInfo>((progress) =>
@@ -57,6 +56,17 @@ namespace RepackinatorUI
             _completed = true;
         }
 
+        private string FormatLogMessage(LogMessage logMessage)
+        {
+            if (logMessage.Level == LogMessageLevel.None)
+            {
+                return "\n";
+            }
+            var formattedTime = logMessage.Time.ToString("HH:mm:ss");
+            var message = $"{formattedTime} {logMessage.Level} - {logMessage.Message}";
+            return $"{message}\n";
+        }
+
         public bool Render()
         {
             if (_showModal)
@@ -69,7 +79,7 @@ namespace RepackinatorUI
                 _progress2Text = string.Empty;
                 _progress2 = 0;
 
-                _log = string.Empty;
+                _log = new();
 
                 var repackThread = new Thread(Repack);
                 repackThread.Start();
@@ -105,10 +115,49 @@ namespace RepackinatorUI
             ImGui.Text(_progress2Text);
             ImGui.ProgressBar(_progress2, new Vector2(windowSize.X - 16, 20));
             ImGui.Spacing();
-            ImGui.InputTextMultiline("##reoackLog", ref _log, (uint)_log.Length, new Vector2(windowSize.X - 16, windowSize.Y - 175), ImGuiInputTextFlags.ReadOnly);
+
+            ImGui.BeginChildFrame(3, new Vector2(windowSize.X - 16, windowSize.Y - 185), ImGuiWindowFlags.HorizontalScrollbar);
+            var totalWarnings = 0;
+            var totalErrors = 0;
+            var totalSkipped = 0;
+            var totalCompleted = 0;
+            for (var i = 0; i < _log.Count; i++)
+            {
+                var logEntry = _log[i];
+                var logColor = ImGui.GetStyle().Colors[(int)ImGuiCol.Text];
+                if (logEntry.Level == LogMessageLevel.Warning)
+                {
+                    totalWarnings++;
+                    logColor = new Vector4(1, 0.75f, 0f, 1);
+                }
+                else if (logEntry.Level == LogMessageLevel.Error)
+                {
+                    totalErrors++;
+                    logColor = new Vector4(1, 0.25f, 0.25f, 1);
+                }
+                else if (logEntry.Level == LogMessageLevel.Skipped)
+                {
+                    totalSkipped++;
+                }
+                else if (logEntry.Level == LogMessageLevel.Completed)
+                {
+                    totalCompleted++;
+                }
+                else if (logEntry.Level == LogMessageLevel.Done)
+                {
+                    logColor = new Vector4(9.25f, 1, 0.25f, 1);
+                }
+                ImGui.PushStyleColor(ImGuiCol.Text, ImGui.ColorConvertFloat4ToU32(logColor));
+                ImGui.Text(FormatLogMessage(logEntry));
+                ImGui.PopStyleColor();
+            }
+            ImGui.SetScrollHereY();
+            ImGui.EndChildFrame();
+
+            ImGui.Text($"Totals: Warnings = {totalWarnings}, Errors = {totalErrors}, Skipped = {totalSkipped}, Completed = {totalCompleted}");
 
             ImGui.SetCursorPosY(windowSize.Y - 40);
-
+                                    
             if (ImGui.Button(_completed ? "Close" : (_cancellationTokenSource.IsCancellationRequested ? "Cancelling..." : "Cancel"), new Vector2(100, 30)))
             {
                 if (!_completed)
@@ -121,6 +170,19 @@ namespace RepackinatorUI
                     CloseModal();
                 }
             }
+
+            ImGui.SameLine();
+
+            if (ImGui.Button("Copy Log", new Vector2(100, 30)))
+            {
+                var logText = new StringBuilder();
+                for (var i = 0; i < _log.Count; i++)
+                {
+                    logText.Append(FormatLogMessage(_log[i]));
+                }
+                ImGui.SetClipboardText(logText.ToString());
+            }
+
             ImGui.EndPopup();
 
             return result;

@@ -90,7 +90,7 @@ namespace RepackinatorUI
             ImGui.SetCursorPosX(100);
             string xbeTitle = GameData.XBETitle ?? "";
             ImGui.PushItemWidth(300);
-            ImGui.PushStyleColor(ImGuiCol.Text, xbeTitle.Length > 40 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.5f, 0.5f, 1)) : ImGui.ColorConvertFloat4ToU32(textColor));
+            ImGui.PushStyleColor(ImGuiCol.Text, xbeTitle.Length > 40 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.25f, 0.25f, 1)) : ImGui.ColorConvertFloat4ToU32(textColor));
             if (ImGui.InputText("##editXbeTitle", ref xbeTitle, 40))
             {
                 GameData.XBETitle = xbeTitle;
@@ -103,7 +103,7 @@ namespace RepackinatorUI
             ImGui.SetCursorPosX(100);
             string xbeTitleAlt = GameData.XBETitleAlt ?? "";
             ImGui.PushItemWidth(300);
-            ImGui.PushStyleColor(ImGuiCol.Text, xbeTitleAlt.Length > 40 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.5f, 0.5f, 1)) : ImGui.ColorConvertFloat4ToU32(textColor));
+            ImGui.PushStyleColor(ImGuiCol.Text, xbeTitleAlt.Length > 40 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.25f, 0.25f, 1)) : ImGui.ColorConvertFloat4ToU32(textColor));
             if (ImGui.InputText("##editXbeTitleAlt", ref xbeTitleAlt, 40))
             {
                 GameData.XBETitleAlt = xbeTitleAlt;
@@ -116,7 +116,7 @@ namespace RepackinatorUI
             ImGui.SetCursorPosX(100);
             string folderName = GameData.FolderName ?? "";
             ImGui.PushItemWidth(300);
-            ImGui.PushStyleColor(ImGuiCol.Text, folderName.Length > 42 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.5f, 0.5f, 1)) : ImGui.ColorConvertFloat4ToU32(textColor));
+            ImGui.PushStyleColor(ImGuiCol.Text, folderName.Length > 42 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.25f, 0.25f, 1)) : ImGui.ColorConvertFloat4ToU32(textColor));
             if (ImGui.InputText("##editFolderName", ref folderName, 42))
             {
                 GameData.FolderName = folderName;
@@ -129,7 +129,7 @@ namespace RepackinatorUI
             ImGui.SetCursorPosX(100);
             string folderNameAlt = GameData.FolderNameAlt ?? "";
             ImGui.PushItemWidth(300);
-            ImGui.PushStyleColor(ImGuiCol.Text, folderNameAlt.Length > 42 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.5f, 0.5f, 1)) : ImGui.ColorConvertFloat4ToU32(textColor));
+            ImGui.PushStyleColor(ImGuiCol.Text, folderNameAlt.Length > 42 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.25f, 0.25f, 1)) : ImGui.ColorConvertFloat4ToU32(textColor));
             if (ImGui.InputText("##editFolderNameAlt", ref folderNameAlt, 42))
             {
                 GameData.FolderNameAlt = folderNameAlt;
@@ -142,7 +142,7 @@ namespace RepackinatorUI
             ImGui.SetCursorPosX(100);
             string isoName = GameData.ISOName ?? "";
             ImGui.PushItemWidth(300);
-            ImGui.PushStyleColor(ImGuiCol.Text, isoName.Length > 36 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.5f, 0.5f, 1)) : ImGui.ColorConvertFloat4ToU32(textColor));
+            ImGui.PushStyleColor(ImGuiCol.Text, isoName.Length > 36 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.25f, 0.25f, 1)) : ImGui.ColorConvertFloat4ToU32(textColor));
             if (ImGui.InputText("##editIsoName", ref isoName, 36))
             {
                 GameData.ISOName = isoName;
@@ -155,7 +155,7 @@ namespace RepackinatorUI
             ImGui.SetCursorPosX(100);
             string isoNameAlt = GameData.ISONameAlt ?? "";
             ImGui.PushItemWidth(300);
-            ImGui.PushStyleColor(ImGuiCol.Text, isoNameAlt.Length > 36 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.5f, 0.5f, 1)) : ImGui.ColorConvertFloat4ToU32(textColor));
+            ImGui.PushStyleColor(ImGuiCol.Text, isoNameAlt.Length > 36 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.25f, 0.25f, 1)) : ImGui.ColorConvertFloat4ToU32(textColor));
             if (ImGui.InputText("##editIsoNameAlt{i}", ref isoNameAlt, 36))
             {
                 GameData.ISONameAlt = isoNameAlt;

@@ -2,9 +2,13 @@
 {
     public enum LogMessageLevel
     {
+        None,
         Info,
+        Completed,
+        Skipped,
         Warning,
-        Error
+        Error,
+        Done
     }
 
     public class LogMessage
