@@ -138,6 +138,7 @@ namespace RepackinatorUI
                 else if (logEntry.Level == LogMessageLevel.Skipped)
                 {
                     totalSkipped++;
+                    logColor = new Vector4(1, 0.75f, 0f, 1);
                 }
                 else if (logEntry.Level == LogMessageLevel.Completed)
                 {
@@ -145,7 +146,7 @@ namespace RepackinatorUI
                 }
                 else if (logEntry.Level == LogMessageLevel.Done)
                 {
-                    logColor = new Vector4(9.25f, 1, 0.25f, 1);
+                    logColor = new Vector4(0.25f, 1, 0.25f, 1);
                 }
                 ImGui.PushStyleColor(ImGuiCol.Text, ImGui.ColorConvertFloat4ToU32(logColor));
                 ImGui.Text(FormatLogMessage(logEntry));
