@@ -38,7 +38,7 @@ namespace Repackinator.Shared
             logStream.Write(bytes);
         }
 
-        private void ProcessFile(string inputFile, string outputPath, GroupingEnum grouping, bool alternate, bool hasAllCrcs, CancellationToken cancellationToken)
+        private void ProcessFile(string inputFile, string outputPath, GroupingEnum grouping, bool alternate, bool hasAllCrcs, Stopwatch procesTime, CancellationToken cancellationToken)
         {
             if (GameDataList == null)
             {
@@ -125,7 +125,7 @@ namespace Repackinator.Shared
                                 }
                                 else
                                 {
-                                    Log(LogMessageLevel.Skipped, $"Skipping '{Path.GetFileName(inputFile)}' as requested to skip in dataset based on checksum.");
+                                    Log(LogMessageLevel.Info, $"Skipping '{Path.GetFileName(inputFile)}' as requested to skip in dataset based on user selection.");
                                     return;
                                 }
                             }
@@ -214,7 +214,7 @@ namespace Repackinator.Shared
                 {
                     if (found)
                     {
-                        Log(LogMessageLevel.Skipped, $"Skipping '{Path.GetFileName(inputFile)}' as requested to skip in dataset based on xbe info.");
+                        Log(LogMessageLevel.Info, $"Skipping '{Path.GetFileName(inputFile)}' as requested to skip in dataset based on xbe info.");
                     }
                     else
                     {
@@ -367,7 +367,7 @@ namespace Repackinator.Shared
             }
         }
 
-        public void StartConversion(GameData[]? gameData, Config config, Action<ProgressInfo>? progress, Action<LogMessage> logger, CancellationToken cancellationToken)
+        public void StartConversion(GameData[]? gameData, Config config, Action<ProgressInfo>? progress, Action<LogMessage> logger, Stopwatch stopwatch, CancellationToken cancellationToken)
         {
             try
             {
@@ -390,8 +390,7 @@ namespace Repackinator.Shared
                     }
                 }
 
-                var allStopwatch = new Stopwatch();
-                allStopwatch.Start();
+                stopwatch.Restart();
 
                 if (File.Exists("ProcessLog.txt"))
                 {
@@ -412,7 +411,7 @@ namespace Repackinator.Shared
                     CurrentProgress.Progress1Text = $"Processing {i + 1} of {files.Length}";
                     SendProgress();
 
-                    ProcessFile(file, config.OutputPath, config.Grouping, config.Alternative, crcMissingCount == 0, cancellationToken);
+                    ProcessFile(file, config.OutputPath, config.Grouping, config.Alternative, crcMissingCount == 0, stopwatch, cancellationToken);
 
                     if (cancellationToken.IsCancellationRequested)
                     {
@@ -427,9 +426,9 @@ namespace Repackinator.Shared
                 CurrentProgress.Progress1 = 1.0f;
                 SendProgress();
 
-                allStopwatch.Stop();
+                stopwatch.Stop();
 
-                Log(LogMessageLevel.Done, $"Completed Processing List (Time Taken {allStopwatch.Elapsed.Hours:00}:{allStopwatch.Elapsed.Minutes:00}:{allStopwatch.Elapsed.Seconds:00}).");
+                Log(LogMessageLevel.Done, $"Completed Processing List (Time Taken {stopwatch.Elapsed.Hours:00}:{stopwatch.Elapsed.Minutes:00}:{stopwatch.Elapsed.Seconds:00}).");
             }
             catch (Exception ex)
             {
