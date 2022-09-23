@@ -24,12 +24,19 @@ namespace RepackinatorUI
         private OkDialog? m_okDialog;
         private CreditsDialog? m_creditsDialog;
         private RepackDialog? m_repackDialog;
+        private ScanDialog? m_scanDialog;
         private Config m_config = new Config();
 
         private int m_searchField;
         private string? m_searchText;
         private int m_processField;
         private bool m_showInvalid;
+        private string m_version;
+
+        public Application(string version)
+        {
+            m_version = version;
+        }
 
         private bool IsFiltered(int index)
         {
@@ -146,11 +153,9 @@ namespace RepackinatorUI
 
         public void Run()
         {
-            //File.Delete("imgui.ini");
-
             m_searchText = string.Empty;
 
-            VeldridStartup.CreateWindowAndGraphicsDevice(new WindowCreateInfo(50, 50, 1280, 720, WindowState.Normal, "Repackinator"), new GraphicsDeviceOptions(true, null, true, ResourceBindingModel.Improved, true, true), GraphicsBackend.OpenGL, out m_window, out m_graphicsDevice);
+            VeldridStartup.CreateWindowAndGraphicsDevice(new WindowCreateInfo(50, 50, 1280, 720, WindowState.Normal, $"Repackinator - {m_version}"), new GraphicsDeviceOptions(true, null, true, ResourceBindingModel.Improved, true, true), GraphicsBackend.OpenGL, out m_window, out m_graphicsDevice);
 
             m_controller = new ImGuiController(m_graphicsDevice, m_graphicsDevice.MainSwapchain.Framebuffer.OutputDescription, m_window.Width, m_window.Height);
 
@@ -174,6 +179,7 @@ namespace RepackinatorUI
             m_okDialog = new OkDialog();
             m_creditsDialog = new CreditsDialog();
             m_repackDialog = new RepackDialog();
+            m_scanDialog = new ScanDialog();
 
             m_showInvalid = false;
 
@@ -230,6 +236,7 @@ namespace RepackinatorUI
                 m_okDialog == null ||
                 m_creditsDialog == null ||
                 m_repackDialog == null ||
+                m_scanDialog == null ||
                 m_searchText == null ||
                 m_gameDataList == null)
             {
@@ -279,6 +286,11 @@ namespace RepackinatorUI
             if (m_editDialog.Render())
             {
                 m_gameDataList[m_editDialog.Index] = m_editDialog.GameData;
+            }
+
+            if (m_scanDialog.Render())
+            {
+                m_gameDataList = m_scanDialog.GameDataList;
             }
 
             m_okDialog.Render();
@@ -447,10 +459,10 @@ namespace RepackinatorUI
                         }
 
                         ImGui.TableNextColumn();
-                        var textSizeIndex = ImGui.CalcTextSize(i.ToString());
+                        var textSizeIndex = ImGui.CalcTextSize((i + 1).ToString());
                         var colStartXIndex = ImGui.GetCursorPosX();
                         ImGui.SetCursorPosX(colStartXIndex + (((ImGui.GetColumnWidth()) - textSizeIndex.X) * 0.5f));
-                        if (ImGui.Selectable(i.ToString(), m_gameDataList[i].Selected, ImGuiSelectableFlags.SpanAllColumns | ImGuiSelectableFlags.AllowDoubleClick, new Vector2(0, 16)))
+                        if (ImGui.Selectable((i + 1).ToString(), m_gameDataList[i].Selected, ImGuiSelectableFlags.SpanAllColumns | ImGuiSelectableFlags.AllowDoubleClick, new Vector2(0, 16)))
                         {
                             m_gameDataList[i].Selected = !m_gameDataList[i].Selected;
                             if (ImGui.IsMouseDoubleClicked(0))
@@ -648,6 +660,13 @@ namespace RepackinatorUI
                 {
                     m_exportFolderPicker.ShowModal(applicationPath);
                 }
+            }
+
+            ImGui.SameLine();
+
+            if (ImGui.Button("Scan Output", new Vector2(100, 30)))
+            {
+                m_scanDialog.ShowModal(m_config, m_gameDataList);
             }
 
             ImGui.SameLine();

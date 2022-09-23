@@ -1,5 +1,6 @@
 ﻿using Mono.Options;
 using Repackinator.Shared;
+using System.Diagnostics;
 using System.Text;
 
 var shouldShowHelp = false;
@@ -218,7 +219,7 @@ try
     var gameData = GameDataHelper.LoadGameData();
 
     var repacker = new Repacker();
-    repacker.StartConversion(gameData, config, null, logger, cancellationTokenSource.Token);
+    repacker.StartRepacking(gameData, config, null, logger, new Stopwatch(), cancellationTokenSource.Token);
 
     if (logStream != null)
     {
