@@ -2,7 +2,8 @@
 
 try
 {
-    var application = new Application();
+    var version = "RC30";
+    var application = new Application(version);
     application.Run();
 }
 catch (Exception ex)

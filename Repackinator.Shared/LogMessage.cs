@@ -7,6 +7,7 @@
         Completed,
         Skipped,
         Warning,
+        NotFound,
         Error,
         Done
     }

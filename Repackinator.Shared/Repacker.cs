@@ -34,7 +34,7 @@ namespace Repackinator.Shared
             var logMessage = new LogMessage(level, message);
             Logger(logMessage);
             var bytes = Encoding.UTF8.GetBytes(Utility.FormatLogMessage(logMessage));
-            using var logStream = File.OpenWrite("ProcessLog.txt");
+            using var logStream = File.OpenWrite("RepackLog.txt");
             logStream.Write(bytes);
         }
 
@@ -64,14 +64,14 @@ namespace Repackinator.Shared
             {
                 if (!File.Exists(inputFile))
                 {
-                    Log(LogMessageLevel.Skipped, $"Skipping '{Path.GetFileName(inputFile)}' as does not exist.");
+                    Log(LogMessageLevel.NotFound, $"Not found as '{Path.GetFileName(inputFile)}' does not exist.");
                     return;
                 }
 
                 var extension = Path.GetExtension(inputFile).ToLower();
                 if (!extension.Equals(".iso") && !extension.Equals(".zip") && !extension.Equals(".7z") && !extension.Equals(".rar") && !extension.Equals(".iso"))
                 {
-                    Log(LogMessageLevel.Skipped, $"Skipping '{Path.GetFileName(inputFile)}' as unsupported extension.");
+                    Log(LogMessageLevel.Warning, $"File '{Path.GetFileName(inputFile)}' has an unsupported extension.");
                     return;
                 }
 
@@ -79,9 +79,6 @@ namespace Repackinator.Shared
 
                 if (!extension.Equals(".iso"))
                 {
-                    var extractStopwatch = new Stopwatch();
-                    extractStopwatch.Start();
-
                     Log(LogMessageLevel.Info, "Extracting, Removing Video Partition & Splitting ISO...");
                     try
                     {
@@ -96,11 +93,13 @@ namespace Repackinator.Shared
 
                                 var entryCRC = entry.CRC.ToString("X8");
 
+                                bool inDatasetZip = false;
                                 bool processArchive = !hasAllCrcs;
                                 foreach (var game in GameDataList)
                                 {
                                     if (game.ISOChecksum.PadLeft(8, '0').Equals(entryCRC, StringComparison.CurrentCultureIgnoreCase))
                                     {
+                                        inDatasetZip = true;
                                         processArchive = game.Process.Equals("Y", StringComparison.CurrentCultureIgnoreCase);
                                         break;
                                     }
@@ -125,13 +124,18 @@ namespace Repackinator.Shared
                                 }
                                 else
                                 {
-                                    Log(LogMessageLevel.Info, $"Skipping '{Path.GetFileName(inputFile)}' as requested to skip in dataset based on user selection.");
+                                    if (inDatasetZip)
+                                    {
+                                        Log(LogMessageLevel.Skipped, $"Skipping '{Path.GetFileName(inputFile)}' as requested to skip in dataset based on user selection.");
+                                    }
+                                    else
+                                    {
+                                        Log(LogMessageLevel.NotFound, $"Not found info for '{Path.GetFileName(inputFile)}' as CRC not found in dataset.");
+                                    }
                                     return;
                                 }
                             }
                         }
-                        extractStopwatch.Stop();
-                        Log(LogMessageLevel.Info, $"Extracting, Removing Video Partition & Splitting ISO Completed (Time Taken {extractStopwatch.Elapsed.Hours:00}:{extractStopwatch.Elapsed.Minutes:00}:{extractStopwatch.Elapsed.Seconds:00}).");
                     }
                     catch (Exception ex)
                     {
@@ -141,9 +145,6 @@ namespace Repackinator.Shared
                 }
                 else
                 {
-                    var splitStopwatch = new Stopwatch();
-                    splitStopwatch.Start();
-
                     Log(LogMessageLevel.Info, "Removing Video Partition & Splitting ISO...");
 
                     var splitProgress = new Action<float>((progress) =>
@@ -154,9 +155,6 @@ namespace Repackinator.Shared
                     });
 
                     XisoUtility.Split(inputFile, unpackPath, "Repackinator", true, splitProgress, cancellationToken);
-
-                    splitStopwatch.Stop();
-                    Log(LogMessageLevel.Info, $"Removing Video Partition & Splitting ISO Completed (Time Taken {splitStopwatch.Elapsed.Hours:00}:{splitStopwatch.Elapsed.Minutes:00}:{splitStopwatch.Elapsed.Seconds:00}).");
 
                     CurrentProgress.Progress2 = 1.0f;
                     SendProgress();
@@ -194,14 +192,14 @@ namespace Repackinator.Shared
                 var gameRegion = XbeCertificate.GameRegionToString(cert.Value.Game_Region);
                 var version = cert.Value.Version.ToString("X8");
 
-                bool found = false;
+                bool inDatasetISO = false;
 
                 GameData? gameData = null;
                 foreach (var game in GameDataList)
                 {
                     if (game.TitleID == titleId && game.Region == gameRegion && game.Version == version)
                     {
-                        found = true;
+                        inDatasetISO = true;
                         if (game.Process != null && game.Process.Equals("Y", StringComparison.CurrentCultureIgnoreCase))
                         {
                             gameData = game;
@@ -212,13 +210,13 @@ namespace Repackinator.Shared
 
                 if (!gameData.HasValue)
                 {
-                    if (found)
+                    if (inDatasetISO)
                     {
-                        Log(LogMessageLevel.Info, $"Skipping '{Path.GetFileName(inputFile)}' as requested to skip in dataset based on xbe info.");
+                        Log(LogMessageLevel.Skipped, $"Skipping '{Path.GetFileName(inputFile)}' as requested to skip in dataset based on xbe info.");
                     }
                     else
                     {
-                        Log(LogMessageLevel.Skipped, $"Skipping '{Path.GetFileName(inputFile)}' as titleid, region and version not found in dataset.");
+                        Log(LogMessageLevel.NotFound, $"Not found info for '{Path.GetFileName(inputFile)}' as titleid, region and version not found in dataset.");
                     }
                     return;
                 }
@@ -367,7 +365,7 @@ namespace Repackinator.Shared
             }
         }
 
-        public void StartConversion(GameData[]? gameData, Config config, Action<ProgressInfo>? progress, Action<LogMessage> logger, Stopwatch stopwatch, CancellationToken cancellationToken)
+        public void StartRepacking(GameData[]? gameData, Config config, Action<ProgressInfo>? progress, Action<LogMessage> logger, Stopwatch stopwatch, CancellationToken cancellationToken)
         {
             try
             {
@@ -392,9 +390,9 @@ namespace Repackinator.Shared
 
                 stopwatch.Restart();
 
-                if (File.Exists("ProcessLog.txt"))
+                if (File.Exists("RepackLog.txt"))
                 {
-                    File.Delete("ProcessLog.txt");
+                    File.Delete("RepackLog.txt");
                 }
 
                 if (crcMissingCount > 0)
@@ -402,6 +400,12 @@ namespace Repackinator.Shared
                     Log(LogMessageLevel.Warning, $"There are {crcMissingCount} ISO CRC's missing this will cause compressed ISO's to take a while longer.");
                     Log(LogMessageLevel.None, "");
                 }
+
+                CurrentProgress.Progress1 = 0;
+                CurrentProgress.Progress1Text = string.Empty;
+                CurrentProgress.Progress2 = 0;
+                CurrentProgress.Progress2Text = string.Empty;
+                SendProgress();
 
                 var files = Directory.GetFiles(config.InputPath);
                 for (int i = 0; i < files.Length; i++)
@@ -423,6 +427,7 @@ namespace Repackinator.Shared
                     Log(LogMessageLevel.None, "");
 
                 }
+
                 CurrentProgress.Progress1 = 1.0f;
                 SendProgress();
 
