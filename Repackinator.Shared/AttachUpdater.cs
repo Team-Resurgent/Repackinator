@@ -7,15 +7,13 @@ using System.Threading;
 
 namespace Repackinator.Shared
 {
-    public class Scanner
+    public class AttachUpdater
     {
         private Action<LogMessage>? Logger { get; set; }
 
         private Action<ProgressInfo>? Progress { get; set; }
 
         private ProgressInfo CurrentProgress = new ProgressInfo();
-
-        public GameData[]? GameDataList { get; set; }
 
         private void SendProgress()
         {
@@ -41,9 +39,9 @@ namespace Repackinator.Shared
 
         private void ProcessFolder(string folder, Stopwatch procesTime, CancellationToken cancellationToken)
         {
-            if (GameDataList == null)
+            var filesToProcess = Directory.GetFiles(folder, "default.xbe").OrderBy(o => o).ToArray();
+            if (filesToProcess.Length != 1)
             {
-                Log(LogMessageLevel.Error, "GameData should not be null.");
                 return;
             }
 
@@ -53,34 +51,7 @@ namespace Repackinator.Shared
                 CurrentProgress.Progress2Text = folder;
                 SendProgress();
 
-                var filesToProcess = Directory.GetFiles(folder, "*.iso").OrderBy(o => o).ToArray();
-                if (filesToProcess.Length == 0)
-                {
-                    return;
-                }
-
-                if (filesToProcess.Length != 2)
-                {
-                    Log(LogMessageLevel.Error, $"Unexpected ISO count in folder '{folder}'.");
-                    return;
-                }
-
-                var xbeData = Array.Empty<byte>();
-                using (var inputStream1 = new FileStream(filesToProcess[0], FileMode.Open))
-                using (var inputStream2 = new FileStream(filesToProcess[1], FileMode.Open))
-                using (var outputStream = new MemoryStream())
-                {
-                    var error = string.Empty;
-                    if (XisoUtility.TryExtractDefaultFromSplitXiso(inputStream1, inputStream2, outputStream, ref error))
-                    {
-                        xbeData = outputStream.ToArray();
-                    }
-                    else
-                    {
-                        Log(LogMessageLevel.Error, $"Unable to extract default.xbe due to '{error}'.");
-                        return;
-                    }
-                }
+                var xbeData = File.ReadAllBytes(filesToProcess[0]);
 
                 if (!XbeUtility.TryGetXbeCert(xbeData, out var cert) || cert == null)
                 {
@@ -88,65 +59,61 @@ namespace Repackinator.Shared
                     return;
                 }
 
-                var titleId = cert.Value.Title_Id.ToString("X8");
-                var gameRegion = XbeCertificate.GameRegionToString(cert.Value.Game_Region);
-                var version = cert.Value.Version.ToString("X8");
-                var xbeTitle = string.Empty;
-
-                bool found = false;
-                for (int i = 0; i < GameDataList.Length; i++)
+                var attach = ResourceLoader.GetEmbeddedResourceBytes("attach.xbe");
+                if (XbeUtility.TryGetXbeImage(xbeData, XbeUtility.ImageType.TitleImage, out var xprImage))
                 {
-                    if (GameDataList[i].TitleID == titleId && GameDataList[i].Region == gameRegion && GameDataList[i].Version == version)
-                    {
-                        found = true;
-                        GameDataList[i].Process = "N";
-                        xbeTitle = GameDataList[i].XBETitle;
-                        break;
+                    if (XprUtility.ConvertXprToJpeg(xprImage, out var jpgImage))
+                    {   
+                        if (!XbeUtility.TryReplaceXbeTitleImage(attach, jpgImage))
+                        {
+                            Log(LogMessageLevel.Error, "Failed to replace image.");
+                            return;
+                        }
                     }
-                }
-
-                if (found)
-                {
-                    Log(LogMessageLevel.Completed, $"Game found '{xbeTitle}'.");
+                    else
+                    {
+                        Log(LogMessageLevel.Error, "Failed to create jpg.");
+                        return;
+                    }
                 }
                 else
                 {
-                    Log(LogMessageLevel.Warning, $"Game not found with TitleID = {titleId}, Region = '{gameRegion}', Version = {version}.");
+                    Log(LogMessageLevel.Warning, "Failed to extract xpr as probably missing, will use default image.");
                 }
+
+                if (XbeUtility.ReplaceCertInfo(attach, xbeData, StringHelper.GetUnicodeString(cert.Value.Title_Name), out var patchedAttach) && patchedAttach != null)
+                {
+                    File.WriteAllBytes(filesToProcess[0], patchedAttach);
+                }
+                else
+                {
+                    Log(LogMessageLevel.Error, "failed creating attach xbe.");
+                    return;
+                }
+
+                Log(LogMessageLevel.Completed, $"Updated '{filesToProcess[0]}'.");
 
                 CurrentProgress.Progress2 = 1.0f;
                 SendProgress();
             }
             catch (Exception ex)
             {
-                Log(LogMessageLevel.Error, $"Scanning '{folder}' caused error '{ex}'.");
+                Log(LogMessageLevel.Error, $"Attach Updating '{filesToProcess[0]}' caused error '{ex}'.");
             }
         }
 
-        public bool StartScanning(GameData[]? gameData, Config config, Action<ProgressInfo>? progress, Action<LogMessage> logger, Stopwatch stopwatch, CancellationToken cancellationToken)
+        public bool StartAttachUpdating(Config config, Action<ProgressInfo>? progress, Action<LogMessage> logger, Stopwatch stopwatch, CancellationToken cancellationToken)
         {
             try
             {
                 Logger = logger;
                 Progress = progress;
 
-                GameDataList = gameData;
-                if (GameDataList == null)
-                {
-                    Log(LogMessageLevel.Error, "RepackList.json not found.");
-                    return false;
-                }
-
                 stopwatch.Restart();
 
-                if (File.Exists("ScanLog.txt"))
+                if (File.Exists("AttachUpdateLog.txt"))
                 {
-                    File.Delete("ScanLog.txt");
-                }
-
-                for (var i = 0; i < GameDataList.Length; i++)
-                {
-                    GameDataList[i].Process = "Y";
+                    File.Delete("AttachUpdateLog.txt");
                 }
 
                 CurrentProgress.Progress1 = 0;
@@ -193,7 +160,7 @@ namespace Repackinator.Shared
 
                 stopwatch.Stop();
 
-                Log(LogMessageLevel.Done, $"Completed Scanning List (Time Taken {stopwatch.Elapsed.Hours:00}:{stopwatch.Elapsed.Minutes:00}:{stopwatch.Elapsed.Seconds:00}).");
+                Log(LogMessageLevel.Done, $"Completed Attach Updating (Time Taken {stopwatch.Elapsed.Hours:00}:{stopwatch.Elapsed.Minutes:00}:{stopwatch.Elapsed.Seconds:00}).");
                 return true;
             }
             catch (Exception ex)

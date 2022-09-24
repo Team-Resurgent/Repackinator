@@ -25,6 +25,7 @@ namespace RepackinatorUI
         private CreditsDialog? m_creditsDialog;
         private RepackDialog? m_repackDialog;
         private ScanDialog? m_scanDialog;
+        private AttachUpdateDialog? m_attachUpdateDialog;
         private Config m_config = new Config();
 
         private int m_searchField;
@@ -175,11 +176,12 @@ namespace RepackinatorUI
                 ButtonName = "Save"
             };
 
-            m_editDialog = new EditDialog();
-            m_okDialog = new OkDialog();
-            m_creditsDialog = new CreditsDialog();
-            m_repackDialog = new RepackDialog();
-            m_scanDialog = new ScanDialog();
+            m_editDialog = new();
+            m_okDialog = new();
+            m_creditsDialog = new();
+            m_repackDialog = new();
+            m_scanDialog = new();
+            m_attachUpdateDialog = new();
 
             m_showInvalid = false;
 
@@ -237,6 +239,7 @@ namespace RepackinatorUI
                 m_creditsDialog == null ||
                 m_repackDialog == null ||
                 m_scanDialog == null ||
+                m_attachUpdateDialog == null ||
                 m_searchText == null ||
                 m_gameDataList == null)
             {
@@ -296,6 +299,7 @@ namespace RepackinatorUI
             m_okDialog.Render();
             m_creditsDialog.Render();
             m_repackDialog.Render();
+            m_attachUpdateDialog.Render();
 
             ImGui.Begin("Main", ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize);
             ImGui.SetWindowSize(new Vector2(m_window.Width, m_window.Height));
@@ -667,6 +671,13 @@ namespace RepackinatorUI
             if (ImGui.Button("Scan Output", new Vector2(100, 30)))
             {
                 m_scanDialog.ShowModal(m_config, m_gameDataList);
+            }
+
+            ImGui.SameLine();
+
+            if (ImGui.Button("Atatch Update", new Vector2(100, 30)))
+            {
+                m_attachUpdateDialog.ShowModal(m_config);
             }
 
             ImGui.SameLine();

@@ -320,7 +320,7 @@ namespace Repackinator.Shared
                     else
                     {
                         deleteProcessOutput = true;
-                        Log(LogMessageLevel.Error, "Failed to create png.");
+                        Log(LogMessageLevel.Error, "Failed to create jpg.");
                         return;
                     }
                 }

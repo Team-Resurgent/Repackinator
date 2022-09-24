@@ -5,25 +5,27 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>false</AllowUnsafeBlocks>
 		<ApplicationIcon>..\Artwork\icon1.ico</ApplicationIcon>
+		<PublishReadyToRun>false</PublishReadyToRun>
+		<IncludeAllContentForSelfExtract>false</IncludeAllContentForSelfExtract>
+		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
 	</PropertyGroup>
 
-  <ItemGroup>
-    <Content Include="..\Artwork\icon1.ico" />
-    <Content Include="..\RepackList.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
+	<ItemGroup>
+		<Content Include="..\Artwork\icon1.ico" />
+		<Content Include="..\RepackList.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Mono.Options" Version="6.12.0.148" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Mono.Options" Version="6.12.0.148" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Repackinator.Shared\Repackinator.Shared.csproj" />
-    <ProjectReference Include="..\Resurgent.UtilityBelt.Library\Resurgent.UtilityBelt.Library.csproj" />
-  </ItemGroup>
-
-  <ProjectExtensions><VisualStudio><UserProperties repacklist_1json__JsonSchema="https://download.stackhawk.com/hawk/jsonconfig/hawkconfig.json" /></VisualStudio></ProjectExtensions>
+	<ItemGroup>
+		<ProjectReference Include="..\Repackinator.Shared\Repackinator.Shared.csproj" />
+		<ProjectReference Include="..\Resurgent.UtilityBelt.Library\Resurgent.UtilityBelt.Library.csproj" />
+	</ItemGroup>
 
 </Project>
