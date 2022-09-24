@@ -38,12 +38,12 @@ namespace Repackinator.Shared
             logStream.Write(bytes);
         }
 
-        private void ProcessFile(string inputFile, string outputPath, GroupingEnum grouping, bool alternate, bool hasAllCrcs, Stopwatch procesTime, CancellationToken cancellationToken)
+        private int ProcessFile(string inputFile, string outputPath, GroupingEnum grouping, bool alternate, bool hasAllCrcs,  CancellationToken cancellationToken)
         {
             if (GameDataList == null)
             {
                 Log(LogMessageLevel.Error, "GameData should not be null.");
-                return;
+                return -1;
             }
 
             var processStopwatch = new Stopwatch();
@@ -65,14 +65,14 @@ namespace Repackinator.Shared
                 if (!File.Exists(inputFile))
                 {
                     Log(LogMessageLevel.NotFound, $"Not found as '{Path.GetFileName(inputFile)}' does not exist.");
-                    return;
+                    return -1;
                 }
 
                 var extension = Path.GetExtension(inputFile).ToLower();
                 if (!extension.Equals(".iso") && !extension.Equals(".zip") && !extension.Equals(".7z") && !extension.Equals(".rar") && !extension.Equals(".iso"))
                 {
                     Log(LogMessageLevel.Warning, $"File '{Path.GetFileName(inputFile)}' has an unsupported extension.");
-                    return;
+                    return -1;
                 }
 
                 Log(LogMessageLevel.Info, $"Processing '{Path.GetFileName(inputFile)}'...");
@@ -132,7 +132,7 @@ namespace Repackinator.Shared
                                     {
                                         Log(LogMessageLevel.NotFound, $"Not found info for '{Path.GetFileName(inputFile)}' as CRC not found in dataset.");
                                     }
-                                    return;
+                                    return -1;
                                 }
                             }
                         }
@@ -140,7 +140,7 @@ namespace Repackinator.Shared
                     catch (Exception ex)
                     {
                         Log(LogMessageLevel.Error, $"Failed to extract archive - {ex}");
-                        return;
+                        return -1;
                     }
                 }
                 else
@@ -162,7 +162,7 @@ namespace Repackinator.Shared
 
                 if (cancellationToken.IsCancellationRequested)
                 {
-                    return;
+                    return -1;
                 }
 
                 var xbeData = Array.Empty<byte>();
@@ -178,14 +178,14 @@ namespace Repackinator.Shared
                     else
                     {
                         Log(LogMessageLevel.Error, $"Unable to extract default.xbe due to '{error}'.");
-                        return;
+                        return -1;
                     }
                 }
 
                 if (!XbeUtility.TryGetXbeCert(xbeData, out var cert) || cert == null)
                 {
                     Log(LogMessageLevel.Error, $"Unable to get data from default.xbe.");
-                    return;
+                    return -1;
                 }
 
                 var titleId = cert.Value.Title_Id.ToString("X8");
@@ -194,15 +194,18 @@ namespace Repackinator.Shared
 
                 bool inDatasetISO = false;
 
+                int gameIndex = -1;
                 GameData? gameData = null;
-                foreach (var game in GameDataList)
+                for (var i = 0; i < GameDataList.Length; i++)
                 {
+                    GameData game = GameDataList[i];
                     if (game.TitleID == titleId && game.Region == gameRegion && game.Version == version)
                     {
                         inDatasetISO = true;
                         if (game.Process != null && game.Process.Equals("Y", StringComparison.CurrentCultureIgnoreCase))
                         {
                             gameData = game;
+                            gameIndex = i;
                         }
                         break;
                     }
@@ -218,55 +221,55 @@ namespace Repackinator.Shared
                     {
                         Log(LogMessageLevel.NotFound, $"Not found info for '{Path.GetFileName(inputFile)}' as titleid, region and version not found in dataset.");
                     }
-                    return;
+                    return -1;
                 }
 
                 if (gameData.Value.Region == null)
                 {
                     Log(LogMessageLevel.Error, "Region is null in dataset.");
-                    return;
+                    return -1;
                 }
 
                 if (gameData.Value.XBETitle == null)
                 {
                     Log(LogMessageLevel.Error, "XBE title is null in dataset.");
-                    return;
+                    return -1;
                 }
 
                 if (gameData.Value.XBETitleAlt == null)
                 {
                     Log(LogMessageLevel.Error, "XBE title alt is null in dataset.");
-                    return;
+                    return -1;
                 }
 
                 if (gameData.Value.FolderName == null)
                 {
                     Log(LogMessageLevel.Error, "Folder name is null in dataset.");
-                    return;
+                    return -1;
                 }
 
                 if (gameData.Value.FolderNameAlt == null)
                 {
                     Log(LogMessageLevel.Error, "Folder name alt is null in dataset.");
-                    return;
+                    return -1;
                 }
 
                 if (gameData.Value.ISOName == null)
                 {
                     Log(LogMessageLevel.Error, "ISO name is null in dataset.");
-                    return;
+                    return -1;
                 }
 
                 if (gameData.Value.ISONameAlt == null)
                 {
                     Log(LogMessageLevel.Error, "ISO name alt is null in dataset.");
-                    return;
+                    return -1;
                 }
 
                 if (gameData.Value.Letter == null)
                 {
                     Log(LogMessageLevel.Error, "Letter is null in dataset.");
-                    return;
+                    return -1;
                 }
 
                 if (grouping == GroupingEnum.Region)
@@ -314,14 +317,14 @@ namespace Repackinator.Shared
                         {
                             deleteProcessOutput = true;
                             Log(LogMessageLevel.Error, "Failed to replace image.");
-                            return;
+                            return -1;
                         }
                     }
                     else
                     {
                         deleteProcessOutput = true;
                         Log(LogMessageLevel.Error, "Failed to create jpg.");
-                        return;
+                        return -1;
                     }
                 }
                 else
@@ -337,16 +340,18 @@ namespace Repackinator.Shared
                 {
                     deleteProcessOutput = true;
                     Log(LogMessageLevel.Error, "failed creating attach xbe.");
-                    return;
+                    return -1;
                 }
 
                 processStopwatch.Stop();
                 Log(LogMessageLevel.Completed, $"Completed Processing '{Path.GetFileName(inputFile)}' (Time Taken {processStopwatch.Elapsed.Hours:00}:{processStopwatch.Elapsed.Minutes:00}:{processStopwatch.Elapsed.Seconds:00}).");
+                return gameIndex;
             }
             catch (Exception ex)
             {
                 deleteProcessOutput = true;
                 Log(LogMessageLevel.Error, $"Processing '{inputFile}' caused error '{ex}'.");
+                return -1;
             }
             finally
             {
@@ -372,12 +377,13 @@ namespace Repackinator.Shared
                 Logger = logger;
                 Progress = progress;
 
-                GameDataList = gameData;
-                if (GameDataList == null)
+                if (gameData == null)
                 {
                     Log(LogMessageLevel.Error, "RepackList.json not found.");
                     return;
                 }
+
+                GameDataList = gameData;
 
                 int crcMissingCount = 0;
                 foreach (var gameDataItem in GameDataList)
@@ -415,7 +421,12 @@ namespace Repackinator.Shared
                     CurrentProgress.Progress1Text = $"Processing {i + 1} of {files.Length}";
                     SendProgress();
 
-                    ProcessFile(file, config.OutputPath, config.Grouping, config.Alternative, crcMissingCount == 0, stopwatch, cancellationToken);
+                    var gameIndex = ProcessFile(file, config.OutputPath, config.Grouping, config.Alternative, crcMissingCount == 0, cancellationToken);
+                    if (gameIndex >= 0)
+                    {
+                        gameData[gameIndex].Process = "N";
+                        GameDataHelper.SaveGameData(gameData);
+                    }
 
                     if (cancellationToken.IsCancellationRequested)
                     {
