@@ -2,7 +2,7 @@
 
 try
 {
-    var version = "RC30";
+    var version = "RC31";
     var application = new Application(version);
     application.Run();
 }

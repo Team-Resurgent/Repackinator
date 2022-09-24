@@ -1,22 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="Resources\attach.xbe" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove="Resources\attach.xbe" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\attach.xbe" />
-  </ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Resources\attach.xbe" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Resurgent.UtilityBelt.Library\Resurgent.UtilityBelt.Library.csproj" />
-    <ProjectReference Include="..\SevenZipExtractor\SevenZipExtractor.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Resurgent.UtilityBelt.Library\Resurgent.UtilityBelt.Library.csproj" />
+		<ProjectReference Include="..\SevenZipExtractor\SevenZipExtractor.csproj" />
+	</ItemGroup>
 
 </Project>

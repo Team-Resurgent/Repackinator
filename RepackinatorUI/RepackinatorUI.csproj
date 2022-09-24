@@ -1,60 +1,51 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-	<ApplicationIcon>..\Artwork\icon1.ico</ApplicationIcon>
-	<PublishReadyToRun>false</PublishReadyToRun>
-	<IncludeAllContentForSelfExtract>false</IncludeAllContentForSelfExtract>
-	<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<ApplicationIcon>..\Artwork\icon1.ico</ApplicationIcon>
+		<PublishReadyToRun>false</PublishReadyToRun>
+		<IncludeAllContentForSelfExtract>false</IncludeAllContentForSelfExtract>
+		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="Resources\ARIALUNI.TTF" />
-    <None Remove="Resources\DINO.S3M" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove="Resources\ARIALUNI.TTF" />
+		<None Remove="Resources\DINO.S3M" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\ARIALUNI.TTF" />
-    <EmbeddedResource Include="Resources\DINO.S3M" />
-    <EmbeddedResource Include="Shaders/GLSL/imgui-vertex.glsl" LogicalName="imgui-vertex.glsl" />
-    <EmbeddedResource Include="Shaders/GLSL/imgui-frag.glsl" LogicalName="imgui-frag.glsl" />
-    <EmbeddedResource Include="Shaders/HLSL/imgui-vertex.hlsl.bytes" LogicalName="imgui-vertex.hlsl.bytes" />
-    <EmbeddedResource Include="Shaders/HLSL/imgui-frag.hlsl.bytes" LogicalName="imgui-frag.hlsl.bytes" />
-    <EmbeddedResource Include="Shaders/SPIR-V/imgui-vertex.spv" LogicalName="imgui-vertex.spv" />
-    <EmbeddedResource Include="Shaders/SPIR-V/imgui-frag.spv" LogicalName="imgui-frag.spv" />
-    <EmbeddedResource Include="Shaders/Metal/imgui-vertex.metallib" LogicalName="imgui-vertex.metallib" />
-    <EmbeddedResource Include="Shaders/Metal/imgui-frag.metallib" LogicalName="imgui-frag.metallib" />
-  </ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Resources\ARIALUNI.TTF" />
+		<EmbeddedResource Include="Resources\DINO.S3M" />
+		<EmbeddedResource Include="Shaders/GLSL/imgui-vertex.glsl" LogicalName="imgui-vertex.glsl" />
+		<EmbeddedResource Include="Shaders/GLSL/imgui-frag.glsl" LogicalName="imgui-frag.glsl" />
+		<EmbeddedResource Include="Shaders/HLSL/imgui-vertex.hlsl.bytes" LogicalName="imgui-vertex.hlsl.bytes" />
+		<EmbeddedResource Include="Shaders/HLSL/imgui-frag.hlsl.bytes" LogicalName="imgui-frag.hlsl.bytes" />
+		<EmbeddedResource Include="Shaders/SPIR-V/imgui-vertex.spv" LogicalName="imgui-vertex.spv" />
+		<EmbeddedResource Include="Shaders/SPIR-V/imgui-frag.spv" LogicalName="imgui-frag.spv" />
+		<EmbeddedResource Include="Shaders/Metal/imgui-vertex.metallib" LogicalName="imgui-vertex.metallib" />
+		<EmbeddedResource Include="Shaders/Metal/imgui-frag.metallib" LogicalName="imgui-frag.metallib" />
+	</ItemGroup>
 
-    <ItemGroup>
-	    <Content Include="..\Artwork\icon1.ico" />
-	    <Content Include="..\RepackList.json">
-		    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	<ItemGroup>
+		<Content Include="..\Artwork\icon1.ico" />
+		<Content Include="..\RepackList.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	    </Content>
-    </ItemGroup>
+		</Content>
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="ImGui.NET" Version="1.87.3" />
-    <PackageReference Include="Veldrid.StartupUtilities" Version="4.8.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="ImGui.NET" Version="1.87.3" />
+		<PackageReference Include="Veldrid.StartupUtilities" Version="4.8.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Repackinator.Shared\Repackinator.Shared.csproj" />
-    <ProjectReference Include="..\SharpMikNAudio\SharpMikNAudio.csproj" />
-  </ItemGroup>
-	
-  <ItemGroup>	
-    <None Update="x64\cimgui.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>	
-    <None Update="x86\cimgui.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Repackinator.Shared\Repackinator.Shared.csproj" />
+		<ProjectReference Include="..\SharpMikNAudio\SharpMikNAudio.csproj" />
+	</ItemGroup>
 
 </Project>
