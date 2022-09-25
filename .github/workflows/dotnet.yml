@@ -25,3 +25,13 @@ jobs:
       run: dotnet publish ./Repackinator/Repackinator.csproj -c Release -p:DebugType=None -p:DebugSymbols=false
     - name: Publish RepackinatorUI
       run: dotnet publish ./RepackinatorUI/RepackinatorUI.csproj -c Release -p:DebugType=None -p:DebugSymbols=false
+    - name: Upload Repackinator Build Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: Repackinator
+        path: /home/runner/work/Repackinator/Repackinator/Repackinator/bin/Release/net6.0/win-x64/publish/
+    - name: Upload RepackinatorUI Build Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: RepackinatorUI
+        path: /home/runner/work/Repackinator/Repackinator/RepackinatorUI/bin/Release/net6.0/win-x64/publish/
