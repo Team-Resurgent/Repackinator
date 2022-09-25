@@ -17,6 +17,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\Resurgent.UtilityBelt.Library\Resurgent.UtilityBelt.Library.csproj" />
 		<ProjectReference Include="..\SevenZipExtractor\SevenZipExtractor.csproj" />
+		<ProjectReference Include="..\SharpMikNAudio\SharpMikNAudio.csproj" />
 	</ItemGroup>
 
 </Project>
