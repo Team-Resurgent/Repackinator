@@ -29,12 +29,12 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: Repackinator
-        path: ${{ github.workspace }}/Repackinator/Repackinator/bin/Release/net6.0/win-x64/publish/
+        path: ${{ github.workspace }}/Repackinator/bin/Release/net6.0/win-x64/publish/
     - name: Upload RepackinatorUI Build Artifact
       uses: actions/upload-artifact@v2
       with:
         name: RepackinatorUI
-        path: ${{ github.workspace }}/Repackinator/RepackinatorUI/bin/Release/net6.0/win-x64/publish/
+        path: ${{ github.workspace }}/RepackinatorUI/bin/Release/net6.0/win-x64/publish/
     - name: Release
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
