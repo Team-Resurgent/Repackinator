@@ -8,10 +8,11 @@
 		<AllowUnsafeBlocks>false</AllowUnsafeBlocks>
 		<ApplicationIcon>..\Artwork\icon1.ico</ApplicationIcon>
 		<PublishTrimmed>false</PublishTrimmed>
-		<PublishSingleFile>true</PublishSingleFile>
+		<PublishSingleFile Condition="'$(Configuration)' == 'Release'">true</PublishSingleFile>
 		<SelfContained>true</SelfContained>
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
 		<RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+		<PublishReadyToRun>true</PublishReadyToRun>
 		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
 	</PropertyGroup>
 

@@ -1,7 +1,10 @@
 ﻿using Resurgent.UtilityBelt.Library.Utilities;
 using Resurgent.UtilityBelt.Library.Utilities.XbeModels;
-using SevenZipExtractor;
+using SharpCompress;
+using SharpCompress.Archives;
+using SharpCompress.IO;
 using System.Diagnostics;
+using System.IO;
 using System.Text;
 
 namespace Repackinator.Shared
@@ -82,16 +85,17 @@ namespace Repackinator.Shared
                     Log(LogMessageLevel.Info, "Extracting, Removing Video Partition & Splitting ISO...");
                     try
                     {
-                        using (ArchiveFile archiveFile = new ArchiveFile(inputFile, cancellationToken))
+                        using (var archiveStream = File.OpenRead(inputFile))
+                        using (var archive = ArchiveFactory.Open(archiveStream))
                         {
-                            foreach (Entry entry in archiveFile.Entries)
+                            foreach (var entry in archive.Entries)
                             {
-                                if (!Path.GetExtension(entry.FileName).Equals(".iso", StringComparison.CurrentCultureIgnoreCase))
+                                if (!Path.GetExtension(entry.Key).Equals(".iso", StringComparison.CurrentCultureIgnoreCase))
                                 {
                                     continue;
                                 }
 
-                                var entryCRC = entry.CRC.ToString("X8");
+                                var entryCRC = entry.Crc.ToString("X8");
 
                                 bool inDatasetZip = false;
                                 bool processArchive = !hasAllCrcs;
@@ -116,9 +120,9 @@ namespace Repackinator.Shared
                                             CurrentProgress.Progress2Text = $"Extracting, Removing Video Partition & Splitting ISO...";
                                             SendProgress();
                                         });
-                                        using (var extractSplitStream = new ExtractSplitStream(fileStream1, fileStream2, (long)entry.Size, extractProgress))
+                                        using (var extractSplitStream = new ExtractSplitStream(fileStream1, fileStream2, (long)entry.Size, extractProgress, cancellationToken))
                                         {
-                                            entry.Extract(extractSplitStream, cancellationToken);
+                                            entry.WriteTo(extractSplitStream);
                                         }
                                     }
                                 }
@@ -136,6 +140,10 @@ namespace Repackinator.Shared
                                 }
                             }
                         }
+                    }
+                    catch (ExtractAbortException)
+                    {
+                        return -1;
                     }
                     catch (Exception ex)
                     {

@@ -15,8 +15,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <PackageReference Include="SharpCompress" Version="0.32.2" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<ProjectReference Include="..\Resurgent.UtilityBelt.Library\Resurgent.UtilityBelt.Library.csproj" />
-		<ProjectReference Include="..\SevenZipExtractor\SevenZipExtractor.csproj" />
 		<ProjectReference Include="..\SharpMikNAudio\SharpMikNAudio.csproj" />
 	</ItemGroup>
 
