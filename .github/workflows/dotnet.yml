@@ -36,12 +36,12 @@ jobs:
     - name: Upload RepackinatorUI Build Artifact - Windows
       uses: actions/upload-artifact@v2
       with:
-        name: RepackinatorUI
+        name: RepackinatorUI-Win
         path: ${{ github.workspace }}/RepackinatorUI/bin/Release/net6.0/win-x64/publish/
     - name: Upload RepackinatorUI Build Artifact - Linux
       uses: actions/upload-artifact@v2
       with:
-        name: RepackinatorUI
+        name: RepackinatorUI-Linux
         path: ${{ github.workspace }}/RepackinatorUI/bin/Release/net6.0/linux-x64/publish/
     - name: Release
       uses: softprops/action-gh-release@v1
