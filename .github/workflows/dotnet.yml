@@ -20,7 +20,7 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build --no-restore --no-self-contained
     - name: Publish Repackinator
       run: dotnet publish ./Repackinator/Repackinator.csproj -c Release -p:DebugType=None -p:DebugSymbols=false
     - name: Publish RepackinatorUI - Windows
