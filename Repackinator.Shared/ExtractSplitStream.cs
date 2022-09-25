@@ -1,4 +1,6 @@
-﻿namespace Repackinator.Shared
+﻿using System.Threading;
+
+namespace Repackinator.Shared
 {
     public class ExtractSplitStream : Stream
     {
@@ -7,18 +9,24 @@
         private long m_bytesProcessed;
         private long m_isoLength;
         private Action<float> m_progress;
+        private CancellationToken m_cancellationToken;
 
-        public ExtractSplitStream(Stream outputPart1, Stream outputPart2, long isoLength, Action<float> progress)
+        public ExtractSplitStream(Stream outputPart1, Stream outputPart2, long isoLength, Action<float> progress, CancellationToken cancellationToken)
         {
             m_currentPart = 0;
             m_outputParts = new Stream[] { outputPart1, outputPart2 };
-
+            m_cancellationToken = cancellationToken;
             m_isoLength = isoLength;
             m_progress = progress;
         }
 
         public override void Write(byte[] buffer, int offset, int count)
         {
+            if (m_cancellationToken.IsCancellationRequested)
+            {
+                throw new ExtractAbortException();
+            }
+
             const long redumpSize = 7825162240;
             const long videoSize = 387 * 1024 * 1024;
 
