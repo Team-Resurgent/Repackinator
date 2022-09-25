@@ -20,31 +20,32 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet build --no-restore  --no-self-contained
+      run: dotnet build --no-restore --no-self-contained
     - name: Publish Repackinator
       run: dotnet publish ./Repackinator/Repackinator.csproj -c Release -p:DebugType=None -p:DebugSymbols=false
     - name: Publish RepackinatorUI - Windows
       run: dotnet publish -r win-x64 ./RepackinatorUI/RepackinatorUI.csproj -c Release --self-contained true -p:DebugType=None -p:DebugSymbols=false
-      #run: dotnet publish ./RepackinatorUI/RepackinatorUI.csproj -c Release -p:DebugType=None -p:DebugSymbols=false
     - name: Publish RepackinatorUI - Linux
       run: dotnet publish -r linux-x64 ./RepackinatorUI/RepackinatorUI.csproj -c Release --self-contained true -p:DebugType=None -p:DebugSymbols=false
-    - name: chmod
-      run: chmod +x ${{ github.workspace }}/RepackinatorUI/bin/Release/net6.0/linux-x64/publish/RepackinatorUI
     - name: Upload Repackinator Build Artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
-        name: Repackinator-CMD
+        name: Repackinator-CLI
         path: ${{ github.workspace }}/Repackinator/bin/Release/net6.0/win-x64/publish/
     - name: Upload RepackinatorUI Build Artifact - Windows
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: RepackinatorUI-Win
         path: ${{ github.workspace }}/RepackinatorUI/bin/Release/net6.0/win-x64/publish/
+    - name: chmod - Linux
+      run: chmod +x ${{ github.workspace }}/RepackinatorUI/bin/Release/net6.0/linux-x64/publish/RepackinatorUI
+    - name: Tar Files - Linux
+      run: tar -cvf ${{ github.workspace }}/RepackinatorUI/bin/Release/net6.0/linux-x64/RepackinatorUI-Linux.tar ${{ github.workspace }}/RepackinatorUI/bin/Release/net6.0/linux-x64/publish
     - name: Upload RepackinatorUI Build Artifact - Linux
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: RepackinatorUI-Linux
-        path: ${{ github.workspace }}/RepackinatorUI/bin/Release/net6.0/linux-x64/publish/
+        path: ${{ github.workspace }}/RepackinatorUI/bin/Release/net6.0/linux-x64/RepackinatorUI-Linux.tar
     - name: Release
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
