@@ -22,6 +22,6 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
     - name: Publish Repackinator
-      run: dotnet publish .\Repackinator\Repackinator.csproj -c Release -p:DebugType=None -p:DebugSymbols=false
+      run: dotnet publish ./Repackinator/Repackinator.csproj -c Release -p:DebugType=None -p:DebugSymbols=false
     - name: Publish RepackinatorUI
-      run: dotnet publish .\RepackinatorUI\RepackinatorUI.csproj -c Release -p:DebugType=None -p:DebugSymbols=false
+      run: dotnet publish ./RepackinatorUI/RepackinatorUI.csproj -c Release -p:DebugType=None -p:DebugSymbols=false
