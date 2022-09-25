@@ -39,7 +39,7 @@ jobs:
     - name: Publish
       run: dotnet publish ./${{ matrix.project }}/${{ matrix.project }}.csproj -r ${{ matrix.os_flavor }} -c Release --self-contained true -p:DebugType=None -p:DebugSymbols=false
     - name: Chmod (Unix)
-      if: ${{ matrix.os_flavor == 'linux-x64' }}
+      if: ${{ matrix.os_flavor == 'linux-x64' || matrix.os_flavor == 'osx-x64' }}
       run: chmod +x ${{ github.workspace }}/${{ matrix.project }}/bin/Release/net6.0/${{ matrix.os_flavor }}/publish/${{ matrix.project }}
     - name: Compress binaries
       run: 7z a ${{ github.workspace }}/${{ matrix.project }}-${{ matrix.os_flavor }}.${{ matrix.archive_ext }} ${{ github.workspace }}/${{ matrix.project }}/bin/Release/net6.0/${{ matrix.os_flavor }}/publish/*
