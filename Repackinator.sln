@@ -11,8 +11,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RepackinatorUI", "Repackina
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Repackinator.Shared", "Repackinator.Shared\Repackinator.Shared.csproj", "{5AE43F16-3DC2-4ECC-B6DC-55288E00849D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SevenZipExtractor", "SevenZipExtractor\SevenZipExtractor.csproj", "{A46CAB6C-797E-42E0-A277-5AD69C03DD62}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharpMikNAudio", "SharpMikNAudio\SharpMikNAudio.csproj", "{9EB81D55-4987-4221-A813-058C5B4344C2}"
 EndProject
 Global
@@ -37,10 +35,6 @@ Global
 		{5AE43F16-3DC2-4ECC-B6DC-55288E00849D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5AE43F16-3DC2-4ECC-B6DC-55288E00849D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5AE43F16-3DC2-4ECC-B6DC-55288E00849D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A46CAB6C-797E-42E0-A277-5AD69C03DD62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A46CAB6C-797E-42E0-A277-5AD69C03DD62}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A46CAB6C-797E-42E0-A277-5AD69C03DD62}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A46CAB6C-797E-42E0-A277-5AD69C03DD62}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9EB81D55-4987-4221-A813-058C5B4344C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9EB81D55-4987-4221-A813-058C5B4344C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9EB81D55-4987-4221-A813-058C5B4344C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
