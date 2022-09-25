@@ -35,3 +35,5 @@ jobs:
       with:
         name: RepackinatorUI
         path: /home/runner/work/Repackinator/Repackinator/RepackinatorUI/bin/Release/net6.0/win-x64/publish/
+    - name: Release
+      uses: softprops/action-gh-release@v1
