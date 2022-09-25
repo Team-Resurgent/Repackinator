@@ -675,7 +675,7 @@ namespace RepackinatorUI
 
             ImGui.SameLine();
 
-            if (ImGui.Button("Atatch Update", new Vector2(100, 30)))
+            if (ImGui.Button("Attach Update", new Vector2(100, 30)))
             {
                 m_attachUpdateDialog.ShowModal(m_config);
             }
