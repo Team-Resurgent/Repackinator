@@ -2,9 +2,9 @@ name: .NET
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "workflow" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "workflow" ]
 
 jobs:
   build:
@@ -23,18 +23,26 @@ jobs:
       run: dotnet build --no-restore
     - name: Publish Repackinator
       run: dotnet publish ./Repackinator/Repackinator.csproj -c Release -p:DebugType=None -p:DebugSymbols=false
-    - name: Publish RepackinatorUI
-      run: dotnet publish ./RepackinatorUI/RepackinatorUI.csproj -c Release -p:DebugType=None -p:DebugSymbols=false
+    - name: Publish RepackinatorUI - Windows
+      run: dotnet publish -r win-x64 ./RepackinatorUI/RepackinatorUI.csproj -c Release --self-contained true -p:DebugType=None -p:DebugSymbols=false
+      #run: dotnet publish ./RepackinatorUI/RepackinatorUI.csproj -c Release -p:DebugType=None -p:DebugSymbols=false
+    - name: Publish RepackinatorUI - Linux
+      run: dotnet publish -r linux-x64 ./RepackinatorUI/RepackinatorUI.csproj -c Release --self-contained true -p:DebugType=None -p:DebugSymbols=false
     - name: Upload Repackinator Build Artifact
       uses: actions/upload-artifact@v2
       with:
         name: Repackinator
-        path: ${{ github.workspace }}/Repackinator/bin/Release/net6.0/win-x64/publish/
-    - name: Upload RepackinatorUI Build Artifact
+        path: ${{ github.workspace }}/Repackinator/Repackinator/Repackinator/bin/Release/net6.0/win-x64/publish/
+    - name: Upload RepackinatorUI Build Artifact - Windows
       uses: actions/upload-artifact@v2
       with:
         name: RepackinatorUI
-        path: ${{ github.workspace }}/RepackinatorUI/bin/Release/net6.0/win-x64/publish/
+        path: ${{ github.workspace }}/Repackinator/Repackinator/RepackinatorUI/bin/Release/net6.0/win-x64/publish/
+    - name: Upload RepackinatorUI Build Artifact - Linux
+      uses: actions/upload-artifact@v2
+      with:
+        name: RepackinatorUI
+        path: ${{ github.workspace }}/Repackinator/Repackinator/RepackinatorUI/bin/Release/net6.0/linux-x64/publish/
     - name: Release
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
