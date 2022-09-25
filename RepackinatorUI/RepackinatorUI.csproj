@@ -10,7 +10,7 @@
         <PublishTrimmed>false</PublishTrimmed>
         <PublishSingleFile Condition="'$(Configuration)' == 'Release'">true</PublishSingleFile>
         <SelfContained>true</SelfContained>
-        <RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>
+        <RuntimeIdentifiers>win-x64;linux-x64;osx-x64</RuntimeIdentifiers>
         <PublishReadyToRun>true</PublishReadyToRun>
         <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
     </PropertyGroup>
@@ -36,6 +36,14 @@
 	<ItemGroup>
 		<Content Include="..\Artwork\icon1.ico" />
 		<Content Include="..\RepackList.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+		</Content>
+		<Content Include="..\README.md">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+		</Content>
+		<Content Include="..\Repackinator.nfo">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 		</Content>
