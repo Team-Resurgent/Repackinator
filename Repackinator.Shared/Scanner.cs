@@ -1,6 +1,6 @@
 ﻿using Resurgent.UtilityBelt.Library.Utilities;
 using Resurgent.UtilityBelt.Library.Utilities.XbeModels;
-using SevenZipExtractor;
+using SharpCompress;
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
