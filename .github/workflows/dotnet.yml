@@ -18,7 +18,7 @@ jobs:
       matrix:
         arch: [x64]
         os_flavor: [win-x64,linux-x64,osx-x64]
-        project: [Repackinator,RepackinatorUI]
+        project: [Repackinator-CLI,Repackinator-UI]
         include:
           - os_flavor: win-x64
             archive_ext: zip
