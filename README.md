@@ -27,7 +27,7 @@
 ///  3.  Current DB contains 1044 Games, The info shown has been compiled     ///
 ///      by extracting Title Name, Region, Version & Title ID from the        ///
 ///      Default.XBE of each game.                                            ///
-///  4.  CRC32 Info has been compiled by the calculating CRC32 of ISO and     ///
+///  4.  CRC32 Info has been compiled by calculating the CRC32 of ISO and     ///
 ///      comparing it to that found on Redump.org                             ///
 ///  5.  Title Images extracted as Default.TBN                                ///
 ///  6.  Cerbios Modern ISO Attach (Default.XBE) backwards compatible with    ///
@@ -66,9 +66,9 @@
 ///  Will be used to load the ISO Games on ISO Enabled Bioses such as         ///
 ///  Cerbios (Native Iso Support) , IND-Bios (Patched) , EVOX (Patched)       ///
 ///                                                                           ///
-///  The generated Default.XBE will use the XBE Title Colunm as the New       ///
+///  The generated Default.XBE will use the XBE Title Column as the New       ///
 ///  Title Name. This is the name of the game which is displayed on your      ///
-///  favourite dashboard.                                                     ///
+///  favorite dashboard.                                                      ///
 ///                                                                           ///
 ///  Please note that the region shown in Repackinator is calculated based    ///
 ///  on the Region that is extracted from the Games XBE. These regions are    ///
@@ -89,7 +89,7 @@
 ///  Run RepackinatorUI.exe.                                                  ///
 ///  Select Grouping Type.                                                    ///
 ///  Set Input Folder. (Path to your Redump .ZIP/.7Z or .ISO) Files           ///
-///  Set Output Path. (Path to where you want to save your processed game     ///
+///  Set Output Path. (Path to where you want to save your processed game)    ///
 ///  Click On Process, Sit back while Repackinator does the hard work for you ///
 ///                                                                           ///
 ///                                                                           ///
@@ -102,7 +102,7 @@
 ///                                                                           ///
 ///  Firstly a shout-out to Team Cerbios for their amazing Bios. This         ///
 ///  App was a collaboration with Team Cerbios Who also provided              ///
-///  A modern ISO Attach (Default.XBE) with bug fixed and improvements.       ///
+///  A modern ISO Attach (Default.XBE) with bug fixes and improvements.       ///
 ///                                                                           ///
 ///  We want to thank all the Original Xbox devs for bringing us the awesome  ///
 ///  Applications, Dashboards and Emulators we have grown to love and for     ///
@@ -119,8 +119,8 @@
 ///  https://github.com/Ryzee119                                              ///
 ///                                                                           ///
 ///                                                                           ///
-///  To all the people behind projects such as Xemu, Insignia. Keep up the    ///
-///  amazing work cant wait to for your final product releases.               ///
+///  To all the people behind projects such as Xemu and Insignia. Keep up     ///
+///  the amazing work, cant wait to for your final product releases.          ///
 ///                                                                           ///
 ///  Greetz to the following scene people.                                    ///
 ///  Milenko, Iriez, Mattie, ODB718, ILTB, HoZy, IceKiller, Rowdy360, Lantus  ///
