@@ -9,26 +9,12 @@
 		<ApplicationIcon>..\Artwork\icon1.ico</ApplicationIcon>
 		<PublishTrimmed>false</PublishTrimmed>
 		<PublishSingleFile Condition="'$(Configuration)' == 'Release'">true</PublishSingleFile>
-		<SelfContained>true</SelfContained>
+		<SelfContained Condition="'$(Configuration)' == 'Release'">true</SelfContained>
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
-		<RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+		<RuntimeIdentifiers>win-x64;linux-x64;osx-x64</RuntimeIdentifiers>
 		<PublishReadyToRun>true</PublishReadyToRun>
 		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
 	</PropertyGroup>
-    <PropertyGroup>
-        <OutputType>WinExe</OutputType>
-        <TargetFramework>net6.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <ApplicationIcon>..\Artwork\icon1.ico</ApplicationIcon>
-        <PublishTrimmed>false</PublishTrimmed>
-        <PublishSingleFile Condition="'$(Configuration)' == 'Release'">true</PublishSingleFile>
-        <SelfContained>true</SelfContained>
-        <RuntimeIdentifiers>win-x64;linux-x64;osx-x64</RuntimeIdentifiers>
-        <PublishReadyToRun>true</PublishReadyToRun>
-        <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
-    </PropertyGroup>
 
 	<ItemGroup>
 		<None Remove="Resources\ARIALUNI.TTF" />
