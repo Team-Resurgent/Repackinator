@@ -5100,6 +5100,21 @@
     "Process": "Y"
   },
   {
+    "Title ID": "4143000C",
+    "Title Name": "Freestyle Street Soccer",
+    "Version": "00000003",
+    "Region": "USA",
+    "Letter": "F",
+    "XBE Title": "FREESTYLE STREET SOCCER (USA)",
+    "XBE Title Alt": "FREESTYLE STREET SOCCER",
+    "Folder Name": "FREESTYLE STREET SOCCER (USA)",
+    "Folder Name Alt": "FREESTYLE STREET SOCCER",
+    "ISO Name": "FREESTYLE STREET SOCCER (USA)",
+    "ISO Name Alt": "FREESTYLE STREET SOCCER",
+    "ISO Checksum": "065E74E9",
+    "Process": "Y"
+  },
+  {
     "Title ID": "4B4E002C",
     "Title Name": "Frogger Ancient Shadow",
     "Version": "00000001",
@@ -14682,21 +14697,6 @@
     "ISO Name": "URBAN CHAOS - RIOT RESPONSE (GLO)",
     "ISO Name Alt": "URBAN CHAOS - RIOT RESPONSE",
     "ISO Checksum": "8670C189",
-    "Process": "Y"
-  },
-  {
-    "Title ID": "4143000C",
-    "Title Name": "Urban Freestyle Soccer",
-    "Version": "00000002",
-    "Region": "PAL",
-    "Letter": "U",
-    "XBE Title": "URBAN FREESTYLE SOCCER (PAL)",
-    "XBE Title Alt": "URBAN FREESTYLE SOCCER",
-    "Folder Name": "URBAN FREESTYLE SOCCER (PAL)",
-    "Folder Name Alt": "URBAN FREESTYLE SOCCER",
-    "ISO Name": "URBAN FREESTYLE SOCCER (PAL)",
-    "ISO Name Alt": "URBAN FREESTYLE SOCCER",
-    "ISO Checksum": "065E74E9",
     "Process": "Y"
   },
   {

@@ -6,10 +6,26 @@ on:
   pull_request:
     branches: [ "main", "workflow" ]
 
+permissions:
+  contents: write
+
 jobs:
   build:
 
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        arch: [x64]
+        os_flavor: [win-x64,linux-x64,osx-x64]
+        project: [Repackinator,RepackinatorUI]
+        include:
+          - os_flavor: win-x64
+            archive_ext: zip
+          - os_flavor: linux-x64
+            archive_ext: tar
+          - os_flavor: osx-x64
+            archive_ext: tar
 
     steps:
     - uses: actions/checkout@v3
@@ -20,21 +36,37 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet build --no-restore
-    - name: Publish Repackinator
-      run: dotnet publish ./Repackinator/Repackinator.csproj -c Release -p:DebugType=None -p:DebugSymbols=false
-    - name: Publish RepackinatorUI
-      run: dotnet publish ./RepackinatorUI/RepackinatorUI.csproj -c Release -p:DebugType=None -p:DebugSymbols=false
-    - name: Upload Repackinator Build Artifact
-      uses: actions/upload-artifact@v2
+      run: dotnet build --no-restore --no-self-contained
+    - name: Publish
+      run: dotnet publish ./${{ matrix.project }}/${{ matrix.project }}.csproj -p:Platform=${{ matrix.arch }} -r ${{ matrix.os_flavor }} -c Release --self-contained true -p:DebugType=None -p:DebugSymbols=false
+    - name: Chmod (Unix)
+      if: ${{ matrix.os_flavor == 'linux-x64' || matrix.os_flavor == 'osx-x64' }}
+      run: chmod +x ${{ github.workspace }}/${{ matrix.project }}/bin/${{ matrix.arch }}/Release/net6.0/${{ matrix.os_flavor }}/publish/${{ matrix.project }}
+    - name: Compress binaries
+      run: 7z a ${{ github.workspace }}/${{ matrix.project }}-${{ matrix.os_flavor }}.${{ matrix.archive_ext }} ${{ github.workspace }}/${{ matrix.project }}/bin/${{ matrix.arch }}/Release/net6.0/${{ matrix.os_flavor }}/publish/*
+    - name: List directories and files
+      run: find .
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v3
       with:
-        name: Repackinator
-        path: ${{ github.workspace }}/Repackinator/Repackinator/Repackinator/bin/Release/net6.0/win-x64/publish/
-    - name: Upload RepackinatorUI Build Artifact
-      uses: actions/upload-artifact@v2
+        name: ${{ matrix.project }}-${{ matrix.os_flavor }}
+        path: ${{ github.workspace }}/${{ matrix.project }}/bin/${{ matrix.arch }}/Release/net6.0/${{ matrix.os_flavor }}/publish/*
+        if-no-files-found: error
+    - name: Create draft Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/heads/main')
       with:
-        name: RepackinatorUI
-        path: ${{ github.workspace }}/Repackinator/Repackinator/RepackinatorUI/bin/Release/net6.0/win-x64/publish/
-    - name: Release
+        tag_name: latest
+        draft: true
+        files: |
+          ${{ github.workspace }}/Repackinator.nfo
+          ${{ github.workspace }}/README.md
+          ${{ github.workspace }}/${{ matrix.project }}-${{ matrix.os_flavor }}.${{ matrix.archive_ext }}
+    - name: Create Release
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          ${{ github.workspace }}/Repackinator.nfo
+          ${{ github.workspace }}/README.md
+          ${{ github.workspace }}/${{ matrix.project }}-${{ matrix.os_flavor }}.${{ matrix.archive_ext }}
