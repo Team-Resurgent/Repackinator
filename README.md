@@ -26,10 +26,10 @@
 ///                                                                           ///
 ///   Release: V1.0.1                                                         ///
 ///  -----------------------------------------------------------------------  ///
-///  1.  Added Native support for Linux & OSX                                 ///
-///  2.  Fixed Typos in GUI                                                   ///
+///  1.  Added native support for Linux & OSX                                 ///
+///  2.  Fixed typos in GUI                                                   ///
 ///  3.  Github automation improvements                                       ///
-///  4.  Added CLI Version (For those that don't like GUI's)                  ///
+///  4.  Added CLI version (For those that don't like GUI's)                  ///
 ///                                                                           ///
 ///  -----------------------------------------------------------------------  ///
 ///                                                                           ///
