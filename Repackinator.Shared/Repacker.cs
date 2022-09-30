@@ -352,7 +352,7 @@ namespace Repackinator.Shared
                 }
 
                 processStopwatch.Stop();
-                Log(LogMessageLevel.Completed, $"Completed Processing '{Path.GetFileName(inputFile)}' (Time Taken {processStopwatch.Elapsed.Hours:00}:{processStopwatch.Elapsed.Minutes:00}:{processStopwatch.Elapsed.Seconds:00}).");
+                Log(LogMessageLevel.Completed, $"Completed Processing '{Path.GetFileName(inputFile)}' (Time Taken {processStopwatch.Elapsed.TotalHours:00}:{processStopwatch.Elapsed.Minutes:00}:{processStopwatch.Elapsed.Seconds:00}).");
                 return gameIndex;
             }
             catch (Exception ex)
@@ -452,7 +452,7 @@ namespace Repackinator.Shared
 
                 stopwatch.Stop();
 
-                Log(LogMessageLevel.Done, $"Completed Processing List (Time Taken {stopwatch.Elapsed.Hours:00}:{stopwatch.Elapsed.Minutes:00}:{stopwatch.Elapsed.Seconds:00}).");
+                Log(LogMessageLevel.Done, $"Completed Processing List (Time Taken {stopwatch.Elapsed.TotalHours:00}:{stopwatch.Elapsed.Minutes:00}:{stopwatch.Elapsed.Seconds:00}).");
             }
             catch (Exception ex)
             {

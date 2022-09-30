@@ -197,7 +197,7 @@ namespace RepackinatorUI
 
             ImGui.SameLine();
 
-            var timeTaken = $"Total Time: {_stopwatch.Elapsed.Hours:00}:{_stopwatch.Elapsed.Minutes:00}:{_stopwatch.Elapsed.Seconds:00}";
+            var timeTaken = $"Total Time: {_stopwatch.Elapsed.TotalHours:00}:{_stopwatch.Elapsed.Minutes:00}:{_stopwatch.Elapsed.Seconds:00}";
             ImGui.SetCursorPosX(windowSize.X - ImGui.CalcTextSize(timeTaken).X - 8);                
             ImGui.Text(timeTaken);
 
