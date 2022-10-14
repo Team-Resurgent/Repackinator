@@ -162,7 +162,11 @@ namespace Repackinator.Shared
                         SendProgress();
                     });
 
-                    XisoUtility.Split(inputFile, unpackPath, "Repackinator", true, splitProgress, cancellationToken);
+                    if (!XisoUtility.Split(inputFile, unpackPath, "Repackinator", true, splitProgress, cancellationToken))
+                    {
+                        Log(LogMessageLevel.Error, $"Unable to split '{inputFile}' as not multiple of 2048 bytes.");
+                        return -1;
+                    }
 
                     CurrentProgress.Progress2 = 1.0f;
                     SendProgress();
