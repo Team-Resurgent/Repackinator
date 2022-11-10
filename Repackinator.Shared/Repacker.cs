@@ -349,7 +349,7 @@ namespace Repackinator.Shared
                             SendProgress();
                         });
 
-                        if (!XisoUtility.CreateXIC(Path.Combine(unpackPath, @"Repackinator.temp"), processOutput, isoFileName, ".xic", scrub, repackProgress, cancellationToken))
+                        if (!XisoUtility.CreateCCI(Path.Combine(unpackPath, @"Repackinator.temp"), processOutput, isoFileName, ".cci", scrub, repackProgress, cancellationToken))
                         {
                             Log(LogMessageLevel.Error, $"Unable process file 'Repackinator.temp'.");
                             return -1;
@@ -638,7 +638,7 @@ namespace Repackinator.Shared
                         SendProgress();
                     });
 
-                    if (!XisoUtility.CreateXIC(inputFile, processOutput, isoFileName, ".xic", scrub, repackProgress, cancellationToken))
+                    if (!XisoUtility.CreateCCI(inputFile, processOutput, isoFileName, ".cci", scrub, repackProgress, cancellationToken))
                     {
                         Log(LogMessageLevel.Error, $"Unable process file '{inputFile}'.");
                         return -1;
