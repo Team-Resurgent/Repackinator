@@ -53,7 +53,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities.XbeModels
                 }
                 if ((region & 0x00000002) == 0x00000002)
                 {
-                    gameRegion = gameRegion.Length > 0 ? $"JAP-{gameRegion}" : "JAP";
+                    gameRegion = gameRegion.Length > 0 ? $"JPN-{gameRegion}" : "JPN";
                 }
                 if ((region & 0x00000001) == 0x00000001)
                 {

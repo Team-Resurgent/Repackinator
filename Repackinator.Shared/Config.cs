@@ -19,14 +19,17 @@ namespace Repackinator.Shared
 
         public GroupingEnum Grouping { get; set; }
 
-        public bool Alternative { get; set; }
+        public bool UpperCase { get; set; }
+
+        public bool Compress { get; set; }
 
         public Config()
         {
             InputPath = string.Empty;
             OutputPath = string.Empty;
             Grouping = GroupingEnum.None;
-            Alternative = false;
+            UpperCase = false;
+            Compress = false;
         }
 
         public static Config LoadConfig(string path)

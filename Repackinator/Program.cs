@@ -210,8 +210,7 @@ try
     {
         InputPath = input,
         OutputPath = output,
-        Grouping = groupingValue,
-        Alternative = alternateValue
+        Grouping = groupingValue
     };
 
     var cancellationTokenSource = new CancellationTokenSource();

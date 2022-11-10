@@ -49,7 +49,7 @@ namespace RepackinatorUI
 
             if (ImGui.IsWindowAppearing())
             {
-                ImGui.SetWindowSize(new Vector2(410, 348));
+                ImGui.SetWindowSize(new Vector2(410, 272));
             }
 
             var textColor = ImGui.GetStyle().Colors[(int)ImGuiCol.Text];
@@ -98,19 +98,6 @@ namespace RepackinatorUI
             ImGui.PopStyleColor();
             ImGui.PopItemWidth();
 
-            ImGui.TextUnformatted("XBE Title Alt:");
-            ImGui.SameLine();
-            ImGui.SetCursorPosX(100);
-            string xbeTitleAlt = GameData.XBETitleAlt ?? "";
-            ImGui.PushItemWidth(300);
-            ImGui.PushStyleColor(ImGuiCol.Text, xbeTitleAlt.Length > 40 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.25f, 0.25f, 1)) : ImGui.ColorConvertFloat4ToU32(textColor));
-            if (ImGui.InputText("##editXbeTitleAlt", ref xbeTitleAlt, 40))
-            {
-                GameData.XBETitleAlt = xbeTitleAlt;
-            }
-            ImGui.PopStyleColor();
-            ImGui.PopItemWidth();
-
             ImGui.TextUnformatted("Folder Name:");
             ImGui.SameLine();
             ImGui.SetCursorPosX(100);
@@ -124,19 +111,6 @@ namespace RepackinatorUI
             ImGui.PopStyleColor();
             ImGui.PopItemWidth();
 
-            ImGui.TextUnformatted("Folder Name Alt:");
-            ImGui.SameLine();
-            ImGui.SetCursorPosX(100);
-            string folderNameAlt = GameData.FolderNameAlt ?? "";
-            ImGui.PushItemWidth(300);
-            ImGui.PushStyleColor(ImGuiCol.Text, folderNameAlt.Length > 42 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.25f, 0.25f, 1)) : ImGui.ColorConvertFloat4ToU32(textColor));
-            if (ImGui.InputText("##editFolderNameAlt", ref folderNameAlt, 42))
-            {
-                GameData.FolderNameAlt = folderNameAlt;
-            }
-            ImGui.PopStyleColor();
-            ImGui.PopItemWidth();
-
             ImGui.TextUnformatted("ISO Name:");
             ImGui.SameLine();
             ImGui.SetCursorPosX(100);
@@ -146,19 +120,6 @@ namespace RepackinatorUI
             if (ImGui.InputText("##editIsoName", ref isoName, 36))
             {
                 GameData.ISOName = isoName;
-            }
-            ImGui.PopStyleColor();
-            ImGui.PopItemWidth();
-
-            ImGui.TextUnformatted("ISO Name Alt:");
-            ImGui.SameLine();
-            ImGui.SetCursorPosX(100);
-            string isoNameAlt = GameData.ISONameAlt ?? "";
-            ImGui.PushItemWidth(300);
-            ImGui.PushStyleColor(ImGuiCol.Text, isoNameAlt.Length > 36 ? ImGui.ColorConvertFloat4ToU32(new Vector4(1, 0.25f, 0.25f, 1)) : ImGui.ColorConvertFloat4ToU32(textColor));
-            if (ImGui.InputText("##editIsoNameAlt{i}", ref isoNameAlt, 36))
-            {
-                GameData.ISONameAlt = isoNameAlt;
             }
             ImGui.PopStyleColor();
             ImGui.PopItemWidth();
