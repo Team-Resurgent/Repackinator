@@ -1,10 +1,7 @@
 ﻿using Resurgent.UtilityBelt.Library.Utilities;
 using Resurgent.UtilityBelt.Library.Utilities.XbeModels;
-using SharpCompress;
 using SharpCompress.Archives;
-using SharpCompress.IO;
 using System.Diagnostics;
-using System.IO;
 using System.Text;
 
 namespace Repackinator.Shared
@@ -41,28 +38,8 @@ namespace Repackinator.Shared
             logStream.Write(bytes);
         }
 
-        private int ProcessFile(string inputFile, string outputPath, GroupingEnum grouping, bool alternate, bool hasAllCrcs,  CancellationToken cancellationToken)
+        private int ProcessFile(string inputFile, string outputPath, GroupingEnum grouping, bool hasAllCrcs, bool upperCase, bool compress, CancellationToken cancellationToken)
         {
-            if (GameDataList == null)
-            {
-                Log(LogMessageLevel.Error, "GameData should not be null.");
-                return -1;
-            }
-
-            var processStopwatch = new Stopwatch();
-            processStopwatch.Start();
-
-            var unpackPath = Path.Combine(outputPath, "Repackinator-Temp");
-
-            if (Directory.Exists(unpackPath))
-            {
-                Directory.Delete(unpackPath, true);
-            }
-            Directory.CreateDirectory(unpackPath);
-
-            var processOutput = string.Empty;
-            var deleteProcessOutput = false;
-
             try
             {
                 if (!File.Exists(inputFile))
@@ -80,44 +57,106 @@ namespace Repackinator.Shared
 
                 Log(LogMessageLevel.Info, $"Processing '{Path.GetFileName(inputFile)}'...");
 
-                if (!extension.Equals(".iso"))
+                if (extension.Equals(".iso"))
                 {
-                    Log(LogMessageLevel.Info, "Extracting, Removing Video Partition & Splitting ISO...");
-                    try
+                    return ProcessIso(inputFile, outputPath, grouping, hasAllCrcs, upperCase, compress, cancellationToken);
+                }
+
+                return ProcessArchive(inputFile, outputPath, grouping, hasAllCrcs, upperCase, compress, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                Log(LogMessageLevel.Error, $"Processing '{inputFile}' caused error '{ex}'.");
+                return -1;
+            }
+        }
+
+        public int ProcessArchive(string inputFile, string outputPath, GroupingEnum grouping, bool hasAllCrcs, bool upperCase, bool compress, CancellationToken cancellationToken)
+        {
+            if (GameDataList == null)
+            {
+                Log(LogMessageLevel.Error, "GameData should not be null.");
+                return -1;
+            }
+
+            var unpackPath = Path.Combine(outputPath, "Repackinator-Temp");
+            var processOutput = string.Empty;
+            var deleteProcessOutput = false;
+
+            try
+            {
+                var processStopwatch = new Stopwatch();
+                processStopwatch.Start();
+
+                if (Directory.Exists(unpackPath))
+                {
+                    Directory.Delete(unpackPath, true);
+                }
+                Directory.CreateDirectory(unpackPath);
+
+                var needsSecondPass = false;
+
+                try
+                {
+                    using (var archiveStream = File.OpenRead(inputFile))
+                    using (var archive = ArchiveFactory.Open(archiveStream))
                     {
-                        using (var archiveStream = File.OpenRead(inputFile))
-                        using (var archive = ArchiveFactory.Open(archiveStream))
+                        foreach (var entry in archive.Entries)
                         {
-                            foreach (var entry in archive.Entries)
+                            if (!Path.GetExtension(entry.Key).Equals(".iso", StringComparison.CurrentCultureIgnoreCase))
                             {
-                                if (!Path.GetExtension(entry.Key).Equals(".iso", StringComparison.CurrentCultureIgnoreCase))
+                                continue;
+                            }
+
+                            var entryCRC = entry.Crc.ToString("X8");
+
+                            bool processArchive = !hasAllCrcs;
+
+                            GameData? tempGameData = null;
+                            for (var i = 0; i < GameDataList.Length; i++)
+                            {
+                                GameData game = GameDataList[i];
+                                if (game.ISOChecksum.PadLeft(8, '0').Equals(entryCRC, StringComparison.CurrentCultureIgnoreCase))
                                 {
-                                    continue;
+                                    processArchive = game.Process.Equals("Y", StringComparison.CurrentCultureIgnoreCase);
+                                    tempGameData = game;
+                                    break;
                                 }
+                            }
 
-                                var entryCRC = entry.Crc.ToString("X8");
+                            if (processArchive)
+                            {
+                                Log(LogMessageLevel.Info, "Extracting ISO...");
 
-                                bool inDatasetZip = false;
-                                bool processArchive = !hasAllCrcs;
-                                foreach (var game in GameDataList)
+                                var willScrub = tempGameData == null ? false : tempGameData.Value.Scrub.Equals("Y", StringComparison.CurrentCultureIgnoreCase);
+                                if (tempGameData == null || compress == true || willScrub == true)
                                 {
-                                    if (game.ISOChecksum.PadLeft(8, '0').Equals(entryCRC, StringComparison.CurrentCultureIgnoreCase))
-                                    {
-                                        inDatasetZip = true;
-                                        processArchive = game.Process.Equals("Y", StringComparison.CurrentCultureIgnoreCase);
-                                        break;
-                                    }
-                                }
-
-                                if (processArchive)
-                                {
-                                    using (var fileStream1 = new FileStream(Path.Combine(unpackPath, @"Repackinator.1.iso"), FileMode.Create))
-                                    using (var fileStream2 = new FileStream(Path.Combine(unpackPath, @"Repackinator.2.iso"), FileMode.Create))
+                                    using (var fileStream = new FileStream(Path.Combine(unpackPath, @"Repackinator.temp"), FileMode.Create))
                                     {
                                         var extractProgress = new Action<float>((progress) =>
                                         {
                                             CurrentProgress.Progress2 = progress;
-                                            CurrentProgress.Progress2Text = $"Extracting, Removing Video Partition & Splitting ISO...";
+                                            CurrentProgress.Progress2Text = $"Extracting ISO...";
+                                            SendProgress();
+                                        });
+                                        using (var progressStream = new ProgressStream(fileStream, (long)entry.Size, extractProgress, cancellationToken))
+                                        {
+                                            entry.WriteTo(progressStream);
+                                        }
+                                    }
+                                    needsSecondPass = true;
+                                }
+                                else
+                                {
+                                    Log(LogMessageLevel.Info, "Extracting And Splitting ISO...");
+
+                                    using (var fileStream1 = new FileStream(Path.Combine(unpackPath, @"Repackinator.1.temp"), FileMode.Create))
+                                    using (var fileStream2 = new FileStream(Path.Combine(unpackPath, @"Repackinator.2.temp"), FileMode.Create))
+                                    {
+                                        var extractProgress = new Action<float>((progress) =>
+                                        {
+                                            CurrentProgress.Progress2 = progress;
+                                            CurrentProgress.Progress2Text = $"Extracting And Splitting ISO...";
                                             SendProgress();
                                         });
                                         using (var extractSplitStream = new ExtractSplitStream(fileStream1, fileStream2, (long)entry.Size, extractProgress, cancellationToken))
@@ -126,67 +165,71 @@ namespace Repackinator.Shared
                                         }
                                     }
                                 }
+                            }
+                            else
+                            {
+                                if (tempGameData != null)
+                                {
+                                    Log(LogMessageLevel.Skipped, $"Skipping '{Path.GetFileName(inputFile)}' as requested to skip in dataset based on user selection.");
+                                }
                                 else
                                 {
-                                    if (inDatasetZip)
-                                    {
-                                        Log(LogMessageLevel.Skipped, $"Skipping '{Path.GetFileName(inputFile)}' as requested to skip in dataset based on user selection.");
-                                    }
-                                    else
-                                    {
-                                        Log(LogMessageLevel.NotFound, $"Not found info for '{Path.GetFileName(inputFile)}' as CRC not found in dataset.");
-                                    }
-                                    return -1;
+                                    Log(LogMessageLevel.NotFound, $"Not found info for '{Path.GetFileName(inputFile)}' as CRC not found in dataset.");
                                 }
+                                return -1;
                             }
                         }
                     }
-                    catch (ExtractAbortException)
-                    {
-                        return -1;
-                    }
-                    catch (Exception ex)
-                    {
-                        Log(LogMessageLevel.Error, $"Failed to extract archive - {ex}");
-                        return -1;
-                    }
                 }
-                else
+                catch (ExtractAbortException)
                 {
-                    Log(LogMessageLevel.Info, "Removing Video Partition & Splitting ISO...");
-
-                    var splitProgress = new Action<float>((progress) =>
-                    {
-                        CurrentProgress.Progress2 = progress;
-                        CurrentProgress.Progress2Text = $"Removing Video Partition & Splitting ISO...";
-                        SendProgress();
-                    });
-
-                    XisoUtility.Split(inputFile, unpackPath, "Repackinator", true, splitProgress, cancellationToken);
-
-                    CurrentProgress.Progress2 = 1.0f;
-                    SendProgress();
+                    return -1;
                 }
-
+                catch (Exception ex)
+                {
+                    Log(LogMessageLevel.Error, $"Failed to extract archive - {ex}");
+                    return -1;
+                }
+                
                 if (cancellationToken.IsCancellationRequested)
                 {
                     return -1;
                 }
 
                 var xbeData = Array.Empty<byte>();
-                using (var inputStream1 = new FileStream(Path.Combine(unpackPath, @"Repackinator.1.iso"), FileMode.Open))
-                using (var inputStream2 = new FileStream(Path.Combine(unpackPath, @"Repackinator.2.iso"), FileMode.Open))
-                using (var outputStream = new MemoryStream())
+                if (needsSecondPass)
                 {
-                    var error = string.Empty;
-                    if (XisoUtility.TryExtractDefaultFromSplitXiso(inputStream1, inputStream2, outputStream, ref error))
+                    using (var inputStream = new FileStream(Path.Combine(unpackPath, @"Repackinator.temp"), FileMode.Open))
+                    using (var outputStream = new MemoryStream())
                     {
-                        xbeData = outputStream.ToArray();
+                        var error = string.Empty;
+                        if (XisoUtility.TryExtractDefaultFromXiso(inputStream, outputStream, ref error))
+                        {
+                            xbeData = outputStream.ToArray();
+                        }
+                        else
+                        {
+                            Log(LogMessageLevel.Error, $"Unable to extract default.xbe due to '{error}'.");
+                            return -1;
+                        }
                     }
-                    else
+                }
+                else
+                {
+                    using (var inputStream1 = new FileStream(Path.Combine(unpackPath, @"Repackinator.1.temp"), FileMode.Open))
+                    using (var inputStream2 = new FileStream(Path.Combine(unpackPath, @"Repackinator.2.temp"), FileMode.Open))
+                    using (var outputStream = new MemoryStream())
                     {
-                        Log(LogMessageLevel.Error, $"Unable to extract default.xbe due to '{error}'.");
-                        return -1;
+                        var error = string.Empty;
+                        if (XisoUtility.TryExtractDefaultFromSplitXiso(inputStream1, inputStream2, outputStream, ref error))
+                        {
+                            xbeData = outputStream.ToArray();
+                        }
+                        else
+                        {
+                            Log(LogMessageLevel.Error, $"Unable to extract default.xbe due to '{error}'.");
+                            return -1;
+                        }
                     }
                 }
 
@@ -201,7 +244,6 @@ namespace Repackinator.Shared
                 var version = cert.Value.Version.ToString("X8");
 
                 bool inDatasetISO = false;
-
                 int gameIndex = -1;
                 GameData? gameData = null;
                 for (var i = 0; i < GameDataList.Length; i++)
@@ -218,7 +260,7 @@ namespace Repackinator.Shared
                         break;
                     }
                 }
-
+                
                 if (!gameData.HasValue)
                 {
                     if (inDatasetISO)
@@ -244,33 +286,15 @@ namespace Repackinator.Shared
                     return -1;
                 }
 
-                if (gameData.Value.XBETitleAlt == null)
-                {
-                    Log(LogMessageLevel.Error, "XBE title alt is null in dataset.");
-                    return -1;
-                }
-
                 if (gameData.Value.FolderName == null)
                 {
                     Log(LogMessageLevel.Error, "Folder name is null in dataset.");
                     return -1;
                 }
 
-                if (gameData.Value.FolderNameAlt == null)
-                {
-                    Log(LogMessageLevel.Error, "Folder name alt is null in dataset.");
-                    return -1;
-                }
-
                 if (gameData.Value.ISOName == null)
                 {
                     Log(LogMessageLevel.Error, "ISO name is null in dataset.");
-                    return -1;
-                }
-
-                if (gameData.Value.ISONameAlt == null)
-                {
-                    Log(LogMessageLevel.Error, "ISO name alt is null in dataset.");
                     return -1;
                 }
 
@@ -297,9 +321,10 @@ namespace Repackinator.Shared
                     outputPath = Path.Combine(outputPath, gameData.Value.Letter, gameData.Value.Region);
                 }
 
-                var xbeTitle = alternate ? gameData.Value.XBETitleAlt : gameData.Value.XBETitle;
-                var folderName = alternate ? gameData.Value.FolderNameAlt : gameData.Value.FolderName;
-                var isoFileName = alternate ? gameData.Value.ISONameAlt : gameData.Value.ISOName;
+                var xbeTitle = upperCase ? gameData.Value.XBETitle : gameData.Value.XBETitle.ToUpper();
+                var folderName = upperCase ? gameData.Value.FolderName : gameData.Value.FolderName.ToUpper();
+                var isoFileName = upperCase ? gameData.Value.ISOName : gameData.Value.ISOName.ToUpper();
+                var scrub = gameData.Value.Scrub != null && gameData.Value.Scrub.Equals("Y", StringComparison.CurrentCultureIgnoreCase);
 
                 processOutput = Path.Combine(outputPath, folderName);
 
@@ -309,8 +334,49 @@ namespace Repackinator.Shared
                 }
                 Directory.CreateDirectory(processOutput);
 
-                File.Move(Path.Combine(unpackPath, @"Repackinator.1.iso"), Path.Combine(processOutput, $"{isoFileName}.1.iso"));
-                File.Move(Path.Combine(unpackPath, @"Repackinator.2.iso"), Path.Combine(processOutput, $"{isoFileName}.2.iso"));
+                if (needsSecondPass)
+                {
+                    if (compress == true)
+                    {
+                        var message = $"Creating Compressed ISO...";
+
+                        Log(LogMessageLevel.Info, message);
+
+                        var repackProgress = new Action<float>((progress) =>
+                        {
+                            CurrentProgress.Progress2 = progress;
+                            CurrentProgress.Progress2Text = message;
+                            SendProgress();
+                        });
+
+                        XisoUtility.CreateXIC(Path.Combine(unpackPath, @"Repackinator.temp"), processOutput, isoFileName, ".xic", scrub, repackProgress, cancellationToken);
+                    }
+                    else
+                    {
+                        var message = $"Creating ISO...";
+
+                        Log(LogMessageLevel.Info, message);
+
+                        var repackProgress = new Action<float>((progress) =>
+                        {
+                            CurrentProgress.Progress2 = progress;
+                            CurrentProgress.Progress2Text = message;
+                            SendProgress();
+                        });
+
+                        XisoUtility.Split(Path.Combine(unpackPath, @"Repackinator.temp"), processOutput, isoFileName, ".iso", scrub, repackProgress, cancellationToken);
+                    }
+
+                    CurrentProgress.Progress2 = 1.0f;
+                    SendProgress();
+
+                    File.Delete(Path.Combine(unpackPath, @"Repackinator.temp"));
+                }
+                else
+                {
+                    File.Move(Path.Combine(unpackPath, @"Repackinator.1.temp"), Path.Combine(processOutput, $"{isoFileName}.1.iso"));
+                    File.Move(Path.Combine(unpackPath, @"Repackinator.2.temp"), Path.Combine(processOutput, $"{isoFileName}.2.iso"));
+                }
 
                 var attach = ResourceLoader.GetEmbeddedResourceBytes("attach.xbe");
                 if (XbeUtility.TryGetXbeImage(xbeData, XbeUtility.ImageType.TitleImage, out var xprImage))
@@ -378,6 +444,242 @@ namespace Repackinator.Shared
             }
         }
 
+        public int ProcessIso(string inputFile, string outputPath, GroupingEnum grouping, bool hasAllCrcs, bool upperCase, bool compress, CancellationToken cancellationToken)
+        {
+            if (GameDataList == null)
+            {
+                Log(LogMessageLevel.Error, "GameData should not be null.");
+                return -1;
+            }
+
+            var processOutput = string.Empty;
+            var deleteProcessOutput = false;
+
+            try
+            {
+                var processStopwatch = new Stopwatch();
+                processStopwatch.Start();
+
+                var xbeData = Array.Empty<byte>();
+                using (var inputStream = new FileStream(inputFile, FileMode.Open))
+                using (var outputStream = new MemoryStream())
+                {
+                    var error = string.Empty;
+                    if (XisoUtility.TryExtractDefaultFromXiso(inputStream, outputStream, ref error))
+                    {
+                        xbeData = outputStream.ToArray();
+                    }
+                    else
+                    {
+                        Log(LogMessageLevel.Error, $"Unable to extract default.xbe due to '{error}'.");
+                        return -1;
+                    }
+                }
+
+                if (!XbeUtility.TryGetXbeCert(xbeData, out var cert) || cert == null)
+                {
+                    Log(LogMessageLevel.Error, $"Unable to get data from default.xbe.");
+                    return -1;
+                }
+
+                var titleId = cert.Value.Title_Id.ToString("X8");
+                var gameRegion = XbeCertificate.GameRegionToString(cert.Value.Game_Region);
+                var version = cert.Value.Version.ToString("X8");
+
+                bool inDatasetISO = false;
+
+                int gameIndex = -1;
+                GameData? gameData = null;
+                for (var i = 0; i < GameDataList.Length; i++)
+                {
+                    GameData game = GameDataList[i];
+                    if (game.TitleID == titleId && game.Region == gameRegion && game.Version == version)
+                    {
+                        inDatasetISO = true;
+                        if (game.Process != null && game.Process.Equals("Y", StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            gameData = game;
+                            gameIndex = i;
+                        }
+                        break;
+                    }
+                }
+
+                if (!gameData.HasValue)
+                {
+                    if (inDatasetISO)
+                    {
+                        Log(LogMessageLevel.Skipped, $"Skipping '{Path.GetFileName(inputFile)}' as requested to skip in dataset based on xbe info.");
+                    }
+                    else
+                    {
+                        Log(LogMessageLevel.NotFound, $"Not found info for '{Path.GetFileName(inputFile)}' as titleid, region and version not found in dataset.");
+                    }
+                    return -1;
+                }
+
+                if (gameData.Value.Region == null)
+                {
+                    Log(LogMessageLevel.Error, "Region is null in dataset.");
+                    return -1;
+                }
+
+                if (gameData.Value.XBETitle == null)
+                {
+                    Log(LogMessageLevel.Error, "XBE title is null in dataset.");
+                    return -1;
+                }
+
+                if (gameData.Value.FolderName == null)
+                {
+                    Log(LogMessageLevel.Error, "Folder name is null in dataset.");
+                    return -1;
+                }
+
+                if (gameData.Value.ISOName == null)
+                {
+                    Log(LogMessageLevel.Error, "ISO name is null in dataset.");
+                    return -1;
+                }
+
+                if (gameData.Value.Letter == null)
+                {
+                    Log(LogMessageLevel.Error, "Letter is null in dataset.");
+                    return -1;
+                }
+
+                if (grouping == GroupingEnum.Region)
+                {
+                    outputPath = Path.Combine(outputPath, gameData.Value.Region);
+                }
+                else if (grouping == GroupingEnum.Letter)
+                {
+                    outputPath = Path.Combine(outputPath, gameData.Value.Letter);
+                }
+                else if (grouping == GroupingEnum.RegionLetter)
+                {
+                    outputPath = Path.Combine(outputPath, gameData.Value.Region, gameData.Value.Letter);
+                }
+                else if (grouping == GroupingEnum.LetterRegion)
+                {
+                    outputPath = Path.Combine(outputPath, gameData.Value.Letter, gameData.Value.Region);
+                }
+
+                var xbeTitle = upperCase ? gameData.Value.XBETitle : gameData.Value.XBETitle.ToUpper();
+                var folderName = upperCase ? gameData.Value.FolderName : gameData.Value.FolderName.ToUpper();
+                var isoFileName = upperCase ? gameData.Value.ISOName : gameData.Value.ISOName.ToUpper();
+                var scrub = gameData.Value.Scrub != null && gameData.Value.Scrub.Equals("Y", StringComparison.CurrentCultureIgnoreCase);
+
+                processOutput = Path.Combine(outputPath, folderName);
+
+                if (Directory.Exists(processOutput))
+                {
+                    Directory.Delete(processOutput, true);
+                }
+                Directory.CreateDirectory(processOutput);
+
+                var attach = ResourceLoader.GetEmbeddedResourceBytes("attach.xbe");
+                if (XbeUtility.TryGetXbeImage(xbeData, XbeUtility.ImageType.TitleImage, out var xprImage))
+                {
+                    if (XprUtility.ConvertXprToJpeg(xprImage, out var jpgImage))
+                    {
+                        if (jpgImage != null)
+                        {
+                            File.WriteAllBytes(Path.Combine(processOutput, "default.tbn"), jpgImage);
+                        }
+                        if (!XbeUtility.TryReplaceXbeTitleImage(attach, jpgImage))
+                        {
+                            deleteProcessOutput = true;
+                            Log(LogMessageLevel.Error, "Failed to replace image.");
+                            return -1;
+                        }
+                    }
+                    else
+                    {
+                        deleteProcessOutput = true;
+                        Log(LogMessageLevel.Error, "Failed to create jpg.");
+                        return -1;
+                    }
+                }
+                else
+                {
+                    Log(LogMessageLevel.Warning, "Failed to extract xpr as probably missing, will use default image.");
+                }
+
+                if (XbeUtility.ReplaceCertInfo(attach, xbeData, xbeTitle, out var patchedAttach) && patchedAttach != null)
+                {
+                    File.WriteAllBytes(Path.Combine(processOutput, "default.xbe"), patchedAttach);
+                }
+                else
+                {
+                    deleteProcessOutput = true;
+                    Log(LogMessageLevel.Error, "failed creating attach xbe.");
+                    return -1;
+                }
+
+                if (compress == true)
+                {
+                    var message = $"Creating Compressed ISO...";
+
+                    Log(LogMessageLevel.Info, message);
+
+                    var repackProgress = new Action<float>((progress) =>
+                    {
+                        CurrentProgress.Progress2 = progress;
+                        CurrentProgress.Progress2Text = message;
+                        SendProgress();
+                    });
+
+                    XisoUtility.CreateXIC(inputFile, processOutput, isoFileName, ".xic", scrub, repackProgress, cancellationToken);
+                }
+                else
+                {
+                    var message = $"Creating ISO...";
+
+                    Log(LogMessageLevel.Info, message);
+
+                    var repackProgress = new Action<float>((progress) =>
+                    {
+                        CurrentProgress.Progress2 = progress;
+                        CurrentProgress.Progress2Text = message;
+                        SendProgress();
+                    });
+
+                    XisoUtility.Split(inputFile, processOutput, isoFileName, ".iso", scrub, repackProgress, cancellationToken);
+                }
+
+                CurrentProgress.Progress2 = 1.0f;
+                SendProgress();
+
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    deleteProcessOutput = true;
+                    return -1;
+                }
+
+                processStopwatch.Stop();
+                Log(LogMessageLevel.Completed, $"Completed Processing '{Path.GetFileName(inputFile)}' (Time Taken {processStopwatch.Elapsed.TotalHours:00}:{processStopwatch.Elapsed.Minutes:00}:{processStopwatch.Elapsed.Seconds:00}).");
+                return gameIndex;
+            }
+            catch (Exception ex)
+            {
+                deleteProcessOutput = true;
+                Log(LogMessageLevel.Error, $"Processing '{inputFile}' caused error '{ex}'.");
+                return -1;
+            }
+            finally
+            {
+                if (deleteProcessOutput && Directory.Exists(processOutput))
+                {
+                    Directory.Delete(processOutput, true);
+                }
+                if (cancellationToken.IsCancellationRequested && Directory.Exists(processOutput))
+                {
+                    Directory.Delete(processOutput, true);
+                }
+            }
+        }
+
         public void StartRepacking(GameData[]? gameData, Config config, Action<ProgressInfo>? progress, Action<LogMessage> logger, Stopwatch stopwatch, CancellationToken cancellationToken)
         {
             try
@@ -429,7 +731,7 @@ namespace Repackinator.Shared
                     CurrentProgress.Progress1Text = $"Processing {i + 1} of {files.Length}";
                     SendProgress();
 
-                    var gameIndex = ProcessFile(file, config.OutputPath, config.Grouping, config.Alternative, crcMissingCount == 0, cancellationToken);
+                    var gameIndex = ProcessFile(file, config.OutputPath, config.Grouping, crcMissingCount == 0, config.UpperCase, config.Compress, cancellationToken);
                     if (gameIndex >= 0)
                     {
                         gameData[gameIndex].Process = "N";

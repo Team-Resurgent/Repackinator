@@ -1,16 +1,20 @@
-﻿namespace Repackinator.Shared
+﻿using System.Threading;
+
+namespace Repackinator.Shared
 {
     public class ProgressStream : Stream
     {
         private Stream m_stream;
         private long m_length;
         private Action<float> m_progress;
+        private CancellationToken m_cancellationToken;
 
-        public ProgressStream(Stream stream, long length, Action<float> progress)
+        public ProgressStream(Stream stream, long length, Action<float> progress, CancellationToken cancellationToken)
         {
             m_stream = stream;
             m_length = length;
             m_progress = progress;
+            m_cancellationToken = cancellationToken;
         }
 
         public override int Read(byte[] buffer, int offset, int count)
@@ -22,6 +26,11 @@
 
         public override void Write(byte[] buffer, int offset, int count)
         {
+            if (m_cancellationToken.IsCancellationRequested)
+            {
+                throw new ExtractAbortException();
+            }
+
             m_stream.Write(buffer, offset, count);
             m_progress(m_stream.Position / (float)m_length);
         }
