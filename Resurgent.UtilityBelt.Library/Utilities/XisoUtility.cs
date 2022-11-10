@@ -584,7 +584,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             System.Diagnostics.Debug.WriteLine("OK");
         }
 
-        public static bool CreateXIC(string inputFile, string outputPath, string name, string extension, bool scrub, Action<float>? progress, CancellationToken cancellationToken)
+        public static bool CreateCCI(string inputFile, string outputPath, string name, string extension, bool scrub, Action<float>? progress, CancellationToken cancellationToken)
         {
             if (progress != null)
             {
@@ -631,7 +631,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 var outputStream = new FileStream(outputFile, FileMode.Create, FileAccess.Write);
                 var outputWriter = new BinaryWriter(outputStream);
 
-                uint header = 0x4D434958;
+                uint header = 0x4D494343;
                 outputWriter.Write(header);
 
                 ulong uncompressedSize = (ulong)0;
