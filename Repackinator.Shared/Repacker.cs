@@ -190,7 +190,7 @@ namespace Repackinator.Shared
                     Log(LogMessageLevel.Error, $"Failed to extract archive - {ex}");
                     return -1;
                 }
-                
+
                 if (cancellationToken.IsCancellationRequested)
                 {
                     return -1;
@@ -260,7 +260,7 @@ namespace Repackinator.Shared
                         break;
                     }
                 }
-                
+
                 if (!gameData.HasValue)
                 {
                     if (inDatasetISO)
@@ -349,7 +349,11 @@ namespace Repackinator.Shared
                             SendProgress();
                         });
 
-                        XisoUtility.CreateXIC(Path.Combine(unpackPath, @"Repackinator.temp"), processOutput, isoFileName, ".xic", scrub, repackProgress, cancellationToken);
+                        if (!XisoUtility.CreateXIC(Path.Combine(unpackPath, @"Repackinator.temp"), processOutput, isoFileName, ".xic", scrub, repackProgress, cancellationToken))
+                        {
+                            Log(LogMessageLevel.Error, $"Unable process file 'Repackinator.temp'.");
+                            return -1;
+                        }
                     }
                     else
                     {
@@ -364,10 +368,11 @@ namespace Repackinator.Shared
                             SendProgress();
                         });
 
-                    if (!XisoUtility.Split(Path.Combine(unpackPath, @"Repackinator.temp"), processOutput, isoFileName, ".iso", scrub, repackProgress, cancellationToken))
-                    {
-                        Log(LogMessageLevel.Error, $"Unable to split '{inputFile}' as not multiple of 2048 bytes.");
-                        return -1;
+                        if (!XisoUtility.Split(Path.Combine(unpackPath, @"Repackinator.temp"), processOutput, isoFileName, ".iso", scrub, repackProgress, cancellationToken))
+                        {
+                            Log(LogMessageLevel.Error, $"Unable process file 'Repackinator.temp'.");
+                            return -1;
+                        }
                     }
 
                     CurrentProgress.Progress2 = 1.0f;
@@ -633,7 +638,11 @@ namespace Repackinator.Shared
                         SendProgress();
                     });
 
-                    XisoUtility.CreateXIC(inputFile, processOutput, isoFileName, ".xic", scrub, repackProgress, cancellationToken);
+                    if (!XisoUtility.CreateXIC(inputFile, processOutput, isoFileName, ".xic", scrub, repackProgress, cancellationToken))
+                    {
+                        Log(LogMessageLevel.Error, $"Unable process file '{inputFile}'.");
+                        return -1;
+                    }
                 }
                 else
                 {
@@ -648,7 +657,11 @@ namespace Repackinator.Shared
                         SendProgress();
                     });
 
-                    XisoUtility.Split(inputFile, processOutput, isoFileName, ".iso", scrub, repackProgress, cancellationToken);
+                    if (!XisoUtility.Split(inputFile, processOutput, isoFileName, ".iso", scrub, repackProgress, cancellationToken))
+                    {
+                        Log(LogMessageLevel.Error, $"Unable process file '{inputFile}'.");
+                        return -1;
+                    }
                 }
 
                 CurrentProgress.Progress2 = 1.0f;
@@ -703,7 +716,7 @@ namespace Repackinator.Shared
                 {
                     if (string.IsNullOrEmpty(gameDataItem.ISOChecksum))
                     {
-                        crcMissingCount++;                        
+                        crcMissingCount++;
                     }
                 }
 
