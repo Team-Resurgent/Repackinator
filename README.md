@@ -1,3 +1,4 @@
+[![.NET](https://github.com/Team-Resurgent/Repackinator/actions/workflows/dotnet.yml/badge.svg)](https://github.com/Team-Resurgent/Repackinator/actions/workflows/dotnet.yml)
 
                               # Team Resurgent   
                                                                              
