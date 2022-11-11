@@ -23,6 +23,8 @@ namespace Repackinator.Shared
 
         public bool Compress { get; set; }
 
+        public int SearchField { get; set; }
+
         public Config()
         {
             InputPath = string.Empty;
@@ -30,6 +32,7 @@ namespace Repackinator.Shared
             Grouping = GroupingEnum.None;
             UpperCase = false;
             Compress = false;
+            SearchField = 0;
         }
 
         public static Config LoadConfig(string path)
