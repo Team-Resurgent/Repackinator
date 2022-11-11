@@ -2,6 +2,7 @@
 using Repackinator.Shared;
 using System;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Text;
 using Veldrid;
 using Veldrid.Sdl2;
@@ -34,6 +35,10 @@ namespace RepackinatorUI
         private int m_scrubField;
         private bool m_showInvalid;
         private string m_version;
+        private bool m_splitterDragBegin;
+        private int m_splitterOffset = 0;
+        private int m_splitterMouseY;
+        private int m_splitterDragOffset = 0;
 
         public Application(string version)
         {
@@ -427,7 +432,7 @@ namespace RepackinatorUI
             const int MyItemColumnID_IsoChecksum = 11;
 
             ImGuiTableFlags flags = ImGuiTableFlags.Resizable | ImGuiTableFlags.Borders | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable | ImGuiTableFlags.Sortable | ImGuiTableFlags.ScrollX | ImGuiTableFlags.ScrollY | ImGuiTableFlags.RowBg;
-            if (ImGui.BeginTable("table_sorting", 12, flags, new Vector2(0.0f, m_window.Height - 262), 0.0f))
+            if (ImGui.BeginTable("table_sorting", 12, flags, new Vector2(0.0f, m_window.Height - (340 + m_splitterOffset)), 0.0f))
             {
                 ImGui.TableSetupColumn("Process", ImGuiTableColumnFlags.WidthFixed, 75.0f, MyItemColumnID_Process);
                 ImGui.TableSetupColumn("Scrub", ImGuiTableColumnFlags.WidthFixed, 75.0f, MyItemColumnID_Scrub);
@@ -680,9 +685,36 @@ namespace RepackinatorUI
 
             ImGui.Spacing();
 
+            ImGui.Separator();
+            ImGui.Selectable("", m_splitterDragBegin, ImGuiSelectableFlags.None, new Vector2(m_window.Width - 18, 6));
+            if (ImGui.IsMouseDown(ImGuiMouseButton.Left))
+            {
+                if (ImGui.IsItemHovered())
+                {
+                    if (m_splitterDragBegin == false)
+                    {
+                        m_splitterDragBegin = true;
+                        m_splitterDragOffset = m_splitterOffset;
+                        m_splitterMouseY = (int)ImGui.GetMousePos().Y;
+                    }
+                }
+                if (m_splitterDragBegin)
+                {
+                    var mouseDiffY = m_splitterMouseY - (int)ImGui.GetMousePos().Y;
+                    m_splitterOffset = Math.Max(Math.Min(m_splitterDragOffset + mouseDiffY, 0), -130);
+                }
+            }
+            else if (m_splitterDragBegin == true)
+            {
+                m_splitterDragBegin = false;
+            }
+            ImGui.Separator();
+
+            ImGui.Spacing();
+  
             ImGui.Text("Config:");
 
-            ImGui.BeginChild(3, new Vector2(m_window.Width - 16, 100), true, ImGuiWindowFlags.AlwaysUseWindowPadding);
+            ImGui.BeginChild(3, new Vector2(m_window.Width - 16, 162 + m_splitterOffset), true, ImGuiWindowFlags.AlwaysUseWindowPadding);
 
             string[] groupingItems = new string[] { "Default", "Region", "Letter", "Region Letter", "Letter Region" };
 
