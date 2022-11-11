@@ -580,8 +580,6 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 progress(0);
             }
 
-            var indexInfos = new List<IndexInfo>();
-
             using var inputStream = new FileStream(inputFile, FileMode.Open, FileAccess.Read);
             using var inputReader = new BinaryReader(inputStream);
 
@@ -616,6 +614,8 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
             while (sectorsWritten < fileSectors - skipSectors)
             {
+                var indexInfos = new List<IndexInfo>();
+
                 var outputFile = Path.Combine(outputPath, iteration > 0 ? $"{name}.{iteration + 1}{extension}" : $"{name}{extension}");
                 var outputStream = new FileStream(outputFile, FileMode.Create, FileAccess.Write);
                 var outputWriter = new BinaryWriter(outputStream);
@@ -623,11 +623,11 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 uint header = 0x4D494343U;
                 outputWriter.Write(header);
 
-                ulong uncompressedSize = (ulong)0;
-                outputWriter.Write(uncompressedSize);
-
                 uint headerSize = 32;
                 outputWriter.Write(headerSize);
+
+                ulong uncompressedSize = (ulong)0;
+                outputWriter.Write(uncompressedSize);
 
                 ulong indexOffset = (ulong)0;
                 outputWriter.Write(indexOffset);
@@ -643,8 +643,6 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
                 ushort unused = 0;
                 outputWriter.Write(unused);
-
-                headerSize = (uint)outputStream.Position;
 
                 var splitting = false;
                 var sectorCount = 0U;
@@ -667,15 +665,17 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                     }
 
                     var compressedSize = K4os.Compression.LZ4.LZ4Codec.Encode(sectorToWrite, compressedData, K4os.Compression.LZ4.LZ4Level.L12_MAX);
-                    if (compressedSize > 0 && compressedSize < (2048 - (1 << indexAlignment)))
+                    if (compressedSize > 0 && compressedSize < (2048 - (4 + (1 << indexAlignment))))
                     {
-                        outputWriter.Write(compressedData, 0, compressedSize);
-                        var padding = compressedSize % (1 << indexAlignment);
+                        var multiple = (1 << indexAlignment);
+                        var padding = ((compressedSize + 1 + multiple - 1) / multiple * multiple) - (compressedSize + 1);
+                        outputWriter.Write((byte)(padding + 1));
+                        outputWriter.Write(compressedData, 0, compressedSize);          
                         if (padding != 0)
                         {
                             outputWriter.Write(new byte[padding]);
                         }
-                        indexInfos.Add(new IndexInfo { Value = (ushort)(compressedSize + padding), Compressed = true });
+                        indexInfos.Add(new IndexInfo { Value = (ushort)(compressedSize + 1 + padding), Compressed = true });
                     }
                     else
                     {
@@ -725,7 +725,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 var indexEnd = (uint)(position >> indexAlignment);
                 outputWriter.Write(indexEnd);
 
-                outputStream.Position = 4;
+                outputStream.Position = 8;
                 outputWriter.Write(uncompressedSize);
                 outputWriter.Write(indexOffset);
 
@@ -754,13 +754,13 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 return false;
             }
 
-            ulong uncompressedSize = inputReader.ReadUInt64();
-
-            uint headerSize = inputReader.ReadUInt32(); 
+            uint headerSize = inputReader.ReadUInt32();
             if (headerSize != 32)
             {
                 return false;
             }
+
+            ulong uncompressedSize = inputReader.ReadUInt64();
 
             ulong indexOffset = inputReader.ReadUInt64();
 
@@ -781,8 +781,6 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             {
                 return false;
             }
-
-            ushort padding = inputReader.ReadUInt16();
 
             using var outputStream = new FileStream(outputFile, FileMode.Create, FileAccess.Write);
             using var outputWriter = new BinaryWriter(outputStream);
@@ -806,12 +804,13 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             for (var i = 0; i < entries; i++)
             {
                 inputStream.Position = (long)indexInfos[i].Value;
-                
+
                 var size = (int)(indexInfos[i + 1].Value - indexInfos[i].Value);
                 if (size < 2048 || indexInfos[i].Compressed)
-                {
+                { 
+                    var padding = inputReader.ReadByte();
                     var buffer = inputReader.ReadBytes(size);
-                    var compressedSize = K4os.Compression.LZ4.LZ4Codec.Decode(buffer, decodeBuffer);
+                    var compressedSize = K4os.Compression.LZ4.LZ4Codec.Decode(buffer, 0, size - padding, decodeBuffer, 0, 2048);
                     if (compressedSize < 0)
                     {
                         return false;

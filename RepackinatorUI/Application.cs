@@ -29,11 +29,9 @@ namespace RepackinatorUI
         private AttachUpdateDialog? m_attachUpdateDialog;
         private Config m_config = new Config();
 
-        private int m_searchField;
         private string? m_searchText;
         private int m_processField;
         private int m_scrubField;
-        private int m_styleField;
         private bool m_showInvalid;
         private string m_version;
 
@@ -51,47 +49,47 @@ namespace RepackinatorUI
 
             GameData gameData = m_gameDataList[index];
 
-            if (m_searchField == 0 && gameData.Process != null)
+            if (m_config.SearchField == 0 && gameData.Process != null)
             {
                 return !gameData.Process.Contains(m_searchText, StringComparison.CurrentCultureIgnoreCase);
             }
-            else if (m_searchField == 1 && gameData.Scrub != null)
+            else if (m_config.SearchField == 1 && gameData.Scrub != null)
             {
                 return !gameData.Scrub.Contains(m_searchText, StringComparison.CurrentCultureIgnoreCase);
             }
-            else if (m_searchField == 2 && gameData.TitleID != null)
+            else if (m_config.SearchField == 2 && gameData.TitleID != null)
             {
                 return !gameData.TitleID.Contains(m_searchText, StringComparison.CurrentCultureIgnoreCase);
             }
-            else if (m_searchField == 3 && gameData.Region != null)
+            else if (m_config.SearchField == 3 && gameData.Region != null)
             {
                 return !gameData.Region.Contains(m_searchText, StringComparison.CurrentCultureIgnoreCase);
             }
-            else if (m_searchField == 4 && gameData.Version != null)
+            else if (m_config.SearchField == 4 && gameData.Version != null)
             {
                 return !gameData.Version.Contains(m_searchText, StringComparison.CurrentCultureIgnoreCase);
             }
-            else if (m_searchField == 5 && gameData.TitleName != null)
+            else if (m_config.SearchField == 5 && gameData.TitleName != null)
             {
                 return !gameData.TitleName.Contains(m_searchText, StringComparison.CurrentCultureIgnoreCase);
             }
-            else if (m_searchField == 6 && gameData.Letter != null)
+            else if (m_config.SearchField == 6 && gameData.Letter != null)
             {
                 return !gameData.Letter.Contains(m_searchText, StringComparison.CurrentCultureIgnoreCase);
             }
-            else if (m_searchField == 7 && gameData.XBETitle != null)
+            else if (m_config.SearchField == 7 && gameData.XBETitle != null)
             {
                 return !gameData.XBETitle.Contains(m_searchText, StringComparison.CurrentCultureIgnoreCase);
             }
-            else if (m_searchField == 8 && gameData.FolderName != null)
+            else if (m_config.SearchField == 8 && gameData.FolderName != null)
             {
                 return !gameData.FolderName.Contains(m_searchText, StringComparison.CurrentCultureIgnoreCase);
             }
-            else if (m_searchField == 9 && gameData.ISOName != null)
+            else if (m_config.SearchField == 9 && gameData.ISOName != null)
             {
                 return !gameData.ISOName.Contains(m_searchText, StringComparison.CurrentCultureIgnoreCase);
             }
-            else if (m_searchField == 10 && gameData.ISOChecksum != null)
+            else if (m_config.SearchField == 10 && gameData.ISOChecksum != null)
             {
                 return !gameData.ISOChecksum.Contains(m_searchText, StringComparison.CurrentCultureIgnoreCase);
             }
@@ -393,9 +391,12 @@ namespace RepackinatorUI
 
             ImGui.Text("Search:");
             ImGui.PushItemWidth(200);
-            if (ImGui.Combo("##searchField", ref m_searchField, searchItems, searchItems.Length))
+            var searchField = m_config.SearchField;
+            if (ImGui.Combo("##searchField", ref searchField, searchItems, searchItems.Length))
             {
                 m_searchText = string.Empty;
+                m_config.SearchField = searchField;
+                Config.SaveConfig(m_config);
             }
             ImGui.PopItemWidth();
             ImGui.SameLine();
