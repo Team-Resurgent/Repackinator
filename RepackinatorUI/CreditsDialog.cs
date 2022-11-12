@@ -20,7 +20,7 @@ namespace RepackinatorUI
 
         public string Title { get; set; } = string.Empty;
 
-        public string Message { get; set; } = "Repackinator brought to you by Team Resurgent and in collaboration with Team Cerbios, what application wouldnt be complete without some retro style credits... Repackinator is Open Source on our GitHub and is open to the Community to contribute to and help evelove the application into something amazing... Music is a remix of the C64 classic Comic Bakery by Stuart Wilson... Coding by EqUiNoX... Application Design by EqUiNoX, HoRnEyDvL, Hazeno... Testing by HoRnEyDvL, Hazeno, Rocky5... Shout outs go to Grizzly Adams, Kekule... Keep your eye out for more future applications from Team Resurgent... Til then, enjoy, and we will see on our discord.................................................................................. ";
+        public string Message { get; set; } = "Repackinator brought to you by Team Resurgent and in collaboration with Team Cerbios, what application wouldnt be complete without some retro style credits... Repackinator is Open Source on our GitHub and is open to the Community to contribute to and help evelove the application into something amazing... Music is a remix of the C64 classic Comic Bakery by Stuart Wilson... Coding by EqUiNoX... Application Design by EqUiNoX, HoRnEyDvL, Hazeno... Testing by HoRnEyDvL, Hazeno, Rocky5... Shout outs in no particular order go to Grizzly Adams, Kekule, Blackbolt, Ryzee119, Xbox7887, Incursion64, Redline99, Empreal96, Fredr1kh, Braxton... Keep your eye out for more future applications from Team Resurgent... Til then, enjoy, and we will see on our discord.................................................................................. ";
         private float charOffset = 0;
         private float scrollPos = 0;
         private float sin = 0;
@@ -92,7 +92,7 @@ namespace RepackinatorUI
         {
             Bass.Init();
             var musicData = ResourceLoader.GetEmbeddedResourceBytes("Stuart Wilson - Not Another Comic Bakery Remix.mp3", typeof(CreditsDialog).GetTypeInfo().Assembly);
-            m_playBackHandle = Bass.CreateStream(musicData, 0, musicData.Length, BassFlags.Default);
+            m_playBackHandle = Bass.CreateStream(musicData, 0, musicData.Length, BassFlags.Default | BassFlags.Loop);
             Bass.ChannelPlay(m_playBackHandle);
 
             m_signalProvider = new SignalProvider(DataFlags.FFT1024, true, true) { WindowType = WindowType.Hanning, };
