@@ -5,77 +5,23 @@ using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Resurgent.UtilityBelt.Library.Utilities
-{
-    public struct IndexInfo
-    {
-        public ulong Value { get; set; }
-
-        public bool Compressed { get; set; }
-    }
-     
-    public static class RepackinatorImports
-    {
-        [DllImport("RepackinatorLz4.dll", CallingConvention = CallingConvention.StdCall)]
-        private static extern IntPtr CreateCabinetProcessor();
-
-        [DllImport("RepackinatorLz4.dll", CallingConvention = CallingConvention.StdCall)]
-        private static extern int DisposeCabinetProcessor(IntPtr cabinetProcessor);
-
-        [DllImport("RepackinatorLz4.dll", CallingConvention = CallingConvention.StdCall)]
-        private static extern int PackSector(IntPtr cabinetProcessor, IntPtr inputBuffer, int inputBufferSize, IntPtr outputBuffer, int outputBufferSize, out int compressedSize, out int result);
-
-        [DllImport("RepackinatorLz4.dll", CallingConvention = CallingConvention.StdCall)]
-        private static extern int UnpackSector(IntPtr cabinetProcessor, IntPtr inputBuffer, int inputBufferSize, IntPtr outputBuffer, int outputBufferSize, out int uncompressedSize, out int result);
-
-        public static bool PackSector(byte[] inputBuffer, byte[] outputBuffer, out int compressedSize)
-        {
-            var HadesCabinetHandle = CreateCabinetProcessor();
-
-            var inputPinnedArray = GCHandle.Alloc(inputBuffer, GCHandleType.Pinned);
-            var inputPtr = inputPinnedArray.AddrOfPinnedObject();
-            var outputPinnedArray = GCHandle.Alloc(outputBuffer, GCHandleType.Pinned);
-            var outputPtr = outputPinnedArray.AddrOfPinnedObject();
-            PackSector(HadesCabinetHandle, inputPtr, inputBuffer.Length, outputPtr, outputBuffer.Length, out compressedSize, out var result);
-            inputPinnedArray.Free();
-            outputPinnedArray.Free();
-
-            DisposeCabinetProcessor(HadesCabinetHandle);
-
-            return result == 1;
-        }
-
-        public static bool UnpackSector(byte[] inputBuffer, byte[] outputBuffer, out int uncompressedSize)
-        {
-            var HadesCabinetHandle = CreateCabinetProcessor();
-
-            var inputPinnedArray = GCHandle.Alloc(inputBuffer, GCHandleType.Pinned);
-            var inputPtr = inputPinnedArray.AddrOfPinnedObject();
-            var outputPinnedArray = GCHandle.Alloc(outputBuffer, GCHandleType.Pinned);
-            var outputPtr = outputPinnedArray.AddrOfPinnedObject();
-            UnpackSector(HadesCabinetHandle, inputPtr, inputBuffer.Length, outputPtr, outputBuffer.Length, out uncompressedSize, out var result);
-            inputPinnedArray.Free();
-            outputPinnedArray.Free();
-
-            DisposeCabinetProcessor(HadesCabinetHandle);
-
-            return result == 1;
-        }
-    }
-
+{    
     public static class XisoUtility
     {
-        private class CsoIndexInfo
+        private struct IndexInfo
         {
-            public uint Size { get; set; }
+            public ulong Value { get; set; }
+
             public bool Compressed { get; set; }
         }
 
-        private class CsoIndexInfosPart
+        private struct TreeNodeInfo
         {
-            public List<CsoIndexInfo> CsoIndexInfos { get; } = new List<CsoIndexInfo>();
-
-            public ulong UncompressedSize { get; set; }
-        }
+            public uint DirectorySize { get; set; }
+            public long DirectoryOffset { get; set; }
+            public uint Offset { get; set; }
+            public long StartOffset { get; set; }
+        };
 
         private static bool PatternMatch(byte[] buffer, int offset, byte[] compare)
         {
@@ -99,14 +45,6 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             }
             return result;
         }
-
-        private struct TreeNodeInfo
-        {
-            public uint DirectorySize { get; set; }
-            public long DirectoryOffset { get; set; }
-            public uint Offset { get; set; }
-            public long StartOffset { get; set; }
-        };
 
         public static HashSet<uint> GetDataSectorsFropmXiso(Stream inputStream)
         {
@@ -213,6 +151,56 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
             return dataSectors;
         }
+
+        private static HashSet<uint> GetSecuritySectorsFromXiso(Stream inputStream, HashSet<uint> datasecs)
+        {
+            var securitySectors = new HashSet<uint>();
+            var flag = false;
+            var start = 0U;
+            var sectorCount = 0x30600U;
+
+            using var binaryReader = new BinaryReader(inputStream, Encoding.Default, true);
+
+            inputStream.Position = sectorCount * 2048;
+
+            while (sectorCount <= 0x376160)
+            {
+                byte[] sectorBuffer = binaryReader.ReadBytes(2048);
+
+                var isEmptySector = true;
+                for (var i = 0; i < sectorBuffer.Length; i++)
+                {
+                    if (sectorBuffer[i] != 0)
+                    {
+                        isEmptySector = false;
+                        break;
+                    }
+                }
+
+                var isdatasector = datasecs.Contains(sectorCount);
+                if (isEmptySector == true && flag == false && !isdatasector)
+                {
+                    start = sectorCount;
+                    flag = true;
+                }
+                else if (isEmptySector == false)
+                {
+                    var end = sectorCount - 1;
+                    flag = false;
+                    if (end - start == 0xFFF)
+                    {
+                        for (var i = start; i <= end; i++)
+                        {
+                            securitySectors.Add(i);
+                        }
+                    }
+                }
+                sectorCount++;
+            }
+
+            return securitySectors;
+        }
+
 
         public static bool TryExtractDefaultFromXiso(Stream inputStream, Stream outputStream, ref string error)
         {
@@ -436,6 +424,11 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             if (scrub)
             {
                 dataSectors = GetDataSectorsFropmXiso(fileStream);
+                var securitySectors = GetSecuritySectorsFromXiso(fileStream, dataSectors);
+                for (var i = 0; i < securitySectors.Count; i++)
+                {
+                    dataSectors.Add(securitySectors.ElementAt(i));
+                }
             }
 
             fileStream.Seek(0, SeekOrigin.End);
@@ -530,49 +523,6 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             return true;
         }
 
-        //https://github.com/laffer1/ciso-maker
-
-        public static void CompareCompression()
-        {
-            var buffer = new byte[2048];
-            for (var i = 0; i < 2048; i++)
-            {
-                buffer[i] = (byte)(i % 15);
-            }
-
-            var compressedBuffer1 = new byte[2048];
-            var result1 = RepackinatorImports.PackSector(buffer, compressedBuffer1, out var compressedSize1);
-            if (result1 == false) 
-            {
-                System.Diagnostics.Debug.WriteLine("Fail");
-                return;
-            }
-
-
-            var compressedBuffer2 = new byte[2048];
-            var compressedSize2 = K4os.Compression.LZ4.LZ4Codec.Encode(buffer, compressedBuffer2, K4os.Compression.LZ4.LZ4Level.L12_MAX);
-
-
-
-            if (compressedSize1 != compressedSize2)
-            {
-                System.Diagnostics.Debug.WriteLine("Fail");
-                return;
-            }
-
-            for (var i = 0; i < 2048; i++)
-            {
-                if (compressedBuffer1[i] != compressedBuffer2[i])
-                {
-
-                    System.Diagnostics.Debug.WriteLine("Fail");
-                    return;
-                }
-            }
-
-            System.Diagnostics.Debug.WriteLine("OK");
-        }
-
         public static bool CreateCCI(string inputFile, string outputPath, string name, string extension, bool scrub, Action<float>? progress, CancellationToken cancellationToken)
         {
             if (progress != null)
@@ -587,6 +537,11 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             if (scrub)
             {
                 dataSectors = GetDataSectorsFropmXiso(inputStream);
+                var securitySectors = GetSecuritySectorsFromXiso(inputStream, dataSectors);
+                for (var i = 0; i < securitySectors.Count; i++)
+                {
+                    dataSectors.Add(securitySectors.ElementAt(i));
+                }
             }
 
             inputStream.Seek(0, SeekOrigin.End);

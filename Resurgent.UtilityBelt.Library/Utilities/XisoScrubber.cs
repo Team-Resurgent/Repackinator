@@ -1,4 +1,7 @@
-﻿namespace Resurgent.UtilityBelt.Library.Utilities
+﻿using System.Collections.Generic;
+using System.Security.Cryptography;
+
+namespace Resurgent.UtilityBelt.Library.Utilities
 {
     public class XisoScrubber
     {
@@ -37,6 +40,8 @@
                 }
             }
         }
+
+  
 
         public static HashSet<uint> GetDataSectors(BinaryReader binaryReader)
         {
