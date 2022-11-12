@@ -410,6 +410,62 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             return false;
         }
 
+        //https://github.com/Qubits01/xbox_shrinker
+
+        public static bool CompareXISO(string input1, string input2)
+        {
+            using var fileStream1 = new FileStream(input1, FileMode.Open, FileAccess.Read);
+            using var binaryReader1 = new BinaryReader(fileStream1);
+
+            using var fileStream2 = new FileStream(input2, FileMode.Open, FileAccess.Read);
+            using var binaryReader2 = new BinaryReader(fileStream2);
+
+            fileStream1.Seek(0, SeekOrigin.End);
+            var fileLength1 = fileStream1.Position;
+            fileStream1.Seek(0, SeekOrigin.Begin);
+
+            fileStream2.Seek(0, SeekOrigin.End);
+            var fileLength2 = fileStream2.Position;
+            fileStream2.Seek(0, SeekOrigin.Begin);
+
+            if (fileLength1 != fileLength2)
+            {
+                return false;
+            }
+
+            if (fileLength1 % 2048 != 0)
+            {
+                return false;
+            }
+
+            var sector = 0;
+            while (fileStream1.Position < fileLength1)
+            {
+                var buffer1 = binaryReader1.ReadBytes(2048);
+                var buffer2 = binaryReader2.ReadBytes(2048);
+
+                var same = true;
+                for (var i = 0; i < 2048; i++)
+                {
+                    if (buffer1[i] != buffer2[i])
+                    {
+                        same = false;
+                        break;
+                    }
+                }
+
+                if (!same)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Sector {sector} is different.");
+                    //return false;
+                }
+
+                sector++;
+            }
+
+            return true;
+        }
+
         public static bool Split(string input, string outputPath, string name, string extension, bool scrub, Action<float>? progress, CancellationToken cancellationToken)
         {
             if (progress != null)
@@ -461,7 +517,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 var writeSector = true;
                 if (scrub)
                 {
-                    writeSector = dataSectors.Contains(i - skipSectors);                    
+                    writeSector = dataSectors.Contains(i + skipSectors);                    
                 }
                 if (writeSector == true)
                 {
@@ -495,7 +551,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 var writeSector = true;
                 if (scrub)
                 {
-                    writeSector = dataSectors.Contains(i - skipSectors);
+                    writeSector = dataSectors.Contains(i + skipSectors);
                 }
                 if (writeSector == true)
                 {
@@ -781,206 +837,6 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
             return true;
         }
-
-        //public static bool SplitCSO(string input, string outputPath, string isoname, Action<float>? progress, CancellationToken cancellationToken)
-        //{
-        //    const long maxFileSize = (4 * 1024L * 1024L * 1024L) - 4096L; // 4096 is to allow for XBMC bug
-
-        //    using var inputStream = new FileStream(input, FileMode.Open, FileAccess.Read);
-        //    using var inputReader = new BinaryReader(inputStream);
-
-        //    var header = inputReader.ReadInt32();
-        //    if (header != 0x4F534943)
-        //    {
-        //        return false;
-        //    }
-
-        //    var headerSize = inputReader.ReadInt32();
-        //    if (headerSize != 24)
-        //    {
-        //        return false;
-        //    }
-
-        //    var uncompressedSize = inputReader.ReadUInt64();
-
-        //    var blockSize = inputReader.ReadInt32();
-        //    if (blockSize != 2048)
-        //    {
-        //        return false;
-        //    }
-
-        //    var version = inputReader.ReadByte();
-        //    if (version != 1)
-        //    {
-        //        return false;
-        //    }
-
-        //    var indexAlignment = inputReader.ReadByte();
-        //    if (indexAlignment != 2)
-        //    {
-        //        return false;
-        //    }
-            
-        //    var unused = inputReader.ReadUInt16();
-
-        //    var entries = (int)(uncompressedSize / (ulong)blockSize) + 1;
-        //    var indexTableSize = 4 * entries;
-
-        //    var indexTableOffset = (long)headerSize;
-
-        //    var totalSize = 0L;
-        //    var headerIndexSize = (long)headerSize;
-        //    var csoIndexInfosParts = new List<CsoIndexInfosPart>
-        //    {
-        //        new CsoIndexInfosPart()
-        //    };
-
-        //    // Calculate best place to split and cache index info
-
-        //    var currentPart = 0;
-        //    for (var i = 0; i < entries - 1; i++)
-        //    {
-        //        inputStream.Position = indexTableOffset + (i * 4);
-
-        //        var index1 = inputReader.ReadUInt32();
-        //        var position1 = (index1 & 0x7FFFFFFF) << indexAlignment;
-        //        var compressed = (index1 & 0x80000000) >> 31;
-        //        var index2 = inputReader.ReadUInt32();
-        //        var position2 = (index2 & 0x7FFFFFFF) << indexAlignment;
- 
-        //        var size = position2 - position1;
-
-        //        if (totalSize + headerIndexSize <= maxFileSize && totalSize + headerIndexSize + 4 + size > maxFileSize)
-        //        {
-        //            currentPart++;
-        //            csoIndexInfosParts.Add(new CsoIndexInfosPart());
-        //        }
-
-        //        var csoIndexInfo = new CsoIndexInfo
-        //        {
-        //            Size = size,
-        //            Compressed = compressed == 1
-        //        };
-        //        csoIndexInfosParts[currentPart].CsoIndexInfos.Add(csoIndexInfo);
-        //        csoIndexInfosParts[currentPart].UncompressedSize += (ulong)blockSize;
-
-        //        headerIndexSize += 4;
-        //        totalSize += size;
-        //    }
-
-        //    for (var i = 0; i < csoIndexInfosParts.Count; i++)
-        //    {
-        //        var filename = Path.Combine(outputPath, csoIndexInfosParts.Count == 1 ? $"{isoname}.cso" : $"{isoname}.{i + 1}.cso");
-        //        using var outputStream = new FileStream(filename, FileMode.Create, FileAccess.Write);
-        //        using var outputWriter = new BinaryWriter(outputStream);
-
-        //        var currentCsoIndexInfosPart = csoIndexInfosParts[i];
-
-        //        outputWriter.Write(header);
-        //        outputWriter.Write(headerSize);
-        //        outputWriter.Write(currentCsoIndexInfosPart.UncompressedSize);
-        //        outputWriter.Write(blockSize);
-        //        outputWriter.Write(version);
-        //        outputWriter.Write(indexAlignment);
-        //        outputWriter.Write(unused);
-
-        //        var startPosition = (long)headerSize + ((currentCsoIndexInfosPart.CsoIndexInfos.Count + 1) * 4);
-        //        var position = startPosition;
-        //        for (var j = 0; j < currentCsoIndexInfosPart.CsoIndexInfos.Count; j++)
-        //        {
-        //            var currentCsoIndexInfo = currentCsoIndexInfosPart.CsoIndexInfos[j];
-        //            var index = (position >> indexAlignment) | (currentCsoIndexInfo.Compressed ? 0x80000000 : 0);
-        //            outputWriter.Write((int)index);
-        //            position += currentCsoIndexInfo.Size;
-        //        }
-        //        outputWriter.Write((int)(position >> indexAlignment));
-
-        //        inputStream.Position = startPosition;
-        //        for (var j = 0; j < currentCsoIndexInfosPart.CsoIndexInfos.Count; j++)
-        //        {
-        //            var currentCsoIndexInfo = currentCsoIndexInfosPart.CsoIndexInfos[j];
-        //            var buffer = inputReader.ReadBytes((int)currentCsoIndexInfo.Size);
-        //            outputWriter.Write(buffer);
-
-        //            if (buffer.Length != 2048)
-        //            {
-        //                var output = new byte[2048];
-
-        //                //https://create.stephan-brumme.com/smallz4/#git1
-        //            }
-        //            //if (buffer.Length != 2048)
-        //            //{
-        //            //    Joveler.Compression.ZLib.ZLibInit.GlobalInit(@"C:\Users\equin\.nuget\packages\joveler.compression.zlib\4.1.0\runtimes\win-x64\native\zlibwapi.dll");
-        //            //    ZLibDecompressOptions decompOpts = new ZLibDecompressOptions();
-        //            //    decompOpts.WindowBits = ZLibWindowBits.Bits15;
-
-        //            //    using (MemoryStream decompMs = new MemoryStream())
-        //            //    using (MemoryStream compFs = new MemoryStream(buffer))
-        //            //    {
-        //            //        using (var zs = new Joveler.Compression.ZLib.ZLibStream(compFs, decompOpts))
-        //            //        {
-
-        //            //            if (true)
-        //            //            {
-        //            //                byte[] buffer2 = new byte[64 * 1024];
-        //            //                int bytesRead;
-        //            //                do
-        //            //                {
-        //            //                    bytesRead = zs.Read(buffer2.AsSpan());
-        //            //                    decompMs.Write(buffer2.AsSpan(0, bytesRead));
-        //            //                } while (0 < bytesRead);
-        //            //            }
-        //            //            else
-        //            //            {
-        //            //                zs.CopyTo(decompMs);
-        //            //            }
-        //            //        }
-
-        //            //    }
-
-        //            //        //InflateInit2
-        //            //        var outputStream2 = new MemoryStream();
-        //            //        var inf = new Inflater(true);
-        //            //        using (var compressedStream = new MemoryStream(buffer))
-        //            //        using (var inputStream2 = new InflaterInputStream(compressedStream, inf))
-        //            //        {
-        //            //            inputStream.CopyTo(outputStream);
-
-
-        //            //        }
-        //            //        var a = outputStream2.ToArray();
-
-
-        //            //        byte[] inflated = new byte[4096];
-
-
-
-        //            //        //using ZngInflater inflater = new();
-        //            //        //var q = inflater.Inflate(buffer, inflated);
-
-
-        //            //        var buffout = new byte[4096];
-
-        //            //        //var res = z.inflateInit(-15);
-
-        //            //        //z.next_in = buffer;
-        //            //        //z.avail_in = buffer.Length;
-        //            //        //z.next_out = buffout;
-        //            //        //z.avail_out = buffout.Length;
-
-        //            //        //var x = z.inflate(zlibConst.Z_FULL_FLUSH);
-
-
-
-        //            //        var xx = 1;
-        //            //    }
-        //        }
-
-                
-        //    }
-
-        //    return true;
-        //}
     }
 }
 
