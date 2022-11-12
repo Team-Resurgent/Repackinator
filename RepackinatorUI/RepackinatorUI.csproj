@@ -48,12 +48,15 @@
 		</Content>
 		<Content Include="bass.dll" Condition="'$(RuntimeIdentifier)' == 'win-x64'">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 		</Content>
 		<Content Include="libbass.dylib" Condition="'$(RuntimeIdentifier)' == 'linux-x64'">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 		</Content>
 		<Content Include="libbass.so" Condition="'$(RuntimeIdentifier)' == 'osx-x64'">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 		</Content>
 	</ItemGroup>
 
