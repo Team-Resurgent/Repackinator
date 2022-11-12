@@ -177,8 +177,8 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                     }
                 }
 
-                var isdatasector = datasecs.Contains(sectorCount);
-                if (isEmptySector == true && flag == false && !isdatasector)
+                var isDataSector = datasecs.Contains(sectorCount);
+                if (isEmptySector == true && flag == false && !isDataSector)
                 {
                     start = sectorCount;
                     flag = true;
