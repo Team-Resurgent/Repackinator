@@ -1,10 +1,10 @@
 ﻿using ImGuiNET;
+using ManagedBass.FftSignalProvider;
+using ManagedBass;
 using Repackinator.Shared;
-using SharpMik;
-using SharpMik.Drivers;
-using SharpMik.Player;
 using System.Numerics;
 using System.Reflection;
+using System;
 
 namespace RepackinatorUI
 {
@@ -13,67 +13,30 @@ namespace RepackinatorUI
         private bool _showModal;
         private bool _open;
 
-        MikModule? _module;
-        MikMod _player;
         ImFontPtr _font;
+
+        private int m_playBackHandle;
+        private SignalProvider? m_signalProvider;
 
         public string Title { get; set; } = string.Empty;
 
-        public string Message { get; set; } = "Repackinator brought to you by Team Resurgent and in collaboration with Team Cerbios, what application wouldnt be complete without some retro style credits... Repackinator is Open Source on our GitHub and is open to the Community to contribute to and help evelove the application into something amazing... Music is from the awesome Amiga's S3M Tracker... Coding by EqUiNoX... Application Design by EqUiNoX, HoRnEyDvL, Hazeno... Testing by HoRnEyDvL, Hazeno, Rocky5... Shout outs go to Grizzly Adams, Kekule... Keep your eye out for more future applications from Team Resurgent... Til then, enjoy, and we will see on our discord.................................................................................. ";
+        public string Message { get; set; } = "Repackinator brought to you by Team Resurgent and in collaboration with Team Cerbios, what application wouldnt be complete without some retro style credits... Repackinator is Open Source on our GitHub and is open to the Community to contribute to and help evelove the application into something amazing... Music is a remix of the C64 classic Comic Bakery by Stuart Wilson... Coding by EqUiNoX... Application Design by EqUiNoX, HoRnEyDvL, Hazeno... Testing by HoRnEyDvL, Hazeno, Rocky5... Shout outs go to Grizzly Adams, Kekule... Keep your eye out for more future applications from Team Resurgent... Til then, enjoy, and we will see on our discord.................................................................................. ";
         private float charOffset = 0;
         private float scrollPos = 0;
         private float sin = 0;
-        private float[] chan_amplitudes = new float[64];
         private Vector2[] stars = new Vector2[100];
         private float[] starsSpeeds = new float[100];
-
-        void PlayerStateChangeEvent(ModPlayer.PlayerState state)
-        {
-            if (_module == null)
-            {
-                return;
-            }
-            if (state == ModPlayer.PlayerState.kUpdated)
-            {
-                for (int i = 0; i < ModPlayer.NumberOfVoices(_module); i++)
-                {
-                    if (ModPlayer.NotePlayed[i])
-                    {
-                        chan_amplitudes[i] = 100;
-                    }
-                }
-                return;
-            }
-            else if (state != ModPlayer.PlayerState.kStopped)
-            {
-                return;
-            }
-            PlayModule();
-        }
 
         public CreditsDialog()
         {
             var fontAtlas = ImGui.GetIO().Fonts;
             _font = fontAtlas.Fonts[1];
 
-            _player = new MikMod();
-            _player.PlayerStateChangeEvent += new ModPlayer.PlayerStateChangedEvent(PlayerStateChangeEvent);
-
             var random = new Random();
             for (var i = 0; i < stars.Length; i++)
             {
                 stars[i] = new Vector2(random.Next(600), random.Next(400));
                 starsSpeeds[i] = ((float)random.NextDouble() * 0.9f) + 0.1f;
-            }
-
-            ModDriver.Mode = (ushort)(ModDriver.Mode | SharpMikCommon.DMODE_NOISEREDUCTION);
-            try
-            {
-                _player.Init<NaudioDriver>("");
-            }
-            catch
-            {
-                // do nothing
             }
         }
 
@@ -84,8 +47,8 @@ namespace RepackinatorUI
 
         private void CloseModal()
         {
-            ModPlayer.Player_Stop();
-            ModDriver.MikMod_Exit();
+            Bass.StreamFree(m_playBackHandle);
+            Bass.Free();
 
             _open = false;
             ImGui.CloseCurrentPopup();
@@ -127,11 +90,13 @@ namespace RepackinatorUI
 
         private void PlayModule()
         {
-            var modStream = ResourceLoader.GetEmbeddedResourceStream("DINO.S3M", typeof(CreditsDialog).GetTypeInfo().Assembly);
-            if (modStream != null)
-            {
-                _module = _player.Play(modStream);
-            }
+            Bass.Init();
+            var musicData = ResourceLoader.GetEmbeddedResourceBytes("Stuart Wilson - Not Another Comic Bakery Remix.mp3", typeof(CreditsDialog).GetTypeInfo().Assembly);
+            m_playBackHandle = Bass.CreateStream(musicData, 0, musicData.Length, BassFlags.Default);
+            Bass.ChannelPlay(m_playBackHandle);
+
+            m_signalProvider = new SignalProvider(DataFlags.FFT1024, true, true) { WindowType = WindowType.Hanning, };
+            m_signalProvider.SetChannel(m_playBackHandle);
         }
 
         public bool Render()
@@ -165,26 +130,26 @@ namespace RepackinatorUI
 
             DrawStars(ImGui.GetWindowPos());
 
-            if (_module != null)
+            if (m_signalProvider != null)
             {
-                var points = new List<Vector2>();
-                points.Add(new Vector2(0, 390));
-                for (var chan = 0; chan < ModPlayer.NumberOfVoices(_module); chan++)
+                var channelData = m_signalProvider.DataSampleWindowed;
+                if (channelData != null)
                 {
-                    if (ModPlayer.NotePlayed[chan])
+                    var points = new List<Vector2>
                     {
-                        chan_amplitudes[chan] = 200;
-                    }
-                    else
+                        new Vector2(0, 390)
+                    };
+                    var channelValues = channelData[0].AdjustToScale(0, 200, true, out _);
+                    var channelDataLength = channelValues.Data.Length;
+                    for (var dataIndex = 0; dataIndex < channelDataLength; dataIndex++)
                     {
-                        chan_amplitudes[chan] = chan_amplitudes[chan] * 0.95f;
+                        var value = (int)channelValues.Data[dataIndex];
+                        points.Add(new Vector2((dataIndex + 1) * (600.0f / (channelDataLength + 1)), 390 - value));
+                        points.Add(new Vector2((dataIndex + 1) * (600.0f / (channelDataLength + 1)), 390 - value));
                     }
-
-                    points.Add(new Vector2((chan + 1) * (600 / (ModPlayer.NumberOfVoices(_module) + 1)), 390 - chan_amplitudes[chan]));
-                    points.Add(new Vector2((chan + 1) * (600 / (ModPlayer.NumberOfVoices(_module) + 1)), 390 - chan_amplitudes[chan]));
+                    points.Add(new Vector2(600, 390));
+                    DrawLines(points, ImGui.GetWindowPos());
                 }
-                points.Add(new Vector2(600, 390));
-                DrawLines(points, ImGui.GetWindowPos());
             }
 
             float x = 0;

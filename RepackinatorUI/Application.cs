@@ -682,7 +682,7 @@ namespace RepackinatorUI
                 }
             }
             ImGui.PopItemWidth();
-
+               
             ImGui.Spacing();
 
             ImGui.Separator();
