@@ -19,12 +19,11 @@
 
 	<ItemGroup>
 		<None Remove="Resources\ARIALUNI.TTF" />
-		<None Remove="Resources\DINO.S3M" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<EmbeddedResource Include="Resources\ARIALUNI.TTF" />
-		<EmbeddedResource Include="Resources\DINO.S3M" />
+		<EmbeddedResource Include="Resources\Stuart Wilson - Not Another Comic Bakery Remix.mp3" />
 		<EmbeddedResource Include="Shaders/GLSL/imgui-vertex.glsl" LogicalName="imgui-vertex.glsl" />
 		<EmbeddedResource Include="Shaders/GLSL/imgui-frag.glsl" LogicalName="imgui-frag.glsl" />
 		<EmbeddedResource Include="Shaders/HLSL/imgui-vertex.hlsl.bytes" LogicalName="imgui-vertex.hlsl.bytes" />
@@ -50,18 +49,28 @@
 			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 		</Content>
 	</ItemGroup>
+	
+	<Target Name="CopyBassWin64" AfterTargets="AfterBuild" Condition="'$(RuntimeIdentifier)' == 'win-x64'">
+		<Copy SourceFiles="bass-win-x64\bass.dll" DestinationFolder="$(OutDir)" />
+	</Target>
+
+	<Target Name="CopyBassLinux64" AfterTargets="AfterBuild" Condition="'$(RuntimeIdentifier)' == 'linux-x64'">
+		<Copy SourceFiles="bass-linux-x64\libbass.so" DestinationFolder="$(OutDir)" />
+	</Target>
+
+	<Target Name="CopyBassOsx64" AfterTargets="AfterBuild" Condition="'$(RuntimeIdentifier)' == 'osx-x64'">
+		<Copy SourceFiles="bass-osx-x64\libbass.dylib" DestinationFolder="$(OutDir)" />
+	</Target>
 
 	<ItemGroup>
-		<PackageReference Include="ImGui.NET" Version="1.87.3" />
+		<PackageReference Include="ImGui.NET" Version="1.88.0" />
+		<PackageReference Include="ManagedBass.FftSignalProvider" Version="1.0.1" />
 		<PackageReference Include="Veldrid.StartupUtilities" Version="4.8.0" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\Repackinator.Shared\Repackinator.Shared.csproj" />
 		<ProjectReference Include="..\Resurgent.UtilityBelt.Library\Resurgent.UtilityBelt.Library.csproj" />
-		<ProjectReference Include="..\SharpMikNAudio\SharpMikNAudio.csproj" />
 	</ItemGroup>
-
-	<ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
 
 </Project>
