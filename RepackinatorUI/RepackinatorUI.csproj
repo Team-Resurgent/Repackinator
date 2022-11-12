@@ -18,10 +18,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Remove="Resources\ARIALUNI.TTF" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<EmbeddedResource Include="Resources\ARIALUNI.TTF" />
 		<EmbeddedResource Include="Resources\Stuart Wilson - Not Another Comic Bakery Remix.mp3" />
 		<EmbeddedResource Include="Shaders/GLSL/imgui-vertex.glsl" LogicalName="imgui-vertex.glsl" />
@@ -35,7 +31,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Content Include="..\Artwork\icon1.ico" />
+		<None Include="..\Artwork\icon1.ico">
+		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
 		<Content Include="..\RepackList.json">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
@@ -48,19 +46,16 @@
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 		</Content>
+		<Content Include="bass.dll" Condition="'$(RuntimeIdentifier)' == 'win-x64'">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="libbass.dylib" Condition="'$(RuntimeIdentifier)' == 'linux-x64'">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="libbass.so" Condition="'$(RuntimeIdentifier)' == 'osx-x64'">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
 	</ItemGroup>
-	
-	<Target Name="CopyBassWin64" AfterTargets="AfterBuild" Condition="'$(RuntimeIdentifier)' == 'win-x64'">
-		<Copy SourceFiles="bass-win-x64\bass.dll" DestinationFolder="$(OutDir)" />
-	</Target>
-
-	<Target Name="CopyBassLinux64" AfterTargets="AfterBuild" Condition="'$(RuntimeIdentifier)' == 'linux-x64'">
-		<Copy SourceFiles="bass-linux-x64\libbass.so" DestinationFolder="$(OutDir)" />
-	</Target>
-
-	<Target Name="CopyBassOsx64" AfterTargets="AfterBuild" Condition="'$(RuntimeIdentifier)' == 'osx-x64'">
-		<Copy SourceFiles="bass-osx-x64\libbass.dylib" DestinationFolder="$(OutDir)" />
-	</Target>
 
 	<ItemGroup>
 		<PackageReference Include="ImGui.NET" Version="1.88.0" />
