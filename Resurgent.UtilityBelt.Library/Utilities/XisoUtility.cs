@@ -454,10 +454,14 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                     }
                 }
 
-                if (!same)
+                if (sector == 0)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Ignoring: Sector 0 as different but doesnt matter.");
+                }
+                else if (!same)
                 {
                     System.Diagnostics.Debug.WriteLine($"Sector {sector} is different.");
-                    //return false;
+                    return false;
                 }
 
                 sector++;
@@ -607,7 +611,6 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             {
                 return false;
             }
-            inputStream.Position = 0;
 
             var redumpSize = 0x1D26A8000L;
             var videoSize = 0x18300000U;
@@ -620,10 +623,10 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
             var emptySector = new byte[2048];
             var compressedData = new byte[2048];
-            var sectorsWritten = 0U;
+            var sectorsWritten = skipSectors;
             var iteration = 0;
 
-            while (sectorsWritten < fileSectors - skipSectors)
+            while (sectorsWritten < fileSectors)
             {
                 var indexInfos = new List<IndexInfo>();
 
@@ -657,12 +660,12 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
                 var splitting = false;
                 var sectorCount = 0U;
-                while (sectorsWritten < fileSectors - skipSectors)
+                while (sectorsWritten < fileSectors)
                 {
                     var writeSector = true;
                     if (scrub)
                     {
-                        writeSector = dataSectors.Contains(sectorsWritten + skipSectors);
+                        writeSector = dataSectors.Contains(sectorsWritten);
                     }
 
                     var sectorToWrite = emptySector;
@@ -697,8 +700,6 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                     uncompressedSize += 2048;
                     sectorsWritten++;
                     sectorCount++;
-
-                    indexOffset = (ulong)outputStream.Position;
 
                     if (outputStream.Position > (splitMargin - (sectorCount * 4)))
                     {
