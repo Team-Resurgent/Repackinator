@@ -321,9 +321,9 @@ namespace Repackinator.Shared
                     outputPath = Path.Combine(outputPath, gameData.Value.Letter, gameData.Value.Region);
                 }
 
-                var xbeTitle = upperCase ? gameData.Value.XBETitle : gameData.Value.XBETitle.ToUpper();
-                var folderName = upperCase ? gameData.Value.FolderName : gameData.Value.FolderName.ToUpper();
-                var isoFileName = upperCase ? gameData.Value.ISOName : gameData.Value.ISOName.ToUpper();
+                var xbeTitle = upperCase ? gameData.Value.XBETitle.ToUpper() : gameData.Value.XBETitle;
+                var folderName = upperCase ? gameData.Value.FolderName.ToUpper() : gameData.Value.FolderName;
+                var isoFileName = upperCase ? gameData.Value.ISOName.ToUpper() : gameData.Value.ISOName;
                 var scrub = gameData.Value.Scrub != null && gameData.Value.Scrub.Equals("Y", StringComparison.CurrentCultureIgnoreCase);
 
                 processOutput = Path.Combine(outputPath, folderName);
@@ -573,9 +573,9 @@ namespace Repackinator.Shared
                     outputPath = Path.Combine(outputPath, gameData.Value.Letter, gameData.Value.Region);
                 }
 
-                var xbeTitle = upperCase ? gameData.Value.XBETitle : gameData.Value.XBETitle.ToUpper();
-                var folderName = upperCase ? gameData.Value.FolderName : gameData.Value.FolderName.ToUpper();
-                var isoFileName = upperCase ? gameData.Value.ISOName : gameData.Value.ISOName.ToUpper();
+                var xbeTitle = upperCase ? gameData.Value.XBETitle.ToUpper() : gameData.Value.XBETitle;
+                var folderName = upperCase ? gameData.Value.FolderName.ToUpper() : gameData.Value.FolderName;
+                var isoFileName = upperCase ? gameData.Value.ISOName.ToUpper() : gameData.Value.ISOName;
                 var scrub = gameData.Value.Scrub != null && gameData.Value.Scrub.Equals("Y", StringComparison.CurrentCultureIgnoreCase);
 
                 processOutput = Path.Combine(outputPath, folderName);
