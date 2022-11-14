@@ -753,6 +753,8 @@ namespace RepackinatorUI
                 m_config.Compress = compress;
                 Config.SaveConfig(m_config);
             }
+            ImGui.SameLine();
+            ImGui.Text("NOTE, Currently not supported in any BIOS");
 
             ImGui.Spacing();
 
