@@ -1,5 +1,7 @@
 [![.NET](https://github.com/Team-Resurgent/Repackinator/actions/workflows/dotnet.yml/badge.svg)](https://github.com/Team-Resurgent/Repackinator/actions/workflows/dotnet.yml)
 
+Note: Compressed ISO support is currently under development and no current BIOS's support it.
+
                               # Team Resurgent   
                                                                              
                                                                           
