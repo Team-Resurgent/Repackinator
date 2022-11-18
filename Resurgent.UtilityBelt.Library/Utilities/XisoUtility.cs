@@ -683,7 +683,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                     {
                         var multiple = (1 << indexAlignment);
                         var padding = ((compressedSize + 1 + multiple - 1) / multiple * multiple) - (compressedSize + 1);
-                        outputWriter.Write((byte)(padding + 1));
+                        outputWriter.Write((byte)padding);
                         outputWriter.Write(compressedData, 0, compressedSize);          
                         if (padding != 0)
                         {
@@ -822,7 +822,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 { 
                     var padding = inputReader.ReadByte();
                     var buffer = inputReader.ReadBytes(size);
-                    var compressedSize = K4os.Compression.LZ4.LZ4Codec.Decode(buffer, 0, size - padding, decodeBuffer, 0, 2048);
+                    var compressedSize = K4os.Compression.LZ4.LZ4Codec.Decode(buffer, 0, size - (padding + 1), decodeBuffer, 0, 2048);
                     if (compressedSize < 0)
                     {
                         return false;
