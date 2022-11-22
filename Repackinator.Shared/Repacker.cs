@@ -90,7 +90,15 @@ namespace Repackinator.Shared
 
                 if (Directory.Exists(unpackPath))
                 {
-                    Directory.Delete(unpackPath, true);
+                    try
+                    {
+                        Directory.Delete(processOutput, true);
+                    }
+                    catch (IOException)
+                    {
+                        Log(LogMessageLevel.Error, $"Failed to delete directory '{processOutput}, close any windows accessing the folder.");
+                        return -1;
+                    }
                 }
                 Directory.CreateDirectory(unpackPath);
 
@@ -330,7 +338,15 @@ namespace Repackinator.Shared
 
                 if (Directory.Exists(processOutput))
                 {
-                    Directory.Delete(processOutput, true);
+                    try
+                    {
+                        Directory.Delete(processOutput, true);
+                    }
+                    catch (IOException)
+                    {
+                        Log(LogMessageLevel.Error, $"Failed to delete directory '{processOutput}, close any windows accessing the folder.");
+                        return -1;
+                    }
                 }
                 Directory.CreateDirectory(processOutput);
 
@@ -582,7 +598,15 @@ namespace Repackinator.Shared
 
                 if (Directory.Exists(processOutput))
                 {
-                    Directory.Delete(processOutput, true);
+                    try
+                    {
+                        Directory.Delete(processOutput, true);
+                    } 
+                    catch ( IOException )
+                    {
+                        Log(LogMessageLevel.Error, $"Failed to delete directory '{processOutput}, close any windows accessing the folder.");
+                        return -1;
+                    }
                 }
                 Directory.CreateDirectory(processOutput);
 
