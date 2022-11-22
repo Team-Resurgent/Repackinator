@@ -48,15 +48,9 @@ namespace Repackinator.Shared
                     return -1;
                 }
 
-                var extension = Path.GetExtension(inputFile).ToLower();
-                if (!extension.Equals(".iso") && !extension.Equals(".zip") && !extension.Equals(".7z") && !extension.Equals(".rar") && !extension.Equals(".iso"))
-                {
-                    Log(LogMessageLevel.Warning, $"File '{Path.GetFileName(inputFile)}' has an unsupported extension.");
-                    return -1;
-                }
-
                 Log(LogMessageLevel.Info, $"Processing '{Path.GetFileName(inputFile)}'...");
 
+                var extension = Path.GetExtension(inputFile).ToLower();
                 if (extension.Equals(".iso"))
                 {
                     return ProcessIso(inputFile, outputPath, grouping, hasAllCrcs, upperCase, compress, cancellationToken);
@@ -763,7 +757,11 @@ namespace Repackinator.Shared
                 CurrentProgress.Progress2Text = string.Empty;
                 SendProgress();
 
-                var files = Directory.GetFiles(config.InputPath);
+                var acceptedFiletypes = new string[] { ".iso", ".zip", ".rar", ".7z"};
+                var files = Directory.GetFileSystemEntries(config.InputPath, "*", SearchOption.AllDirectories)
+                    .Where(file => acceptedFiletypes.Contains(Path.GetExtension(file), StringComparer.CurrentCultureIgnoreCase))
+                    .ToArray();
+
                 for (int i = 0; i < files.Length; i++)
                 {
                     string? file = files[i];
