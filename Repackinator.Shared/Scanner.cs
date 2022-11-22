@@ -71,15 +71,15 @@ namespace Repackinator.Shared
                 using (var outputStream = new MemoryStream())
                 {
                     var error = string.Empty;
-                    //if (XisoUtility.TryExtractDefaultFromXiso(inputStream1, inputStream2, outputStream, ref error))
-                    //{
-                    //    xbeData = outputStream.ToArray();
-                    //}
-                    //else
-                    //{
-                    //    Log(LogMessageLevel.Error, $"Unable to extract default.xbe due to '{error}'.");
-                    //    return;
-                    //}
+                    if (XisoUtility.TryExtractDefaultFromSplitXiso(inputStream1, inputStream2, outputStream, ref error))
+                    {
+                        xbeData = outputStream.ToArray();
+                    }
+                    else
+                    {
+                        Log(LogMessageLevel.Error, $"Unable to extract default.xbe due to '{error}'.");
+                        return;
+                    }
                 }
 
                 if (!XbeUtility.TryGetXbeCert(xbeData, out var cert) || cert == null)

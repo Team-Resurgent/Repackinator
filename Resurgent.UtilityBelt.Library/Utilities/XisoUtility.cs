@@ -617,7 +617,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             var fileSectors = (uint)(fileLength / 2048);
             var skipSize = fileLength == redumpSize ? videoSize : 0;
             var skipSectors = skipSize / 2048;
-            var splitMargin = 0x100000000L - ((3 * 2048) + (3 * 4) + 36);
+            var splitMargin = 0xFF000000L;
 
             inputStream.Position = skipSize;
 
@@ -701,7 +701,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                     sectorsWritten++;
                     sectorCount++;
 
-                    if (outputStream.Position > (splitMargin - (sectorCount * 4)))
+                    if (outputStream.Position > splitMargin)
                     {
                         splitting = true;
                         break;
