@@ -757,9 +757,9 @@ namespace Repackinator.Shared
                 CurrentProgress.Progress2Text = string.Empty;
                 SendProgress();
 
-                var acceptedFiletypes = new List<string> { ".iso", ".zip", ".rar", ".7z"};
+                var acceptedFiletypes = new string[] { ".iso", ".zip", ".rar", ".7z"};
                 var files = Directory.GetFileSystemEntries(config.InputPath, "*", SearchOption.AllDirectories)
-                    .Where(file => acceptedFiletypes.Contains(Path.GetExtension(file).ToLower()))
+                    .Where(file => acceptedFiletypes.Contains(Path.GetExtension(file), StringComparer.CurrentCultureIgnoreCase))
                     .ToArray();
 
                 for (int i = 0; i < files.Length; i++)
