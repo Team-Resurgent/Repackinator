@@ -49,7 +49,7 @@ namespace RepackinatorUI
 
             if (ImGui.IsWindowAppearing())
             {
-                ImGui.SetWindowSize(new Vector2(410, 272));
+                ImGui.SetWindowSize(new Vector2(410, 322));
             }
 
             var textColor = ImGui.GetStyle().Colors[(int)ImGuiCol.Text];
@@ -132,6 +132,28 @@ namespace RepackinatorUI
             if (ImGui.InputText("##editIsoChecksum", ref isoChecksum, 8))
             {
                 GameData.ISOChecksum = isoChecksum.ToUpper();
+            }
+            ImGui.PopItemWidth();
+
+            ImGui.TextUnformatted("Link:");
+            ImGui.SameLine();
+            ImGui.SetCursorPosX(100);
+            string link = GameData.Link ?? "";
+            ImGui.PushItemWidth(300);
+            if (ImGui.InputText("##editLink", ref link, 8))
+            {
+                GameData.Link = link;
+            }
+            ImGui.PopItemWidth();
+
+            ImGui.TextUnformatted("Info:");
+            ImGui.SameLine();
+            ImGui.SetCursorPosX(100);
+            string info = GameData.Info ?? "";
+            ImGui.PushItemWidth(300);
+            if (ImGui.InputText("##editInfo", ref info, 8))
+            {
+                GameData.Info = info;
             }
             ImGui.PopItemWidth();
 
