@@ -42,5 +42,8 @@ namespace Repackinator.Shared
 
         [JsonPropertyName("Link")]
         public string Link { get; set; }
+
+        [JsonPropertyName("Info")]
+        public string Info { get; set; }
     }
 }
