@@ -430,9 +430,11 @@ namespace RepackinatorUI
             const int MyItemColumnID_FolderName = 9;
             const int MyItemColumnID_IsoName = 10;
             const int MyItemColumnID_IsoChecksum = 11;
+            const int MyItemColumnID_Link = 12;
+            const int MyItemColumnID_Info = 13;
 
             ImGuiTableFlags flags = ImGuiTableFlags.Resizable | ImGuiTableFlags.Borders | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable | ImGuiTableFlags.Sortable | ImGuiTableFlags.ScrollX | ImGuiTableFlags.ScrollY | ImGuiTableFlags.RowBg;
-            if (ImGui.BeginTable("table_sorting", 12, flags, new Vector2(0.0f, m_window.Height - (340 + m_splitterOffset)), 0.0f))
+            if (ImGui.BeginTable("table_sorting", 14, flags, new Vector2(0.0f, m_window.Height - (340 + m_splitterOffset)), 0.0f))
             {
                 ImGui.TableSetupColumn("Process", ImGuiTableColumnFlags.WidthFixed, 75.0f, MyItemColumnID_Process);
                 ImGui.TableSetupColumn("Scrub", ImGuiTableColumnFlags.WidthFixed, 75.0f, MyItemColumnID_Scrub);
@@ -446,6 +448,8 @@ namespace RepackinatorUI
                 ImGui.TableSetupColumn("Folder Name", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.DefaultSort, 300.0f, MyItemColumnID_FolderName);                
                 ImGui.TableSetupColumn("Iso Name", ImGuiTableColumnFlags.WidthFixed, 300.0f, MyItemColumnID_IsoName);
                 ImGui.TableSetupColumn("Iso Checksum", ImGuiTableColumnFlags.WidthFixed, 100.0f, MyItemColumnID_IsoChecksum);
+                ImGui.TableSetupColumn("Link", ImGuiTableColumnFlags.WidthFixed, 300.0f, MyItemColumnID_Link);
+                ImGui.TableSetupColumn("Info", ImGuiTableColumnFlags.WidthFixed, 300.0f, MyItemColumnID_Info);
                 ImGui.TableSetupScrollFreeze(0, 1);
                 ImGui.TableHeadersRow();
 
@@ -504,6 +508,14 @@ namespace RepackinatorUI
                             else if (colIndex == 11)
                             {
                                 m_gameDataList = (specs.SortDirection == ImGuiSortDirection.Ascending ? m_gameDataList.OrderBy(s => s.ISOChecksum) : m_gameDataList.OrderByDescending(s => s.ISOChecksum)).ToArray();
+                            }
+                            else if (colIndex == 12)
+                            {
+                                m_gameDataList = (specs.SortDirection == ImGuiSortDirection.Ascending ? m_gameDataList.OrderBy(s => s.Link) : m_gameDataList.OrderByDescending(s => s.Link)).ToArray();
+                            }
+                            else if (colIndex == 13)
+                            {
+                                m_gameDataList = (specs.SortDirection == ImGuiSortDirection.Ascending ? m_gameDataList.OrderBy(s => s.Info) : m_gameDataList.OrderByDescending(s => s.Info)).ToArray();
                             }
                         }
                         sortSpects.SpecsDirty = false;
@@ -600,6 +612,18 @@ namespace RepackinatorUI
                         string isoChecksum = m_gameDataList[i].ISOChecksum ?? "";
                         ImGui.PushItemWidth(ImGui.GetColumnWidth());
                         ImGui.TextUnformatted(m_gameDataList[i].ISOChecksum);
+                        ImGui.PopItemWidth();
+
+                        ImGui.TableNextColumn();
+                        string link = m_gameDataList[i].Link ?? "";
+                        ImGui.PushItemWidth(ImGui.GetColumnWidth());
+                        ImGui.TextUnformatted(m_gameDataList[i].Link);
+                        ImGui.PopItemWidth();
+
+                        ImGui.TableNextColumn();
+                        string info = m_gameDataList[i].Info ?? "";
+                        ImGui.PushItemWidth(ImGui.GetColumnWidth());
+                        ImGui.TextUnformatted(m_gameDataList[i].Info);
                         ImGui.PopItemWidth();
 
                         ImGui.PopID();
