@@ -39,5 +39,8 @@ namespace Repackinator.Shared
 
         [JsonPropertyName("Scrub")]
         public string Scrub { get; set; }
+
+        [JsonPropertyName("Link")]
+        public string Link { get; set; }
     }
 }
