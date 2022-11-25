@@ -1,5 +1,6 @@
 ﻿using Resurgent.UtilityBelt.Library.Utilities;
 using Resurgent.UtilityBelt.Library.Utilities.XbeModels;
+using Resurgent.UtilityBelt.Library.Utilities.Xiso;
 using SharpCompress;
 using System.Diagnostics;
 using System.Text;
@@ -35,7 +36,7 @@ namespace Repackinator.Shared
             var logMessage = new LogMessage(level, message);
             Logger(logMessage);
             var bytes = Encoding.UTF8.GetBytes(Utility.FormatLogMessage(logMessage));
-            using var logStream = File.OpenWrite("ScanLog.txt");
+            using var logStream = File.Open("ScanLog.txt", FileMode.OpenOrCreate);
             logStream.Write(bytes);
         }
 
@@ -53,31 +54,35 @@ namespace Repackinator.Shared
                 CurrentProgress.Progress2Text = folder;
                 SendProgress();
 
-                var filesToProcess = Directory.GetFiles(folder, "*.iso").OrderBy(o => o).ToArray();
-                if (filesToProcess.Length == 0)
+                var isoToProcess = Directory.GetFiles(folder, "*.iso").OrderBy(o => o).ToArray();
+                var cciToProcess = Directory.GetFiles(folder, "*.cci").OrderBy(o => o).ToArray();
+                if (isoToProcess.Length == 0 && cciToProcess.Length == 0)
                 {
                     return;
                 }
 
-                if (filesToProcess.Length != 2)
+                if (isoToProcess.Length > 0 && cciToProcess.Length > 0)
                 {
-                    Log(LogMessageLevel.Error, $"Unexpected ISO count in folder '{folder}'.");
+                    Log(LogMessageLevel.Error, $"Folder '{folder}' contains mixed ISO and CCI.");
                     return;
                 }
 
                 var xbeData = Array.Empty<byte>();
-                using (var inputStream1 = new FileStream(filesToProcess[0], FileMode.Open))
-                using (var inputStream2 = new FileStream(filesToProcess[1], FileMode.Open))
-                using (var outputStream = new MemoryStream())
+                if (isoToProcess.Length > 0)
                 {
-                    var error = string.Empty;
-                    if (XisoUtility.TryExtractDefaultFromSplitXiso(inputStream1, inputStream2, outputStream, ref error))
+                    using var xisoInput = new XisoInput(isoToProcess);
+                    if (!XisoUtility.TryGetDefaultXbeFromXiso(xisoInput, ref xbeData))
                     {
-                        xbeData = outputStream.ToArray();
+                        Log(LogMessageLevel.Error, $"Unable to extract default.xbe.");
+                        return;
                     }
-                    else
+                }
+                else
+                {
+                    using var xisoInput = new CciInput(cciToProcess);
+                    if (!XisoUtility.TryGetDefaultXbeFromXiso(xisoInput, ref xbeData))
                     {
-                        Log(LogMessageLevel.Error, $"Unable to extract default.xbe due to '{error}'.");
+                        Log(LogMessageLevel.Error, $"Unable to extract default.xbe.");
                         return;
                     }
                 }
