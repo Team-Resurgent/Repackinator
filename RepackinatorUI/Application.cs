@@ -434,7 +434,7 @@ namespace RepackinatorUI
             const int MyItemColumnID_Info = 13;
 
             ImGuiTableFlags flags = ImGuiTableFlags.Resizable | ImGuiTableFlags.Borders | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable | ImGuiTableFlags.Sortable | ImGuiTableFlags.ScrollX | ImGuiTableFlags.ScrollY | ImGuiTableFlags.RowBg;
-            if (ImGui.BeginTable("table_sorting", 14, flags, new Vector2(0.0f, m_window.Height - (340 + m_splitterOffset)), 0.0f))
+            if (ImGui.BeginTable("table_sorting", 14, flags, new Vector2(0.0f, m_window.Height - (372 + m_splitterOffset)), 0.0f))
             {
                 ImGui.TableSetupColumn("Process", ImGuiTableColumnFlags.WidthFixed, 75.0f, MyItemColumnID_Process);
                 ImGui.TableSetupColumn("Scrub", ImGuiTableColumnFlags.WidthFixed, 75.0f, MyItemColumnID_Scrub);
@@ -738,7 +738,7 @@ namespace RepackinatorUI
   
             ImGui.Text("Config:");
 
-            ImGui.BeginChild(3, new Vector2(m_window.Width - 16, 162 + m_splitterOffset), true, ImGuiWindowFlags.AlwaysUseWindowPadding);
+            ImGui.BeginChild(3, new Vector2(m_window.Width - 16, 192 + m_splitterOffset), true, ImGuiWindowFlags.AlwaysUseWindowPadding);
 
             string[] groupingItems = new string[] { "Default", "Region", "Letter", "Region Letter", "Letter Region" };
 
@@ -778,7 +778,19 @@ namespace RepackinatorUI
                 Config.SaveConfig(m_config);
             }
             ImGui.SameLine();
-            ImGui.Text("NOTE, Currently not supported in any BIOS");
+            ImGui.Text("NOTE: Support is in beta in CERBIOS");
+
+            ImGui.Spacing();
+
+            ImGui.Text("Recurse Input:");
+            ImGui.SameLine();
+            ImGui.SetCursorPosX(125);
+            bool recurseInput = m_config.RecurseInput;
+            if (Toggle("##recurseInput", ref recurseInput, new Vector2(38, 24)))
+            {
+                m_config.RecurseInput = recurseInput;
+                Config.SaveConfig(m_config);
+            }
 
             ImGui.Spacing();
 

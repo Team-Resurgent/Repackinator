@@ -19,6 +19,8 @@ namespace Repackinator.Shared
 
         public GroupingEnum Grouping { get; set; }
 
+        public bool RecurseInput { get; set; }
+
         public bool UpperCase { get; set; }
 
         public bool Compress { get; set; }
@@ -30,6 +32,7 @@ namespace Repackinator.Shared
             InputPath = string.Empty;
             OutputPath = string.Empty;
             Grouping = GroupingEnum.None;
+            RecurseInput = false;
             UpperCase = false;
             Compress = false;
             SearchField = 0;
