@@ -15,12 +15,6 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 {    
     public static class XisoUtility
     {
-        public const long VideoSectors = 0x30600;
-
-        public const long RedumpSectors = 0x3A4D50;
-
-        public const long IsoSectors = 0x374750;
-
         private struct IndexInfo
         {
             public ulong Value { get; set; }
@@ -40,9 +34,9 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             var dataSectors = new HashSet<uint>();
 
             var position = 20U;
-            var sectorOffset = input.TotalSectors == RedumpSectors ? VideoSectors : 0U;
+            var sectorOffset = input.TotalSectors == Constants.RedumpSectors ? Constants.VideoSectors : 0U;
             var headerSector = (uint)sectorOffset + 0x20U;
-            if (input.TotalSectors == RedumpSectors) { 
+            if (input.TotalSectors == Constants.RedumpSectors) { 
                 dataSectors.Add(headerSector);
                 dataSectors.Add(headerSector + 1);                
             }
@@ -142,7 +136,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
         public static HashSet<uint> GetSecuritySectorsFromXiso(IImageInput input, HashSet<uint> datasecs)
         {
             var securitySectors = new HashSet<uint>();            
-            if (input.TotalSectors != RedumpSectors && input.TotalSectors != IsoSectors)
+            if (input.TotalSectors != Constants.RedumpSectors && input.TotalSectors != Constants.IsoSectors)
             {
                 return datasecs;
             }
@@ -150,7 +144,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             var flag = false;
             var start = 0U;
 
-            var sectorOffset = input.TotalSectors == RedumpSectors ? 0x30600U : 0U;
+            var sectorOffset = input.TotalSectors == Constants.RedumpSectors ? 0x30600U : 0U;
             for (var sectorIndex = 0; sectorIndex <= 0x345B60; sectorIndex++)
             {
                 var currentSector = (uint)(sectorOffset + sectorIndex);
@@ -193,7 +187,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
         public static bool TryGetDefaultXbeFromXiso(IImageInput input, ref byte[] xbeData)
         {
             var position = 20U;
-            var sectorOffset = input.TotalSectors == RedumpSectors ? VideoSectors : 0U;
+            var sectorOffset = input.TotalSectors == Constants.RedumpSectors ? Constants.VideoSectors : 0U;
             var headerSector = (uint)sectorOffset + 0x20U;
             position += (headerSector << 11);
 
@@ -241,7 +235,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                     var processed = 0U;
                     while (processed < size)
                     {
-                        var buffer = input.ReadSectors(sector, 1);
+                        var buffer = input.ReadSectors(sector + sectorOffset, 1);
                         var bytesToCopy = (uint)Math.Min(size - processed, 2048);
                         Array.Copy(buffer, 0, result, processed, bytesToCopy);
                         sector++;
@@ -294,7 +288,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 return false;
             }
 
-            var sectorOffset = input1.TotalSectors == RedumpSectors ? 0x30600U : 0U;
+            var sectorOffset = input1.TotalSectors == Constants.RedumpSectors ? 0x30600U : 0U;
 
             for (var i = 0; i < input1.TotalSectors; i++)
             {
@@ -343,7 +337,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 }
             }
 
-            var sectorOffset = input.TotalSectors == RedumpSectors ? 0x30600U : 0U;
+            var sectorOffset = input.TotalSectors == Constants.RedumpSectors ? 0x30600U : 0U;
             var sectorSplit = (uint)(input.TotalSectors - sectorOffset) / 2;
 
             using var partStream1 = new FileStream(Path.Combine(outputPath, $"{name}.1{extension}"), FileMode.Create, FileAccess.Write);
@@ -405,7 +399,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 }
             }
 
-            var sectorOffset = input.TotalSectors == RedumpSectors ? 0x30600U : 0U;
+            var sectorOffset = input.TotalSectors == Constants.RedumpSectors ? 0x30600U : 0U;
 
             var splitMargin = 0xFF000000L;
             var emptySector = new byte[2048];

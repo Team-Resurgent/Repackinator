@@ -446,6 +446,8 @@ namespace Repackinator.Shared
                     return -1;
                 }
 
+                File.WriteAllBytes(@"e:\dump\test.xbe", xbeData);
+
                 if (!XbeUtility.TryGetXbeCert(xbeData, out var cert) || cert == null)
                 {
                     Log(LogMessageLevel.Error, $"Unable to get data from default.xbe.");
@@ -712,7 +714,7 @@ namespace Repackinator.Shared
                 SendProgress();
 
                 var acceptedFiletypes = new string[] { ".iso", ".zip", ".rar", ".7z"};
-                var files = Directory.GetFileSystemEntries(config.InputPath, "*", SearchOption.AllDirectories)
+                var files = Directory.GetFileSystemEntries(config.InputPath, "*", config.RecurseInput ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly)
                     .Where(file => acceptedFiletypes.Contains(Path.GetExtension(file), StringComparer.CurrentCultureIgnoreCase))
                     .ToArray();
 
