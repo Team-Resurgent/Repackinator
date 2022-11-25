@@ -33,7 +33,7 @@ namespace Repackinator.Shared
             var logMessage = new LogMessage(level, message);
             Logger(logMessage);
             var bytes = Encoding.UTF8.GetBytes(Utility.FormatLogMessage(logMessage));
-            using var logStream = File.OpenWrite("ScanLog.txt");
+            using var logStream = File.Open("AttachUpdateLog.txt", FileMode.OpenOrCreate);
             logStream.Write(bytes);
         }
 

@@ -1,5 +1,6 @@
 ﻿using Resurgent.UtilityBelt.Library.Utilities;
 using Resurgent.UtilityBelt.Library.Utilities.XbeModels;
+using Resurgent.UtilityBelt.Library.Utilities.Xiso;
 using SharpCompress.Archives;
 using System.Diagnostics;
 using System.Text;
@@ -34,7 +35,7 @@ namespace Repackinator.Shared
             var logMessage = new LogMessage(level, message);
             Logger(logMessage);
             var bytes = Encoding.UTF8.GetBytes(Utility.FormatLogMessage(logMessage));
-            using var logStream = File.OpenWrite("RepackLog.txt");
+            using var logStream = File.Open("RepackLog.txt", FileMode.OpenOrCreate);
             logStream.Write(bytes);
         }
 
@@ -133,40 +134,26 @@ namespace Repackinator.Shared
                                 var willScrub = tempGameData == null ? false : tempGameData.Value.Scrub.Equals("Y", StringComparison.CurrentCultureIgnoreCase);
                                 if (tempGameData == null || compress == true || willScrub == true)
                                 {
-                                    using (var fileStream = new FileStream(Path.Combine(unpackPath, @"Repackinator.temp"), FileMode.Create))
-                                    {
-                                        var extractProgress = new Action<float>((progress) =>
-                                        {
-                                            CurrentProgress.Progress2 = progress;
-                                            CurrentProgress.Progress2Text = $"Extracting ISO...";
-                                            SendProgress();
-                                        });
-                                        using (var progressStream = new ProgressStream(fileStream, (long)entry.Size, extractProgress, cancellationToken))
-                                        {
-                                            entry.WriteTo(progressStream);
-                                        }
-                                    }
                                     needsSecondPass = true;
                                 }
-                                else
-                                {
-                                    Log(LogMessageLevel.Info, "Extracting And Splitting ISO...");
 
-                                    using (var fileStream1 = new FileStream(Path.Combine(unpackPath, @"Repackinator.1.temp"), FileMode.Create))
-                                    using (var fileStream2 = new FileStream(Path.Combine(unpackPath, @"Repackinator.2.temp"), FileMode.Create))
+                                Log(LogMessageLevel.Info, "Extracting And Splitting ISO...");
+
+                                using (var fileStream1 = new FileStream(Path.Combine(unpackPath, @"Repackinator.1.temp"), FileMode.Create))
+                                using (var fileStream2 = new FileStream(Path.Combine(unpackPath, @"Repackinator.2.temp"), FileMode.Create))
+                                {
+                                    var extractProgress = new Action<float>((progress) =>
                                     {
-                                        var extractProgress = new Action<float>((progress) =>
-                                        {
-                                            CurrentProgress.Progress2 = progress;
-                                            CurrentProgress.Progress2Text = $"Extracting And Splitting ISO...";
-                                            SendProgress();
-                                        });
-                                        using (var extractSplitStream = new ExtractSplitStream(fileStream1, fileStream2, (long)entry.Size, extractProgress, cancellationToken))
-                                        {
-                                            entry.WriteTo(extractSplitStream);
-                                        }
+                                        CurrentProgress.Progress2 = progress;
+                                        CurrentProgress.Progress2Text = $"Extracting And Splitting ISO...";
+                                        SendProgress();
+                                    });
+                                    using (var extractSplitStream = new ExtractSplitStream(fileStream1, fileStream2, (long)entry.Size, extractProgress, cancellationToken))
+                                    {
+                                        entry.WriteTo(extractSplitStream);
                                     }
                                 }
+                                
                             }
                             else
                             {
@@ -199,40 +186,11 @@ namespace Repackinator.Shared
                 }
 
                 var xbeData = Array.Empty<byte>();
-                if (needsSecondPass)
+                using var xisoInput = new XisoInput(new string[] { Path.Combine(unpackPath, @"Repackinator.1.temp"), Path.Combine(unpackPath, @"Repackinator.2.temp") });
+                if (!XisoUtility.TryGetDefaultXbeFromXiso(xisoInput, ref xbeData))
                 {
-                    using (var inputStream = new FileStream(Path.Combine(unpackPath, @"Repackinator.temp"), FileMode.Open))
-                    using (var outputStream = new MemoryStream())
-                    {
-                        var error = string.Empty;
-                        if (XisoUtility.TryExtractDefaultFromXiso(inputStream, outputStream, ref error))
-                        {
-                            xbeData = outputStream.ToArray();
-                        }
-                        else
-                        {
-                            Log(LogMessageLevel.Error, $"Unable to extract default.xbe due to '{error}'.");
-                            return -1;
-                        }
-                    }
-                }
-                else
-                {
-                    using (var inputStream1 = new FileStream(Path.Combine(unpackPath, @"Repackinator.1.temp"), FileMode.Open))
-                    using (var inputStream2 = new FileStream(Path.Combine(unpackPath, @"Repackinator.2.temp"), FileMode.Open))
-                    using (var outputStream = new MemoryStream())
-                    {
-                        var error = string.Empty;
-                        if (XisoUtility.TryExtractDefaultFromSplitXiso(inputStream1, inputStream2, outputStream, ref error))
-                        {
-                            xbeData = outputStream.ToArray();
-                        }
-                        else
-                        {
-                            Log(LogMessageLevel.Error, $"Unable to extract default.xbe due to '{error}'.");
-                            return -1;
-                        }
-                    }
+                    Log(LogMessageLevel.Error, $"Unable to extract default.xbe.");
+                    return -1;
                 }
 
                 if (!XbeUtility.TryGetXbeCert(xbeData, out var cert) || cert == null)
@@ -359,7 +317,8 @@ namespace Repackinator.Shared
                             SendProgress();
                         });
 
-                        if (!XisoUtility.CreateCCI(Path.Combine(unpackPath, @"Repackinator.temp"), processOutput, isoFileName, ".cci", scrub, repackProgress, cancellationToken))
+                        using var cciInput = new XisoInput(new string[] { Path.Combine(unpackPath, @"Repackinator.1.temp"), Path.Combine(unpackPath, @"Repackinator.2.temp") });
+                        if (!XisoUtility.CreateCCI(cciInput, processOutput, isoFileName, ".cci", scrub, repackProgress, cancellationToken))
                         {
                             Log(LogMessageLevel.Error, $"Unable process file 'Repackinator.temp'.");
                             return -1;
@@ -378,7 +337,8 @@ namespace Repackinator.Shared
                             SendProgress();
                         });
 
-                        if (!XisoUtility.Split(Path.Combine(unpackPath, @"Repackinator.temp"), processOutput, isoFileName, ".iso", scrub, repackProgress, cancellationToken))
+                        using var cciInput = new XisoInput(new string[] { Path.Combine(unpackPath, @"Repackinator.temp") });
+                        if (!XisoUtility.Split(cciInput, processOutput, isoFileName, ".iso", scrub, repackProgress, cancellationToken))
                         {
                             Log(LogMessageLevel.Error, $"Unable process file 'Repackinator.temp'.");
                             return -1;
@@ -479,19 +439,11 @@ namespace Repackinator.Shared
                 processStopwatch.Start();
 
                 var xbeData = Array.Empty<byte>();
-                using (var inputStream = new FileStream(inputFile, FileMode.Open))
-                using (var outputStream = new MemoryStream())
+                using var xisoInput = new XisoInput(new string[] { inputFile });
+                if (!XisoUtility.TryGetDefaultXbeFromXiso(xisoInput, ref xbeData))
                 {
-                    var error = string.Empty;
-                    if (XisoUtility.TryExtractDefaultFromXiso(inputStream, outputStream, ref error))
-                    {
-                        xbeData = outputStream.ToArray();
-                    }
-                    else
-                    {
-                        Log(LogMessageLevel.Error, $"Unable to extract default.xbe due to '{error}'.");
-                        return -1;
-                    }
+                    Log(LogMessageLevel.Error, $"Unable to extract default.xbe.");
+                    return -1;
                 }
 
                 if (!XbeUtility.TryGetXbeCert(xbeData, out var cert) || cert == null)
@@ -656,7 +608,8 @@ namespace Repackinator.Shared
                         SendProgress();
                     });
 
-                    if (!XisoUtility.CreateCCI(inputFile, processOutput, isoFileName, ".cci", scrub, repackProgress, cancellationToken))
+                    using var cciInput = new XisoInput(new string[] { inputFile });
+                    if (!XisoUtility.CreateCCI(cciInput, processOutput, isoFileName, ".cci", scrub, repackProgress, cancellationToken))
                     {
                         Log(LogMessageLevel.Error, $"Unable process file '{inputFile}'.");
                         return -1;
@@ -675,7 +628,8 @@ namespace Repackinator.Shared
                         SendProgress();
                     });
 
-                    if (!XisoUtility.Split(inputFile, processOutput, isoFileName, ".iso", scrub, repackProgress, cancellationToken))
+                    using var isoInput = new XisoInput(new string[] { inputFile });
+                    if (!XisoUtility.Split(isoInput, processOutput, isoFileName, ".iso", scrub, repackProgress, cancellationToken))
                     {
                         Log(LogMessageLevel.Error, $"Unable process file '{inputFile}'.");
                         return -1;
