@@ -355,7 +355,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
             var emptySector = new byte[2048];
 
-            for (var i = sectorOffset; i < endDataSector; i++)
+            for (var i = sectorOffset; i < endSector; i++)
             {
                 var currentWriter = i - sectorOffset >= sectorSplit ? partWriter2 : partWriter1;
                
