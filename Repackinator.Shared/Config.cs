@@ -25,6 +25,8 @@ namespace Repackinator.Shared
 
         public bool Compress { get; set; }
 
+        public bool TruncateScrub { get; set; }
+
         public int SearchField { get; set; }
 
         public Config()
@@ -35,6 +37,7 @@ namespace Repackinator.Shared
             RecurseInput = false;
             UpperCase = false;
             Compress = false;
+            TruncateScrub = false;
             SearchField = 0;
         }
 

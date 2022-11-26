@@ -32,9 +32,7 @@ namespace Repackinator.Shared
             }
             var logMessage = new LogMessage(level, message);
             Logger(logMessage);
-            var bytes = Encoding.UTF8.GetBytes(Utility.FormatLogMessage(logMessage));
-            using var logStream = File.Open("AttachUpdateLog.txt", FileMode.OpenOrCreate);
-            logStream.Write(bytes);
+            File.AppendAllText("AttachUpdateLog.txt", Utility.FormatLogMessage(logMessage));
         }
 
         private void ProcessFolder(string folder, Stopwatch procesTime, CancellationToken cancellationToken)
