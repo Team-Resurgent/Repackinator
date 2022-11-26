@@ -326,10 +326,17 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 progress(0);
             }
 
+            var endSector = input.TotalSectors;
             var dataSectors = new HashSet<uint>();
             if (scrub)
             {
                 dataSectors = GetDataSectorsFromXiso(input);
+
+                if (truncate)
+                {
+                    endSector = Math.Min(dataSectors.Max() + 1, input.TotalSectors);
+                }
+
                 var securitySectors = GetSecuritySectorsFromXiso(input, dataSectors);
                 for (var i = 0; i < securitySectors.Count; i++)
                 {
@@ -347,9 +354,6 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             using var partWriter2 = new BinaryWriter(partStream2);
 
             var emptySector = new byte[2048];
-
-            var endDataSector = Math.Min(dataSectors.Max() + 1, input.TotalSectors);
-            var endSector = truncate ? endDataSector : input.TotalSectors;
 
             for (var i = sectorOffset; i < endDataSector; i++)
             {
@@ -391,10 +395,17 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 progress(0);
             }
 
+            var endSector = input.TotalSectors;
             var dataSectors = new HashSet<uint>();
             if (scrub)
             {
                 dataSectors = GetDataSectorsFromXiso(input);
+
+                if (truncate)
+                {
+                    endSector = Math.Min(dataSectors.Max() + 1, input.TotalSectors);
+                }
+
                 var securitySectors = GetSecuritySectorsFromXiso(input, dataSectors);
                 for (var i = 0; i < securitySectors.Count; i++)
                 {
@@ -409,9 +420,6 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             var compressedData = new byte[2048];
             var sectorsWritten = sectorOffset;
             var iteration = 0;
-
-            var endDataSector = Math.Min(dataSectors.Max() + 1, input.TotalSectors);
-            var endSector = truncate ? endDataSector : input.TotalSectors;
 
             while (sectorsWritten < endSector)
             {
