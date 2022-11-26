@@ -434,7 +434,7 @@ namespace RepackinatorUI
             const int MyItemColumnID_Info = 13;
 
             ImGuiTableFlags flags = ImGuiTableFlags.Resizable | ImGuiTableFlags.Borders | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable | ImGuiTableFlags.Sortable | ImGuiTableFlags.ScrollX | ImGuiTableFlags.ScrollY | ImGuiTableFlags.RowBg;
-            if (ImGui.BeginTable("table_sorting", 14, flags, new Vector2(0.0f, m_window.Height - (372 + m_splitterOffset)), 0.0f))
+            if (ImGui.BeginTable("table_sorting", 14, flags, new Vector2(0.0f, m_window.Height - (404 + m_splitterOffset)), 0.0f))
             {
                 ImGui.TableSetupColumn("Process", ImGuiTableColumnFlags.WidthFixed, 75.0f, MyItemColumnID_Process);
                 ImGui.TableSetupColumn("Scrub", ImGuiTableColumnFlags.WidthFixed, 75.0f, MyItemColumnID_Scrub);
@@ -725,7 +725,7 @@ namespace RepackinatorUI
                 if (m_splitterDragBegin)
                 {
                     var mouseDiffY = m_splitterMouseY - (int)ImGui.GetMousePos().Y;
-                    m_splitterOffset = Math.Max(Math.Min(m_splitterDragOffset + mouseDiffY, 0), -130);
+                    m_splitterOffset = Math.Max(Math.Min(m_splitterDragOffset + mouseDiffY, 0), -188);
                 }
             }
             else if (m_splitterDragBegin == true)
@@ -738,13 +738,13 @@ namespace RepackinatorUI
   
             ImGui.Text("Config:");
 
-            ImGui.BeginChild(3, new Vector2(m_window.Width - 16, 192 + m_splitterOffset), true, ImGuiWindowFlags.AlwaysUseWindowPadding);
+            ImGui.BeginChild(3, new Vector2(m_window.Width - 16, 224 + m_splitterOffset), true, ImGuiWindowFlags.AlwaysUseWindowPadding);
 
             string[] groupingItems = new string[] { "Default", "Region", "Letter", "Region Letter", "Letter Region" };
 
             ImGui.Text("Grouping Selection:");
             ImGui.SameLine();
-            ImGui.SetCursorPosX(125);
+            ImGui.SetCursorPosX(150);
             ImGui.PushItemWidth(100);
             int grouping = (int)m_config.Grouping;
             if (ImGui.Combo("##groupingField", ref grouping, groupingItems, groupingItems.Length))
@@ -758,7 +758,7 @@ namespace RepackinatorUI
 
             ImGui.Text("Use Uppercase:");
             ImGui.SameLine();
-            ImGui.SetCursorPosX(125);
+            ImGui.SetCursorPosX(150);
             bool uppercase = m_config.UpperCase;
             if (Toggle("##uppercase", ref uppercase, new Vector2(38, 24)))
             {
@@ -770,7 +770,7 @@ namespace RepackinatorUI
 
             ImGui.Text("Compress:");
             ImGui.SameLine();
-            ImGui.SetCursorPosX(125);
+            ImGui.SetCursorPosX(150);
             bool compress = m_config.Compress;
             if (Toggle("##compress", ref compress, new Vector2(38, 24)))
             {
@@ -782,9 +782,23 @@ namespace RepackinatorUI
 
             ImGui.Spacing();
 
-            ImGui.Text("Recurse Input:");
+            ImGui.Text("Truncate Scrub:");
             ImGui.SameLine();
-            ImGui.SetCursorPosX(125);
+            ImGui.SetCursorPosX(150);
+            bool truncateScrub = m_config.TruncateScrub;
+            if (Toggle("##truncateScrub", ref truncateScrub, new Vector2(38, 24)))
+            {
+                m_config.TruncateScrub = truncateScrub;
+                Config.SaveConfig(m_config);
+            }
+            ImGui.SameLine();
+            ImGui.Text("Removes unused data at end of data partition");
+
+            ImGui.Spacing();
+
+            ImGui.Text("Traverse Input Subdir's:");
+            ImGui.SameLine();
+            ImGui.SetCursorPosX(150);
             bool recurseInput = m_config.RecurseInput;
             if (Toggle("##recurseInput", ref recurseInput, new Vector2(38, 24)))
             {
@@ -796,7 +810,7 @@ namespace RepackinatorUI
 
             ImGui.Text("Input Folder:");
             ImGui.SameLine();
-            ImGui.SetCursorPosX(125);
+            ImGui.SetCursorPosX(150);
             ImGui.PushItemWidth(400);
             string inputPath = m_config.InputPath;
             if (ImGui.InputText("##inputFolder", ref inputPath, 260))
@@ -815,7 +829,7 @@ namespace RepackinatorUI
 
             ImGui.Text("Output Folder:");
             ImGui.SameLine();
-            ImGui.SetCursorPosX(125);
+            ImGui.SetCursorPosX(150);
             ImGui.PushItemWidth(400);
             string outputPath = m_config.OutputPath;
             if (ImGui.InputText("##outputFolder", ref outputPath, 260))

@@ -319,7 +319,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             return true;
         }
 
-        public static bool Split(IImageInput input, string outputPath, string name, string extension, bool scrub, Action<float>? progress, CancellationToken cancellationToken)
+        public static bool Split(IImageInput input, string outputPath, string name, string extension, bool scrub, bool truncate, Action<float>? progress, CancellationToken cancellationToken)
         {
             if (progress != null)
             {
@@ -348,7 +348,10 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
             var emptySector = new byte[2048];
 
-            for (var i = sectorOffset; i < input.TotalSectors; i++)
+            var endDataSector = Math.Min(dataSectors.Max() + 1, input.TotalSectors);
+            var endSector = truncate ? endDataSector : input.TotalSectors;
+
+            for (var i = sectorOffset; i < endDataSector; i++)
             {
                 var currentWriter = i - sectorOffset >= sectorSplit ? partWriter2 : partWriter1;
                
@@ -369,7 +372,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
                 if (progress != null)
                 {
-                    progress(i / (float)(input.TotalSectors - sectorOffset));
+                    progress(i / (float)(endSector - sectorOffset));
                 }
 
                 if (cancellationToken.IsCancellationRequested)
@@ -381,7 +384,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             return true;
         }
 
-        public static bool CreateCCI(IImageInput input, string outputPath, string name, string extension, bool scrub, Action<float>? progress, CancellationToken cancellationToken)
+        public static bool CreateCCI(IImageInput input, string outputPath, string name, string extension, bool scrub, bool truncate, Action<float>? progress, CancellationToken cancellationToken)
         {
             if (progress != null)
             {
@@ -407,7 +410,10 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             var sectorsWritten = sectorOffset;
             var iteration = 0;
 
-            while (sectorsWritten < input.TotalSectors)
+            var endDataSector = Math.Min(dataSectors.Max() + 1, input.TotalSectors);
+            var endSector = truncate ? endDataSector : input.TotalSectors;
+
+            while (sectorsWritten < endSector)
             {
                 var indexInfos = new List<IndexInfo>();
 
@@ -441,7 +447,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
                 var splitting = false;
                 var sectorCount = 0U;
-                while (sectorsWritten < input.TotalSectors)
+                while (sectorsWritten < endSector)
                 {
                     var writeSector = true;
                     if (scrub)
@@ -482,7 +488,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
                     if (progress != null)
                     {
-                        progress(sectorsWritten / (float)(input.TotalSectors - sectorOffset));
+                        progress(sectorsWritten / (float)(endSector - sectorOffset));
                     }
 
                     if (cancellationToken.IsCancellationRequested)
