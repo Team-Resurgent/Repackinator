@@ -147,10 +147,10 @@ namespace Repackinator.Shared
                     File.Delete("ScanLog.txt");
                 }
 
-                for (var i = 0; i < GameDataList.Length; i++)
-                {
-                    GameDataList[i].Process = "Y";
-                }
+                //for (var i = 0; i < GameDataList.Length; i++)
+                //{
+                //    GameDataList[i].Process = "Y";
+                //}
 
                 CurrentProgress.Progress1 = 0;
                 CurrentProgress.Progress1Text = "Searching Directories";
