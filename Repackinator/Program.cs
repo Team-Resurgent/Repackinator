@@ -12,5 +12,3 @@ else
 {
     ApplicationUIStartup.Start(version);    
 }
-
-Console.ReadLine();
