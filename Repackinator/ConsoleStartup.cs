@@ -16,7 +16,7 @@ namespace Repackinator
 
         private static string ScrubModeNone = "None";
         private static string ScrubModeScrub = "Scrub";
-        private static string ScrubModeTruncate = "Truncate";
+        private static string ScrubModeTrimmedScrub = "TrimmedScrub";
 
         private static void ProcessConvert(string version, bool shouldShowHelp, string[] args)
         {
@@ -29,7 +29,7 @@ namespace Repackinator
             {
                 var convertOptions = new OptionSet {
                     { "i|input=", "Input file", i => input = i },
-                    { "s|scrub=", "Scrub mode (None *default*, Scub, Truncate)", s => scrubMode = s },
+                    { "s|scrub=", "Scrub mode (None *default*, Scub, TrimmedScrub)", s => scrubMode = s },
                     { "c|compress", "Compress", c => compress = c != null },
                     { "w|wait", "Wait on exit", w => wait = w != null }
                 };
@@ -52,12 +52,57 @@ namespace Repackinator
                     throw new OptionException("Input is not a valid file.", "input");
                 }
 
-                if (!string.Equals(scrubMode, ScrubModeNone, StringComparison.CurrentCultureIgnoreCase) &&
-                    !string.Equals(scrubMode, ScrubModeScrub, StringComparison.CurrentCultureIgnoreCase) &&
-                    !string.Equals(scrubMode, ScrubModeTruncate, StringComparison.CurrentCultureIgnoreCase))
+                var outputPath = Path.GetDirectoryName(input);
+                var outputNameWithoutExtension = Path.GetFileNameWithoutExtension(input);
+                var subExtension = Path.GetExtension(outputNameWithoutExtension);
+                if (subExtension.Equals(".1") || subExtension.Equals(".2"))
+                {
+                    outputNameWithoutExtension = Path.GetFileNameWithoutExtension(outputNameWithoutExtension);
+                }
+
+                bool scrub = false;
+                bool truncate = false;
+
+                if (string.Equals(scrubMode, ScrubModeScrub, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    scrub = true;
+                    outputNameWithoutExtension = $"{outputNameWithoutExtension}-Scrub";
+                }
+                else if (string.Equals(scrubMode, ScrubModeTrimmedScrub, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    scrub = true;
+                    truncate = true;
+                    outputNameWithoutExtension = $"{outputNameWithoutExtension}-TrimmedScrub";
+                }
+                else if (!string.Equals(scrubMode, ScrubModeNone, StringComparison.CurrentCultureIgnoreCase))
                 {
                     throw new OptionException("Scrub mode is not valid.", "scrub");
                 }
+
+                Console.WriteLine("Converting:");
+                var inputSlices = Utility.GetSlicesFromFile(input);
+                foreach (var inputSlice in inputSlices)
+                {
+                    Console.WriteLine(Path.GetFileName(inputSlice));
+                }
+
+                if (outputPath != null) 
+                {
+                    outputPath = Path.Combine(outputPath, "Converted");
+                    Directory.CreateDirectory(outputPath);
+
+                    if (compress)
+                    {
+                        XisoUtility.CreateCCI(ImageImputHelper.GetImageInput(inputSlices), outputPath, outputNameWithoutExtension, ".iso", scrub, truncate, null, default);
+                    }
+                    else
+                    {
+                        XisoUtility.Split(ImageImputHelper.GetImageInput(inputSlices), outputPath, outputNameWithoutExtension, ".cci", scrub, truncate, null, default);
+                    }
+                }
+
+                Console.WriteLine();
+                Console.WriteLine("Convert completed.");
             }
             catch (OptionException e)
             {
@@ -157,7 +202,7 @@ namespace Repackinator
                     });
 
                     Console.WriteLine();
-                    Console.WriteLine("Compare complted.");
+                    Console.WriteLine("Compare completed.");
                 }
             }
             catch (OptionException e)
