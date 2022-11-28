@@ -2,7 +2,7 @@
 using Repackinator.Shared;
 using System.Numerics;
 
-namespace RepackinatorUI
+namespace Repackinator
 {
     public class EditDialog
     {

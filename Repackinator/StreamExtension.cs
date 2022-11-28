@@ -1,4 +1,4 @@
-﻿namespace RepackinatorUI
+﻿namespace Repackinator
 {
     public static class StreamExtension
     {

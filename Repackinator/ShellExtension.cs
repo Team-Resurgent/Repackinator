@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Veldrid;
 
-namespace RepackinatorUI
+namespace Repackinator
 {
     public class ShellExtension
     {

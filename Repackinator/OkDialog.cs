@@ -1,7 +1,7 @@
 ﻿using ImGuiNET;
 using System.Numerics;
 
-namespace RepackinatorUI
+namespace Repackinator
 {
     public class OkDialog
     {

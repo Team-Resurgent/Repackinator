@@ -4,9 +4,9 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Text;
 
-namespace RepackinatorUI
+namespace Repackinator
 {
-    public class AttachUpdateDialog
+    public class RepackDialog
     {
         private string _progress1Text = string.Empty;
         private float _progress1 = 0f;
@@ -14,6 +14,7 @@ namespace RepackinatorUI
         private float _progress2 = 0f;
         private List<LogMessage> _log = new();
         private Config _config;
+        private GameData[]? _gameData;
         private Stopwatch _stopwatch = new();
         private CancellationTokenSource _cancellationTokenSource = new();
 
@@ -22,9 +23,10 @@ namespace RepackinatorUI
         private bool _completed;
         private bool _logChanged;
 
-        public void ShowModal(Config config)
+        public void ShowModal(Config config, GameData[]? gameData)
         {
             _config = config;
+            _gameData = gameData;
             _showModal = true;
         }
 
@@ -34,7 +36,7 @@ namespace RepackinatorUI
             ImGui.CloseCurrentPopup();
         }
 
-        private void AttachUpdate()
+        private void Repack()
         {
             var logger = new Action<LogMessage>((logMessage) =>
             {
@@ -52,8 +54,8 @@ namespace RepackinatorUI
 
             _cancellationTokenSource = new CancellationTokenSource();
 
-            var attachUpdater = new AttachUpdater();
-            attachUpdater.StartAttachUpdating(_config, progress, logger, _stopwatch, _cancellationTokenSource.Token);
+            var repacker = new Repacker();
+            repacker.StartRepacking(_gameData, _config, progress, logger, _stopwatch, _cancellationTokenSource.Token);
 
             _completed = true;
         }
@@ -83,11 +85,11 @@ namespace RepackinatorUI
 
                 _log = new();
 
-                var scanThread = new Thread(AttachUpdate);
-                scanThread.Start();
+                var repackThread = new Thread(Repack);
+                repackThread.Start();
 
                 _open = true;
-                ImGui.OpenPopup("Attach Updating");
+                ImGui.OpenPopup("Repacking");
             }
 
             if (!_open)
@@ -96,7 +98,7 @@ namespace RepackinatorUI
             }
 
             var open = true;
-            if (!ImGui.BeginPopupModal("Attach Updating", ref open))
+            if (!ImGui.BeginPopupModal("Repacking", ref open))
             {
                 _cancellationTokenSource.Cancel();
                 return false;
@@ -123,7 +125,7 @@ namespace RepackinatorUI
             var totalSkipped = 0;
             var totalNotFound = 0;
             var totalCompleted = 0;
-            
+
             ImGuiTableFlags flags = ImGuiTableFlags.Resizable | ImGuiTableFlags.ScrollX | ImGuiTableFlags.ScrollY | ImGuiTableFlags.BordersOuter | ImGuiTableFlags.RowBg;
             if (ImGui.BeginTable("table_sorting", 3, flags, new Vector2(windowSize.X - 16, windowSize.Y - 185), 0.0f))
             {
@@ -166,12 +168,12 @@ namespace RepackinatorUI
                     {
                         logColor = new Vector4(0.25f, 1, 0.25f, 1);
                     }
-
+        
                     ImGui.PushID(i);
                     ImGui.TableNextRow(ImGuiTableRowFlags.None, 22);
 
                     ImGui.TableNextColumn();
-                    ImGui.Text(logEntry.Level == LogMessageLevel.None ? string.Empty : logEntry.Time.ToString("HH:mm:ss"));
+                    ImGui.Text(logEntry.Level == LogMessageLevel.None ? string.Empty : logEntry.Time.ToString("HH:mm:ss"));                    
 
                     ImGui.PushStyleColor(ImGuiCol.Text, ImGui.ColorConvertFloat4ToU32(logColor));
                     ImGui.TableNextColumn();
@@ -192,12 +194,12 @@ namespace RepackinatorUI
                 ImGui.EndTable();
             }
 
-            ImGui.Text($"Totals: Warnings = {totalWarnings}, Errors = {totalErrors}, Skipped = {totalSkipped}, Missing = {totalNotFound}, Completed = {totalCompleted}");
-
+            ImGui.Text($"Totals: Warnings = {totalWarnings}, Errors = {totalErrors}, Skipped = {totalSkipped}, Not Found = {totalNotFound}, Completed = {totalCompleted}");
+          
             ImGui.SameLine();
 
             var timeTaken = $"Total Time: {_stopwatch.Elapsed.TotalHours:00}:{_stopwatch.Elapsed.Minutes:00}:{_stopwatch.Elapsed.Seconds:00}";
-            ImGui.SetCursorPosX(windowSize.X - ImGui.CalcTextSize(timeTaken).X - 8);                
+            ImGui.SetCursorPosX(windowSize.X - ImGui.CalcTextSize(timeTaken).X - 8);
             ImGui.Text(timeTaken);
 
             ImGui.SetCursorPosY(windowSize.Y - 40);

@@ -104,7 +104,7 @@ Note: Compressed ISO support is currently under development and no current BIOS'
 ///  Install Notes                                                            ///
 ///  -----------------------------------------------------------------------  ///
 ///                                                                           ///
-///  Run RepackinatorUI.exe.                                                  ///
+///  Run Repackinator.exe.                                                  ///
 ///  Select Grouping Type.                                                    ///
 ///  Set Input Folder. (Path to your Redump .ZIP/.7Z or .ISO) Files           ///
 ///  Set Output Path. (Path to where you want to save your processed game)    ///
