@@ -29,6 +29,10 @@ namespace Repackinator.Shared
 
         public int SearchField { get; set; }
 
+        public string CompareFirst { get; set; }
+
+        public string CompareSecond { get; set; }
+
         public Config()
         {
             InputPath = string.Empty;
@@ -39,6 +43,8 @@ namespace Repackinator.Shared
             Compress = false;
             TruncateScrub = false;
             SearchField = 0;
+            CompareFirst = string.Empty;
+            CompareSecond = string.Empty;
         }
 
         public static Config LoadConfig(string path)

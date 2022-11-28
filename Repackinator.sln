@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32516.85
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Repackinator", "Repackinator\Repackinator.csproj", "{C71EBB5C-F260-468D-B1BD-7FCF18450FD1}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Resurgent.UtilityBelt.Library", "Resurgent.UtilityBelt.Library\Resurgent.UtilityBelt.Library.csproj", "{7C3C1130-944E-4669-8FF6-4600D2830257}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RepackinatorUI", "RepackinatorUI\RepackinatorUI.csproj", "{A1A300BE-217C-4677-97A7-A0AD213A367F}"
@@ -21,18 +19,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C71EBB5C-F260-468D-B1BD-7FCF18450FD1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C71EBB5C-F260-468D-B1BD-7FCF18450FD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C71EBB5C-F260-468D-B1BD-7FCF18450FD1}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{C71EBB5C-F260-468D-B1BD-7FCF18450FD1}.Debug|x64.Build.0 = Debug|Any CPU
-		{C71EBB5C-F260-468D-B1BD-7FCF18450FD1}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{C71EBB5C-F260-468D-B1BD-7FCF18450FD1}.Debug|x86.Build.0 = Debug|Any CPU
-		{C71EBB5C-F260-468D-B1BD-7FCF18450FD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C71EBB5C-F260-468D-B1BD-7FCF18450FD1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C71EBB5C-F260-468D-B1BD-7FCF18450FD1}.Release|x64.ActiveCfg = Release|Any CPU
-		{C71EBB5C-F260-468D-B1BD-7FCF18450FD1}.Release|x64.Build.0 = Release|Any CPU
-		{C71EBB5C-F260-468D-B1BD-7FCF18450FD1}.Release|x86.ActiveCfg = Release|Any CPU
-		{C71EBB5C-F260-468D-B1BD-7FCF18450FD1}.Release|x86.Build.0 = Release|Any CPU
 		{7C3C1130-944E-4669-8FF6-4600D2830257}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7C3C1130-944E-4669-8FF6-4600D2830257}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7C3C1130-944E-4669-8FF6-4600D2830257}.Debug|x64.ActiveCfg = Debug|Any CPU
