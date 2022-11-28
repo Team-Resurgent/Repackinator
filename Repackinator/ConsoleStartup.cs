@@ -1,5 +1,7 @@
 ﻿using Mono.Options;
 using Repackinator.Shared;
+using Resurgent.UtilityBelt.Library.Utilities;
+using Resurgent.UtilityBelt.Library.Utilities.ImageInput;
 using System;
 using System.Diagnostics;
 using System.Text;
@@ -28,8 +30,8 @@ namespace Repackinator
                 var convertOptions = new OptionSet {
                     { "i|input=", "Input file", i => input = i },
                     { "s|scrub=", "Scrub mode (None *default*, Scub, Truncate)", s => scrubMode = s },
-                    { "c|compress=", "Compress", c => compress = true },
-                    { "w|wait=", "Wait on exit", w => wait = true }
+                    { "c|compress", "Compress", c => compress = c != null },
+                    { "w|wait", "Wait on exit", w => wait = w != null }
                 };
                 convertOptions.Parse(args);
                 if (shouldShowHelp && args.Length == 2)
@@ -85,8 +87,8 @@ namespace Repackinator
                 var compareOptions = new OptionSet {
                     { "f|first=", "Set first file to compare", f => first = f },
                     { "s|second=", "Set second file to compare", s => second = s },
-                    { "c|compare=", "Compare", c => compare = true },
-                    { "w|wait=", "Wait on exit", w => wait = true }
+                    { "c|compare", "Compare", c => compare = c != null },
+                    { "w|wait", "Wait on exit", w => wait = w != null }
                 };
                 compareOptions.Parse(args);
                 if (shouldShowHelp && args.Length == 2)
@@ -133,6 +135,29 @@ namespace Repackinator
                         throw new OptionException("Second is not a valid file.", "input");
                     }
 
+                    Console.WriteLine("Comparing:");
+                    var firstSlices = Utility.GetSlicesFromFile(config.CompareFirst);
+                    foreach (var firstSlice in firstSlices)
+                    {
+                        Console.WriteLine(Path.GetFileName(firstSlice));
+                    }
+
+                    Console.WriteLine("Against:");
+                    var secondSlices = Utility.GetSlicesFromFile(config.CompareSecond);
+                    foreach (var secondSlice in secondSlices)
+                    {
+                        Console.WriteLine(Path.GetFileName(secondSlice));
+                    }
+
+                    Console.WriteLine();
+
+                    Console.WriteLine("Processing...");
+                    XisoUtility.CompareXISO(ImageImputHelper.GetImageInput(firstSlices), ImageImputHelper.GetImageInput(secondSlices), s => {
+                        Console.WriteLine(s);
+                    });
+
+                    Console.WriteLine();
+                    Console.WriteLine("Compare complted.");
                 }
             }
             catch (OptionException e)

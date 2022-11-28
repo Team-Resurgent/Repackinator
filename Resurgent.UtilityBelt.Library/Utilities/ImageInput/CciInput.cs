@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 
-namespace Resurgent.UtilityBelt.Library.Utilities.Xiso
+namespace Resurgent.UtilityBelt.Library.Utilities.ImageInput
 {
     public class CciInput : IImageInput
     {

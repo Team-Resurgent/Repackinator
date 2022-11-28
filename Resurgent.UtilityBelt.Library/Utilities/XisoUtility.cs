@@ -1,10 +1,5 @@
-﻿using ICSharpCode.SharpZipLib;
-using Resurgent.UtilityBelt.Library.Utilities.Xiso;
-using System.Data;
-using System.IO;
-using System.IO.Pipes;
-using System.Linq;
-using System.Runtime.InteropServices;
+﻿using Resurgent.UtilityBelt.Library.Utilities.ImageInput;
+using System.Security.Cryptography;
 using System.Text;
 
 //0x18300000U video size
@@ -277,21 +272,43 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
         //https://github.com/Qubits01/xbox_shrinker
 
-        public static bool CompareXISO(IImageInput input1, IImageInput input2)
+        public static void CompareXISO(IImageInput input1, IImageInput input2, Action<string> log)
         {
+            var sectorOffset1 = input1.TotalSectors == Constants.RedumpSectors ? Constants.VideoSectors : 0U;
+            var sectorOffset2 = input2.TotalSectors == Constants.RedumpSectors ? Constants.VideoSectors : 0U;
 
-            if (input1.TotalSectors != input2.TotalSectors)
+            if (sectorOffset1 > 0)
             {
-                System.Diagnostics.Debug.WriteLine($"Sector count is different.");
-                return false;
+                log("First contains a video partition, compare will ignore those sectors.");
             }
 
-            var sectorOffset = input1.TotalSectors == Constants.RedumpSectors ? 0x30600U : 0U;
-
-            for (var i = 0; i < input1.TotalSectors; i++)
+            if (sectorOffset2 > 0)
             {
-                var buffer1 = input1.ReadSectors(i, 1);
-                var buffer2 = input2.ReadSectors(i, 1);
+                log("Second contains a video partition, compare will ignore those sectors.");
+            }
+
+            if (input1.TotalSectors - sectorOffset1 != input2.TotalSectors - sectorOffset2)
+            {
+                log("Expected sector counts do not match, assuming image could be truncated.");
+            }
+
+            var flag = false;
+            var startRange = 0L;
+            var endRange = 0L;
+            for (var i = 0; i < input1.TotalSectors - sectorOffset1; i++)
+            {
+                var buffer1 = new byte[2048];
+                var buffer2 = new byte[2048];
+
+                if (i < input1.TotalSectors)
+                {
+                    buffer1 = input1.ReadSectors(i + sectorOffset1, 1);
+                }
+
+                if (i < input2.TotalSectors) 
+                { 
+                    buffer2 = input2.ReadSectors(i + sectorOffset2, 1);
+                }
 
                 var same = true;
                 for (var j = 0; j < 2048; j++)
@@ -303,18 +320,93 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                     }
                 }
 
-                if (i <= sectorOffset && !same)
+                endRange = i;
+                if (!same)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Ignoring sector {i} as different but doesnt matter.");
+                    if (!flag)
+                    {
+                        startRange = i;
+                        flag = true;
+                    }
                 }
-                else if (!same)
+                else if (flag)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Sector {i} is different.");
-                    return false;
+                    log($"Game partition sectors in range {startRange}-{endRange} (Redump range {startRange + sectorOffset1}-{endRange + sectorOffset1}) are different.");
+                    flag = false;
                 }
             }
 
-            return true;
+            if (flag)
+            {
+                log($"Game partition sectors in range {startRange}-{endRange} (Redump range {startRange + sectorOffset1}-{endRange + sectorOffset1}) are different.");
+            }
+
+            log("");
+
+            log("Calculating data sector hashes for first...");
+            using var dataSectorsHash1 = MD5.Create();
+            var dataSectors1 = GetDataSectorsFromXiso(input1);
+            foreach (var dataSector1 in dataSectors1)
+            {
+                var buffer = input1.ReadSectors(dataSector1 + sectorOffset1, 1);
+                dataSectorsHash1.TransformBlock(buffer, 0, buffer.Length, null, 0);
+                dataSectorsHash1.ComputeHash(buffer);
+            }
+            var dataSectorsHash1Result = Convert.ToBase64String(dataSectorsHash1.TransformFinalBlock(Array.Empty<byte>(), 0, 0));
+
+            log("Calculating data sector hash for second...");
+            using var dataSectorsHash2 = MD5.Create();
+            var dataSectors2 = GetDataSectorsFromXiso(input2);
+            foreach (var dataSector2 in dataSectors2)
+            {
+                var buffer = input1.ReadSectors(dataSector2 + sectorOffset2, 1);
+                dataSectorsHash2.TransformBlock(buffer, 0, buffer.Length, null, 0);
+                dataSectorsHash2.ComputeHash(buffer);
+            }
+            var dataSectorsHash2Result = Convert.ToBase64String(dataSectorsHash2.TransformFinalBlock(Array.Empty<byte>(), 0, 0));
+
+            if (dataSectorsHash1Result == dataSectorsHash2Result)
+            {
+                log("Data sectors match.");
+            }
+            else
+            {
+                log("Data sectors do not match.");
+            }
+
+
+            log("");
+
+            log("Calculating security sector hashes for first...");
+            using var securitySectorsHash1 = MD5.Create();
+            var securitySectors1 = GetSecuritySectorsFromXiso(input1, dataSectors1);
+            foreach (var securitySector1 in securitySectors1)
+            {
+                var buffer = input1.ReadSectors(securitySector1 + sectorOffset1, 1);
+                securitySectorsHash1.TransformBlock(buffer, 0, buffer.Length, null, 0);
+                securitySectorsHash1.ComputeHash(buffer);
+            }
+            var securitySectorsHash1Result = Convert.ToBase64String(securitySectorsHash1.TransformFinalBlock(Array.Empty<byte>(), 0, 0));
+
+            log("Calculating security sector hash for second...");
+            using var securitySectorsHash2 = MD5.Create();
+            var securitySectors2 = GetSecuritySectorsFromXiso(input2, dataSectors2);
+            foreach (var securitySector2 in securitySectors2)
+            {
+                var buffer = input1.ReadSectors(securitySector2 + sectorOffset2, 1);
+                securitySectorsHash2.TransformBlock(buffer, 0, buffer.Length, null, 0);
+                securitySectorsHash2.ComputeHash(buffer);
+            }
+            var securitySectorsHash2Result = Convert.ToBase64String(securitySectorsHash2.TransformFinalBlock(Array.Empty<byte>(), 0, 0));
+
+            if (securitySectorsHash1Result == securitySectorsHash2Result)
+            {
+                log("Security sectors match.");
+            }
+            else
+            {
+                log("Security sectors do not match.");
+            }
         }
 
         public static bool Split(IImageInput input, string outputPath, string name, string extension, bool scrub, bool truncate, Action<float>? progress, CancellationToken cancellationToken)
