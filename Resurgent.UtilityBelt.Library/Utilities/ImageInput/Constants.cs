@@ -1,4 +1,4 @@
-﻿namespace Resurgent.UtilityBelt.Library.Utilities.Xiso
+﻿namespace Resurgent.UtilityBelt.Library.Utilities.ImageInput
 {
     public static class Constants
     {

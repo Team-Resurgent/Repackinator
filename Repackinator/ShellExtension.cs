@@ -1,60 +1,10 @@
 ﻿using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
-using Veldrid;
+using Repackinator.Shared;
 
 namespace Repackinator
 {
     public class ShellExtension
     {
-        private static string FileTypeRepackinatorISO = "Repackinator.ISO";
-        private static string FileTypeRepackinatorCCI = "Repackinator.CCI";
-
-        public static bool IsAdmin()
-        {
-            if (!OperatingSystem.IsWindows())
-            {
-                return false;
-            }
-            bool isAdmin;
-            try
-            {
-                var user = WindowsIdentity.GetCurrent();
-                var principal = new WindowsPrincipal(user);
-                isAdmin = principal.IsInRole(WindowsBuiltInRole.Administrator);
-            }
-            catch 
-            {
-                isAdmin = false;
-            }
-            return isAdmin;
-        }
-
-        private static string BuildFilter(string[]? extensions)
-        {
-            if (extensions == null || extensions.Length == 0)
-            {
-                return "*";
-            }
-            var stringBuilder = new StringBuilder();            
-            for (int i = 0; i < extensions.Length; i++) 
-            {
-                if (i > 0)
-                {
-                    stringBuilder.Append(" OR ");
-                }
-                stringBuilder.Append($"System.FileName:\"*.{extensions[i]}\"");                
-            }
-            return stringBuilder.ToString();
-        }
-
         private static void RegisterSubMenu(RegistryKey key, string name, string description, string command, string extension)
         {
             if (!OperatingSystem.IsWindows())
@@ -68,9 +18,9 @@ namespace Repackinator
             commandMenu1Key.SetValue(null, command);
         }
 
-        private static void Register(string fileType, string shellKeyName, string menuText, string menuCommand)
+        public static void RegisterContext()
         {
-            if (!OperatingSystem.IsWindows())
+            if (!OperatingSystem.IsWindows() || !Utility.IsAdmin())
             {
                 return;
             }
@@ -95,11 +45,9 @@ namespace Repackinator
                 RegisterSubMenu(key, "11menu", "Convert To CCI (Scrub)", command, ".cci");
                 RegisterSubMenu(key, "12menu", "Convert To CCI (Scrub+Truncate)", command, ".cci");
             }
-
-
         }
 
-        private static void Unregister(string fileType, string shellKeyName)
+        public static void UnregisterContext()
         {
             if (!OperatingSystem.IsWindows())
             {
@@ -107,32 +55,5 @@ namespace Repackinator
             }
             Registry.ClassesRoot.DeleteSubKeyTree("*\\shell\\Repackinator");
         }
-
-        public static void RegisterContext()
-        {
-            if (!OperatingSystem.IsWindows() || !IsAdmin())
-            {
-                return;
-            }
-            var exePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"{AppDomain.CurrentDomain.FriendlyName}.exe");
-            var command = $"\"{exePath}\" \"%L\"";
-            Register(FileTypeRepackinatorISO, "Repackinator", "Enable Scrub", command);
-        }
-
-        public static void UnregisterContext()
-        {
-            if (!OperatingSystem.IsWindows() || !IsAdmin())
-            {
-                return;
-            }
-            //Unregister("jpegfile", "Simple Context Menu");
-        }
-        //        string menuCommand = string.Format("\"{0}\" \"%L\"",
-        //                                   Application.ExecutablePath);
-        //        FileShellExtension.Register("jpegfile", "Simple Context Menu", 
-        //                            "Copy to Grayscale", menuCommand);
-
-        //// sample usage to unregister
-        //FileShellExtension.Unregister("jpegfile", "Simple Context Menu");
     }
 }
