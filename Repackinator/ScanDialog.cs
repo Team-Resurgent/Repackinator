@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Text;
 
-namespace RepackinatorUI
+namespace Repackinator
 {
     public class ScanDialog
     {

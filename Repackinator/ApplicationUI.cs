@@ -10,7 +10,7 @@ using Veldrid.StartupUtilities;
 
 //TODO: on repack close cancel
 
-namespace RepackinatorUI
+namespace Repackinator
 {
     public class ApplicationUI
     {

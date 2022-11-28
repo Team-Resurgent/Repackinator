@@ -6,7 +6,7 @@ using System.Numerics;
 using System.Reflection;
 using System;
 
-namespace RepackinatorUI
+namespace Repackinator
 {
     public class CreditsDialog
     {

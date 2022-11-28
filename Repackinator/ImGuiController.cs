@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Veldrid;
 
-namespace RepackinatorUI
+namespace Repackinator
 {
     public class ImGuiController : IDisposable
     {

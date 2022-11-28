@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Text;
 using static System.Collections.Specialized.BitVector32;
 
-namespace RepackinatorUI
+namespace Repackinator
 {
     public static class ConsoleStartup
     {
