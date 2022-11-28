@@ -272,7 +272,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
         //https://github.com/Qubits01/xbox_shrinker
 
-        public static void CompareXISO(IImageInput input1, IImageInput input2, Action<string> log)
+        public static void CompareXISO(IImageInput input1, IImageInput input2, Action<string> log, Action<float>? progress)
         {
             var sectorOffset1 = input1.TotalSectors == Constants.RedumpSectors ? Constants.VideoSectors : 0U;
             var sectorOffset2 = input2.TotalSectors == Constants.RedumpSectors ? Constants.VideoSectors : 0U;
@@ -289,7 +289,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
             if (input1.TotalSectors - sectorOffset1 != input2.TotalSectors - sectorOffset2)
             {
-                log("Expected sector counts do not match, assuming image could be truncated.");
+                log("Expected sector counts do not match, assuming image could be trimmed.");
             }
 
             var flag = false;
@@ -334,6 +334,11 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                     log($"Game partition sectors in range {startRange}-{endRange} (Redump range {startRange + sectorOffset1}-{endRange + sectorOffset1}) are different.");
                     flag = false;
                 }
+
+                if (progress != null)
+                {
+                    progress(i / (float)(input1.TotalSectors - sectorOffset1));
+                }
             }
 
             if (flag)
@@ -346,22 +351,32 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             log("Calculating data sector hashes for first...");
             using var dataSectorsHash1 = MD5.Create();
             var dataSectors1 = GetDataSectorsFromXiso(input1);
-            foreach (var dataSector1 in dataSectors1)
+            for (var i = 0; i < dataSectors1.Count; i++)
             {
+                var dataSector1 = dataSectors1.ElementAt(i);
                 var buffer = input1.ReadSectors(dataSector1 + sectorOffset1, 1);
                 dataSectorsHash1.TransformBlock(buffer, 0, buffer.Length, null, 0);
                 dataSectorsHash1.ComputeHash(buffer);
+                if (progress != null)
+                {
+                    progress(i / (float)dataSectors1.Count);
+                }
             }
             var dataSectorsHash1Result = Convert.ToBase64String(dataSectorsHash1.TransformFinalBlock(Array.Empty<byte>(), 0, 0));
 
             log("Calculating data sector hash for second...");
             using var dataSectorsHash2 = MD5.Create();
             var dataSectors2 = GetDataSectorsFromXiso(input2);
-            foreach (var dataSector2 in dataSectors2)
+            for (var i = 0; i < dataSectors2.Count; i++)
             {
+                var dataSector2 = dataSectors1.ElementAt(i);
                 var buffer = input1.ReadSectors(dataSector2 + sectorOffset2, 1);
                 dataSectorsHash2.TransformBlock(buffer, 0, buffer.Length, null, 0);
                 dataSectorsHash2.ComputeHash(buffer);
+                if (progress != null)
+                {
+                    progress(i / (float)dataSectors2.Count);
+                }
             }
             var dataSectorsHash2Result = Convert.ToBase64String(dataSectorsHash2.TransformFinalBlock(Array.Empty<byte>(), 0, 0));
 
@@ -380,22 +395,32 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             log("Calculating security sector hashes for first...");
             using var securitySectorsHash1 = MD5.Create();
             var securitySectors1 = GetSecuritySectorsFromXiso(input1, dataSectors1);
-            foreach (var securitySector1 in securitySectors1)
+            for (var i = 0; i < securitySectors1.Count; i++)
             {
+                var securitySector1 = securitySectors1.ElementAt(i);
                 var buffer = input1.ReadSectors(securitySector1 + sectorOffset1, 1);
                 securitySectorsHash1.TransformBlock(buffer, 0, buffer.Length, null, 0);
                 securitySectorsHash1.ComputeHash(buffer);
+                if (progress != null)
+                {
+                    progress(i / (float)securitySectors1.Count);
+                }
             }
             var securitySectorsHash1Result = Convert.ToBase64String(securitySectorsHash1.TransformFinalBlock(Array.Empty<byte>(), 0, 0));
 
             log("Calculating security sector hash for second...");
             using var securitySectorsHash2 = MD5.Create();
             var securitySectors2 = GetSecuritySectorsFromXiso(input2, dataSectors2);
-            foreach (var securitySector2 in securitySectors2)
+            for (var i = 0; i < securitySectors2.Count; i++)
             {
+                var securitySector2 = securitySectors2.ElementAt(i);
                 var buffer = input1.ReadSectors(securitySector2 + sectorOffset2, 1);
                 securitySectorsHash2.TransformBlock(buffer, 0, buffer.Length, null, 0);
                 securitySectorsHash2.ComputeHash(buffer);
+                if (progress != null)
+                {
+                    progress(i / (float)securitySectors2.Count);
+                }
             }
             var securitySectorsHash2Result = Convert.ToBase64String(securitySectorsHash2.TransformFinalBlock(Array.Empty<byte>(), 0, 0));
 
@@ -409,7 +434,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             }
         }
 
-        public static bool Split(IImageInput input, string outputPath, string name, string extension, bool scrub, bool truncate, Action<float>? progress, CancellationToken cancellationToken)
+        public static bool Split(IImageInput input, string outputPath, string name, string extension, bool scrub, bool trimmedScrub, Action<float>? progress, CancellationToken cancellationToken)
         {
             if (progress != null)
             {
@@ -422,7 +447,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             {
                 dataSectors = GetDataSectorsFromXiso(input);
 
-                if (truncate)
+                if (trimmedScrub)
                 {
                     endSector = Math.Min(dataSectors.Max() + 1, input.TotalSectors);
                 }
@@ -478,7 +503,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             return true;
         }
 
-        public static bool CreateCCI(IImageInput input, string outputPath, string name, string extension, bool scrub, bool truncate, Action<float>? progress, CancellationToken cancellationToken)
+        public static bool CreateCCI(IImageInput input, string outputPath, string name, string extension, bool scrub, bool trimmedScrub, Action<float>? progress, CancellationToken cancellationToken)
         {
             if (progress != null)
             {
@@ -491,7 +516,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             {
                 dataSectors = GetDataSectorsFromXiso(input);
 
-                if (truncate)
+                if (trimmedScrub)
                 {
                     endSector = Math.Min(dataSectors.Max() + 1, input.TotalSectors);
                 }

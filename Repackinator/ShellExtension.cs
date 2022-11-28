@@ -49,13 +49,14 @@ namespace Repackinator
             }
         }
 
-        public static void UnregisterContext()
+        public static bool UnregisterContext()
         {
-            if (!OperatingSystem.IsWindows())
+            if (!OperatingSystem.IsWindows() || !Utility.IsAdmin())
             {
-                return;
+                return false;
             }
             Registry.ClassesRoot.DeleteSubKeyTree("*\\shell\\Repackinator");
+            return true;
         }
     }
 }

@@ -61,7 +61,7 @@ namespace Repackinator
                 }
 
                 bool scrub = false;
-                bool truncate = false;
+                bool trimmedScrub = false;
 
                 if (string.Equals(scrubMode, ScrubModeScrub, StringComparison.CurrentCultureIgnoreCase))
                 {
@@ -71,7 +71,7 @@ namespace Repackinator
                 else if (string.Equals(scrubMode, ScrubModeTrimmedScrub, StringComparison.CurrentCultureIgnoreCase))
                 {
                     scrub = true;
-                    truncate = true;
+                    trimmedScrub = true;
                     outputNameWithoutExtension = $"{outputNameWithoutExtension}-TrimmedScrub";
                 }
                 else if (!string.Equals(scrubMode, ScrubModeNone, StringComparison.CurrentCultureIgnoreCase))
@@ -93,11 +93,19 @@ namespace Repackinator
 
                     if (compress)
                     {
-                        XisoUtility.CreateCCI(ImageImputHelper.GetImageInput(inputSlices), outputPath, outputNameWithoutExtension, ".iso", scrub, truncate, null, default);
+                        XisoUtility.CreateCCI(ImageImputHelper.GetImageInput(inputSlices), outputPath, outputNameWithoutExtension, ".iso", scrub, trimmedScrub, p =>
+                        {
+                            Console.Write($"Progress {Math.Round(p * 100)}%");
+                            Console.CursorLeft = 0;
+                        }, default);
                     }
                     else
                     {
-                        XisoUtility.Split(ImageImputHelper.GetImageInput(inputSlices), outputPath, outputNameWithoutExtension, ".cci", scrub, truncate, null, default);
+                        XisoUtility.Split(ImageImputHelper.GetImageInput(inputSlices), outputPath, outputNameWithoutExtension, ".cci", scrub, trimmedScrub, p =>
+                        {
+                            Console.Write($"Progress {Math.Round(p * 100)}%");
+                            Console.CursorLeft = 0;
+                        }, default);
                     }
                 }
 
@@ -199,6 +207,10 @@ namespace Repackinator
                     Console.WriteLine("Processing...");
                     XisoUtility.CompareXISO(ImageImputHelper.GetImageInput(firstSlices), ImageImputHelper.GetImageInput(secondSlices), s => {
                         Console.WriteLine(s);
+                    }, p =>
+                    {
+                        Console.Write($"Progress {Math.Round(p * 100)}%");
+                        Console.CursorLeft = 0;
                     });
 
                     Console.WriteLine();
@@ -223,13 +235,13 @@ namespace Repackinator
         {
             var shouldShowHelp = false;
             var action = string.Empty;
-            
+
             //var input = "";
             //var output = "";
             //var grouping = "NONE";
             //var log = "";
 
-            //truncate
+            //trimmedScrub
 
             var mainOptions = new OptionSet {
                 { "a|action=", "Action (Convert, Compare)", a => action = a },
