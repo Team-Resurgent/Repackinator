@@ -7,9 +7,10 @@ ShellExtension.RegisterContext();
 if (args.Length > 0)
 {
     ConsoleStartup.Start(version, args);
-    Console.ReadLine();
 }
 else
 {
     ApplicationUIStartup.Start(version);    
 }
+
+Console.ReadLine();
