@@ -1,5 +1,6 @@
 ﻿using ImGuiNET;
 using Repackinator.Shared;
+using System.Diagnostics;
 using System.Numerics;
 
 namespace Repackinator
@@ -135,15 +136,37 @@ namespace Repackinator
             }
             ImGui.PopItemWidth();
 
+            string link = GameData.Link ?? "";
+
             ImGui.TextUnformatted("Link:");
             ImGui.SameLine();
+            ImGui.SetCursorPosX(8);
+            if (ImGui.InvisibleButton("##link", new Vector2(80, 20)))
+            {
+                if (ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left))
+                {
+                    if (OperatingSystem.IsWindows())
+                    {
+                        try
+                        {
+                            Process.Start("cmd", "/C start" + " " + link);
+                        }
+                        catch
+                        {
+                            // do nothing
+                        }
+                    }
+                }
+            }
+
+            ImGui.SameLine();
             ImGui.SetCursorPosX(100);
-            string link = GameData.Link ?? "";
             ImGui.PushItemWidth(300);
             if (ImGui.InputText("##editLink", ref link, 8))
             {
                 GameData.Link = link;
             }
+
             ImGui.PopItemWidth();
 
             ImGui.TextUnformatted("Info:");
