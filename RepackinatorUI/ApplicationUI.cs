@@ -12,7 +12,7 @@ using Veldrid.StartupUtilities;
 
 namespace RepackinatorUI
 {
-    public class Application
+    public class ApplicationUI
     {
         private Sdl2Window? m_window;
         private GraphicsDevice? m_graphicsDevice;
@@ -40,7 +40,7 @@ namespace RepackinatorUI
         private int m_splitterMouseY;
         private int m_splitterDragOffset = 0;
 
-        public Application(string version)
+        public ApplicationUI(string version)
         {
             m_version = version;
         }

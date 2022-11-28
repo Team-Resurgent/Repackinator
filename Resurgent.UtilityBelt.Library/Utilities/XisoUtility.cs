@@ -35,11 +35,9 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
             var position = 20U;
             var sectorOffset = input.TotalSectors == Constants.RedumpSectors ? Constants.VideoSectors : 0U;
-            var headerSector = (uint)sectorOffset + 0x20U;
-            if (input.TotalSectors == Constants.RedumpSectors) { 
-                dataSectors.Add(headerSector);
-                dataSectors.Add(headerSector + 1);                
-            }
+            var headerSector = (uint)sectorOffset + 0x20U;           
+            dataSectors.Add(headerSector);
+            dataSectors.Add(headerSector + 1);
             position += (headerSector << 11);
 
             var rootSector = input.ReadUint32(position);
@@ -138,7 +136,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             var securitySectors = new HashSet<uint>();            
             if (input.TotalSectors != Constants.RedumpSectors && input.TotalSectors != Constants.IsoSectors)
             {
-                return datasecs;
+                return securitySectors;
             }
                         
             var flag = false;
