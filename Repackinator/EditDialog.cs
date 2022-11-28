@@ -143,18 +143,15 @@ namespace Repackinator
             ImGui.SetCursorPosX(8);
             if (ImGui.InvisibleButton("##link", new Vector2(80, 20)))
             {
-                if (ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left))
+                if (OperatingSystem.IsWindows())
                 {
-                    if (OperatingSystem.IsWindows())
+                    try
                     {
-                        try
-                        {
-                            Process.Start("cmd", "/C start" + " " + link);
-                        }
-                        catch
-                        {
-                            // do nothing
-                        }
+                        Process.Start("cmd", "/C start" + " " + link);
+                    }
+                    catch
+                    {
+                        // do nothing
                     }
                 }
             }
@@ -169,10 +166,28 @@ namespace Repackinator
 
             ImGui.PopItemWidth();
 
+            string info = GameData.Info ?? "";
+
             ImGui.TextUnformatted("Info:");
             ImGui.SameLine();
+            ImGui.SetCursorPosX(8);
+            if (ImGui.InvisibleButton("##info", new Vector2(80, 20)))
+            {
+                if (OperatingSystem.IsWindows())
+                {
+                    try
+                    {
+                        Process.Start("cmd", "/C start" + " " + info);
+                    }
+                    catch
+                    {
+                        // do nothing
+                    }
+                }
+            }
+
+            ImGui.SameLine();
             ImGui.SetCursorPosX(100);
-            string info = GameData.Info ?? "";
             ImGui.PushItemWidth(300);
             if (ImGui.InputText("##editInfo", ref info, 8))
             {
