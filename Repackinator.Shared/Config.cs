@@ -25,7 +25,7 @@ namespace Repackinator.Shared
 
         public bool Compress { get; set; }
 
-        public bool TruncateScrub { get; set; }
+        public bool TrimmedScrub { get; set; }
 
         public int SearchField { get; set; }
 
@@ -41,7 +41,7 @@ namespace Repackinator.Shared
             RecurseInput = false;
             UpperCase = false;
             Compress = false;
-            TruncateScrub = false;
+            TrimmedScrub = false;
             SearchField = 0;
             CompareFirst = string.Empty;
             CompareSecond = string.Empty;

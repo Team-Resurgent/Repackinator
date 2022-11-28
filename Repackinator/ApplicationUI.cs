@@ -782,13 +782,13 @@ namespace Repackinator
 
             ImGui.Spacing();
 
-            ImGui.Text("Truncate Scrub:");
+            ImGui.Text("Trim Scrub:");
             ImGui.SameLine();
             ImGui.SetCursorPosX(150);
-            bool truncateScrub = m_config.TruncateScrub;
-            if (Toggle("##truncateScrub", ref truncateScrub, new Vector2(38, 24)))
+            bool trimmedScrub = m_config.TrimmedScrub;
+            if (Toggle("##trimmedScrub", ref trimmedScrub, new Vector2(38, 24)))
             {
-                m_config.TruncateScrub = truncateScrub;
+                m_config.TrimmedScrub = trimmedScrub;
                 Config.SaveConfig(m_config);
             }
             ImGui.SameLine();
