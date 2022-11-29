@@ -1,5 +1,6 @@
 ﻿using ImGuiNET;
 using Repackinator.Shared;
+using Repackinator.Shared.Language;
 using Resurgent.UtilityBelt.Library.Utilities;
 using System.Diagnostics;
 using System.Numerics;

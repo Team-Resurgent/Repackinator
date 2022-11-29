@@ -12,6 +12,13 @@
 
 	<ItemGroup>
 		<EmbeddedResource Include="Resources\attach.xbe" />
+		<EmbeddedResource Update="Language\UserLocale.resx">
+		  <Generator>ResXFileCodeGenerator</Generator>
+		  <LastGenOutput>UserLocale.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+		<EmbeddedResource Update="Language\UserLocale.nb-NO.resx">
+		  <DependentUpon>Strings.resx</DependentUpon>
+		</EmbeddedResource>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -20,6 +27,14 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\Resurgent.UtilityBelt.Library\Resurgent.UtilityBelt.Library.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="Language\UserLocale.Designer.cs">
+	    <DesignTime>True</DesignTime>
+	    <AutoGen>True</AutoGen>
+	    <DependentUpon>Strings2.resx</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 
 </Project>
