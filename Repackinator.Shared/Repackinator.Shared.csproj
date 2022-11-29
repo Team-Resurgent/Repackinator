@@ -33,7 +33,7 @@
 	  <Compile Update="Language\UserLocale.Designer.cs">
 	    <DesignTime>True</DesignTime>
 	    <AutoGen>True</AutoGen>
-	    <DependentUpon>Strings2.resx</DependentUpon>
+	    <DependentUpon>UserLocale.resx</DependentUpon>
 	  </Compile>
 	</ItemGroup>
 
