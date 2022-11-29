@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Repackinator.Shared.Language {
+namespace Repackinator.Localization.Language {
     using System;
     
     

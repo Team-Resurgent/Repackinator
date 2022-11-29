@@ -3,7 +3,7 @@ using Resurgent.UtilityBelt.Library.Utilities.ImageInput;
 using Resurgent.UtilityBelt.Library.Utilities.XbeModels;
 // using Resurgent.UtilityBelt.Library.Utilities.Xiso;
 // using Repackinator.Shared;
-using Repackinator.Shared.Language;
+using Repackinator.Localization.Language;
 using SharpCompress;
 using System.Diagnostics;
 using System.Text;
