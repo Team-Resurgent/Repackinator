@@ -38,7 +38,7 @@ namespace Repackinator.Shared
             }
             var logMessage = new LogMessage(level, message);
             Logger(logMessage);
-            File.AppendAllText("ScanLog.txt", Utility.FormatLogMessage(logMessage));
+            File.AppendAllText("ScanLog.txt", logMessage.ToLogFormat());
         }
 
         private void ProcessFolder(string folder, Stopwatch procesTime, CancellationToken cancellationToken)
@@ -156,7 +156,7 @@ namespace Repackinator.Shared
                 //}
 
                 CurrentProgress.Progress1 = 0;
-                CurrentProgress.Progress1Text = UserLocale.scanner_ui_progress_searching_directories;//"Searching Directories";
+                CurrentProgress.Progress1Text = UserLocale.scandialog_progress_searching_directories;
                 CurrentProgress.Progress2 = 0;
                 CurrentProgress.Progress2Text = string.Empty;
                 SendProgress();

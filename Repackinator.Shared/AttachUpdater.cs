@@ -32,7 +32,7 @@ namespace Repackinator.Shared
             }
             var logMessage = new LogMessage(level, message);
             Logger(logMessage);
-            File.AppendAllText("AttachUpdateLog.txt", Utility.FormatLogMessage(logMessage));
+            File.AppendAllText("AttachUpdateLog.txt", logMessage.ToLogFormat());
         }
 
         private void ProcessFolder(string folder, Stopwatch procesTime, CancellationToken cancellationToken)

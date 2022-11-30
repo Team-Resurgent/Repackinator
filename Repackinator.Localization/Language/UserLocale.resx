@@ -21,16 +21,67 @@
     <data name="scanner.log.completed" xml:space="preserve">
         <value>Completed Scanning List (Time Taken {0:00}:{1:00}:{2:00})</value>
     </data>
-    <data name="scanner.ui.progress.searching-directories" xml:space="preserve">
+    <data name="scandialog.progress.searching-directories" xml:space="preserve">
         <value>Scanning Directories</value>
     </data>
-    <data name="scanner.ui.table.level" xml:space="preserve">
+    <data name="scandialog.log.table.level" xml:space="preserve">
         <value>Level</value>
     </data>
-    <data name="scanner.ui.table.message" xml:space="preserve">
+    <data name="scandialog.log.table.message" xml:space="preserve">
         <value>Message</value>
     </data>
-    <data name="scanner.ui.table.time" xml:space="preserve">
+    <data name="scandialog.log.table.time" xml:space="preserve">
         <value>Time</value>
+    </data>
+    <data name="scandialog.totals" xml:space="preserve">
+        <value>Totals: Warnings = {0}, Errors = {1}, Skipped = {2}, Missing = {3}, Completed = {4}</value>
+    </data>
+    <data name="scandialog.button.close" xml:space="preserve">
+        <value>Close</value>
+    </data>
+    <data name="scandialog.button.cancelling" xml:space="preserve">
+        <value>Cancelling...</value>
+    </data>
+    <data name="scandialog.button.cancel" xml:space="preserve">
+        <value>Cancel</value>
+    </data>
+    <data name="scandialog.button.copy-log" xml:space="preserve">
+        <value>Copy Log</value>
+    </data>
+    <data name="scandialog.title" xml:space="preserve">
+        <value>Scanning</value>
+    </data>
+    <data name="scandialog.total-time-elapsed" xml:space="preserve">
+        <value>Total Time: {0:00}:{1:00}:{2:00}</value>
+    </data>
+    <data name="scandialog.logger.message.mixed-iso-cci" xml:space="preserve">
+        <value>Folder '{0}' contains mixed ISO and CCI.</value>
+    </data>
+    <data name="logger.level.unknown" xml:space="preserve">
+        <value>UNKNOWN</value>
+    </data>
+    <data name="logger.level.none" xml:space="preserve">
+        <value>None</value>
+    </data>
+    <data name="logger.level.info" xml:space="preserve">
+        <value>Info</value>
+    </data>
+    <data name="logger.level.completed" xml:space="preserve">
+        <value>Completed</value>
+    </data>
+    <data name="logger.level.skipped" xml:space="preserve">
+        <value>Skipped</value>
+    </data>
+    <data name="logger.level.warning" xml:space="preserve">
+        <value>Warning</value>
+    </data>
+    <data name="logger.level.notfound" xml:space="preserve">
+        <value>NotFound</value>
+    </data>
+    <data name="logger.level.error" xml:space="preserve">
+        <value>Error</value>
+    </data>
+    <data name="logger.level.done" xml:space="preserve">
+        <value>Done</value>
     </data>
 </root>

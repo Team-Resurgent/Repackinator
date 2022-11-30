@@ -6,4 +6,27 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Update="Language\UserLocale.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>UserLocale.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Language\UserLocale.nb-NO.resx">
+      <DependentUpon>UserLocale.resx</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Language\UserLocale.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>UserLocale.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Repackinator" />
+    <InternalsVisibleTo Include="Repackinator.Shared" />
+  </ItemGroup>
+
 </Project>
