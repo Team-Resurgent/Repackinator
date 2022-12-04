@@ -1,7 +1,6 @@
 ﻿using Repackinator;
-using System.Runtime.InteropServices;
 
-var version = "v1.1.1";
+var version = "v1.1.2";
 
 if (OperatingSystem.IsWindows())
 {

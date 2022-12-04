@@ -93,7 +93,7 @@ namespace Repackinator
 
                     if (compress)
                     {
-                        XisoUtility.CreateCCI(ImageImputHelper.GetImageInput(inputSlices), outputPath, outputNameWithoutExtension, ".iso", scrub, trimmedScrub, p =>
+                        XisoUtility.CreateCCI(ImageImputHelper.GetImageInput(inputSlices), outputPath, outputNameWithoutExtension, ".cci", scrub, trimmedScrub, p =>
                         {
                             Console.Write($"Progress {Math.Round(p * 100)}%");
                             Console.CursorLeft = 0;
@@ -101,7 +101,7 @@ namespace Repackinator
                     }
                     else
                     {
-                        XisoUtility.Split(ImageImputHelper.GetImageInput(inputSlices), outputPath, outputNameWithoutExtension, ".cci", scrub, trimmedScrub, p =>
+                        XisoUtility.Split(ImageImputHelper.GetImageInput(inputSlices), outputPath, outputNameWithoutExtension, ".iso", scrub, trimmedScrub, p =>
                         {
                             Console.Write($"Progress {Math.Round(p * 100)}%");
                             Console.CursorLeft = 0;
@@ -122,7 +122,7 @@ namespace Repackinator
             if (wait)
             {
                 Console.Write("Press any key to continue.");
-                Console.Read();
+                Console.ReadKey();
             }
         }
 

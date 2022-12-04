@@ -779,7 +779,7 @@ namespace Repackinator
                 Config.SaveConfig(m_config);
             }
             ImGui.SameLine();
-            ImGui.Text("NOTE: Support is in beta in CERBIOS");
+            ImGui.Text("NOTE: Support is WIP in CERBIOS");
 
             ImGui.Spacing();
 
