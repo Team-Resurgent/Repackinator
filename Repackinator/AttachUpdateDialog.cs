@@ -58,17 +58,6 @@ namespace Repackinator
             _completed = true;
         }
 
-        private string FormatLogMessage(LogMessage logMessage)
-        {
-            if (logMessage.Level == LogMessageLevel.None)
-            {
-                return "\n";
-            }
-            var formattedTime = logMessage.Time.ToString("HH:mm:ss");
-            var message = $"{formattedTime} {logMessage.Level} - {logMessage.Message}";
-            return $"{message}\n";
-        }
-
         public bool Render()
         {
             if (_showModal)
@@ -222,7 +211,7 @@ namespace Repackinator
                 var logText = new StringBuilder();
                 for (var i = 0; i < _log.Count; i++)
                 {
-                    logText.Append(FormatLogMessage(_log[i]));
+                    logText.Append(_log[i].ToLogFormat());
                 }
                 ImGui.SetClipboardText(logText.ToString());
             }

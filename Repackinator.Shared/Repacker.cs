@@ -34,7 +34,7 @@ namespace Repackinator.Shared
             }
             var logMessage = new LogMessage(level, message);
             Logger(logMessage);
-            File.AppendAllText("RepackLog.txt", Utility.FormatLogMessage(logMessage));
+            File.AppendAllText("RepackLog.txt", logMessage.ToLogFormat());
         }
 
         private int ProcessFile(string inputFile, string outputPath, GroupingEnum grouping, bool hasAllCrcs, bool upperCase, bool compress, bool trimmedScrub, CancellationToken cancellationToken)
