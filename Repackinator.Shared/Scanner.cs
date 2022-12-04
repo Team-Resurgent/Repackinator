@@ -1,6 +1,9 @@
 ﻿using Resurgent.UtilityBelt.Library.Utilities;
 using Resurgent.UtilityBelt.Library.Utilities.ImageInput;
 using Resurgent.UtilityBelt.Library.Utilities.XbeModels;
+// using Resurgent.UtilityBelt.Library.Utilities.Xiso;
+// using Repackinator.Shared;
+using Repackinator.Localization.Language;
 using SharpCompress;
 using System.Diagnostics;
 using System.Text;
@@ -35,7 +38,7 @@ namespace Repackinator.Shared
             }
             var logMessage = new LogMessage(level, message);
             Logger(logMessage);
-            File.AppendAllText("ScanLog.txt", Utility.FormatLogMessage(logMessage));
+            File.AppendAllText("ScanLog.txt", logMessage.ToLogFormat());
         }
 
         private void ProcessFolder(string folder, Stopwatch procesTime, CancellationToken cancellationToken)
@@ -153,7 +156,7 @@ namespace Repackinator.Shared
                 //}
 
                 CurrentProgress.Progress1 = 0;
-                CurrentProgress.Progress1Text = "Searching Directories";
+                CurrentProgress.Progress1Text = UserLocale.scandialog_progress_searching_directories;
                 CurrentProgress.Progress2 = 0;
                 CurrentProgress.Progress2Text = string.Empty;
                 SendProgress();
@@ -197,6 +200,7 @@ namespace Repackinator.Shared
                 stopwatch.Stop();
 
                 Log(LogMessageLevel.Done, $"Completed Scanning List (Time Taken {stopwatch.Elapsed.TotalHours:00}:{stopwatch.Elapsed.Minutes:00}:{stopwatch.Elapsed.Seconds:00}).");
+                Log(LogMessageLevel.Done, String.Format(UserLocale.scanner_log_completed, stopwatch.Elapsed.TotalHours, stopwatch.Elapsed.Minutes, stopwatch.Elapsed.Seconds));
                 return true;
             }
             catch (Exception ex)

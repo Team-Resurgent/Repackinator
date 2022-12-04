@@ -1,5 +1,6 @@
 ﻿using ImGuiNET;
 using Repackinator.Shared;
+using Repackinator.Localization.Language;
 using Resurgent.UtilityBelt.Library.Utilities;
 using System.Diagnostics;
 using System.Numerics;
@@ -77,17 +78,6 @@ namespace Repackinator
             _completed = true;
         }
 
-        private string FormatLogMessage(LogMessage logMessage)
-        {
-            if (logMessage.Level == LogMessageLevel.None)
-            {
-                return "\n";
-            }
-            var formattedTime = logMessage.Time.ToString("HH:mm:ss");
-            var message = $"{formattedTime} {logMessage.Level} - {logMessage.Message}";
-            return $"{message}\n";
-        }
-
         public bool Render()
         {
             if (_showModal)
@@ -106,7 +96,7 @@ namespace Repackinator
                 scanThread.Start();
 
                 _open = true;
-                ImGui.OpenPopup("Scanning");
+                ImGui.OpenPopup(UserLocale.scandialog_title);
             }
 
             if (!_open)
@@ -115,7 +105,7 @@ namespace Repackinator
             }
 
             var open = true;
-            if (!ImGui.BeginPopupModal("Scanning", ref open))
+            if (!ImGui.BeginPopupModal(UserLocale.scandialog_title, ref open))
             {
                 _cancellationTokenSource.Cancel();
                 return false;
@@ -146,9 +136,9 @@ namespace Repackinator
             ImGuiTableFlags flags = ImGuiTableFlags.Resizable | ImGuiTableFlags.ScrollX | ImGuiTableFlags.ScrollY | ImGuiTableFlags.BordersOuter | ImGuiTableFlags.RowBg;
             if (ImGui.BeginTable("table_sorting", 3, flags, new Vector2(windowSize.X - 16, windowSize.Y - 185), 0.0f))
             {
-                ImGui.TableSetupColumn("Time", ImGuiTableColumnFlags.WidthFixed, 75.0f, 0);
-                ImGui.TableSetupColumn("Level", ImGuiTableColumnFlags.WidthFixed, 75.0f, 1);
-                ImGui.TableSetupColumn("Message", ImGuiTableColumnFlags.WidthStretch, 300.0f, 2);
+                ImGui.TableSetupColumn(UserLocale.scandialog_log_table_time, ImGuiTableColumnFlags.WidthFixed, 75.0f, 0);
+                ImGui.TableSetupColumn(UserLocale.scandialog_log_table_level, ImGuiTableColumnFlags.WidthFixed, 75.0f, 1);
+                ImGui.TableSetupColumn(UserLocale.scandialog_log_table_message, ImGuiTableColumnFlags.WidthStretch, 300.0f, 2);
                 ImGui.TableSetupScrollFreeze(0, 1);
                 ImGui.TableHeadersRow();
 
@@ -194,7 +184,7 @@ namespace Repackinator
 
                     ImGui.PushStyleColor(ImGuiCol.Text, ImGui.ColorConvertFloat4ToU32(logColor));
                     ImGui.TableNextColumn();
-                    ImGui.Text(logEntry.Level == LogMessageLevel.None ? string.Empty : logEntry.Level.ToString());
+                    ImGui.Text(logEntry.Level == LogMessageLevel.None ? string.Empty : logEntry.LogLevel);
                     ImGui.PopStyleColor();
 
                     ImGui.TableNextColumn();
@@ -211,17 +201,17 @@ namespace Repackinator
                 ImGui.EndTable();
             }
 
-            ImGui.Text($"Totals: Warnings = {totalWarnings}, Errors = {totalErrors}, Skipped = {totalSkipped}, Missing = {totalNotFound}, Completed = {totalCompleted}");
+            ImGui.Text(String.Format(UserLocale.scandialog_totals, totalWarnings, totalErrors, totalSkipped, totalNotFound, totalCompleted));
 
             ImGui.SameLine();
 
-            var timeTaken = $"Total Time: {_stopwatch.Elapsed.TotalHours:00}:{_stopwatch.Elapsed.Minutes:00}:{_stopwatch.Elapsed.Seconds:00}";
+            var timeTaken = String.Format(UserLocale.scandialog_total_time_elapsed, _stopwatch.Elapsed.TotalHours, _stopwatch.Elapsed.Minutes, _stopwatch.Elapsed.Seconds);
             ImGui.SetCursorPosX(windowSize.X - ImGui.CalcTextSize(timeTaken).X - 8);                
             ImGui.Text(timeTaken);
 
             ImGui.SetCursorPosY(windowSize.Y - 40);
                                     
-            if (ImGui.Button(_completed ? "Close" : (_cancellationTokenSource.IsCancellationRequested ? "Cancelling..." : "Cancel"), new Vector2(100, 30)))
+            if (ImGui.Button(_completed ? UserLocale.scandialog_button_close : (_cancellationTokenSource.IsCancellationRequested ? UserLocale.scandialog_button_cancelling : UserLocale.scandialog_button_cancel), new Vector2(100, 30)))
             {
                 if (!_completed)
                 {
@@ -236,12 +226,12 @@ namespace Repackinator
 
             ImGui.SameLine();
 
-            if (ImGui.Button("Copy Log", new Vector2(100, 30)))
+            if (ImGui.Button(UserLocale.scandialog_button_copy_log, new Vector2(100, 30)))
             {
                 var logText = new StringBuilder();
                 for (var i = 0; i < _log.Count; i++)
                 {
-                    logText.Append(FormatLogMessage(_log[i]));
+                    logText.Append(_log[i].ToLogFormat());
                 }
                 ImGui.SetClipboardText(logText.ToString());
             }

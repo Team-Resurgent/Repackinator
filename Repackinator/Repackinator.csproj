@@ -67,6 +67,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\Repackinator.Localization\Repackinator.Localization.csproj" />
 		<ProjectReference Include="..\Repackinator.Shared\Repackinator.Shared.csproj" />
 		<ProjectReference Include="..\Resurgent.UtilityBelt.Library\Resurgent.UtilityBelt.Library.csproj" />
 	</ItemGroup>
