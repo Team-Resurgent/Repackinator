@@ -1,9 +1,9 @@
 ﻿using ImGuiNET;
-using Repackinator.Shared;
+using Repackinator.Models;
 using System.Diagnostics;
 using System.Numerics;
 
-namespace Repackinator
+namespace Repackinator.UI
 {
     public class EditDialog
     {

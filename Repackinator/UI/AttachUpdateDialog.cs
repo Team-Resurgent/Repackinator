@@ -1,12 +1,14 @@
 ﻿using ImGuiNET;
-using Repackinator.Shared;
+using Repackinator.Actions;
+using Repackinator.Logging;
+using Repackinator.Models;
 using System.Diagnostics;
 using System.Numerics;
 using System.Text;
 
-namespace Repackinator
+namespace Repackinator.UI
 {
-    public class RepackDialog
+    public class AttachUpdateDialog
     {
         private string _progress1Text = string.Empty;
         private float _progress1 = 0f;
@@ -14,7 +16,6 @@ namespace Repackinator
         private float _progress2 = 0f;
         private List<LogMessage> _log = new();
         private Config _config;
-        private GameData[]? _gameData;
         private Stopwatch _stopwatch = new();
         private CancellationTokenSource _cancellationTokenSource = new();
 
@@ -23,10 +24,9 @@ namespace Repackinator
         private bool _completed;
         private bool _logChanged;
 
-        public void ShowModal(Config config, GameData[]? gameData)
+        public void ShowModal(Config config)
         {
             _config = config;
-            _gameData = gameData;
             _showModal = true;
         }
 
@@ -36,7 +36,7 @@ namespace Repackinator
             ImGui.CloseCurrentPopup();
         }
 
-        private void Repack()
+        private void AttachUpdate()
         {
             var logger = new Action<LogMessage>((logMessage) =>
             {
@@ -54,8 +54,8 @@ namespace Repackinator
 
             _cancellationTokenSource = new CancellationTokenSource();
 
-            var repacker = new Repacker();
-            repacker.StartRepacking(_gameData, _config, progress, logger, _stopwatch, _cancellationTokenSource.Token);
+            var attachUpdater = new AttachUpdater();
+            attachUpdater.StartAttachUpdating(_config, progress, logger, _stopwatch, _cancellationTokenSource.Token);
 
             _completed = true;
         }
@@ -74,11 +74,11 @@ namespace Repackinator
 
                 _log = new();
 
-                var repackThread = new Thread(Repack);
-                repackThread.Start();
+                var scanThread = new Thread(AttachUpdate);
+                scanThread.Start();
 
                 _open = true;
-                ImGui.OpenPopup("Repacking");
+                ImGui.OpenPopup("Attach Updating");
             }
 
             if (!_open)
@@ -87,7 +87,7 @@ namespace Repackinator
             }
 
             var open = true;
-            if (!ImGui.BeginPopupModal("Repacking", ref open))
+            if (!ImGui.BeginPopupModal("Attach Updating", ref open))
             {
                 _cancellationTokenSource.Cancel();
                 return false;
@@ -157,12 +157,12 @@ namespace Repackinator
                     {
                         logColor = new Vector4(0.25f, 1, 0.25f, 1);
                     }
-        
+
                     ImGui.PushID(i);
                     ImGui.TableNextRow(ImGuiTableRowFlags.None, 22);
 
                     ImGui.TableNextColumn();
-                    ImGui.Text(logEntry.Level == LogMessageLevel.None ? string.Empty : logEntry.Time.ToString("HH:mm:ss"));                    
+                    ImGui.Text(logEntry.Level == LogMessageLevel.None ? string.Empty : logEntry.Time.ToString("HH:mm:ss"));
 
                     ImGui.PushStyleColor(ImGuiCol.Text, ImGui.ColorConvertFloat4ToU32(logColor));
                     ImGui.TableNextColumn();
@@ -171,7 +171,7 @@ namespace Repackinator
 
                     ImGui.TableNextColumn();
                     ImGui.Text(logEntry.Level == LogMessageLevel.None ? string.Empty : logEntry.Message);
-                          
+
                     ImGui.PopID();
                 }
 
@@ -183,8 +183,8 @@ namespace Repackinator
                 ImGui.EndTable();
             }
 
-            ImGui.Text($"Totals: Warnings = {totalWarnings}, Errors = {totalErrors}, Skipped = {totalSkipped}, Not Found = {totalNotFound}, Completed = {totalCompleted}");
-          
+            ImGui.Text($"Totals: Warnings = {totalWarnings}, Errors = {totalErrors}, Skipped = {totalSkipped}, Missing = {totalNotFound}, Completed = {totalCompleted}");
+
             ImGui.SameLine();
 
             var timeTaken = $"Total Time: {_stopwatch.Elapsed.TotalHours:00}:{_stopwatch.Elapsed.Minutes:00}:{_stopwatch.Elapsed.Seconds:00}";
@@ -192,8 +192,8 @@ namespace Repackinator
             ImGui.Text(timeTaken);
 
             ImGui.SetCursorPosY(windowSize.Y - 40);
-                                    
-            if (ImGui.Button(_completed ? "Close" : (_cancellationTokenSource.IsCancellationRequested ? "Cancelling..." : "Cancel"), new Vector2(100, 30)))
+
+            if (ImGui.Button(_completed ? "Close" : _cancellationTokenSource.IsCancellationRequested ? "Cancelling..." : "Cancel", new Vector2(100, 30)))
             {
                 if (!_completed)
                 {

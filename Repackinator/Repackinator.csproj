@@ -17,7 +17,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="Resources\attach.xbe" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<EmbeddedResource Include="Resources\ARIALUNI.TTF" />
+		<EmbeddedResource Include="Resources\attach.xbe" />
 		<EmbeddedResource Include="Resources\Stuart Wilson - Not Another Comic Bakery Remix.mp3" />
 		<EmbeddedResource Include="Shaders/GLSL/imgui-vertex.glsl" LogicalName="imgui-vertex.glsl" />
 		<EmbeddedResource Include="Shaders/GLSL/imgui-frag.glsl" LogicalName="imgui-frag.glsl" />
@@ -64,11 +69,11 @@
 		<PackageReference Include="ManagedBass.FftSignalProvider" Version="1.0.1" />
 		<PackageReference Include="Mono.Options" Version="6.12.0.148" />
 		<PackageReference Include="Veldrid.StartupUtilities" Version="4.8.0" />
+		<PackageReference Include="SharpCompress" Version="0.32.2" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\Repackinator.Localization\Repackinator.Localization.csproj" />
-		<ProjectReference Include="..\Repackinator.Shared\Repackinator.Shared.csproj" />
 		<ProjectReference Include="..\Resurgent.UtilityBelt.Library\Resurgent.UtilityBelt.Library.csproj" />
 	</ItemGroup>
 

@@ -1,5 +1,6 @@
 ﻿using ImGuiNET;
-using Repackinator.Shared;
+using Repackinator.Helpers;
+using Repackinator.Models;
 using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
@@ -10,7 +11,7 @@ using Veldrid.StartupUtilities;
 
 //TODO: on repack close cancel
 
-namespace Repackinator
+namespace Repackinator.UI
 {
     public class ApplicationUI
     {
@@ -145,7 +146,7 @@ namespace Repackinator
             var colors = style.Colors;
             colors[(int)ImGuiCol.Text] = new Vector4(0.94f, 0.94f, 0.94f, 1.00f);
             colors[(int)ImGuiCol.TextDisabled] = new Vector4(0.86f, 0.93f, 0.89f, 0.28f);
-            colors[(int)ImGuiCol.WindowBg] = new Vector4(0.10f, 0.10f, 0.10f, 1.00f);            
+            colors[(int)ImGuiCol.WindowBg] = new Vector4(0.10f, 0.10f, 0.10f, 1.00f);
             colors[(int)ImGuiCol.ChildBg] = new Vector4(0.06f, 0.06f, 0.06f, 0.98f);
             colors[(int)ImGuiCol.PopupBg] = new Vector4(0.10f, 0.10f, 0.10f, 1.00f);
             colors[(int)ImGuiCol.Border] = new Vector4(0.11f, 0.11f, 0.11f, 0.60f);
@@ -212,7 +213,7 @@ namespace Repackinator
             var sizeMax = new Vector2(pos.X + size.X, paddingMid.Y + slotHalfHeight);
             drawList.AddRectFilled(sizeMin, sizeMax, background, rounding);
 
-            var offs = new Vector2(radius*0.8f, radius * 0.8f);
+            var offs = new Vector2(radius * 0.8f, radius * 0.8f);
             drawList.AddRectFilled(paddingMid - offs, paddingMid + offs, ImGui.GetColorU32(ImGuiCol.SliderGrab), rounding);
         }
 
@@ -421,7 +422,7 @@ namespace Repackinator
 
             const int MyItemColumnID_Process = 0;
             const int MyItemColumnID_Scrub = 1;
-            const int MyItemColumnID_Index = 2;             
+            const int MyItemColumnID_Index = 2;
             const int MyItemColumnID_TitleID = 3;
             const int MyItemColumnID_Version = 4;
             const int MyItemColumnID_Region = 5;
@@ -445,8 +446,8 @@ namespace Repackinator
                 ImGui.TableSetupColumn("Region", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.DefaultHide, 100.0f, MyItemColumnID_Region);
                 ImGui.TableSetupColumn("Title Name", ImGuiTableColumnFlags.WidthFixed, 300.0f, MyItemColumnID_TitleName);
                 ImGui.TableSetupColumn("Letter", ImGuiTableColumnFlags.WidthFixed, 75.0f, MyItemColumnID_Letter);
-                ImGui.TableSetupColumn("XBE Title", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.DefaultSort, 300.0f, MyItemColumnID_XBETitle);                
-                ImGui.TableSetupColumn("Folder Name", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.DefaultSort, 300.0f, MyItemColumnID_FolderName);                
+                ImGui.TableSetupColumn("XBE Title", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.DefaultSort, 300.0f, MyItemColumnID_XBETitle);
+                ImGui.TableSetupColumn("Folder Name", ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.DefaultSort, 300.0f, MyItemColumnID_FolderName);
                 ImGui.TableSetupColumn("Iso Name", ImGuiTableColumnFlags.WidthFixed, 300.0f, MyItemColumnID_IsoName);
                 ImGui.TableSetupColumn("Iso Checksum", ImGuiTableColumnFlags.WidthFixed, 100.0f, MyItemColumnID_IsoChecksum);
                 ImGui.TableSetupColumn("Link", ImGuiTableColumnFlags.WidthFixed, 300.0f, MyItemColumnID_Link);
@@ -542,7 +543,7 @@ namespace Repackinator
                         ImGui.TableNextColumn();
                         bool process = string.Equals(m_gameDataList[i].Process, "Y", StringComparison.CurrentCultureIgnoreCase);
                         var colStartXProcess = ImGui.GetCursorPosX();
-                        ImGui.SetCursorPosX(colStartXProcess + (((ImGui.GetColumnWidth()) - 20.0f) * 0.5f));
+                        ImGui.SetCursorPosX(colStartXProcess + (ImGui.GetColumnWidth() - 20.0f) * 0.5f);
                         if (Toggle($"##process{i}", ref process, new Vector2(38, 20)))
                         {
                             m_gameDataList[i].Process = process ? "Y" : "N";
@@ -551,7 +552,7 @@ namespace Repackinator
                         ImGui.TableNextColumn();
                         bool scrub = string.Equals(m_gameDataList[i].Scrub, "Y", StringComparison.CurrentCultureIgnoreCase);
                         var colStartXScrub = ImGui.GetCursorPosX();
-                        ImGui.SetCursorPosX(colStartXScrub + (((ImGui.GetColumnWidth()) - 20.0f) * 0.5f));
+                        ImGui.SetCursorPosX(colStartXScrub + (ImGui.GetColumnWidth() - 20.0f) * 0.5f);
                         if (Toggle($"##scrub{i}", ref scrub, new Vector2(38, 20)))
                         {
                             m_gameDataList[i].Scrub = scrub ? "Y" : "N";
@@ -560,7 +561,7 @@ namespace Repackinator
                         ImGui.TableNextColumn();
                         var textSizeIndex = ImGui.CalcTextSize((i + 1).ToString());
                         var colStartXIndex = ImGui.GetCursorPosX();
-                        ImGui.SetCursorPosX(colStartXIndex + (((ImGui.GetColumnWidth()) - textSizeIndex.X) * 0.5f));
+                        ImGui.SetCursorPosX(colStartXIndex + (ImGui.GetColumnWidth() - textSizeIndex.X) * 0.5f);
                         if (ImGui.Selectable((i + 1).ToString(), m_gameDataList[i].Selected, ImGuiSelectableFlags.SpanAllColumns | ImGuiSelectableFlags.AllowDoubleClick, new Vector2(0, 16)))
                         {
                             m_gameDataList[i].Selected = !m_gameDataList[i].Selected;
@@ -707,7 +708,7 @@ namespace Repackinator
                 }
             }
             ImGui.PopItemWidth();
-               
+
             ImGui.Spacing();
 
             ImGui.Separator();
@@ -736,7 +737,7 @@ namespace Repackinator
             ImGui.Separator();
 
             ImGui.Spacing();
-  
+
             ImGui.Text("Config:");
 
             ImGui.BeginChild(3, new Vector2(m_window.Width - 16, 224 + m_splitterOffset), true, ImGuiWindowFlags.AlwaysUseWindowPadding);

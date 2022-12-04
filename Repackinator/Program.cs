@@ -1,4 +1,6 @@
-﻿using Repackinator;
+﻿using Repackinator.Shell;
+using Repackinator.Console;
+using Repackinator.UI;
 
 var version = "v1.1.2";
 
@@ -6,7 +8,7 @@ if (OperatingSystem.IsWindows())
 {
     if (args.Length == 1 && args[0].Equals("Unregister", StringComparison.CurrentCultureIgnoreCase))
     {        
-        var result = ShellExtension.UnregisterContext();
+        var result = ContextMenu.UnregisterContext();
         if (result)
         {
             Console.WriteLine("Context menu removed.");
@@ -19,7 +21,7 @@ if (OperatingSystem.IsWindows())
     }
 }
 
-ShellExtension.RegisterContext();
+ContextMenu.RegisterContext();
 
 if (args.Length > 0)
 {

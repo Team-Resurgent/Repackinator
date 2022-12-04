@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Repackinator
+namespace Repackinator.UI
 {
     public static class ApplicationUIStartup
     {
@@ -55,7 +55,7 @@ namespace Repackinator
                 //}
 
                 if (OperatingSystem.IsWindows())
-                {                 
+                {
                     var handle = GetConsoleWindow();
                     ShowWindow(handle, SW_HIDE);
                 }

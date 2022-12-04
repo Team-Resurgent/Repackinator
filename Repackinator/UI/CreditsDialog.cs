@@ -1,12 +1,12 @@
 ﻿using ImGuiNET;
 using ManagedBass.FftSignalProvider;
 using ManagedBass;
-using Repackinator.Shared;
 using System.Numerics;
 using System.Reflection;
 using System;
+using Repackinator.Helpers;
 
-namespace Repackinator
+namespace Repackinator.UI
 {
     public class CreditsDialog
     {
@@ -36,7 +36,7 @@ namespace Repackinator
             for (var i = 0; i < stars.Length; i++)
             {
                 stars[i] = new Vector2(random.Next(600), random.Next(400));
-                starsSpeeds[i] = ((float)random.NextDouble() * 0.9f) + 0.1f;
+                starsSpeeds[i] = (float)random.NextDouble() * 0.9f + 0.1f;
             }
         }
 
@@ -56,7 +56,7 @@ namespace Repackinator
 
         public static double ConvertToRadians(double angle)
         {
-            return (Math.PI / 180) * angle;
+            return Math.PI / 180 * angle;
         }
 
         private static void DrawLines(IReadOnlyList<Vector2> points, Vector2 location)
@@ -162,7 +162,7 @@ namespace Repackinator
                 var peak = (float)Math.Sin(ConvertToRadians(sin + y));
                 var textSize = ImGui.CalcTextSize(Message[i].ToString());
                 var textXOffset = (20 - textSize.X) / 2;
-                ImGui.SetCursorPos(new Vector2((x - scrollPos) + textXOffset, (amplitude * 2) + (peak * amplitude)));
+                ImGui.SetCursorPos(new Vector2(x - scrollPos + textXOffset, amplitude * 2 + peak * amplitude));
                 ImGui.Text(Message[i].ToString());
                 i++;
                 if (i >= Message.Length)

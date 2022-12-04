@@ -1,5 +1,6 @@
 ﻿using Mono.Options;
-using Repackinator.Shared;
+using Repackinator.Helpers;
+using Repackinator.Models;
 using Resurgent.UtilityBelt.Library.Utilities;
 using Resurgent.UtilityBelt.Library.Utilities.ImageInput;
 using System;
@@ -7,7 +8,7 @@ using System.Diagnostics;
 using System.Text;
 using static System.Collections.Specialized.BitVector32;
 
-namespace Repackinator
+namespace Repackinator.Console
 {
     public static class ConsoleStartup
     {
@@ -36,13 +37,13 @@ namespace Repackinator
                 convertOptions.Parse(args);
                 if (shouldShowHelp && args.Length == 2)
                 {
-                    Console.WriteLine($"Repackinator {version}");
-                    Console.WriteLine("Repackinator by EqUiNoX, original xbox utility.");
-                    Console.WriteLine("Credits go to HoRnEyDvL, Hazeno, Rocky5, Team Cerbios.");
-                    Console.WriteLine();
-                    Console.WriteLine("Usage: Repackinator [options]+");
-                    Console.WriteLine();
-                    convertOptions.WriteOptionDescriptions(Console.Out);
+                    System.Console.WriteLine($"Repackinator {version}");
+                    System.Console.WriteLine("Repackinator by EqUiNoX, original xbox utility.");
+                    System.Console.WriteLine("Credits go to HoRnEyDvL, Hazeno, Rocky5, Team Cerbios.");
+                    System.Console.WriteLine();
+                    System.Console.WriteLine("Usage: Repackinator [options]+");
+                    System.Console.WriteLine();
+                    convertOptions.WriteOptionDescriptions(System.Console.Out);
                     return;
                 }
 
@@ -79,14 +80,14 @@ namespace Repackinator
                     throw new OptionException("Scrub mode is not valid.", "scrub");
                 }
 
-                Console.WriteLine("Converting:");
+                System.Console.WriteLine("Converting:");
                 var inputSlices = Utility.GetSlicesFromFile(input);
                 foreach (var inputSlice in inputSlices)
                 {
-                    Console.WriteLine(Path.GetFileName(inputSlice));
+                    System.Console.WriteLine(Path.GetFileName(inputSlice));
                 }
 
-                if (outputPath != null) 
+                if (outputPath != null)
                 {
                     outputPath = Path.Combine(outputPath, "Converted");
                     Directory.CreateDirectory(outputPath);
@@ -95,34 +96,34 @@ namespace Repackinator
                     {
                         XisoUtility.CreateCCI(ImageImputHelper.GetImageInput(inputSlices), outputPath, outputNameWithoutExtension, ".cci", scrub, trimmedScrub, p =>
                         {
-                            Console.Write($"Progress {Math.Round(p * 100)}%");
-                            Console.CursorLeft = 0;
+                            System.Console.Write($"Progress {Math.Round(p * 100)}%");
+                            System.Console.CursorLeft = 0;
                         }, default);
                     }
                     else
                     {
                         XisoUtility.Split(ImageImputHelper.GetImageInput(inputSlices), outputPath, outputNameWithoutExtension, ".iso", scrub, trimmedScrub, p =>
                         {
-                            Console.Write($"Progress {Math.Round(p * 100)}%");
-                            Console.CursorLeft = 0;
+                            System.Console.Write($"Progress {Math.Round(p * 100)}%");
+                            System.Console.CursorLeft = 0;
                         }, default);
                     }
                 }
 
-                Console.WriteLine();
-                Console.WriteLine("Convert completed.");
+                System.Console.WriteLine();
+                System.Console.WriteLine("Convert completed.");
             }
             catch (OptionException e)
             {
-                Console.Write("Repackinator by EqUiNoX: ");
-                Console.WriteLine(e.Message);
-                Console.WriteLine("Try `Repackinator --help' for more information.");
+                System.Console.Write("Repackinator by EqUiNoX: ");
+                System.Console.WriteLine(e.Message);
+                System.Console.WriteLine("Try `Repackinator --help' for more information.");
             }
 
             if (wait)
             {
-                Console.Write("Press any key to continue.");
-                Console.ReadKey();
+                System.Console.Write("Press any key to continue.");
+                System.Console.ReadKey();
             }
         }
 
@@ -146,13 +147,13 @@ namespace Repackinator
                 compareOptions.Parse(args);
                 if (shouldShowHelp && args.Length == 2)
                 {
-                    Console.WriteLine($"Repackinator {version}");
-                    Console.WriteLine("Repackinator by EqUiNoX, original xbox utility.");
-                    Console.WriteLine("Credits go to HoRnEyDvL, Hazeno, Rocky5, Team Cerbios.");
-                    Console.WriteLine();
-                    Console.WriteLine("Usage: Repackinator [options]+");
-                    Console.WriteLine();
-                    compareOptions.WriteOptionDescriptions(Console.Out);
+                    System.Console.WriteLine($"Repackinator {version}");
+                    System.Console.WriteLine("Repackinator by EqUiNoX, original xbox utility.");
+                    System.Console.WriteLine("Credits go to HoRnEyDvL, Hazeno, Rocky5, Team Cerbios.");
+                    System.Console.WriteLine();
+                    System.Console.WriteLine("Usage: Repackinator [options]+");
+                    System.Console.WriteLine();
+                    compareOptions.WriteOptionDescriptions(System.Console.Out);
                     return;
                 }
 
@@ -176,7 +177,7 @@ namespace Repackinator
                     Config.SaveConfig(config);
                 }
 
-                if (compare || (!string.IsNullOrEmpty(first) && !string.IsNullOrEmpty(second)))
+                if (compare || !string.IsNullOrEmpty(first) && !string.IsNullOrEmpty(second))
                 {
                     if (!File.Exists(config.CompareFirst))
                     {
@@ -188,46 +189,47 @@ namespace Repackinator
                         throw new OptionException("Second is not a valid file.", "input");
                     }
 
-                    Console.WriteLine("Comparing:");
+                    System.Console.WriteLine("Comparing:");
                     var firstSlices = Utility.GetSlicesFromFile(config.CompareFirst);
                     foreach (var firstSlice in firstSlices)
                     {
-                        Console.WriteLine(Path.GetFileName(firstSlice));
+                        System.Console.WriteLine(Path.GetFileName(firstSlice));
                     }
 
-                    Console.WriteLine("Against:");
+                    System.Console.WriteLine("Against:");
                     var secondSlices = Utility.GetSlicesFromFile(config.CompareSecond);
                     foreach (var secondSlice in secondSlices)
                     {
-                        Console.WriteLine(Path.GetFileName(secondSlice));
+                        System.Console.WriteLine(Path.GetFileName(secondSlice));
                     }
 
-                    Console.WriteLine();
+                    System.Console.WriteLine();
 
-                    Console.WriteLine("Processing...");
-                    XisoUtility.CompareXISO(ImageImputHelper.GetImageInput(firstSlices), ImageImputHelper.GetImageInput(secondSlices), s => {
-                        Console.WriteLine(s);
+                    System.Console.WriteLine("Processing...");
+                    XisoUtility.CompareXISO(ImageImputHelper.GetImageInput(firstSlices), ImageImputHelper.GetImageInput(secondSlices), s =>
+                    {
+                        System.Console.WriteLine(s);
                     }, p =>
                     {
-                        Console.Write($"Progress {Math.Round(p * 100)}%");
-                        Console.CursorLeft = 0;
+                        System.Console.Write($"Progress {Math.Round(p * 100)}%");
+                        System.Console.CursorLeft = 0;
                     });
 
-                    Console.WriteLine();
-                    Console.WriteLine("Compare completed.");
+                    System.Console.WriteLine();
+                    System.Console.WriteLine("Compare completed.");
                 }
             }
             catch (OptionException e)
             {
-                Console.Write("Repackinator by EqUiNoX: ");
-                Console.WriteLine(e.Message);
-                Console.WriteLine("Try `Repackinator --help' for more information.");
+                System.Console.Write("Repackinator by EqUiNoX: ");
+                System.Console.WriteLine(e.Message);
+                System.Console.WriteLine("Try `Repackinator --help' for more information.");
             }
 
             if (wait)
             {
-                Console.Write("Press any key to continue.");
-                Console.Read();
+                System.Console.Write("Press any key to continue.");
+                System.Console.Read();
             }
         }
 
@@ -253,13 +255,13 @@ namespace Repackinator
                 mainOptions.Parse(args);
                 if (shouldShowHelp && args.Length == 1)
                 {
-                    Console.WriteLine($"Repackinator {version}");
-                    Console.WriteLine("Repackinator by EqUiNoX, original xbox utility.");
-                    Console.WriteLine("Credits go to HoRnEyDvL, Hazeno, Rocky5, Team Cerbios.");
-                    Console.WriteLine();
-                    Console.WriteLine("Usage: Repackinator [options]+");
-                    Console.WriteLine();
-                    mainOptions.WriteOptionDescriptions(Console.Out);
+                    System.Console.WriteLine($"Repackinator {version}");
+                    System.Console.WriteLine("Repackinator by EqUiNoX, original xbox utility.");
+                    System.Console.WriteLine("Credits go to HoRnEyDvL, Hazeno, Rocky5, Team Cerbios.");
+                    System.Console.WriteLine();
+                    System.Console.WriteLine("Usage: Repackinator [options]+");
+                    System.Console.WriteLine();
+                    mainOptions.WriteOptionDescriptions(System.Console.Out);
                     return;
                 }
                 if (action.Equals(ActionConvert, StringComparison.CurrentCultureIgnoreCase))
@@ -277,9 +279,9 @@ namespace Repackinator
             }
             catch (OptionException e)
             {
-                Console.Write("Repackinator by EqUiNoX: ");
-                Console.WriteLine(e.Message);
-                Console.WriteLine("Try `Repackinator --help' for more information.");
+                System.Console.Write("Repackinator by EqUiNoX: ");
+                System.Console.WriteLine(e.Message);
+                System.Console.WriteLine("Try `Repackinator --help' for more information.");
             }
 
             //var optionset = new OptionSet {

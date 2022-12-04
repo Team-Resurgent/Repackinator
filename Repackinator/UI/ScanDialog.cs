@@ -1,12 +1,13 @@
 ﻿using ImGuiNET;
-using Repackinator.Shared;
 using Repackinator.Localization.Language;
+using Repackinator.Logging;
+using Repackinator.Models;
 using Resurgent.UtilityBelt.Library.Utilities;
 using System.Diagnostics;
 using System.Numerics;
 using System.Text;
 
-namespace Repackinator
+namespace Repackinator.UI
 {
     public class ScanDialog
     {
@@ -40,7 +41,7 @@ namespace Repackinator
             {
                 _gameData = null;
             }
-            
+
             _showModal = true;
         }
 
@@ -68,7 +69,7 @@ namespace Repackinator
 
             _cancellationTokenSource = new CancellationTokenSource();
 
-            var scanner = new Scanner();
+            var scanner = new Actions.Scanner();
             var success = scanner.StartScanning(_gameData, _config, progress, logger, _stopwatch, _cancellationTokenSource.Token);
             if (success == true)
             {
@@ -132,7 +133,7 @@ namespace Repackinator
             var totalSkipped = 0;
             var totalNotFound = 0;
             var totalCompleted = 0;
-            
+
             ImGuiTableFlags flags = ImGuiTableFlags.Resizable | ImGuiTableFlags.ScrollX | ImGuiTableFlags.ScrollY | ImGuiTableFlags.BordersOuter | ImGuiTableFlags.RowBg;
             if (ImGui.BeginTable("table_sorting", 3, flags, new Vector2(windowSize.X - 16, windowSize.Y - 185), 0.0f))
             {
@@ -189,7 +190,7 @@ namespace Repackinator
 
                     ImGui.TableNextColumn();
                     ImGui.Text(logEntry.Level == LogMessageLevel.None ? string.Empty : logEntry.Message);
-                          
+
                     ImGui.PopID();
                 }
 
@@ -201,17 +202,17 @@ namespace Repackinator
                 ImGui.EndTable();
             }
 
-            ImGui.Text(String.Format(UserLocale.scandialog_totals, totalWarnings, totalErrors, totalSkipped, totalNotFound, totalCompleted));
+            ImGui.Text(string.Format(UserLocale.scandialog_totals, totalWarnings, totalErrors, totalSkipped, totalNotFound, totalCompleted));
 
             ImGui.SameLine();
 
-            var timeTaken = String.Format(UserLocale.scandialog_total_time_elapsed, _stopwatch.Elapsed.TotalHours, _stopwatch.Elapsed.Minutes, _stopwatch.Elapsed.Seconds);
-            ImGui.SetCursorPosX(windowSize.X - ImGui.CalcTextSize(timeTaken).X - 8);                
+            var timeTaken = string.Format(UserLocale.scandialog_total_time_elapsed, _stopwatch.Elapsed.TotalHours, _stopwatch.Elapsed.Minutes, _stopwatch.Elapsed.Seconds);
+            ImGui.SetCursorPosX(windowSize.X - ImGui.CalcTextSize(timeTaken).X - 8);
             ImGui.Text(timeTaken);
 
             ImGui.SetCursorPosY(windowSize.Y - 40);
-                                    
-            if (ImGui.Button(_completed ? UserLocale.scandialog_button_close : (_cancellationTokenSource.IsCancellationRequested ? UserLocale.scandialog_button_cancelling : UserLocale.scandialog_button_cancel), new Vector2(100, 30)))
+
+            if (ImGui.Button(_completed ? UserLocale.scandialog_button_close : _cancellationTokenSource.IsCancellationRequested ? UserLocale.scandialog_button_cancelling : UserLocale.scandialog_button_cancel, new Vector2(100, 30)))
             {
                 if (!_completed)
                 {
