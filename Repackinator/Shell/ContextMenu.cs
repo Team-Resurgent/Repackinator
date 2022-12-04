@@ -1,9 +1,9 @@
 ﻿using Microsoft.Win32;
-using Repackinator.Shared;
+using Repackinator.Helpers;
 
-namespace Repackinator
+namespace Repackinator.Shell
 {
-    public class ShellExtension
+    public class ContextMenu
     {
         private static void RegisterSubMenu(RegistryKey key, string name, string description, string command, string extension)
         {
@@ -35,7 +35,7 @@ namespace Repackinator
                 RegisterSubMenu(key, "03menu", "Convert To ISO (TrimmedScrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=TrimmedScrub -w", ".iso");
                 RegisterSubMenu(key, "04menu", "Convert To CCI", $"\"{exePath}\" -i=\"%L\" -a=convert -w", ".iso");
                 RegisterSubMenu(key, "05menu", "Convert To CCI (Scrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=Scrub -w", ".iso");
-                RegisterSubMenu(key, "06menu", "Convert To CCI (TrimmedScrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=TrimmedScrub -w", ".iso");                
+                RegisterSubMenu(key, "06menu", "Convert To CCI (TrimmedScrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=TrimmedScrub -w", ".iso");
                 RegisterSubMenu(key, "07menu", "Convert To ISO", $"\"{exePath}\" -i=\"%L\" -a=convert -c -w", ".cci");
                 RegisterSubMenu(key, "08menu", "Convert To ISO (Scrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=Scrub -c -w", ".cci");
                 RegisterSubMenu(key, "09menu", "Convert To ISO (TrimmedScrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=TrimmedScrub -c -w", ".cci");

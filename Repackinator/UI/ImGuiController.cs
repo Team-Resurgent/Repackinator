@@ -1,12 +1,12 @@
 ﻿using ImGuiNET;
-using Repackinator.Shared;
+using Repackinator.Helpers;
 using System.Numerics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Veldrid;
 
-namespace Repackinator
+namespace Repackinator.UI
 {
     public class ImGuiController : IDisposable
     {

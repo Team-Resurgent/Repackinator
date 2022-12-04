@@ -4,7 +4,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 
-namespace Repackinator
+namespace Repackinator.UI
 {
     public class PathPicker
     {
@@ -105,8 +105,8 @@ namespace Repackinator
             var drawList = ImGui.GetWindowDrawList();
             for (var i = 0; i < points.Count; i += 2)
             {
-                var vector1 = (points[i] / 100) * size;
-                var vector2 = (points[i + 1] / 100) * size;
+                var vector1 = points[i] / 100 * size;
+                var vector2 = points[i + 1] / 100 * size;
                 drawList.AddLine(location + vector1, location + vector2, iconColor);
             }
         }
