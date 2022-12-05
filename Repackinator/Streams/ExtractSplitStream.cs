@@ -1,5 +1,5 @@
 ﻿using Repackinator.Exceptions;
-using System.Threading;
+using Resurgent.UtilityBelt.Library.Utilities.ImageInput;
 
 namespace Repackinator.Streams
 {
@@ -28,11 +28,9 @@ namespace Repackinator.Streams
                 throw new ExtractAbortException();
             }
 
-            const long redumpSize = 7825162240;
-            const long videoSize = 387 * 1024 * 1024;
+            long skipSize = m_isoLength == Constants.RedumpSectors << 11 ? (Constants.VideoSectors << 11) : 0;
 
-            long skipSize = m_isoLength == redumpSize ? videoSize : 0;
-
+            // Ignore video partition sectors
             if (m_bytesProcessed < skipSize)
             {
                 var remainder = m_bytesProcessed + count - skipSize;

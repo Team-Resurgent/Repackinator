@@ -90,11 +90,11 @@ namespace Repackinator.Actions
                 {
                     try
                     {
-                        Directory.Delete(processOutput, true);
+                        Directory.Delete(unpackPath, true);
                     }
                     catch (IOException)
                     {
-                        Log(LogMessageLevel.Error, $"Failed to delete directory '{processOutput}, close any windows accessing the folder.");
+                        Log(LogMessageLevel.Error, $"Failed to delete directory '{unpackPath}, close any windows accessing the folder.");
                         return -1;
                     }
                 }
