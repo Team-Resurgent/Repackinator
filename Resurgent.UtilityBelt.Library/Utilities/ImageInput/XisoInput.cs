@@ -22,6 +22,8 @@
         private long m_totalSectors = 0;
         public long TotalSectors => m_totalSectors;
 
+        public long SectorOffset => m_totalSectors == Constants.RedumpSectors ? Constants.VideoSectors : 0U;
+
         public byte[] ReadSectors(long startSector, long count)
         {
             if (m_cacheStartSector == startSector && m_cacheSectorData.Length == count << 11)
@@ -36,7 +38,7 @@
             {
                 if (count > 0 && startSector >= slice.StartSector && startSector <= slice.EndSector)
                 {
-                    var sliceSectorsToRead = (int)(Math.Min((startSector - slice.StartSector) + sectorsRemaining, (slice.EndSector - slice.StartSector)) - (startSector - slice.StartSector));
+                    var sliceSectorsToRead = (int)(Math.Min(startSector + sectorsRemaining, slice.EndSector + 1) - startSector);
                     slice.Stream.Position = (startSector - slice.StartSector) << 11;
                     slice.Stream.Read(result, sectorOffset << 11, sliceSectorsToRead << 11);
                     sectorOffset += sliceSectorsToRead;

@@ -43,6 +43,8 @@ namespace Resurgent.UtilityBelt.Library.Utilities.ImageInput
         private long m_totalSectors = 0;
         public long TotalSectors => m_totalSectors;
 
+        public long SectorOffset => m_totalSectors == Constants.RedumpSectors ? Constants.VideoSectors : 0U;
+
         public byte[] ReadSectors(long startSector, long count)
         {
             if (m_cacheStartSector == startSector && m_cacheSectorData.Length == count << 11)
