@@ -1,15 +1,9 @@
 ﻿using Resurgent.UtilityBelt.Library.Utilities.ImageInput;
-using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading;
-
-//0x18300000U video size
-//0x1D26A8000 redump size 0x3A4D50 sectors
-//0x1BA3A8000 iso size 0x374750 sectors
 
 namespace Resurgent.UtilityBelt.Library.Utilities
-{    
+{
     public static class XisoUtility
     {
         private struct IndexInfo
@@ -22,7 +16,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
         private struct TreeNodeInfo
         {
             public uint DirectorySize { get; set; }
-            public long DirectorySector { get; set; }
+            public long DirectoryPos { get; set; }
             public uint Offset { get; set; }
         };
 
@@ -31,10 +25,10 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             var dataSectors = new HashSet<uint>();
 
             var position = 20U;
-            var headerSector = (uint)input.SectorOffset + 0x20U;           
+            var headerSector = (uint)input.SectorOffset + 0x20U;
             dataSectors.Add(headerSector);
             dataSectors.Add(headerSector + 1);
-            position += (headerSector << 11);
+            position += headerSector << 11;
 
             var rootSector = input.ReadUint32(position);
             var rootSize = input.ReadUint32(position + 4);
@@ -45,7 +39,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 new TreeNodeInfo
                 {
                     DirectorySize = rootSize,
-                    DirectorySector = rootOffset,
+                    DirectoryPos = rootOffset,
                     Offset = 0
                 }
             };
@@ -55,9 +49,9 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 var currentTreeNode = treeNodes[0];
                 treeNodes.RemoveAt(0);
 
-                var currentOffset = (input.SectorOffset << 11) + currentTreeNode.DirectorySector + currentTreeNode.Offset * 4;
+                var currentPosition = (input.SectorOffset << 11) + currentTreeNode.DirectoryPos + currentTreeNode.Offset * 4;
 
-                for (var i = currentOffset >> 11; i < (currentOffset >> 11) + ((currentTreeNode.DirectorySize - (currentTreeNode.Offset * 4) + 2047) >> 11); i++)
+                for (var i = currentPosition >> 11; i < (currentPosition >> 11) + ((currentTreeNode.DirectorySize - (currentTreeNode.Offset * 4) + 2047) >> 11); i++)
                 {
                     dataSectors.Add((uint)i);
                 }
@@ -67,22 +61,20 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                     continue;
                 }
 
-                position = (uint)currentOffset;
+                var left = input.ReadUint16(currentPosition);
+                var right = input.ReadUint16(currentPosition + 2);
+                var sector = (long)input.ReadUint32(currentPosition + 4);
+                var size = input.ReadUint32(currentPosition + 8);
+                var attribute = input.ReadByte(currentPosition + 12);
 
-                var left = input.ReadUint16(position);
-                var right = input.ReadUint16(position + 2);
-                var sector = input.ReadUint32(position + 4);
-                var size = input.ReadUint32(position + 8);
-                var attribute = input.ReadByte(position + 12);
-
-                var nameLength = input.ReadByte(position + 13);
-                var filenameBytes = input.ReadBytes(position + 14, nameLength);
-                var filename = Encoding.ASCII.GetString(filenameBytes);
-                System.Diagnostics.Debug.WriteLine(filename);
+                //var nameLength = input.ReadByte(currentPosition + 13);
+                //var filenameBytes = input.ReadBytes(currentPosition + 14, nameLength);
+                //var filename = Encoding.ASCII.GetString(filenameBytes);
+                //System.Diagnostics.Debug.WriteLine(filename);
 
                 if (left == 0xFFFF)
                 {
-                    continue; 
+                    continue;
                 }
 
                 if (left != 0)
@@ -90,7 +82,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                     treeNodes.Add(new TreeNodeInfo
                     {
                         DirectorySize = currentTreeNode.DirectorySize,
-                        DirectorySector = currentTreeNode.DirectorySector,
+                        DirectoryPos = currentTreeNode.DirectoryPos,
                         Offset = left
                     });
                 }
@@ -102,7 +94,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                         treeNodes.Add(new TreeNodeInfo
                         {
                             DirectorySize = size,
-                            DirectorySector = sector << 11,
+                            DirectoryPos = sector << 11,
                             Offset = 0
                         });
                     }
@@ -120,7 +112,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                     treeNodes.Add(new TreeNodeInfo
                     {
                         DirectorySize = currentTreeNode.DirectorySize,
-                        DirectorySector = currentTreeNode.DirectorySector,
+                        DirectoryPos = currentTreeNode.DirectoryPos,
                         Offset = right
                     });
                 }
@@ -192,7 +184,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
         {
             var position = 20U;
             var headerSector = (uint)input.SectorOffset + 0x20U;
-            position += (headerSector << 11);
+            position += headerSector << 11;
 
             var rootSector = input.ReadUint32(position);
             var rootSize = input.ReadUint32(position + 4);
@@ -203,7 +195,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 new TreeNodeInfo
                 {
                     DirectorySize = rootSize,
-                    DirectorySector = rootOffset,
+                    DirectoryPos = rootOffset,
                     Offset = 0
                 }
             };
@@ -211,25 +203,23 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             while (treeNodes.Count > 0)
             {
                 var currentTreeNode = treeNodes[0];
+                treeNodes.RemoveAt(0);
 
-                var currentOffset = (input.SectorOffset << 11) + currentTreeNode.DirectorySector + currentTreeNode.Offset * 4;
+                var currentPosition = (input.SectorOffset << 11) + currentTreeNode.DirectoryPos + currentTreeNode.Offset * 4;
 
                 if ((currentTreeNode.Offset * 4) >= currentTreeNode.DirectorySize)
                 {
-                    treeNodes.RemoveAt(0);
                     continue;
                 }
 
-                position = (uint)currentOffset;
+                var left = input.ReadUint16(currentPosition);
+                var right = input.ReadUint16(currentPosition + 2);
+                var sector = input.ReadUint32(currentPosition + 4);
+                var size = input.ReadUint32(currentPosition + 8);
+                var attribute = input.ReadByte(currentPosition + 12);
 
-                var left = input.ReadUint16(position);
-                var right = input.ReadUint16(position + 2);
-                var sector = input.ReadUint32(position + 4);
-                var size = input.ReadUint32(position + 8);
-                var attribute = input.ReadByte(position + 12);
-
-                var nameLength = input.ReadByte(position + 13);
-                var filenameBytes = input.ReadBytes(position + 14, nameLength);
+                var nameLength = input.ReadByte(currentPosition + 13);
+                var filenameBytes = input.ReadBytes(currentPosition + 14, nameLength);
                 var filename = Encoding.ASCII.GetString(filenameBytes);
 
                 if ((attribute & 0x10) == 0 && filename.Equals("default.xbe", StringComparison.CurrentCultureIgnoreCase))
@@ -239,7 +229,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                     while (processed < size)
                     {
                         var buffer = input.ReadSectors(sector + input.SectorOffset, 1);
-                        var bytesToCopy = (uint)Math.Min(size - processed, 2048);
+                        var bytesToCopy = Math.Min(size - processed, 2048);
                         Array.Copy(buffer, 0, result, processed, bytesToCopy);
                         sector++;
                         processed += bytesToCopy;
@@ -250,7 +240,6 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
                 if (left == 0xFFFF)
                 {
-                    treeNodes.RemoveAt(0);
                     continue;
                 }
 
@@ -259,7 +248,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                     treeNodes.Add(new TreeNodeInfo
                     {
                         DirectorySize = currentTreeNode.DirectorySize,
-                        DirectorySector = currentTreeNode.DirectorySector,
+                        DirectoryPos = currentTreeNode.DirectoryPos,
                         Offset = left
                     });
                 }
@@ -269,12 +258,10 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                     treeNodes.Add(new TreeNodeInfo
                     {
                         DirectorySize = currentTreeNode.DirectorySize,
-                        DirectorySector = currentTreeNode.DirectorySector,
+                        DirectoryPos = currentTreeNode.DirectoryPos,
                         Offset = right
                     });
                 }
-
-                treeNodes.RemoveAt(0);
             }
 
             return false;
