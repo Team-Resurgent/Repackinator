@@ -94,17 +94,17 @@ namespace Repackinator.Console
 
                     if (compress)
                     {
-                        XisoUtility.CreateCCI(ImageImputHelper.GetImageInput(inputSlices), outputPath, outputNameWithoutExtension, ".cci", scrub, trimmedScrub, p =>
+                        XisoUtility.CreateCCI(ImageImputHelper.GetImageInput(inputSlices), outputPath, outputNameWithoutExtension, ".cci", scrub, trimmedScrub, (s, p) =>
                         {
-                            System.Console.Write($"Progress {Math.Round(p * 100)}%");
+                            System.Console.Write($"Stage {s + 1} of 3, Progress {Math.Round(p * 100)}%");
                             System.Console.CursorLeft = 0;
                         }, default);
                     }
                     else
                     {
-                        XisoUtility.Split(ImageImputHelper.GetImageInput(inputSlices), outputPath, outputNameWithoutExtension, ".iso", scrub, trimmedScrub, p =>
+                        XisoUtility.Split(ImageImputHelper.GetImageInput(inputSlices), outputPath, outputNameWithoutExtension, ".iso", scrub, trimmedScrub, (s, p) =>
                         {
-                            System.Console.Write($"Progress {Math.Round(p * 100)}%");
+                            System.Console.Write($"Stage {s + 1} of 3, Progress {Math.Round(p * 100)}%");
                             System.Console.CursorLeft = 0;
                         }, default);
                     }

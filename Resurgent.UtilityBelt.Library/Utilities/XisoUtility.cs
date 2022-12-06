@@ -20,8 +20,13 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             public uint Offset { get; set; }
         };
 
-        public static HashSet<uint> GetDataSectorsFromXiso(IImageInput input, CancellationToken cancellationToken)
+        public static HashSet<uint> GetDataSectorsFromXiso(IImageInput input, Action<float>? progress, CancellationToken cancellationToken)
         {
+            if (progress != null)
+            {
+                progress(0);
+            }
+
             var dataSectors = new HashSet<uint>();
 
             var position = 20U;
@@ -44,10 +49,14 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 }
             };
 
+            var totalNodes = 1;
+            var processedNodes = 0;
+
             while (treeNodes.Count > 0)
             {
                 var currentTreeNode = treeNodes[0];
                 treeNodes.RemoveAt(0);
+                processedNodes++;
 
                 var currentPosition = (input.SectorOffset << 11) + currentTreeNode.DirectoryPos + currentTreeNode.Offset * 4;
 
@@ -85,6 +94,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                         DirectoryPos = currentTreeNode.DirectoryPos,
                         Offset = left
                     });
+                    totalNodes++;
                 }
 
                 if ((attribute & 0x10) != 0)
@@ -97,6 +107,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                             DirectoryPos = sector << 11,
                             Offset = 0
                         });
+                        totalNodes++;
                     }
                 }
                 else
@@ -115,6 +126,12 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                         DirectoryPos = currentTreeNode.DirectoryPos,
                         Offset = right
                     });
+                    totalNodes++;
+                }
+
+                if (progress != null)
+                {
+                    progress(processedNodes / (float)totalNodes);
                 }
 
                 if (cancellationToken.IsCancellationRequested)
@@ -126,18 +143,24 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             return dataSectors;
         }
 
-        public static HashSet<uint> GetSecuritySectorsFromXiso(IImageInput input, HashSet<uint> datasecs, CancellationToken cancellationToken)
+        public static HashSet<uint> GetSecuritySectorsFromXiso(IImageInput input, HashSet<uint> datasecs, Action<float>? progress, CancellationToken cancellationToken)
         {
             var securitySectors = new HashSet<uint>();            
             if (input.TotalSectors != Constants.RedumpSectors && input.TotalSectors != Constants.IsoSectors)
             {
                 return securitySectors;
             }
-                        
+
+            if (progress != null)
+            {
+                progress(0);
+            }
+
             var flag = false;
             var start = 0U;
 
-            for (var sectorIndex = 0; sectorIndex <= 0x345B60; sectorIndex++)
+            const int endSector = 0x345B60;
+            for (var sectorIndex = 0; sectorIndex <= endSector; sectorIndex++)
             {
                 var currentSector = (uint)(input.SectorOffset + sectorIndex);
 
@@ -171,6 +194,12 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                         }
                     }
                 }
+
+                if (progress != null)
+                {
+                    progress(sectorIndex / (float)endSector);
+                }
+
                 if (cancellationToken.IsCancellationRequested)
                 {
                     break;
@@ -342,9 +371,11 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
             log("");
 
+            log("Getting data sectors hash for first...");
+            var dataSectors1 = GetDataSectorsFromXiso(input1, progress, default);
+
             log("Calculating data sector hashes for first...");
             using var dataSectorsHash1 = MD5.Create();
-            var dataSectors1 = GetDataSectorsFromXiso(input1, default);
             for (var i = 0; i < dataSectors1.Count; i++)
             {
                 var dataSector1 = dataSectors1.ElementAt(i);
@@ -358,9 +389,11 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             }
             var dataSectorsHash1Result = Convert.ToBase64String(dataSectorsHash1.TransformFinalBlock(Array.Empty<byte>(), 0, 0));
 
+            log("Getting data sectors hash for second...");
+            var dataSectors2 = GetDataSectorsFromXiso(input2, progress, default);
+
             log("Calculating data sector hash for second...");
             using var dataSectorsHash2 = MD5.Create();
-            var dataSectors2 = GetDataSectorsFromXiso(input2, default);
             for (var i = 0; i < dataSectors2.Count; i++)
             {
                 var dataSector2 = dataSectors1.ElementAt(i);
@@ -386,9 +419,11 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
             log("");
 
+            log("Getting security sectors hash for first...");
+            var securitySectors1 = GetSecuritySectorsFromXiso(input1, dataSectors1, progress, default);
+
             log("Calculating security sector hashes for first...");
             using var securitySectorsHash1 = MD5.Create();
-            var securitySectors1 = GetSecuritySectorsFromXiso(input1, dataSectors1, default);
             for (var i = 0; i < securitySectors1.Count; i++)
             {
                 var securitySector1 = securitySectors1.ElementAt(i);
@@ -402,9 +437,11 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             }
             var securitySectorsHash1Result = Convert.ToBase64String(securitySectorsHash1.TransformFinalBlock(Array.Empty<byte>(), 0, 0));
 
+            log("Getting security sectors hash for second...");
+            var securitySectors2 = GetSecuritySectorsFromXiso(input2, dataSectors2, progress, default);
+
             log("Calculating security sector hash for second...");
             using var securitySectorsHash2 = MD5.Create();
-            var securitySectors2 = GetSecuritySectorsFromXiso(input2, dataSectors2, default);
             for (var i = 0; i < securitySectors2.Count; i++)
             {
                 var securitySector2 = securitySectors2.ElementAt(i);
@@ -428,25 +465,39 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             }
         }
 
-        public static bool Split(IImageInput input, string outputPath, string name, string extension, bool scrub, bool trimmedScrub, Action<float>? progress, CancellationToken cancellationToken)
+        public static bool Split(IImageInput input, string outputPath, string name, string extension, bool scrub, bool trimmedScrub, Action<int, float>? progress, CancellationToken cancellationToken)
         {
             if (progress != null)
             {
-                progress(0);
+                progress(0, 0);
             }
+
+            Action<float> progress1 = (percent) => {
+                if (progress != null)
+                {
+                    progress(0, percent);
+                }
+            };
+
+            Action<float> progress2 = (percent) => {
+                if (progress != null)
+                {
+                    progress(1, percent);
+                }
+            };
 
             var endSector = input.TotalSectors;
             var dataSectors = new HashSet<uint>();
             if (scrub)
             {
-                dataSectors = GetDataSectorsFromXiso(input, cancellationToken);
+                dataSectors = GetDataSectorsFromXiso(input, progress1, cancellationToken);
 
                 if (trimmedScrub)
                 {
                     endSector = Math.Min(dataSectors.Max() + 1, input.TotalSectors);
                 }
 
-                var securitySectors = GetSecuritySectorsFromXiso(input, dataSectors, cancellationToken);
+                var securitySectors = GetSecuritySectorsFromXiso(input, dataSectors, progress2, cancellationToken);
                 for (var i = 0; i < securitySectors.Count; i++)
                 {
                     dataSectors.Add(securitySectors.ElementAt(i));
@@ -484,7 +535,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
                 if (progress != null)
                 {
-                    progress(i / (float)(endSector - input.SectorOffset));
+                    progress(2, i / (float)(endSector - input.SectorOffset));
                 }
 
                 if (cancellationToken.IsCancellationRequested)
@@ -496,25 +547,39 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             return true;
         }
 
-        public static bool CreateCCI(IImageInput input, string outputPath, string name, string extension, bool scrub, bool trimmedScrub, Action<float>? progress, CancellationToken cancellationToken)
+        public static bool CreateCCI(IImageInput input, string outputPath, string name, string extension, bool scrub, bool trimmedScrub, Action<int, float>? progress, CancellationToken cancellationToken)
         {
             if (progress != null)
             {
-                progress(0);
+                progress(0, 0);
             }
+
+            Action<float> progress1 = (percent) => {
+                if (progress != null)
+                {
+                    progress(0, percent);
+                }
+            };
+
+            Action<float> progress2 = (percent) => {
+                if (progress != null)
+                {
+                    progress(1, percent);
+                }
+            };
 
             var endSector = input.TotalSectors;
             var dataSectors = new HashSet<uint>();
             if (scrub)
             {
-                dataSectors = GetDataSectorsFromXiso(input, cancellationToken);
+                dataSectors = GetDataSectorsFromXiso(input, progress1, cancellationToken);
 
                 if (trimmedScrub)
                 {
                     endSector = Math.Min(dataSectors.Max() + 1, input.TotalSectors);
                 }
 
-                var securitySectors = GetSecuritySectorsFromXiso(input, dataSectors, cancellationToken);
+                var securitySectors = GetSecuritySectorsFromXiso(input, dataSectors, progress2, cancellationToken);
                 for (var i = 0; i < securitySectors.Count; i++)
                 {
                     dataSectors.Add(securitySectors.ElementAt(i));
@@ -604,7 +669,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
                     if (progress != null)
                     {
-                        progress(sectorsWritten / (float)(endSector - sectorOffset));
+                        progress(2, sectorsWritten / (float)(endSector - sectorOffset));
                     }
 
                     if (cancellationToken.IsCancellationRequested)
