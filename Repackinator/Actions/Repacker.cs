@@ -313,10 +313,23 @@ namespace Repackinator.Actions
 
                         Log(LogMessageLevel.Info, message);
 
-                        var repackProgress = new Action<float>((progress) =>
+                        var repackProgress = new Action<int, float>((stage, progress) =>
                         {
                             CurrentProgress.Progress2 = progress;
-                            CurrentProgress.Progress2Text = message;
+
+                            if (stage == 0)
+                            {
+                                CurrentProgress.Progress2Text = "Processing Data Sectors...";
+                            }
+                            else if (stage == 1)
+                            {
+                                CurrentProgress.Progress2Text = "Processing Security Sectors...";
+                            }
+                            else 
+                            {
+                                CurrentProgress.Progress2Text = message;
+                            }
+
                             SendProgress();
                         });
 
@@ -335,10 +348,23 @@ namespace Repackinator.Actions
 
                         Log(LogMessageLevel.Info, message);
 
-                        var repackProgress = new Action<float>((progress) =>
+                        var repackProgress = new Action<int, float>((stage, progress) =>
                         {
                             CurrentProgress.Progress2 = progress;
-                            CurrentProgress.Progress2Text = message;
+
+                            if (stage == 0)
+                            {
+                                CurrentProgress.Progress2Text = "Processing Data Sectors...";
+                            }
+                            else if (stage == 1)
+                            {
+                                CurrentProgress.Progress2Text = "Processing Security Sectors...";
+                            }
+                            else
+                            {
+                                CurrentProgress.Progress2Text = message;
+                            }
+
                             SendProgress();
                         });
 
@@ -611,10 +637,23 @@ namespace Repackinator.Actions
 
                     Log(LogMessageLevel.Info, message);
 
-                    var repackProgress = new Action<float>((progress) =>
+                    var repackProgress = new Action<int, float>((stage, progress) =>
                     {
                         CurrentProgress.Progress2 = progress;
-                        CurrentProgress.Progress2Text = message;
+
+                        if (stage == 0)
+                        {
+                            CurrentProgress.Progress2Text = "Processing Data Sectors...";
+                        }
+                        else if (stage == 1)
+                        {
+                            CurrentProgress.Progress2Text = "Processing Security Sectors...";
+                        }
+                        else
+                        {
+                            CurrentProgress.Progress2Text = message;
+                        }
+
                         SendProgress();
                     });
 
@@ -633,10 +672,23 @@ namespace Repackinator.Actions
 
                     Log(LogMessageLevel.Info, message);
 
-                    var repackProgress = new Action<float>((progress) =>
+                    var repackProgress = new Action<int, float>((stage, progress) =>
                     {
                         CurrentProgress.Progress2 = progress;
-                        CurrentProgress.Progress2Text = message;
+
+                        if (stage == 0)
+                        {
+                            CurrentProgress.Progress2Text = "Processing Data Sectors...";
+                        }
+                        else if (stage == 1)
+                        {
+                            CurrentProgress.Progress2Text = "Processing Security Sectors...";
+                        }
+                        else
+                        {
+                            CurrentProgress.Progress2Text = message;
+                        }
+
                         SendProgress();
                     });
 
