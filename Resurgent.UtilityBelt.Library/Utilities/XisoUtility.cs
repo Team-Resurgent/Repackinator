@@ -504,7 +504,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 }
             }
 
-            var sectorSplit = (uint)(input.TotalSectors - input.SectorOffset) / 2;
+            var sectorSplit = (uint)(endSector - input.SectorOffset) / 2;
 
             using var partStream1 = new FileStream(Path.Combine(outputPath, $"{name}.1{extension}"), FileMode.Create, FileAccess.Write);
             using var partWriter1 = new BinaryWriter(partStream1);

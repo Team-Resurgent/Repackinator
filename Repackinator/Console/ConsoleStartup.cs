@@ -39,7 +39,7 @@ namespace Repackinator.Console
                 {
                     System.Console.WriteLine($"Repackinator {version}");
                     System.Console.WriteLine("Repackinator by EqUiNoX, original xbox utility.");
-                    System.Console.WriteLine("Credits go to HoRnEyDvL, Hazeno, Rocky5, Team Cerbios.");
+                    System.Console.WriteLine("Credits go to HoRnEyDvL, Hazeno, Rocky5, navi, Fredr1kh, Natetronn, Incursion64, Zatchbot, Team Cerbios.");
                     System.Console.WriteLine();
                     System.Console.WriteLine("Usage: Repackinator [options]+");
                     System.Console.WriteLine();
@@ -87,6 +87,8 @@ namespace Repackinator.Console
                     System.Console.WriteLine(Path.GetFileName(inputSlice));
                 }
 
+                var previousProgress = -1.0f;
+
                 if (outputPath != null)
                 {
                     outputPath = Path.Combine(outputPath, "Converted");
@@ -96,16 +98,26 @@ namespace Repackinator.Console
                     {
                         XisoUtility.CreateCCI(ImageImputHelper.GetImageInput(inputSlices), outputPath, outputNameWithoutExtension, ".cci", scrub, trimmedScrub, (s, p) =>
                         {
-                            System.Console.Write($"Stage {s + 1} of 3, Progress {Math.Round(p * 100)}%");
-                            System.Console.CursorLeft = 0;
+                            var amount = (float)Math.Round(p * 100);
+                            if (amount != previousProgress)
+                            {
+                                System.Console.Write($"Stage {s + 1} of 3, Progress {amount}%");
+                                System.Console.CursorLeft = 0;
+                                previousProgress = amount;
+                            }
                         }, default);
                     }
                     else
                     {
                         XisoUtility.Split(ImageImputHelper.GetImageInput(inputSlices), outputPath, outputNameWithoutExtension, ".iso", scrub, trimmedScrub, (s, p) =>
                         {
-                            System.Console.Write($"Stage {s + 1} of 3, Progress {Math.Round(p * 100)}%");
-                            System.Console.CursorLeft = 0;
+                            var amount = (float)Math.Round(p * 100);
+                            if (amount != previousProgress)
+                            {
+                                System.Console.Write($"Stage {s + 1} of 3, Progress {amount}%");
+                                System.Console.CursorLeft = 0;
+                                previousProgress = amount;
+                            }                            
                         }, default);
                     }
                 }
@@ -149,7 +161,7 @@ namespace Repackinator.Console
                 {
                     System.Console.WriteLine($"Repackinator {version}");
                     System.Console.WriteLine("Repackinator by EqUiNoX, original xbox utility.");
-                    System.Console.WriteLine("Credits go to HoRnEyDvL, Hazeno, Rocky5, Team Cerbios.");
+                    System.Console.WriteLine("Credits go to HoRnEyDvL, Hazeno, Rocky5, navi, Fredr1kh, Natetronn, Incursion64, Zatchbot, Team Cerbios.");
                     System.Console.WriteLine();
                     System.Console.WriteLine("Usage: Repackinator [options]+");
                     System.Console.WriteLine();
@@ -205,14 +217,20 @@ namespace Repackinator.Console
 
                     System.Console.WriteLine();
 
+                    var previousProgress = -1.0f;
+                    
                     System.Console.WriteLine("Processing...");
                     XisoUtility.CompareXISO(ImageImputHelper.GetImageInput(firstSlices), ImageImputHelper.GetImageInput(secondSlices), s =>
                     {
                         System.Console.WriteLine(s);
                     }, p =>
                     {
-                        System.Console.Write($"Progress {Math.Round(p * 100)}%");
-                        System.Console.CursorLeft = 0;
+                        var amount = (float)Math.Round(p * 100);
+                        if (amount != previousProgress) { 
+                            System.Console.Write($"Progress {amount}%");
+                            System.Console.CursorLeft = 0;
+                            previousProgress = amount;
+                        }
                     });
 
                     System.Console.WriteLine();
@@ -257,7 +275,7 @@ namespace Repackinator.Console
                 {
                     System.Console.WriteLine($"Repackinator {version}");
                     System.Console.WriteLine("Repackinator by EqUiNoX, original xbox utility.");
-                    System.Console.WriteLine("Credits go to HoRnEyDvL, Hazeno, Rocky5, Team Cerbios.");
+                    System.Console.WriteLine("Credits go to HoRnEyDvL, Hazeno, Rocky5, navi, Fredr1kh, Natetronn, Incursion64, Zatchbot, Team Cerbios.");
                     System.Console.WriteLine();
                     System.Console.WriteLine("Usage: Repackinator [options]+");
                     System.Console.WriteLine();
@@ -299,7 +317,7 @@ namespace Repackinator.Console
             //    {
             //        Console.WriteLine("Usage: Repackinator");
             //        Console.WriteLine("Repackinator by EqUiNoX, original xbox utility.");
-            //        Console.WriteLine("Credits go to HoRnEyDvL, Hazeno, Rocky5, Team Cerbios.");
+            //        System.Console.WriteLine("Credits go to HoRnEyDvL, Hazeno, Rocky5, navi, Fredr1kh, Natetronn, Incursion64, Zatchbot, Team Cerbios.");
             //        Console.WriteLine();
             //        Console.WriteLine("Usage: Repackinator [options]+");
             //        Console.WriteLine();
