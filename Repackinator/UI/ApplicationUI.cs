@@ -386,7 +386,10 @@ namespace Repackinator.UI
             }
 
             m_okDialog.Render();
-            m_creditsDialog.Render();
+            if (m_creditsDialog.Render())
+            {
+                m_config = Config.LoadConfig();
+            }
             m_repackDialog.Render();
             m_attachUpdateDialog.Render();
 

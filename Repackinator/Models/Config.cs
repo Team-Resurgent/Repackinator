@@ -28,6 +28,8 @@ namespace Repackinator.Models
 
         public bool TrimmedScrub { get; set; }
 
+        public bool LeechMode { get; set; }
+
         public int SearchField { get; set; }
 
         public string CompareFirst { get; set; }
@@ -42,6 +44,7 @@ namespace Repackinator.Models
             RecurseInput = false;
             UpperCase = false;
             Compress = false;
+            LeechMode = false;
             TrimmedScrub = false;
             SearchField = 0;
             CompareFirst = string.Empty;

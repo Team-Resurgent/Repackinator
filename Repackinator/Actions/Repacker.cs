@@ -7,8 +7,12 @@ using Resurgent.UtilityBelt.Library.Utilities;
 using Resurgent.UtilityBelt.Library.Utilities.ImageInput;
 using Resurgent.UtilityBelt.Library.Utilities.XbeModels;
 using SharpCompress.Archives;
+using SharpCompress.Common;
+using System;
 using System.Diagnostics;
+using System.Net;
 using System.Text;
+using System.Web;
 
 namespace Repackinator.Actions
 {
@@ -734,6 +738,37 @@ namespace Repackinator.Actions
             }
         }
 
+        private void DownloadFromUrlToPath(string url, string path, Action<long> downloaded, CancellationToken cancellationToken)
+        {
+            using (var client = new HttpClient())
+            {
+                using (HttpResponseMessage response = client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead).Result)
+                {
+                    response.EnsureSuccessStatusCode();
+                    using (Stream contentStream = response.Content.ReadAsStreamAsync().Result, fileStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true))
+                    {
+                        var totalRead = 0L;
+                        var buffer = new byte[8192];                        
+                        var bytesRead = 0;
+                        do
+                        {
+                            bytesRead = contentStream.Read(buffer, 0, buffer.Length);
+                            if (bytesRead > 0)
+                            {                             
+                                fileStream.Write(buffer, 0, bytesRead);
+                                totalRead += bytesRead;
+                            }
+                            if (cancellationToken.IsCancellationRequested)
+                            {
+                                break;
+                            }
+                        }
+                        while (bytesRead != 0);
+                    }
+                }
+            }
+        }
+
         public void StartRepacking(GameData[]? gameData, Config config, Action<ProgressInfo>? progress, Action<LogMessage> logger, Stopwatch stopwatch, CancellationToken cancellationToken)
         {
             try
@@ -777,34 +812,89 @@ namespace Repackinator.Actions
                 CurrentProgress.Progress2Text = string.Empty;
                 SendProgress();
 
-                var acceptedFiletypes = new string[] { ".iso", ".zip", ".rar", ".7z" };
-                var files = Directory.GetFileSystemEntries(config.InputPath, "*", config.RecurseInput ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly)
-                    .Where(file => acceptedFiletypes.Contains(Path.GetExtension(file), StringComparer.CurrentCultureIgnoreCase))
-                    .ToArray();
-
-                for (int i = 0; i < files.Length; i++)
+                if (config.LeechMode == true)
                 {
-                    string? file = files[i];
-                    CurrentProgress.Progress1 = i / (float)files.Length;
-                    CurrentProgress.Progress1Text = $"Processing {i + 1} of {files.Length}";
-                    SendProgress();
-
-                    var gameIndex = ProcessFile(file, config.OutputPath, config.Grouping, crcMissingCount == 0, config.UpperCase, config.Compress, config.TrimmedScrub, cancellationToken);
-                    if (gameIndex >= 0)
+                    for (int i = 0; i < GameDataList.Length; i++)
                     {
-                        gameData[gameIndex].Process = "N";
-                        GameDataHelper.SaveGameData(gameData);
-                    }
+                        GameData gameDataItem = GameDataList[i];
+                        if (!gameDataItem.Process.Equals("Y", StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            continue;
+                        }
 
-                    if (cancellationToken.IsCancellationRequested)
-                    {
+                        var tempPath = Path.Combine(Path.GetTempPath(), Path.ChangeExtension(Guid.NewGuid().ToString(), Path.GetExtension(gameDataItem.Link)));
+                        try
+                        {
+                            CurrentProgress.Progress1 = i / (float)GameDataList.Length;
+                            CurrentProgress.Progress1Text = $"Processing {i + 1} of {GameDataList.Length}";
+                            SendProgress();
+                            
+                            DownloadFromUrlToPath(gameDataItem.Link, tempPath, d =>
+                            {
+                                CurrentProgress.Progress2 = 0;
+                                CurrentProgress.Progress2Text = $"Downloaded {d} bytes";
+                                SendProgress();
+                            }, cancellationToken);
+
+                            var gameIndex = ProcessFile(tempPath, config.OutputPath, config.Grouping, crcMissingCount == 0, config.UpperCase, config.Compress, config.TrimmedScrub, cancellationToken);
+                            if (gameIndex >= 0)
+                            {
+                                gameData[gameIndex].Process = "N";
+                                GameDataHelper.SaveGameData(gameData);
+                            }
+                        }
+                        catch
+                        {
+                            throw;
+                        }
+                        finally
+                        {
+                            if (File.Exists(tempPath))
+                            {
+                                File.Delete(tempPath);
+                            }
+                        }
+
+                        if (cancellationToken.IsCancellationRequested)
+                        {
+                            Log(LogMessageLevel.None, "");
+                            Log(LogMessageLevel.Info, "Cancelled.");
+                            break;
+                        }
+
                         Log(LogMessageLevel.None, "");
-                        Log(LogMessageLevel.Info, "Cancelled.");
-                        break;
                     }
+                }
+                else
+                {
+                    var acceptedFiletypes = new string[] { ".iso", ".zip", ".rar", ".7z" };
+                    var files = Directory.GetFileSystemEntries(config.InputPath, "*", config.RecurseInput ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly)
+                        .Where(file => acceptedFiletypes.Contains(Path.GetExtension(file), StringComparer.CurrentCultureIgnoreCase))
+                        .ToArray();
 
-                    Log(LogMessageLevel.None, "");
+                    for (int i = 0; i < files.Length; i++)
+                    {
+                        string? file = files[i];
+                        CurrentProgress.Progress1 = i / (float)files.Length;
+                        CurrentProgress.Progress1Text = $"Processing {i + 1} of {files.Length}";
+                        SendProgress();
 
+                        var gameIndex = ProcessFile(file, config.OutputPath, config.Grouping, crcMissingCount == 0, config.UpperCase, config.Compress, config.TrimmedScrub, cancellationToken);
+                        if (gameIndex >= 0)
+                        {
+                            gameData[gameIndex].Process = "N";
+                            GameDataHelper.SaveGameData(gameData);
+                        }
+
+                        if (cancellationToken.IsCancellationRequested)
+                        {
+                            Log(LogMessageLevel.None, "");
+                            Log(LogMessageLevel.Info, "Cancelled.");
+                            break;
+                        }
+
+                        Log(LogMessageLevel.None, "");
+                    }
                 }
 
                 CurrentProgress.Progress1 = 1.0f;
