@@ -143,16 +143,24 @@ namespace Repackinator.UI
             ImGui.SetCursorPosX(8);
             if (ImGui.InvisibleButton("##link", new Vector2(80, 20)))
             {
-                if (OperatingSystem.IsWindows())
+                try
                 {
-                    try
+                    if (OperatingSystem.IsWindows())
                     {
                         Process.Start("cmd", "/C start" + " " + link);
                     }
-                    catch
+                    else if (OperatingSystem.IsLinux())
                     {
-                        // do nothing
+                        Process.Start("xdg-open", link);
                     }
+                    else if (OperatingSystem.IsMacOS())
+                    {
+                        Process.Start("open", link);
+                    }
+                }
+                catch
+                {
+                    // do nothing
                 }
             }
 
@@ -173,16 +181,24 @@ namespace Repackinator.UI
             ImGui.SetCursorPosX(8);
             if (ImGui.InvisibleButton("##info", new Vector2(80, 20)))
             {
-                if (OperatingSystem.IsWindows())
+                try
                 {
-                    try
+                    if (OperatingSystem.IsWindows())
                     {
                         Process.Start("cmd", "/C start" + " " + info);
                     }
-                    catch
+                    else if (OperatingSystem.IsLinux())
                     {
-                        // do nothing
+                        Process.Start("xdg-open", info);
                     }
+                    else if (OperatingSystem.IsMacOS())
+                    {
+                        Process.Start("open", info);
+                    }
+                }
+                catch
+                {
+                    // do nothing
                 }
             }
 
