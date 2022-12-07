@@ -33,19 +33,29 @@ namespace Repackinator.Shell
                 RegisterSubMenu(key, "01menu", "Convert To ISO", $"\"{exePath}\" -i=\"%L\" -a=convert -w", ".iso");
                 RegisterSubMenu(key, "02menu", "Convert To ISO (Scrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=Scrub -w", ".iso");
                 RegisterSubMenu(key, "03menu", "Convert To ISO (TrimmedScrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=TrimmedScrub -w", ".iso");
-                RegisterSubMenu(key, "04menu", "Convert To CCI", $"\"{exePath}\" -i=\"%L\" -a=convert -w", ".iso");
-                RegisterSubMenu(key, "05menu", "Convert To CCI (Scrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=Scrub -w", ".iso");
-                RegisterSubMenu(key, "06menu", "Convert To CCI (TrimmedScrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=TrimmedScrub -w", ".iso");
-                RegisterSubMenu(key, "07menu", "Convert To ISO", $"\"{exePath}\" -i=\"%L\" -a=convert -c -w", ".cci");
-                RegisterSubMenu(key, "08menu", "Convert To ISO (Scrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=Scrub -c -w", ".cci");
-                RegisterSubMenu(key, "09menu", "Convert To ISO (TrimmedScrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=TrimmedScrub -c -w", ".cci");
+
+                RegisterSubMenu(key, "04menu", "Convert To CCI", $"\"{exePath}\" -i=\"%L\" -a=convert -c -w", ".iso");
+                RegisterSubMenu(key, "05menu", "Convert To CCI (Scrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=Scrub -c -w", ".iso");
+                RegisterSubMenu(key, "06menu", "Convert To CCI (TrimmedScrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=TrimmedScrub -c -w", ".iso");
+
+                RegisterSubMenu(key, "07menu", "Convert To ISO", $"\"{exePath}\" -i=\"%L\" -a=convert -w", ".cci");
+                RegisterSubMenu(key, "08menu", "Convert To ISO (Scrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=Scrub -w", ".cci");
+                RegisterSubMenu(key, "09menu", "Convert To ISO (TrimmedScrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=TrimmedScrub -w", ".cci");
+
                 RegisterSubMenu(key, "10menu", "Convert To CCI", $"\"{exePath}\" -i=\"%L\" -a=convert -c -w", ".cci");
                 RegisterSubMenu(key, "11menu", "Convert To CCI (Scrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=Scrub -c -w", ".cci");
                 RegisterSubMenu(key, "12menu", "Convert To CCI (TrimmedScrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=TrimmedScrub -c -w", ".cci");
+
                 RegisterSubMenu(key, "13menu", "Compare Set First", $"\"{exePath}\" -f=\"%L\" -a=compare", ".iso");
                 RegisterSubMenu(key, "14menu", "Compare First With", $"\"{exePath}\" -s=\"%L\" -a=compare -c -w", ".iso");
                 RegisterSubMenu(key, "15menu", "Compare Set First", $"\"{exePath}\" -f=\"%L\" -a=compare", ".cci");
                 RegisterSubMenu(key, "16menu", "Compare First With", $"\"{exePath}\" -s=\"%L\" -a=compare -c -w", ".cci");
+
+                RegisterSubMenu(key, "17menu", "Info", $"\"{exePath}\" -i=\"%L\" -a=info -w", ".iso");
+                RegisterSubMenu(key, "18menu", "Info", $"\"{exePath}\" -i=\"%L\" -a=info -w", ".cci");
+
+                RegisterSubMenu(key, "19menu", "Checksum Sector Data (SHA256)", $"\"{exePath}\" -i=\"%L\" -a=checksum -w", ".iso");
+                RegisterSubMenu(key, "20menu", "Checksum Sector Data (SHA256)", $"\"{exePath}\" -i=\"%L\" -a=checksum -w", ".cci");
             }
         }
 

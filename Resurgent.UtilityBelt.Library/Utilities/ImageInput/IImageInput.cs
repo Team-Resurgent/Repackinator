@@ -9,5 +9,6 @@
         byte[] ReadSectors(long startSector, long count);
         ushort ReadUint16(long position);
         uint ReadUint32(long position);
+        int SectorInSlice(long sector);
     }
 }
