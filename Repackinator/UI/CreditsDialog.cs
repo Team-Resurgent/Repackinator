@@ -3,9 +3,8 @@ using ManagedBass.FftSignalProvider;
 using ManagedBass;
 using System.Numerics;
 using System.Reflection;
-using System.Numerics;
 using Repackinator.Helpers;
-using Veldrid;
+using Repackinator.Models;
 
 namespace Repackinator.UI
 {
@@ -32,6 +31,7 @@ namespace Repackinator.UI
         private float scrollPos = 0;
         private float sin = 0;
         private Star[] stars = new Star[100];
+        private bool leechMode = false;
 
         private Matrix4x4 viewMatrix;
         private Matrix4x4 projMatrix;
@@ -115,6 +115,9 @@ namespace Repackinator.UI
         public void ShowModal()
         {
             _showModal = true;
+
+            var config = Config.LoadConfig();
+            leechMode = config.LeechMode;
         }
 
         private void CloseModal()
@@ -229,6 +232,12 @@ namespace Repackinator.UI
             DrawStars(ImGui.GetWindowPos());
             DrawObject(ImGui.GetWindowPos());  
 
+            if (leechMode)
+            {
+                ImGui.SetCursorPos(new Vector2(10, 20));
+                ImGui.Text("Leech Mode");
+            }
+
             if (m_signalProvider != null)
             {
                 var channelData = m_signalProvider.DataSampleWindowed;
@@ -298,9 +307,19 @@ namespace Repackinator.UI
 
             ImGui.SetCursorPos(new Vector2(0, 5));
             if (ImGui.InvisibleButton("##closeCredits", new Vector2(600, 390)))
-            {
-                result = true;
-                CloseModal();
+            {                
+                if (ImGui.GetIO().KeyCtrl && ImGui.GetIO().KeyAlt)
+                {
+                    leechMode = !leechMode;
+                    var config = Config.LoadConfig();
+                    config.LeechMode = leechMode;
+                    Config.SaveConfig(config);
+                }
+                else
+                {
+                    result = true;
+                    CloseModal();
+                }
             }
 
             ImGui.EndPopup();
