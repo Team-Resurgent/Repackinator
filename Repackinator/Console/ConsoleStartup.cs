@@ -14,6 +14,8 @@ namespace Repackinator.Console
     {
         private static string ActionConvert = "Convert";
         private static string ActionCompare = "Compare";
+        private static string ActionInfo = "Info";
+        private static string ActionChecksum = "Checksum";
 
         private static string ScrubModeNone = "None";
         private static string ScrubModeScrub = "Scrub";
@@ -251,6 +253,138 @@ namespace Repackinator.Console
             }
         }
 
+        private static void ProcessInfo(string version, bool shouldShowHelp, string[] args)
+        {
+            var config = Config.LoadConfig();
+
+            var input = string.Empty;
+            var wait = false;
+
+            try
+            {
+                var compareOptions = new OptionSet {
+                    { "i|input=", "Input file", i => input = i },
+                    { "w|wait", "Wait on exit", w => wait = w != null }
+                };
+                compareOptions.Parse(args);
+                if (shouldShowHelp && args.Length == 2)
+                {
+                    System.Console.WriteLine($"Repackinator {version}");
+                    System.Console.WriteLine("Repackinator by EqUiNoX, original xbox utility.");
+                    System.Console.WriteLine("Credits go to HoRnEyDvL, Hazeno, Rocky5, navi, Fredr1kh, Natetronn, Incursion64, Zatchbot, Team Cerbios.");
+                    System.Console.WriteLine();
+                    System.Console.WriteLine("Usage: Repackinator [options]+");
+                    System.Console.WriteLine();
+                    compareOptions.WriteOptionDescriptions(System.Console.Out);
+                    return;
+                }
+
+                if (!File.Exists(input))
+                {
+                    throw new OptionException("Input is not a valid file.", "input");
+                }
+
+                System.Console.WriteLine("Getting Info From:");               
+                var inputSlices = Utility.GetSlicesFromFile(input);
+                foreach (var inputSlice in inputSlices)
+                {
+                    System.Console.WriteLine(Path.GetFileName(inputSlice));
+                }
+
+                System.Console.WriteLine("Processing...");
+                System.Console.WriteLine($"Type,Filename,Size,StartSector,EndSector,InSlices");
+                XisoUtility.GetFileInfoFromXiso(ImageImputHelper.GetImageInput(inputSlices), f => {
+                    var type = f.IsFile ? "F" : "D";
+                    System.Console.WriteLine($"{type},{f.Filename},{f.Size},{f.StartSector},{f.EndSector},{f.InSlices}");
+                }, default);
+
+                System.Console.WriteLine();
+                System.Console.WriteLine("Info completed.");
+            }
+            catch (OptionException e)
+            {
+                System.Console.Write("Repackinator by EqUiNoX: ");
+                System.Console.WriteLine(e.Message);
+                System.Console.WriteLine("Try `Repackinator --help' for more information.");
+            }
+
+            if (wait)
+            {
+                System.Console.Write("Press any key to continue.");
+                System.Console.Read();
+            }
+        }
+
+        private static void ProcessChecksum(string version, bool shouldShowHelp, string[] args)
+        {
+            var config = Config.LoadConfig();
+
+            var input = string.Empty;
+            var wait = false;
+
+            try
+            {
+                var compareOptions = new OptionSet {
+                    { "i|input=", "Input file", i => input = i },
+                    { "w|wait", "Wait on exit", w => wait = w != null }
+                };
+                compareOptions.Parse(args);
+                if (shouldShowHelp && args.Length == 2)
+                {
+                    System.Console.WriteLine($"Repackinator {version}");
+                    System.Console.WriteLine("Repackinator by EqUiNoX, original xbox utility.");
+                    System.Console.WriteLine("Credits go to HoRnEyDvL, Hazeno, Rocky5, navi, Fredr1kh, Natetronn, Incursion64, Zatchbot, Team Cerbios.");
+                    System.Console.WriteLine();
+                    System.Console.WriteLine("Usage: Repackinator [options]+");
+                    System.Console.WriteLine();
+                    compareOptions.WriteOptionDescriptions(System.Console.Out);
+                    return;
+                }
+
+                if (!File.Exists(input))
+                {
+                    throw new OptionException("Input is not a valid file.", "input");
+                }
+
+                System.Console.WriteLine("Calculating Checksum From:");
+                var inputSlices = Utility.GetSlicesFromFile(input);
+                foreach (var inputSlice in inputSlices)
+                {
+                    System.Console.WriteLine(Path.GetFileName(inputSlice));
+                }
+
+                var previousProgress = -1.0f;
+
+                System.Console.WriteLine("Processing...");
+                var result = XisoUtility.GetChecksumFromXiso(ImageImputHelper.GetImageInput(inputSlices), p =>
+                {
+                    var amount = (float)Math.Round(p * 100);
+                    if (amount != previousProgress)
+                    {
+                        System.Console.Write($"Progress {amount}%");
+                        System.Console.CursorLeft = 0;
+                        previousProgress = amount;
+                    }
+                }, default);
+                System.Console.WriteLine($"SHA256 = {result}");
+
+                System.Console.WriteLine();
+                System.Console.WriteLine("Checksum completed.");
+            }
+            catch (OptionException e)
+            {
+                System.Console.Write("Repackinator by EqUiNoX: ");
+                System.Console.WriteLine(e.Message);
+                System.Console.WriteLine("Try `Repackinator --help' for more information.");
+            }
+
+            if (wait)
+            {
+                System.Console.Write("Press any key to continue.");
+                System.Console.Read();
+            }
+        }
+
         public static void Start(string version, string[] args)
         {
             var shouldShowHelp = false;
@@ -264,7 +398,7 @@ namespace Repackinator.Console
             //trimmedScrub
 
             var mainOptions = new OptionSet {
-                { "a|action=", "Action (Convert, Compare)", a => action = a },
+                { "a|action=", "Action (Convert, Compare, Info)", a => action = a },
                 { "h|help", "Show this help or for provided action", h => shouldShowHelp = true },
             };
 
@@ -289,6 +423,14 @@ namespace Repackinator.Console
                 else if (action.Equals(ActionCompare, StringComparison.CurrentCultureIgnoreCase))
                 {
                     ProcessCompare(version, shouldShowHelp, args);
+                }
+                else if (action.Equals(ActionInfo, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    ProcessInfo(version, shouldShowHelp, args);
+                }
+                else if (action.Equals(ActionChecksum, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    ProcessChecksum(version, shouldShowHelp, args);
                 }
                 else
                 {

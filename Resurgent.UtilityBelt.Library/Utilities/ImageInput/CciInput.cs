@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using static Resurgent.UtilityBelt.Library.Utilities.ImageInput.XisoInput;
 
 namespace Resurgent.UtilityBelt.Library.Utilities.ImageInput
 {
@@ -127,6 +128,19 @@ namespace Resurgent.UtilityBelt.Library.Utilities.ImageInput
         {
             var sector = ReadSectors(position >> 11, 1);
             return sector[position % 2048];
+        }
+
+        public int SectorInSlice(long sector)
+        {
+            for (int i = 0; i < m_slices.Count; i++)
+            {
+                CciSliceInfo slice = m_slices[i];
+                if (sector >= slice.StartSector && sector <= slice.EndSector)
+                {
+                    return i;
+                }
+            }
+            throw new IndexOutOfRangeException();
         }
 
         public CciInput(string[] parts)

@@ -1,4 +1,5 @@
 ﻿using Resurgent.UtilityBelt.Library.Utilities.ImageInput;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -18,6 +19,16 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             public uint DirectorySize { get; set; }
             public long DirectoryPos { get; set; }
             public uint Offset { get; set; }
+        };
+
+        public struct FileInfo
+        {
+            public bool IsFile { get; set; }
+            public string Filename { get; set; }
+            public long Size { get; set; }
+            public uint StartSector { get; set; }
+            public uint EndSector { get; set; }
+            public string InSlices { get; set; }
         };
 
         public static HashSet<uint> GetDataSectorsFromXiso(IImageInput input, Action<float>? progress, CancellationToken cancellationToken)
@@ -143,6 +154,131 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             return dataSectors;
         }
 
+        public static void GetFileInfoFromXiso(IImageInput input, Action<FileInfo> info, CancellationToken cancellationToken)
+        {
+            var position = 20U;
+            var headerSector = (uint)input.SectorOffset + 0x20U;
+            position += headerSector << 11;
+
+            var rootSector = input.ReadUint32(position);
+            var rootSize = input.ReadUint32(position + 4);
+            var rootOffset = (long)rootSector << 11;
+
+            var treeNodes = new List<TreeNodeInfo>
+            {
+                new TreeNodeInfo
+                {
+                    DirectorySize = rootSize,
+                    DirectoryPos = rootOffset,
+                    Offset = 0
+                }
+            };
+
+            while (treeNodes.Count > 0)
+            {
+                var currentTreeNode = treeNodes[0];
+                treeNodes.RemoveAt(0);
+
+                var currentPosition = (input.SectorOffset << 11) + currentTreeNode.DirectoryPos + currentTreeNode.Offset * 4;
+
+                if ((currentTreeNode.Offset * 4) >= currentTreeNode.DirectorySize)
+                {
+                    continue;
+                }
+
+                var left = input.ReadUint16(currentPosition);
+                var right = input.ReadUint16(currentPosition + 2);
+                var sector = (long)input.ReadUint32(currentPosition + 4);
+                var size = input.ReadUint32(currentPosition + 8);
+                var attribute = input.ReadByte(currentPosition + 12);
+
+                var nameLength = input.ReadByte(currentPosition + 13);
+                var filenameBytes = input.ReadBytes(currentPosition + 14, nameLength);
+                var filename = Encoding.ASCII.GetString(filenameBytes);
+
+                if (left == 0xFFFF)
+                {
+                    continue;
+                }
+
+                if (left != 0)
+                {
+                    treeNodes.Add(new TreeNodeInfo
+                    {
+                        DirectorySize = currentTreeNode.DirectorySize,
+                        DirectoryPos = currentTreeNode.DirectoryPos,
+                        Offset = left
+                    });
+                }
+
+                if ((attribute & 0x10) != 0)
+                {
+                    if (size > 0)
+                    {
+                        treeNodes.Add(new TreeNodeInfo
+                        {
+                            DirectorySize = size,
+                            DirectoryPos = sector << 11,
+                            Offset = 0
+                        });
+
+                        info(new FileInfo
+                        {
+                            IsFile = false,
+                            Filename = filename,
+                            Size = size,
+                            StartSector = (uint)(input.SectorOffset + sector),
+                            EndSector = (uint)((input.SectorOffset + sector) + ((size + 2047) >> 11) - 1),
+                            InSlices = "N/A"
+                        });
+                    }
+                }
+                else
+                {
+                    var startSector = (uint)(input.SectorOffset + sector);
+                    var endSector = (uint)((input.SectorOffset + sector) + ((size + 2047) >> 11) - 1);
+                    var slices = new HashSet<int>
+                    {
+                        input.SectorInSlice(startSector),
+                        input.SectorInSlice(endSector)
+                    };
+                    var stringBuilder = new StringBuilder();
+                    for (var i = 0; i < slices.Count; i++)
+                    {
+                        if (i > 0)
+                        {
+                            stringBuilder.Append("-");
+                        }
+                        stringBuilder.Append(slices.ElementAt(i).ToString());
+                    }
+                    info(new FileInfo
+                    {
+                        IsFile = true,
+                        Filename = filename,
+                        Size = size,
+                        StartSector = startSector,
+                        EndSector = endSector,
+                        InSlices = stringBuilder.ToString()
+                    });          
+                }
+
+                if (right != 0)
+                {
+                    treeNodes.Add(new TreeNodeInfo
+                    {
+                        DirectorySize = currentTreeNode.DirectorySize,
+                        DirectoryPos = currentTreeNode.DirectoryPos,
+                        Offset = right
+                    });
+                }
+
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    break;
+                }
+            }
+        }
+
         public static HashSet<uint> GetSecuritySectorsFromXiso(IImageInput input, HashSet<uint> datasecs, Action<float>? progress, CancellationToken cancellationToken)
         {
             var securitySectors = new HashSet<uint>();            
@@ -207,6 +343,32 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             }
 
             return securitySectors;
+        }
+
+        public static string GetChecksumFromXiso(IImageInput input, Action<float>? progress, CancellationToken cancellationToken)
+        {
+            if (progress != null)
+            {
+                progress(0);
+            }
+
+            using var hash = SHA256.Create();
+            for (var i = 0; i < input.TotalSectors; i++)
+            {
+                var buffer = input.ReadSectors(i, 1);
+                hash.TransformBlock(buffer, 0, buffer.Length, null, 0);
+                if (progress != null)
+                {
+                    progress(i / (float)input.TotalSectors);
+                }                
+            }
+            hash.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
+            var sha256Hash = hash.Hash;
+            if (sha256Hash == null)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+            return BitConverter.ToString(sha256Hash).Replace("-", string.Empty);
         }
 
         public static bool TryGetDefaultXbeFromXiso(IImageInput input, ref byte[] xbeData)
@@ -375,37 +537,45 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             var dataSectors1 = GetDataSectorsFromXiso(input1, progress, default);
 
             log("Calculating data sector hashes for first...");
-            using var dataSectorsHash1 = MD5.Create();
+            using var dataSectorsHash1 = SHA256.Create();
             for (var i = 0; i < dataSectors1.Count; i++)
             {
                 var dataSector1 = dataSectors1.ElementAt(i);
                 var buffer = input1.ReadSectors(dataSector1 + input1.SectorOffset, 1);
                 dataSectorsHash1.TransformBlock(buffer, 0, buffer.Length, null, 0);
-                dataSectorsHash1.ComputeHash(buffer);
                 if (progress != null)
                 {
                     progress(i / (float)dataSectors1.Count);
                 }
             }
-            var dataSectorsHash1Result = Convert.ToBase64String(dataSectorsHash1.TransformFinalBlock(Array.Empty<byte>(), 0, 0));
+            var dataChecksum1 = dataSectorsHash1.Hash;
+            if (dataChecksum1 == null)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+            var dataSectorsHash1Result = BitConverter.ToString(dataChecksum1).Replace("-", string.Empty);
 
             log("Getting data sectors hash for second...");
             var dataSectors2 = GetDataSectorsFromXiso(input2, progress, default);
 
             log("Calculating data sector hash for second...");
-            using var dataSectorsHash2 = MD5.Create();
+            using var dataSectorsHash2 = SHA256.Create();
             for (var i = 0; i < dataSectors2.Count; i++)
             {
                 var dataSector2 = dataSectors1.ElementAt(i);
                 var buffer = input1.ReadSectors(dataSector2 + input2.SectorOffset, 1);
                 dataSectorsHash2.TransformBlock(buffer, 0, buffer.Length, null, 0);
-                dataSectorsHash2.ComputeHash(buffer);
                 if (progress != null)
                 {
                     progress(i / (float)dataSectors2.Count);
                 }
             }
-            var dataSectorsHash2Result = Convert.ToBase64String(dataSectorsHash2.TransformFinalBlock(Array.Empty<byte>(), 0, 0));
+            var dataChecksum2 = dataSectorsHash2.Hash;
+            if (dataChecksum2 == null)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+            var dataSectorsHash2Result = BitConverter.ToString(dataChecksum2).Replace("-", string.Empty);
 
             if (dataSectorsHash1Result == dataSectorsHash2Result)
             {
@@ -423,37 +593,46 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             var securitySectors1 = GetSecuritySectorsFromXiso(input1, dataSectors1, progress, default);
 
             log("Calculating security sector hashes for first...");
-            using var securitySectorsHash1 = MD5.Create();
+            using var securitySectorsHash1 = SHA256.Create();
             for (var i = 0; i < securitySectors1.Count; i++)
             {
                 var securitySector1 = securitySectors1.ElementAt(i);
                 var buffer = input1.ReadSectors(securitySector1 + input1.SectorOffset, 1);
                 securitySectorsHash1.TransformBlock(buffer, 0, buffer.Length, null, 0);
-                securitySectorsHash1.ComputeHash(buffer);
                 if (progress != null)
                 {
                     progress(i / (float)securitySectors1.Count);
                 }
             }
-            var securitySectorsHash1Result = Convert.ToBase64String(securitySectorsHash1.TransformFinalBlock(Array.Empty<byte>(), 0, 0));
+            var secutityChecksum1 = securitySectorsHash1.Hash;
+            if (secutityChecksum1 == null)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+            var securitySectorsHash1Result = BitConverter.ToString(secutityChecksum1).Replace("-", string.Empty);
 
             log("Getting security sectors hash for second...");
             var securitySectors2 = GetSecuritySectorsFromXiso(input2, dataSectors2, progress, default);
 
             log("Calculating security sector hash for second...");
-            using var securitySectorsHash2 = MD5.Create();
+            using var securitySectorsHash2 = SHA256.Create();
             for (var i = 0; i < securitySectors2.Count; i++)
             {
                 var securitySector2 = securitySectors2.ElementAt(i);
                 var buffer = input1.ReadSectors(securitySector2 + input2.SectorOffset, 1);
                 securitySectorsHash2.TransformBlock(buffer, 0, buffer.Length, null, 0);
-                securitySectorsHash2.ComputeHash(buffer);
                 if (progress != null)
                 {
                     progress(i / (float)securitySectors2.Count);
                 }
             }
-            var securitySectorsHash2Result = Convert.ToBase64String(securitySectorsHash2.TransformFinalBlock(Array.Empty<byte>(), 0, 0));
+            securitySectorsHash2.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
+            var secutityChecksum2 = securitySectorsHash2.Hash;
+            if (secutityChecksum2 == null)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+            var securitySectorsHash2Result = BitConverter.ToString(secutityChecksum2).Replace("-", string.Empty);
 
             if (securitySectorsHash1Result == securitySectorsHash2Result)
             {
