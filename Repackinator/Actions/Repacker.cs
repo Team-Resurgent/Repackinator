@@ -738,14 +738,14 @@ namespace Repackinator.Actions
             }
         }
 
-        private void DownloadFromUrlToPath(string url, string path, Action<long> downloaded, CancellationToken cancellationToken)
+        private async Task<bool> DownloadFromUrlToPath(string url, string path, Action<long> downloaded, CancellationToken cancellationToken)
         {
             using (var client = new HttpClient())
             {
-                using (HttpResponseMessage response = client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead).Result)
+                using (HttpResponseMessage response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead))
                 {
                     response.EnsureSuccessStatusCode();
-                    using (Stream contentStream = response.Content.ReadAsStreamAsync().Result, fileStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true))
+                    using (Stream contentStream = await response.Content.ReadAsStreamAsync(), fileStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true))
                     {
                         var totalRead = 0L;
                         var buffer = new byte[8192];                        
@@ -757,6 +757,7 @@ namespace Repackinator.Actions
                             {                             
                                 fileStream.Write(buffer, 0, bytesRead);
                                 totalRead += bytesRead;
+                                downloaded(totalRead);
                             }
                             if (cancellationToken.IsCancellationRequested)
                             {
@@ -767,6 +768,7 @@ namespace Repackinator.Actions
                     }
                 }
             }
+            return true;
         }
 
         public void StartRepacking(GameData[]? gameData, Config config, Action<ProgressInfo>? progress, Action<LogMessage> logger, Stopwatch stopwatch, CancellationToken cancellationToken)
@@ -814,6 +816,8 @@ namespace Repackinator.Actions
 
                 if (config.LeechMode == true)
                 {
+                    var leechlistCount = GameDataList.Where(l => l.Process.Equals("Y", StringComparison.CurrentCultureIgnoreCase)).Count();
+
                     for (int i = 0; i < GameDataList.Length; i++)
                     {
                         GameData gameDataItem = GameDataList[i];
@@ -826,15 +830,15 @@ namespace Repackinator.Actions
                         try
                         {
                             CurrentProgress.Progress1 = i / (float)GameDataList.Length;
-                            CurrentProgress.Progress1Text = $"Processing {i + 1} of {GameDataList.Length}";
+                            CurrentProgress.Progress1Text = $"Processing {i + 1} of {leechlistCount}";
                             SendProgress();
                             
-                            DownloadFromUrlToPath(gameDataItem.Link, tempPath, d =>
+                            _ = DownloadFromUrlToPath(gameDataItem.Link, tempPath, d =>
                             {
                                 CurrentProgress.Progress2 = 0;
-                                CurrentProgress.Progress2Text = $"Downloaded {d} bytes";
+                                CurrentProgress.Progress2Text = $"Downloaded {Math.Round(d / (1024 * 1024.0f), 2)}MB";
                                 SendProgress();
-                            }, cancellationToken);
+                            }, cancellationToken).Result;
 
                             var gameIndex = ProcessFile(tempPath, config.OutputPath, config.Grouping, crcMissingCount == 0, config.UpperCase, config.Compress, config.TrimmedScrub, cancellationToken);
                             if (gameIndex >= 0)
