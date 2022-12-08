@@ -738,12 +738,14 @@ namespace Repackinator.Actions
             }
         }
 
-        private async Task<bool> DownloadFromUrlToPath(string url, string path, Action<long> downloaded, CancellationToken cancellationToken)
+        private async Task<bool> DownloadFromUrlToPath(string url, string path, Action<long, long> downloaded, CancellationToken cancellationToken)
         {
             using (var client = new HttpClient())
             {
-                using (HttpResponseMessage response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead))
+                using (HttpResponseMessage response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken))
                 {
+                    long totalLength = long.Parse(response.Content.Headers.First(h => h.Key.Equals("Content-Length")).Value.First());
+
                     response.EnsureSuccessStatusCode();
                     using (Stream contentStream = await response.Content.ReadAsStreamAsync(), fileStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true))
                     {
@@ -757,7 +759,7 @@ namespace Repackinator.Actions
                             {                             
                                 fileStream.Write(buffer, 0, bytesRead);
                                 totalRead += bytesRead;
-                                downloaded(totalRead);
+                                downloaded(totalRead, totalLength);
                             }
                             if (cancellationToken.IsCancellationRequested)
                             {
@@ -816,6 +818,7 @@ namespace Repackinator.Actions
 
                 if (config.LeechMode == true)
                 {
+                    var count = 0;
                     var leechlistCount = GameDataList.Where(l => l.Process.Equals("Y", StringComparison.CurrentCultureIgnoreCase)).Count();
 
                     for (int i = 0; i < GameDataList.Length; i++)
@@ -826,19 +829,28 @@ namespace Repackinator.Actions
                             continue;
                         }
 
+                        count++;
+
                         var tempPath = Path.Combine(Path.GetTempPath(), Path.ChangeExtension(Guid.NewGuid().ToString(), Path.GetExtension(gameDataItem.Link)));
                         try
                         {
                             CurrentProgress.Progress1 = i / (float)GameDataList.Length;
-                            CurrentProgress.Progress1Text = $"Processing {i + 1} of {leechlistCount}";
+                            CurrentProgress.Progress1Text = $"Processing {count} of {leechlistCount}";
                             SendProgress();
                             
-                            _ = DownloadFromUrlToPath(gameDataItem.Link, tempPath, d =>
+                            _ = DownloadFromUrlToPath(gameDataItem.Link, tempPath, (downloaded, totalLength) =>
                             {
-                                CurrentProgress.Progress2 = 0;
-                                CurrentProgress.Progress2Text = $"Downloaded {Math.Round(d / (1024 * 1024.0f), 2)}MB";
+                                CurrentProgress.Progress2 = downloaded / (float)totalLength;
+                                CurrentProgress.Progress2Text = $"Downloaded {Math.Round(downloaded / (1024 * 1024.0f), 2)}MB of {Math.Round(totalLength / (1024 * 1024.0f), 2)}MB";
                                 SendProgress();
                             }, cancellationToken).Result;
+
+                            if (cancellationToken.IsCancellationRequested)
+                            {
+                                Log(LogMessageLevel.None, "");
+                                Log(LogMessageLevel.Info, "Cancelled.");
+                                break;
+                            }
 
                             var gameIndex = ProcessFile(tempPath, config.OutputPath, config.Grouping, crcMissingCount == 0, config.UpperCase, config.Compress, config.TrimmedScrub, cancellationToken);
                             if (gameIndex >= 0)
