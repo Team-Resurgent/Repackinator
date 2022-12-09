@@ -28,7 +28,7 @@ namespace Repackinator.Models
 
         public bool TrimmedScrub { get; set; }
 
-        public bool LeechMode { get; set; }
+        public int LeechType { get; set; }
 
         public int SearchField { get; set; }
 
@@ -44,7 +44,7 @@ namespace Repackinator.Models
             RecurseInput = false;
             UpperCase = false;
             Compress = false;
-            LeechMode = false;
+            LeechType = 0;
             TrimmedScrub = false;
             SearchField = 0;
             CompareFirst = string.Empty;

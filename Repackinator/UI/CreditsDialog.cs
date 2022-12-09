@@ -230,10 +230,21 @@ namespace Repackinator.UI
             DrawStars(ImGui.GetWindowPos());
             DrawObject(ImGui.GetWindowPos());  
 
-            if (_config.LeechMode)
+            if (_config.LeechType > 0)
             {
                 ImGui.SetCursorPos(new Vector2(10, 20));
-                ImGui.Text("Leech Mode");
+                if (_config.LeechType == 1)
+                {
+                    ImGui.Text("Leech, Process & Delete Mode");
+                }
+                else if (_config.LeechType == 2)
+                {
+                    ImGui.Text("Leech, Process & Keep Mode");
+                }
+                else
+                {
+                    ImGui.Text("Leech, Keep Mode");
+                }
             }
 
             if (m_signalProvider != null)
@@ -308,7 +319,7 @@ namespace Repackinator.UI
             {                
                 if (ImGui.GetIO().KeyCtrl && ImGui.GetIO().KeyAlt)
                 {
-                    _config.LeechMode = !_config.LeechMode;
+                    _config.LeechType = (_config.LeechType + 1) % 4;
                     Config.SaveConfig(_config);
                 }
                 else
