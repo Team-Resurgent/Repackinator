@@ -27,12 +27,13 @@ Note: Compressed ISO support is currently under development and no current BIOS'
 ///                                                                           ///
 ///  -----------------------------------------------------------------------  ///
 ///                                                                           ///
-///   Release: V1.0.1                                                         ///
+///   Release: V1.1.8                                                         ///
 ///  -----------------------------------------------------------------------  ///
 ///  1.  Added native support for Linux & OSX                                 ///
 ///  2.  Fixed typos in GUI                                                   ///
 ///  3.  Github automation improvements                                       ///
-///  4.  Added CLI version (For those that don't like GUI's)                  ///
+///  4.  Added CCI support                                                    ///
+///  5.  Added Context menus                                                  ///
 ///                                                                           ///
 ///  -----------------------------------------------------------------------  ///
 ///                                                                           ///
