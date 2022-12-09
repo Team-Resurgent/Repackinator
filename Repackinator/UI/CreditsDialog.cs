@@ -16,6 +16,7 @@ namespace Repackinator.UI
             public float Scale { get; set; }
         }
 
+        private Config _config;
         private bool _showModal;
         private bool _open;
 
@@ -31,7 +32,6 @@ namespace Repackinator.UI
         private float scrollPos = 0;
         private float sin = 0;
         private Star[] stars = new Star[100];
-        private bool leechMode = false;
 
         private Matrix4x4 viewMatrix;
         private Matrix4x4 projMatrix;
@@ -112,12 +112,10 @@ namespace Repackinator.UI
             objectIndices.Add(7);
         }
 
-        public void ShowModal()
+        public void ShowModal(Config config)
         {
             _showModal = true;
-
-            var config = Config.LoadConfig();
-            leechMode = config.LeechMode;
+            _config = config;
         }
 
         private void CloseModal()
@@ -232,7 +230,7 @@ namespace Repackinator.UI
             DrawStars(ImGui.GetWindowPos());
             DrawObject(ImGui.GetWindowPos());  
 
-            if (leechMode)
+            if (_config.LeechMode)
             {
                 ImGui.SetCursorPos(new Vector2(10, 20));
                 ImGui.Text("Leech Mode");
@@ -310,10 +308,8 @@ namespace Repackinator.UI
             {                
                 if (ImGui.GetIO().KeyCtrl && ImGui.GetIO().KeyAlt)
                 {
-                    leechMode = !leechMode;
-                    var config = Config.LoadConfig();
-                    config.LeechMode = leechMode;
-                    Config.SaveConfig(config);
+                    _config.LeechMode = !_config.LeechMode;
+                    Config.SaveConfig(_config);
                 }
                 else
                 {

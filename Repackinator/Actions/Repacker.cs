@@ -1,4 +1,6 @@
-﻿using Repackinator.Exceptions;
+﻿using Downloader;
+using Newtonsoft.Json.Serialization;
+using Repackinator.Exceptions;
 using Repackinator.Helpers;
 using Repackinator.Logging;
 using Repackinator.Models;
@@ -740,37 +742,27 @@ namespace Repackinator.Actions
 
         private async Task<bool> DownloadFromUrlToPath(string url, string path, Action<long, long> downloaded, CancellationToken cancellationToken)
         {
-            using (var client = new HttpClient())
+            var downloadOpt = new DownloadConfiguration()
             {
-                using (HttpResponseMessage response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken))
-                {
-                    long totalLength = long.Parse(response.Content.Headers.First(h => h.Key.Equals("Content-Length")).Value.First());
+                ChunkCount = 8,
+                ParallelDownload = true,
+                MaxTryAgainOnFailover = 5,
+                ReserveStorageSpaceBeforeStartingDownload = true
+            };
 
-                    response.EnsureSuccessStatusCode();
-                    using (Stream contentStream = await response.Content.ReadAsStreamAsync(), fileStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true))
-                    {
-                        var totalRead = 0L;
-                        var buffer = new byte[8192];                        
-                        var bytesRead = 0;
-                        do
-                        {
-                            bytesRead = contentStream.Read(buffer, 0, buffer.Length);
-                            if (bytesRead > 0)
-                            {                             
-                                fileStream.Write(buffer, 0, bytesRead);
-                                totalRead += bytesRead;
-                                downloaded(totalRead, totalLength);
-                            }
-                            if (cancellationToken.IsCancellationRequested)
-                            {
-                                break;
-                            }
-                        }
-                        while (bytesRead != 0);
-                    }
+            var downloader = new DownloadService(downloadOpt);
+            downloader.DownloadProgressChanged += (s, e) =>
+            {
+                downloaded(e.ReceivedBytesSize, e.TotalBytesToReceive);
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    downloader.CancelAsync();
                 }
-            }
-            return true;
+            };
+
+            await downloader.DownloadFileTaskAsync(url, path);
+
+            return downloader.Status == DownloadStatus.Completed;
         }
 
         public void StartRepacking(GameData[]? gameData, Config config, Action<ProgressInfo>? progress, Action<LogMessage> logger, Stopwatch stopwatch, CancellationToken cancellationToken)
@@ -831,14 +823,21 @@ namespace Repackinator.Actions
 
                         count++;
 
-                        var tempPath = Path.Combine(Path.GetTempPath(), Path.ChangeExtension(Guid.NewGuid().ToString(), Path.GetExtension(gameDataItem.Link)));
+                        var tempPath = Path.Combine(Path.GetTempPath(), $"RepackinatorDownload{Path.GetExtension(gameDataItem.Link)}");
+                        if (File.Exists(tempPath))
+                        {
+                            File.Delete(tempPath);
+                        }
+
                         try
                         {
                             CurrentProgress.Progress1 = i / (float)GameDataList.Length;
                             CurrentProgress.Progress1Text = $"Processing {count} of {leechlistCount}";
                             SendProgress();
-                            
-                            _ = DownloadFromUrlToPath(gameDataItem.Link, tempPath, (downloaded, totalLength) =>
+
+                            Log(LogMessageLevel.Info, $"Downloading '{gameDataItem.ISOName}'.");
+
+                            var result = DownloadFromUrlToPath(gameDataItem.Link, tempPath, (downloaded, totalLength) =>
                             {
                                 CurrentProgress.Progress2 = downloaded / (float)totalLength;
                                 CurrentProgress.Progress2Text = $"Downloaded {Math.Round(downloaded / (1024 * 1024.0f), 2)}MB of {Math.Round(totalLength / (1024 * 1024.0f), 2)}MB";
@@ -850,6 +849,12 @@ namespace Repackinator.Actions
                                 Log(LogMessageLevel.None, "");
                                 Log(LogMessageLevel.Info, "Cancelled.");
                                 break;
+                            }
+
+                            if (!result)
+                            {
+                                Log(LogMessageLevel.Error, "Download Failed.");
+                                continue;
                             }
 
                             var gameIndex = ProcessFile(tempPath, config.OutputPath, config.Grouping, crcMissingCount == 0, config.UpperCase, config.Compress, config.TrimmedScrub, cancellationToken);
