@@ -65,6 +65,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Downloader" Version="3.0.1" />
 		<PackageReference Include="ImGui.NET" Version="1.88.0" />
 		<PackageReference Include="ManagedBass.FftSignalProvider" Version="1.0.1" />
 		<PackageReference Include="Mono.Options" Version="6.12.0.148" />

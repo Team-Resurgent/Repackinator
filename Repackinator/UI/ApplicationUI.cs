@@ -386,10 +386,7 @@ namespace Repackinator.UI
             }
 
             m_okDialog.Render();
-            if (m_creditsDialog.Render())
-            {
-                m_config = Config.LoadConfig();
-            }
+            m_creditsDialog.Render();
             m_repackDialog.Render();
             m_attachUpdateDialog.Render();
 
@@ -913,7 +910,7 @@ namespace Repackinator.UI
             ImGui.SetCursorPosX(m_window.Width - 216);
             if (ImGui.Button("Coded by EqUiNoX - Team Resurgent", new Vector2(208, 30)))
             {
-                m_creditsDialog.ShowModal();
+                m_creditsDialog.ShowModal(m_config);
             }
 
             ImGui.End();

@@ -12,7 +12,7 @@ namespace Repackinator.Models
         LetterRegion
     }
 
-    public struct Config
+    public class Config
     {
         public string InputPath { get; set; }
 
