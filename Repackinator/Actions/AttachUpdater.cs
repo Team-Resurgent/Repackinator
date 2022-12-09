@@ -38,7 +38,7 @@ namespace Repackinator.Actions
             File.AppendAllText("AttachUpdateLog.txt", logMessage.ToLogFormat());
         }
 
-        private void ProcessFolder(string folder, Stopwatch procesTime, GameData[]? gameDatas, CancellationToken cancellationToken)
+        private void ProcessFolder(string folder, Stopwatch procesTime, bool upperCase, GameData[]? gameDatas, CancellationToken cancellationToken)
         {
             var filesToProcess = Directory.GetFiles(folder, "default.xbe").OrderBy(o => o).ToArray();
             if (filesToProcess.Length != 1)
@@ -78,6 +78,11 @@ namespace Repackinator.Actions
                         //gameData = currentGameData;
                         titleName = currentGameData.TitleName;
                     }
+                }
+
+                if (upperCase)
+                {
+                    titleName = titleName.ToUpper();
                 }
 
                 var attach = ResourceLoader.GetEmbeddedResourceBytes("attach.xbe");
@@ -155,7 +160,7 @@ namespace Repackinator.Actions
                     CurrentProgress.Progress1 = pathsScanned / (float)totalPaths;
                     SendProgress();
 
-                    ProcessFolder(pathToProcess, stopwatch, gameData, cancellationToken);
+                    ProcessFolder(pathToProcess, stopwatch, config.UpperCase, gameData, cancellationToken);
 
                     try
                     {
