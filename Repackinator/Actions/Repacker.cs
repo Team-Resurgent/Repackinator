@@ -740,7 +740,7 @@ namespace Repackinator.Actions
             }
         }
 
-        private async Task<bool> DownloadFromUrlToPath(string url, string path, Action<long, long> downloaded, CancellationToken cancellationToken)
+        private async Task<bool> DownloadFromUrlToPath(string url, string path, Action<long, long, double> downloaded, CancellationToken cancellationToken)
         {
             var downloadOpt = new DownloadConfiguration()
             {
@@ -753,7 +753,7 @@ namespace Repackinator.Actions
             var downloader = new DownloadService(downloadOpt);
             downloader.DownloadProgressChanged += (s, e) =>
             {
-                downloaded(e.ReceivedBytesSize, e.TotalBytesToReceive);
+                downloaded(e.ReceivedBytesSize, e.TotalBytesToReceive, e.BytesPerSecondSpeed);
                 if (cancellationToken.IsCancellationRequested)
                 {
                     downloader.CancelAsync();
@@ -808,7 +808,7 @@ namespace Repackinator.Actions
                 CurrentProgress.Progress2Text = string.Empty;
                 SendProgress();
 
-                if (config.LeechMode == true)
+                if (config.LeechType > 0)
                 {
                     var count = 0;
                     var leechlistCount = GameDataList.Where(l => l.Process.Equals("Y", StringComparison.CurrentCultureIgnoreCase)).Count();
@@ -822,8 +822,13 @@ namespace Repackinator.Actions
                         }
 
                         count++;
-
+                    
                         var tempPath = Path.Combine(Path.GetTempPath(), $"RepackinatorDownload{Path.GetExtension(gameDataItem.Link)}");
+                        if (config.LeechType > 1)
+                        {
+                            tempPath = Path.Combine(config.InputPath, $"{gameDataItem.ISOName}{Path.GetExtension(gameDataItem.Link)}");
+                        }
+
                         if (File.Exists(tempPath))
                         {
                             File.Delete(tempPath);
@@ -837,10 +842,10 @@ namespace Repackinator.Actions
 
                             Log(LogMessageLevel.Info, $"Downloading '{gameDataItem.ISOName}'.");
 
-                            var result = DownloadFromUrlToPath(gameDataItem.Link, tempPath, (downloaded, totalLength) =>
+                            var result = DownloadFromUrlToPath(gameDataItem.Link, tempPath, (downloaded, totalLength, bytesPerSecond) =>
                             {
                                 CurrentProgress.Progress2 = downloaded / (float)totalLength;
-                                CurrentProgress.Progress2Text = $"Downloaded {Math.Round(downloaded / (1024 * 1024.0f), 2)}MB of {Math.Round(totalLength / (1024 * 1024.0f), 2)}MB";
+                                CurrentProgress.Progress2Text = $"Downloaded {Math.Round(downloaded / (1024 * 1024.0f), 2)}MB of {Math.Round(totalLength / (1024 * 1024.0f), 2)}MB ({Math.Round(bytesPerSecond / 1024, 2)}KB/s)";
                                 SendProgress();
                             }, cancellationToken).Result;
 
@@ -857,6 +862,13 @@ namespace Repackinator.Actions
                                 continue;
                             }
 
+                            if (config.LeechType == 3)
+                            {
+                                gameDataItem.Process = "N";
+                                GameDataHelper.SaveGameData(gameData);
+                                continue;
+                            }
+
                             var gameIndex = ProcessFile(tempPath, config.OutputPath, config.Grouping, crcMissingCount == 0, config.UpperCase, config.Compress, config.TrimmedScrub, cancellationToken);
                             if (gameIndex >= 0)
                             {
@@ -870,9 +882,9 @@ namespace Repackinator.Actions
                         }
                         finally
                         {
-                            if (File.Exists(tempPath))
+                            if (config.LeechType == 1 && File.Exists(tempPath))
                             {
-                                File.Delete(tempPath);
+                                File.Delete(tempPath);                                
                             }
                         }
 
