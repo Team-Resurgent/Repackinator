@@ -43,9 +43,6 @@ jobs:
     - name: Chmod (Unix)
       if: ${{ matrix.os_flavor == 'linux-x64' || matrix.os_flavor == 'osx-x64' }}
       run: chmod +x ${{ github.workspace }}/${{ matrix.project }}/bin/${{ matrix.arch }}/Release/net6.0/${{ matrix.os_flavor }}/publish/${{ matrix.project_lowercase }}
-    - name: Rename file
-      if: ${{ matrix.os_flavor == 'linux-x64' || matrix.os_flavor == 'osx-x64' }}
-      run: mv ${{ github.workspace }}/${{ matrix.project }}/bin/${{ matrix.arch }}/Release/net6.0/${{ matrix.os_flavor }}/publish/${{ matrix.project }} ${{ github.workspace }}/${{ matrix.project }}/bin/${{ matrix.arch }}/Release/net6.0/${{ matrix.os_flavor }}/publish/${{ matrix.project_lowercase }}
     - name: Compress binaries
       run: 7z a ${{ github.workspace }}/${{ matrix.project }}-${{ matrix.os_flavor }}.${{ matrix.archive_ext }} ${{ github.workspace }}/${{ matrix.project }}/bin/${{ matrix.arch }}/Release/net6.0/${{ matrix.os_flavor }}/publish/*
     - name: List directories and files
