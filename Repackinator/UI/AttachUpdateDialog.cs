@@ -16,6 +16,7 @@ namespace Repackinator.UI
         private float _progress2 = 0f;
         private List<LogMessage> _log = new();
         private Config _config;
+        private GameData[]? _gameData;
         private Stopwatch _stopwatch = new();
         private CancellationTokenSource _cancellationTokenSource = new();
 
@@ -24,9 +25,10 @@ namespace Repackinator.UI
         private bool _completed;
         private bool _logChanged;
 
-        public void ShowModal(Config config)
+        public void ShowModal(Config config, GameData[]? gameData)
         {
             _config = config;
+            _gameData = gameData;
             _showModal = true;
         }
 
@@ -55,7 +57,7 @@ namespace Repackinator.UI
             _cancellationTokenSource = new CancellationTokenSource();
 
             var attachUpdater = new AttachUpdater();
-            attachUpdater.StartAttachUpdating(_config, progress, logger, _stopwatch, _cancellationTokenSource.Token);
+            attachUpdater.StartAttachUpdating(_gameData, _config, progress, logger, _stopwatch, _cancellationTokenSource.Token);
 
             _completed = true;
         }

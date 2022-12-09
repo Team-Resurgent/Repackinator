@@ -880,7 +880,7 @@ namespace Repackinator.UI
 
             if (ImGui.Button("Attach Update", new Vector2(100, 30)))
             {
-                m_attachUpdateDialog.ShowModal(m_config);
+                m_attachUpdateDialog.ShowModal(m_config, m_gameDataList);
             }
 
             ImGui.SameLine();
