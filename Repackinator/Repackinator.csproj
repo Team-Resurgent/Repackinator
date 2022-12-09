@@ -14,7 +14,6 @@
 		<PublishReadyToRun>true</PublishReadyToRun>
 		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
 		<OutputType>exe</OutputType>
-		<AssemblyName>repackinator</AssemblyName>
 	</PropertyGroup>
 
 	<ItemGroup>
