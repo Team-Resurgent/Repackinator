@@ -76,7 +76,7 @@ namespace Repackinator.Actions
                             continue;
                         }
                         //gameData = currentGameData;
-                        titleName = currentGameData.TitleName;
+                        titleName = currentGameData.XBETitle;
                     }
                 }
 

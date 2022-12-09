@@ -1,5 +1,6 @@
 ﻿using Mono.Options;
 using Repackinator.Helpers;
+using Repackinator.Logging;
 using Repackinator.Models;
 using Resurgent.UtilityBelt.Library.Utilities;
 using Resurgent.UtilityBelt.Library.Utilities.ImageInput;
@@ -433,12 +434,12 @@ namespace Repackinator.Console
                 {
                     throw new IOException("Unable to get directory name from input.");
                 }
-                outputPath = Path.Combine(outputPath, "Extracted");
+                outputPath = Path.Combine(outputPath, Utility.GetNameFromSlice(input));
                 Directory.CreateDirectory(outputPath);
 
-                var previousProgress = -1.0f;
-
                 var imageInput = ImageImputHelper.GetImageInput(inputSlices);
+
+                var previousProgress = -1.0f;
                 XisoUtility.GetFileInfoFromXiso(imageInput, f => {
 
                     if (!f.IsFile)
