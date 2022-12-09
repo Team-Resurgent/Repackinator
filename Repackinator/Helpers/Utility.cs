@@ -24,6 +24,17 @@ namespace Repackinator.Helpers
             return isAdmin;
         }
 
+        public static string GetNameFromSlice(string filename)
+        {
+            var nameWithoutExtension = Path.GetFileNameWithoutExtension(filename);
+            var subExtension = Path.GetExtension(nameWithoutExtension);
+            if (subExtension.Equals(".1") || subExtension.Equals(".2"))
+            {
+                nameWithoutExtension = Path.GetFileNameWithoutExtension(nameWithoutExtension);
+            }
+            return nameWithoutExtension;
+        }
+
         public static string[] GetSlicesFromFile(string filename)
         {
             var slices = new List<string>();
