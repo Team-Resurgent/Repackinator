@@ -56,6 +56,9 @@ namespace Repackinator.Shell
 
                 RegisterSubMenu(key, "19menu", "Checksum Sector Data (SHA256)", $"\"{exePath}\" -i=\"%L\" -a=checksum -w", ".iso");
                 RegisterSubMenu(key, "20menu", "Checksum Sector Data (SHA256)", $"\"{exePath}\" -i=\"%L\" -a=checksum -w", ".cci");
+
+                RegisterSubMenu(key, "21menu", "Extract", $"\"{exePath}\" -i=\"%L\" -a=extract -w", ".iso");
+                RegisterSubMenu(key, "22menu", "Extract", $"\"{exePath}\" -i=\"%L\" -a=extract -w", ".cci");
             }
         }
 

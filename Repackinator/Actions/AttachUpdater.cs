@@ -38,7 +38,7 @@ namespace Repackinator.Actions
             File.AppendAllText("AttachUpdateLog.txt", logMessage.ToLogFormat());
         }
 
-        private void ProcessFolder(string folder, Stopwatch procesTime, CancellationToken cancellationToken)
+        private void ProcessFolder(string folder, Stopwatch procesTime, GameData[]? gameDatas, CancellationToken cancellationToken)
         {
             var filesToProcess = Directory.GetFiles(folder, "default.xbe").OrderBy(o => o).ToArray();
             if (filesToProcess.Length != 1)
@@ -58,6 +58,26 @@ namespace Repackinator.Actions
                 {
                     Log(LogMessageLevel.Error, $"Unable to get data from default.xbe.");
                     return;
+                }
+
+                var titleId = cert.Value.Title_Id.ToString("X8");
+                var region = XbeCertificate.GameRegionToString(cert.Value.Game_Region);
+                var version = cert.Value.Version.ToString("X8");
+
+                var titleName = StringHelper.GetUnicodeString(cert.Value.Title_Name);
+
+                //GameData? gameData = null;
+                if (gameDatas != null)
+                {
+                    foreach (var currentGameData in gameDatas)
+                    {
+                        if (currentGameData.TitleID != titleId || currentGameData.Region != region || currentGameData.Version != version)
+                        {
+                            continue;
+                        }
+                        //gameData = currentGameData;
+                        titleName = currentGameData.TitleName;
+                    }
                 }
 
                 var attach = ResourceLoader.GetEmbeddedResourceBytes("attach.xbe");
@@ -82,7 +102,7 @@ namespace Repackinator.Actions
                     Log(LogMessageLevel.Warning, "Failed to extract xpr as probably missing, will use default image.");
                 }
 
-                if (XbeUtility.ReplaceCertInfo(attach, xbeData, StringHelper.GetUnicodeString(cert.Value.Title_Name), out var patchedAttach) && patchedAttach != null)
+                if (XbeUtility.ReplaceCertInfo(attach, xbeData, titleName, out var patchedAttach) && patchedAttach != null)
                 {
                     File.WriteAllBytes(filesToProcess[0], patchedAttach);
                 }
@@ -103,7 +123,7 @@ namespace Repackinator.Actions
             }
         }
 
-        public bool StartAttachUpdating(Config config, Action<ProgressInfo>? progress, Action<LogMessage> logger, Stopwatch stopwatch, CancellationToken cancellationToken)
+        public bool StartAttachUpdating(GameData[]? gameData, Config config, Action<ProgressInfo>? progress, Action<LogMessage> logger, Stopwatch stopwatch, CancellationToken cancellationToken)
         {
             try
             {
@@ -135,7 +155,7 @@ namespace Repackinator.Actions
                     CurrentProgress.Progress1 = pathsScanned / (float)totalPaths;
                     SendProgress();
 
-                    ProcessFolder(pathToProcess, stopwatch, cancellationToken);
+                    ProcessFolder(pathToProcess, stopwatch, gameData, cancellationToken);
 
                     try
                     {
