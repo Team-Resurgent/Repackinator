@@ -12,12 +12,12 @@ Note: Compressed ISO support is currently under development and no current BIOS'
       [ By ............................................... Team Resurgent ]
       [ Homepage ..........https://github.com/Team-Resurgent/Repackinator ]
       [ Patreon ....................https://www.patreon.com/teamresurgent ]
-	  [ Release date ......................................... 25.09.2022 ]
+      [ Release date ......................................... 25.09.2022 ]
 	  
-	  [                          Team Members:                            ]
-	  [ EqUiNoX ......................................... Lead Programmer ]
-	  [ HoRnEyDvL ............................... Tester/ Project Manager ]
-	  [ Hazeno ................................................... Tester ]
+      [                          Team Members:                            ]
+      [ EqUiNoX ......................................... Lead Programmer ]
+      [ HoRnEyDvL ............................... Tester/ Project Manager ]
+      [ Hazeno ................................................... Tester ]
 	  
 ```
 /////////////////////////////////////////////////////////////////////////////////
