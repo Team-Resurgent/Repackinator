@@ -50,7 +50,7 @@ namespace Repackinator.UI
 
             if (ImGui.IsWindowAppearing())
             {
-                ImGui.SetWindowSize(new Vector2(410, 322));
+                ImGui.SetWindowSize(new Vector2(410, 298));
             }
 
             var textColor = ImGui.GetStyle().Colors[(int)ImGuiCol.Text];
@@ -134,44 +134,6 @@ namespace Repackinator.UI
             {
                 GameData.ISOChecksum = isoChecksum.ToUpper();
             }
-            ImGui.PopItemWidth();
-
-            string link = GameData.Link ?? "";
-
-            ImGui.TextUnformatted("Link:");
-            ImGui.SameLine();
-            ImGui.SetCursorPosX(8);
-            if (ImGui.InvisibleButton("##link", new Vector2(80, 20)))
-            {
-                try
-                {
-                    if (OperatingSystem.IsWindows())
-                    {
-                        Process.Start("cmd", "/C start" + " " + link);
-                    }
-                    else if (OperatingSystem.IsLinux())
-                    {
-                        Process.Start("xdg-open", link);
-                    }
-                    else if (OperatingSystem.IsMacOS())
-                    {
-                        Process.Start("open", link);
-                    }
-                }
-                catch
-                {
-                    // do nothing
-                }
-            }
-
-            ImGui.SameLine();
-            ImGui.SetCursorPosX(100);
-            ImGui.PushItemWidth(300);
-            if (ImGui.InputText("##editLink", ref link, 8))
-            {
-                GameData.Link = link;
-            }
-
             ImGui.PopItemWidth();
 
             string info = GameData.Info ?? "";

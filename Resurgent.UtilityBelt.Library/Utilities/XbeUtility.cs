@@ -47,6 +47,9 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             Array.Copy(attach, output, attach.Length);
             Array.Copy(donor, donorCertAddress - donorBaseAddress, output, atatchCertAddress - atatchBaseAddress, Marshal.SizeOf(typeof(XbeCertificate)));
 
+            // Force diff version for TU's to work
+            output[(donorCertAddress - donorBaseAddress) + 187] |= 0x80;
+
             return true;
         }
 
@@ -68,6 +71,10 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             stream.Position = certAddress - baseAddress;
 
             output = StructUtility.ByteToType<XbeCertificate>(reader);
+            if (output != null)
+            {
+                output.Version = output.Version & 0x7fffffff;
+            }
             return true;
         }
 
