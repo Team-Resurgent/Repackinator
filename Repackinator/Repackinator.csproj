@@ -51,6 +51,10 @@
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 		</Content>
+		<Content Include="..\Linux\**\*.*" Condition="'$(RuntimeIdentifier)' == 'linux-x64'">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+		</Content>
 		<Content Include="bass.dll" Condition="'$(RuntimeIdentifier)' == 'win-x64'">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
