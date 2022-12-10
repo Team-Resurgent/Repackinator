@@ -60,11 +60,11 @@ namespace Repackinator.Actions
                     return;
                 }
 
-                var titleId = cert.Value.Title_Id.ToString("X8");
-                var region = XbeCertificate.GameRegionToString(cert.Value.Game_Region);
-                var version = cert.Value.Version.ToString("X8");
+                var titleId = cert.Title_Id.ToString("X8");
+                var region = XbeCertificate.GameRegionToString(cert.Game_Region);
+                var version = cert.Version.ToString("X8");
 
-                var titleName = StringHelper.GetUnicodeString(cert.Value.Title_Name);
+                var titleName = StringHelper.GetUnicodeString(cert.Title_Name);
 
                 //GameData? gameData = null;
                 if (gameDatas != null)
