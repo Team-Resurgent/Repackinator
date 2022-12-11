@@ -1,0 +1,14 @@
+[Desktop Entry]
+Categories=Game;
+Comment[en_US]=Cerbios Compressed Image
+Comment=Cerbios Compressed Image
+Exec=repackinator
+GenericName[en_US]=Cerbios Compressed Image
+GenericName=Cerbios Compressed Image
+Icon=application-x-cci
+MimeType=application/x-cci;
+Name[en_US]=Cerbios Compressed Image
+Name=Cerbios Compressed Image
+StartupNotify=true
+Terminal=false
+Type=Application
