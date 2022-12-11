@@ -73,7 +73,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             output = StructUtility.ByteToType<XbeCertificate>(reader);
             if (output != null)
             {
-                output.Version = output.Version & 0x7fffffff;
+                output.Version &= 0x7fffffff;
             }
             return true;
         }

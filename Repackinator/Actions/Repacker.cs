@@ -63,7 +63,7 @@ namespace Repackinator.Actions
                 var extension = Path.GetExtension(inputFile).ToLower();
                 if (extension.Equals(".iso"))
                 {
-                    return ProcessIso(inputFile, outputPath, grouping, hasAllCrcs, upperCase, compress, trimmedScrub, cancellationToken);
+                    return ProcessIso(inputFile, outputPath, grouping, upperCase, compress, trimmedScrub, cancellationToken);
                 }
 
                 return ProcessArchive(inputFile, outputPath, grouping, hasAllCrcs, upperCase, compress, trimmedScrub, cancellationToken);
@@ -462,7 +462,7 @@ namespace Repackinator.Actions
             }
         }
 
-        public int ProcessIso(string inputFile, string outputPath, GroupingEnum grouping, bool hasAllCrcs, bool upperCase, bool compress, bool trimmedScrub, CancellationToken cancellationToken)
+        public int ProcessIso(string inputFile, string outputPath, GroupingEnum grouping, bool upperCase, bool compress, bool trimmedScrub, CancellationToken cancellationToken)
         {
             if (GameDataList == null)
             {
@@ -473,13 +473,15 @@ namespace Repackinator.Actions
             var processOutput = string.Empty;
             var deleteProcessOutput = false;
 
+            var inputSlices = Utility.GetSlicesFromFile(inputFile);
+
             try
             {
                 var processStopwatch = new Stopwatch();
                 processStopwatch.Start();
 
                 var xbeData = Array.Empty<byte>();
-                using (var xisoInput = new XisoInput(new string[] { inputFile }))
+                using (var xisoInput = new XisoInput(inputSlices))
                 {
                     if (!XisoUtility.TryGetDefaultXbeFromXiso(xisoInput, ref xbeData))
                     {
@@ -663,7 +665,7 @@ namespace Repackinator.Actions
                         SendProgress();
                     });
 
-                    using (var cciInput = new XisoInput(new string[] { inputFile }))
+                    using (var cciInput = new XisoInput(inputSlices))
                     {
                         if (!XisoUtility.CreateCCI(cciInput, processOutput, isoFileName, ".cci", scrub, trimmedScrub, repackProgress, cancellationToken))
                         {
@@ -698,7 +700,7 @@ namespace Repackinator.Actions
                         SendProgress();
                     });
 
-                    using (var isoInput = new XisoInput(new string[] { inputFile }))
+                    using (var isoInput = new XisoInput(inputSlices))
                     {
                         if (!XisoUtility.Split(isoInput, processOutput, isoFileName, ".iso", scrub, trimmedScrub, repackProgress, cancellationToken))
                         {
@@ -901,15 +903,27 @@ namespace Repackinator.Actions
                 else
                 {
                     var acceptedFiletypes = new string[] { ".iso", ".zip", ".rar", ".7z" };
-                    var files = Directory.GetFileSystemEntries(config.InputPath, "*", config.RecurseInput ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly)
+                    var tempFiles = Directory.GetFileSystemEntries(config.InputPath, "*", config.RecurseInput ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly)
                         .Where(file => acceptedFiletypes.Contains(Path.GetExtension(file), StringComparer.CurrentCultureIgnoreCase))
-                        .ToArray();
+                        .ToList();
 
-                    for (int i = 0; i < files.Length; i++)
+                    var files = new List<string>();
+                    for (int i = 0; i < tempFiles.Count; i++)
+                    {
+                        var nameWithoutExtension = Path.GetFileNameWithoutExtension(tempFiles[i]);
+                        var subExtension = Path.GetExtension(nameWithoutExtension);
+                        if (subExtension.Equals(".2"))
+                        {
+                            continue;
+                        }
+                        files.Add(tempFiles[i]);
+                    }
+
+                    for (int i = 0; i < files.Count; i++)
                     {
                         string? file = files[i];
-                        CurrentProgress.Progress1 = i / (float)files.Length;
-                        CurrentProgress.Progress1Text = $"Processing {i + 1} of {files.Length}";
+                        CurrentProgress.Progress1 = i / (float)files.Count;
+                        CurrentProgress.Progress1Text = $"Processing {i + 1} of {files.Count}";
                         SendProgress();
 
                         var gameIndex = ProcessFile(file, config.OutputPath, config.Grouping, crcMissingCount == 0, config.UpperCase, config.Compress, config.TrimmedScrub, cancellationToken);
