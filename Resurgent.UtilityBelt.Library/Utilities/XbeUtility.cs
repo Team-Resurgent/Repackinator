@@ -48,7 +48,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             Array.Copy(donor, donorCertAddress - donorBaseAddress, output, atatchCertAddress - atatchBaseAddress, Marshal.SizeOf(typeof(XbeCertificate)));
 
             // Force diff version for TU's to work
-            output[(donorCertAddress - donorBaseAddress) + 175] = (byte)(output[(donorCertAddress - donorBaseAddress) + 175] | 0x80);
+            output[(atatchCertAddress - atatchBaseAddress) + 175] = (byte)(output[(atatchCertAddress - atatchBaseAddress) + 175] | 0x80);
 
             return true;
         }
