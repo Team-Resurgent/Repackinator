@@ -61,7 +61,7 @@ namespace Repackinator.Actions
                 Log(LogMessageLevel.Info, $"Processing '{Path.GetFileName(inputFile)}'...");
 
                 var extension = Path.GetExtension(inputFile).ToLower();
-                if (extension.Equals(".iso"))
+                if (extension.Equals(".iso") || extension.Equals(".cci"))
                 {
                     return ProcessIso(inputFile, outputPath, grouping, upperCase, compress, trimmedScrub, cancellationToken);
                 }
@@ -481,7 +481,7 @@ namespace Repackinator.Actions
                 processStopwatch.Start();
 
                 var xbeData = Array.Empty<byte>();
-                using (var xisoInput = new XisoInput(inputSlices))
+                using (var xisoInput = ImageImputHelper.GetImageInput(inputSlices))
                 {
                     if (!XisoUtility.TryGetDefaultXbeFromXiso(xisoInput, ref xbeData))
                     {
@@ -902,7 +902,7 @@ namespace Repackinator.Actions
                 }
                 else
                 {
-                    var acceptedFiletypes = new string[] { ".iso", ".zip", ".rar", ".7z" };
+                    var acceptedFiletypes = new string[] { ".iso", ".cci", ".zip", ".rar", ".7z" };
                     var tempFiles = Directory.GetFileSystemEntries(config.InputPath, "*", config.RecurseInput ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly)
                         .Where(file => acceptedFiletypes.Contains(Path.GetExtension(file), StringComparer.CurrentCultureIgnoreCase))
                         .ToList();
