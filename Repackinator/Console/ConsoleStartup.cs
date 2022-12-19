@@ -299,7 +299,9 @@ namespace Repackinator.Console
                 System.Console.WriteLine($"Type,Filename,Size,StartSector,EndSector,InSlices");
                 XisoUtility.GetFileInfoFromXiso(ImageImputHelper.GetImageInput(inputSlices), f => {
                     var type = f.IsFile ? "F" : "D";
-                    System.Console.WriteLine($"{type},{f.Filename},{f.Size},{f.StartSector},{f.EndSector},{f.InSlices}");
+                    var startSector = f.StartSector > 0 ? f.StartSector.ToString() : "N/A";
+                    var endSector = f.EndSector > 0 ? f.EndSector.ToString() : "N/A";
+                    System.Console.WriteLine($"{type},{f.Filename},{f.Size},{startSector},{endSector},{f.InSlices}");
                 }, null, default);
 
                 System.Console.WriteLine();
@@ -451,15 +453,17 @@ namespace Repackinator.Console
                     var size = f.Size;
                     var result = new byte[size];
                     var processed = 0U;
-                    while (processed < size)
+                    if (size > 0)
                     {
-                        var buffer = imageInput.ReadSectors(sector + imageInput.SectorOffset, 1);
-                        var bytesToCopy = (uint)Math.Min(size - processed, 2048);
-                        Array.Copy(buffer, 0, result, processed, bytesToCopy);
-                        sector++;
-                        processed += bytesToCopy;
+                        while (processed < size)
+                        {
+                            var buffer = imageInput.ReadSectors(sector + imageInput.SectorOffset, 1);
+                            var bytesToCopy = (uint)Math.Min(size - processed, 2048);
+                            Array.Copy(buffer, 0, result, processed, bytesToCopy);
+                            sector++;
+                            processed += bytesToCopy;
+                        }
                     }
-
                     var destPath = Path.Combine(outputPath, f.Path);
                     Directory.CreateDirectory(destPath);
                     var fileName = Path.Combine(destPath, f.Filename);
