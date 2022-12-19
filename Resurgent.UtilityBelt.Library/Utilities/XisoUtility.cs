@@ -28,8 +28,8 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             public string Path { get; set; }
             public string Filename { get; set; }
             public long Size { get; set; }
-            public uint StartSector { get; set; }
-            public uint EndSector { get; set; }
+            public int StartSector { get; set; }
+            public int EndSector { get; set; }
             public string InSlices { get; set; }
         };
 
@@ -128,9 +128,12 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 }
                 else
                 {
-                    for (var i = (input.SectorOffset + sector); i < (input.SectorOffset + sector) + ((size + 2047) >> 11); i++)
+                    if (size > 0)
                     {
-                        dataSectors.Add((uint)i);
+                        for (var i = (input.SectorOffset + sector); i <= (input.SectorOffset + sector) + ((size + 2047) >> 11); i++)
+                        {
+                            dataSectors.Add((uint)i);
+                        }
                     }
                 }
 
@@ -241,47 +244,67 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                             Path = Path.Combine(currentTreeNode.Path, filename)
                         });
                         totalNodes++;
-
                         info(new FileInfo
                         {
                             IsFile = false,
                             Path = Path.Combine(currentTreeNode.Path, filename),
                             Filename = filename,
                             Size = size,
-                            StartSector = (uint)(input.SectorOffset + sector),
-                            EndSector = (uint)((input.SectorOffset + sector) + ((size + 2047) >> 11) - 1),
+                            StartSector = (int)(input.SectorOffset + sector),
+                            EndSector = (int)((input.SectorOffset + sector) + ((size + 2047) >> 11) - 1),
                             InSlices = "N/A"
                         });
                     }
                 }
                 else
                 {
-                    var startSector = (uint)(input.SectorOffset + sector);
-                    var endSector = (uint)((input.SectorOffset + sector) + ((size + 2047) >> 11) - 1);
-                    var slices = new HashSet<int>
+                    if (size > 0)
                     {
-                        input.SectorInSlice(startSector),
-                        input.SectorInSlice(endSector)
-                    };
-                    var stringBuilder = new StringBuilder();
-                    for (var i = 0; i < slices.Count; i++)
-                    {
-                        if (i > 0)
+                        var startSector = (int)(input.SectorOffset + sector);
+                        var endSector = (int)((input.SectorOffset + sector) + ((size + 2047) >> 11) - 1);
+                        var stringBuilder = new StringBuilder();
+                        var slices = new HashSet<int>();
+                        if (size > 0)
                         {
-                            stringBuilder.Append("-");
+                            slices.Add(input.SectorInSlice(startSector));
+                            slices.Add(input.SectorInSlice(endSector));
+                            for (var i = 0; i < slices.Count; i++)
+                            {
+                                if (i > 0)
+                                {
+                                    stringBuilder.Append("-");
+                                }
+                                stringBuilder.Append(slices.ElementAt(i).ToString());
+                            }
                         }
-                        stringBuilder.Append(slices.ElementAt(i).ToString());
-                    }
-                    info(new FileInfo
+                        else
+                        {
+                            stringBuilder.Append("N/A");
+                        }
+                        info(new FileInfo
+                        {
+                            IsFile = true,
+                            Path = currentTreeNode.Path,
+                            Filename = filename,
+                            Size = size,
+                            StartSector = size > 0 ? startSector : -1,
+                            EndSector = size > 0 ? endSector : -1,
+                            InSlices = stringBuilder.ToString()
+                        });
+                    } 
+                    else 
                     {
-                        IsFile = true,
-                        Path = currentTreeNode.Path,
-                        Filename = filename,
-                        Size = size,
-                        StartSector = startSector,
-                        EndSector = endSector,
-                        InSlices = stringBuilder.ToString()
-                    });          
+                        info(new FileInfo
+                        {
+                            IsFile = true,
+                            Path = currentTreeNode.Path,
+                            Filename = filename,
+                            Size = size,
+                            StartSector = -1,
+                            EndSector = -1,
+                            InSlices = "N/A"
+                        });
+                    }
                 }
 
                 if (right != 0)
