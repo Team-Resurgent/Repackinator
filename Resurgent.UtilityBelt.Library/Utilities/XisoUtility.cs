@@ -130,7 +130,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 {
                     if (size > 0)
                     {
-                        for (var i = (input.SectorOffset + sector); i <= (input.SectorOffset + sector) + ((size + 2047) >> 11); i++)
+                        for (var i = (input.SectorOffset + sector); i < (input.SectorOffset + sector) + ((size + 2047) >> 11); i++)
                         {
                             dataSectors.Add((uint)i);
                         }
