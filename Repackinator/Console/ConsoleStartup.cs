@@ -1,4 +1,5 @@
 ﻿using Mono.Options;
+using Repackinator.Actions;
 using Repackinator.Helpers;
 using Repackinator.Logging;
 using Repackinator.Models;
@@ -6,6 +7,7 @@ using Resurgent.UtilityBelt.Library.Utilities;
 using Resurgent.UtilityBelt.Library.Utilities.ImageInput;
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Xml.Linq;
@@ -20,6 +22,7 @@ namespace Repackinator.Console
         private static string ActionInfo = "Info";
         private static string ActionChecksum = "Checksum";
         private static string ActionExtract = "Extract";
+        private static string ActionRepack = "Repack";
 
         private static string ScrubModeNone = "None";
         private static string ScrubModeScrub = "Scrub";
@@ -36,12 +39,12 @@ namespace Repackinator.Console
             {
                 var convertOptions = new OptionSet {
                     { "i|input=", "Input file", i => input = i },
-                    { "s|scrub=", "Scrub mode (None *default*, Scub, TrimmedScrub)", s => scrubMode = s },
+                    { "s|scrub=", "Scrub mode (None *default*, Scrub, TrimmedScrub)", s => scrubMode = s },
                     { "c|compress", "Compress", c => compress = c != null },
                     { "w|wait", "Wait on exit", w => wait = w != null }
                 };
                 convertOptions.Parse(args);
-                if (shouldShowHelp && args.Length == 2)
+                if (shouldShowHelp)
                 {
                     System.Console.WriteLine($"Repackinator {version}");
                     System.Console.WriteLine("Repackinator by EqUiNoX, original xbox utility.");
@@ -163,7 +166,7 @@ namespace Repackinator.Console
                     { "w|wait", "Wait on exit", w => wait = w != null }
                 };
                 compareOptions.Parse(args);
-                if (shouldShowHelp && args.Length == 2)
+                if (shouldShowHelp)
                 {
                     System.Console.WriteLine($"Repackinator {version}");
                     System.Console.WriteLine("Repackinator by EqUiNoX, original xbox utility.");
@@ -271,7 +274,7 @@ namespace Repackinator.Console
                     { "w|wait", "Wait on exit", w => wait = w != null }
                 };
                 compareOptions.Parse(args);
-                if (shouldShowHelp && args.Length == 2)
+                if (shouldShowHelp)
                 {
                     System.Console.WriteLine($"Repackinator {version}");
                     System.Console.WriteLine("Repackinator by EqUiNoX, original xbox utility.");
@@ -335,7 +338,7 @@ namespace Repackinator.Console
                     { "w|wait", "Wait on exit", w => wait = w != null }
                 };
                 compareOptions.Parse(args);
-                if (shouldShowHelp && args.Length == 2)
+                if (shouldShowHelp)
                 {
                     System.Console.WriteLine($"Repackinator {version}");
                     System.Console.WriteLine("Repackinator by EqUiNoX, original xbox utility.");
@@ -405,7 +408,7 @@ namespace Repackinator.Console
                     { "w|wait", "Wait on exit", w => wait = w != null }
                 };
                 compareOptions.Parse(args);
-                if (shouldShowHelp && args.Length == 2)
+                if (shouldShowHelp)
                 {
                     System.Console.WriteLine($"Repackinator {version}");
                     System.Console.WriteLine("Repackinator by EqUiNoX, original xbox utility.");
@@ -498,20 +501,164 @@ namespace Repackinator.Console
             }
         }
 
+        private static void ProcessRepack(string version, bool shouldShowHelp, string[] args)
+        {
+            var input = string.Empty;
+            var output = string.Empty;
+            var grouping = "NONE";
+            var upperCase = false;
+            var recurse = false;
+            var log = string.Empty;
+            var compress = false;
+            var trimmedScrub = false;
+            var wait = false;
+
+            try
+            {
+                var repackOptions = new OptionSet {
+                    { "i|input=", "Input folder", i => input = i },
+                    { "o|output=", "Output folder", o => output = o },
+                    { "g|grouping=", "Grouping (None *default*, Region, Letter, RegionLetter, LetterRegion)", g => grouping = g.ToUpper() },
+                    { "u|upperCase", "Upper Case", u => upperCase = u != null },
+                    { "r|recurse", "Recurse (Traverse Sub Dirs)", r => recurse = r != null },
+                    { "c|compress", "Compress", c => compress = c != null },
+                    { "t|trimmedScrub", "Trimmed Scrub", t => trimmedScrub = t != null },
+                    { "l|log=", "log file", l => log = l },
+                    { "h|help", "show this message and exit", h => shouldShowHelp = h != null },
+                    { "w|wait", "Wait on exit", w => wait = w != null }
+                };
+                repackOptions.Parse(args);
+                if (shouldShowHelp)
+                {
+                    System.Console.WriteLine($"Repackinator {version}");
+                    System.Console.WriteLine("Repackinator by EqUiNoX, original xbox utility.");
+                    System.Console.WriteLine("Credits go to HoRnEyDvL, Hazeno, Rocky5, navi, Fredr1kh, Natetronn, Incursion64, Zatchbot, Team Cerbios.");
+                    System.Console.WriteLine();
+                    System.Console.WriteLine("Usage: Repackinator [options]+");
+                    System.Console.WriteLine();
+                    repackOptions.WriteOptionDescriptions(System.Console.Out);
+                    return;
+                }
+
+                if (string.IsNullOrEmpty(input))
+                {
+                    throw new OptionException("input not specified.", "input");
+                }
+
+                input = Path.GetFullPath(input);
+                if (!Directory.Exists(input))
+                {
+                    throw new OptionException("input is not a valid directory.", "input");
+                }
+
+                if (string.IsNullOrEmpty(output))
+                {
+                    throw new OptionException("output not specified.", "output");
+                }
+
+                var groupingValue = GroupingEnum.None;
+                if (string.Equals(grouping, "NONE"))
+                {
+                    groupingValue = GroupingEnum.None;
+                }
+                else if (string.Equals(grouping, "REGION"))
+                {
+                    groupingValue = GroupingEnum.Region;
+                }
+                else if (string.Equals(grouping, "LETTER"))
+                {
+                    groupingValue = GroupingEnum.Letter;
+                }
+                else if (string.Equals(grouping, "REGIONLETTER"))
+                {
+                    groupingValue = GroupingEnum.RegionLetter;
+                }
+                else if (string.Equals(grouping, "LETTERREGION"))
+                {
+                    groupingValue = GroupingEnum.LetterRegion;
+                }
+                else
+                {
+                    throw new OptionException("grouping is not valid.", "grouping");
+                }
+
+                output = Path.GetFullPath(output);
+                if (!Directory.Exists(output))
+                {
+                    Directory.CreateDirectory(output);
+                }
+
+                if (!string.IsNullOrEmpty(log))
+                {
+                    log = Path.GetFullPath(log);
+                }
+
+                FileStream? logStream = null;
+                if (!string.IsNullOrEmpty(log))
+                {
+                    logStream = File.OpenWrite(log);
+                }
+
+                var logger = new Action<LogMessage>((logMessage) =>
+                {
+                    var formattedTime = logMessage.Time.ToString("HH:mm:ss");
+                    var message = $"{formattedTime} {logMessage.Level} - {logMessage.Message}";
+                    System.Console.WriteLine(message);
+                    var bytes = Encoding.UTF8.GetBytes(message);
+                    if (logStream == null)
+                    {
+                        return;
+                    }
+                    logStream.Write(bytes);
+                });
+
+                var config = new Config
+                {
+                    InputPath = input,
+                    OutputPath = output,
+                    Grouping = groupingValue,
+                    RecurseInput = recurse,
+                    UpperCase = upperCase,
+                    Compress = compress,
+                    TrimmedScrub = trimmedScrub,
+                };
+
+                var gameData = GameDataHelper.LoadGameData();
+
+                var prevMessage = string.Empty;
+
+                var repacker = new Repacker();
+                repacker.StartRepacking(gameData, config, null, logger, new Stopwatch(), default);
+
+                if (logStream != null)
+                {
+                    logStream.Dispose();
+                }
+
+                System.Console.WriteLine();
+                System.Console.WriteLine("Convert completed.");
+            }
+            catch (OptionException e)
+            {
+                System.Console.Write("Repackinator by EqUiNoX: ");
+                System.Console.WriteLine(e.Message);
+                System.Console.WriteLine("Try `Repackinator --help' for more information.");
+            }
+
+            if (wait)
+            {
+                System.Console.Write("Press any key to continue.");
+                System.Console.ReadKey();
+            }
+        }
+
         public static void Start(string version, string[] args)
         {
             var shouldShowHelp = false;
             var action = string.Empty;
 
-            //var input = "";
-            //var output = "";
-            //var grouping = "NONE";
-            //var log = "";
-
-            //trimmedScrub
-
             var mainOptions = new OptionSet {
-                { "a|action=", "Action (Convert, Compare, Info, Checksum, Extract)", a => action = a },
+                { "a|action=", "Action (Convert, Compare, Info, Checksum, Extract, Repack)", a => action = a },
                 { "h|help", "Show this help or for provided action", h => shouldShowHelp = true },
             };
 
@@ -549,6 +696,10 @@ namespace Repackinator.Console
                 {
                     ProcessExtract(version, shouldShowHelp, args);
                 }
+                else if (action.Equals(ActionRepack, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    ProcessRepack(version, shouldShowHelp, args);
+                }
                 else
                 {
                     throw new OptionException("Action is not valid.", "action");
@@ -560,123 +711,6 @@ namespace Repackinator.Console
                 System.Console.WriteLine(e.Message);
                 System.Console.WriteLine("Try `Repackinator --help' for more information.");
             }
-
-            //var optionset = new OptionSet {
-            //    { "i|input=", "Input folder", i => input = i },
-            //    { "o|output=", "Output folder", o => output = o },
-            //    { "g|grouping=", "Grouping (None *default*, Region, Letter, RegionLetter, LetterRegion)", g => grouping = g.ToUpper() },
-            //    { "l|log=", "log file", l => log = l },
-            //    { "h|help", "show this message and exit", h => shouldShowHelp = h != null },
-            //};
-
-            //try
-            //{
-            //    optionset.Parse(args);
-            //    if (shouldShowHelp || args.Length == 0)
-            //    {
-            //        Console.WriteLine("Usage: Repackinator");
-            //        Console.WriteLine("Repackinator by EqUiNoX, original xbox utility.");
-            //        System.Console.WriteLine("Credits go to HoRnEyDvL, Hazeno, Rocky5, navi, Fredr1kh, Natetronn, Incursion64, Zatchbot, Team Cerbios.");
-            //        Console.WriteLine();
-            //        Console.WriteLine("Usage: Repackinator [options]+");
-            //        Console.WriteLine();
-            //        optionset.WriteOptionDescriptions(Console.Out);
-            //        return;
-            //    }
-
-            //    if (string.IsNullOrEmpty(input))
-            //    {
-            //        throw new OptionException("input not specified.", "input");
-            //    }
-
-            //    input = Path.GetFullPath(input);
-            //    if (!Directory.Exists(input))
-            //    {
-            //        throw new OptionException("input is not a valid directory.", "input");
-            //    }
-
-            //    if (string.IsNullOrEmpty(output))
-            //    {
-            //        throw new OptionException("output not specified.", "output");
-            //    }
-
-            //    if (!string.Equals(grouping, "NONE") && !string.Equals(grouping, "REGION") && !string.Equals(grouping, "LETTER") && !string.Equals(grouping, "REGIONLETTER") && !string.Equals(grouping, "LETTERREGION"))
-            //    {
-            //        throw new OptionException("grouping is not valid.", "grouping");
-            //    }
-
-            //    output = Path.GetFullPath(output);
-            //    if (!Directory.Exists(output))
-            //    {
-            //        Directory.CreateDirectory(output);
-            //    }
-
-            //    if (!string.IsNullOrEmpty(log))
-            //    {
-            //        log = Path.GetFullPath(log);
-            //    }
-
-            //    var groupingValue = GroupingEnum.None;
-
-            //    if (string.Equals(grouping, "REGION"))
-            //    {
-            //        groupingValue = GroupingEnum.Region;
-            //    }
-            //    else if (string.Equals(grouping, "LETTER"))
-            //    {
-            //        groupingValue = GroupingEnum.Letter;
-            //    }
-            //    else if (string.Equals(grouping, "REGIONLETTER"))
-            //    {
-            //        groupingValue = GroupingEnum.RegionLetter;
-            //    }
-            //    else if (string.Equals(grouping, "LETTERREGION"))
-            //    {
-            //        groupingValue = GroupingEnum.LetterRegion;
-            //    }
-
-            //    FileStream? logStream = null;
-            //    if (!string.IsNullOrEmpty(log))
-            //    {
-            //        logStream = File.OpenWrite(log);
-            //    }
-
-            //    var logger = new Action<LogMessage>((logMessage) =>
-            //    {
-            //        var formattedTime = logMessage.Time.ToString("HH:mm:ss");
-            //        var message = $"{formattedTime} {logMessage.Level} - {logMessage.Message}";
-            //        Console.WriteLine(message);
-            //        var bytes = Encoding.UTF8.GetBytes(message);
-            //        if (logStream == null)
-            //        {
-            //            return;
-            //        }
-            //        logStream.Write(bytes);
-            //    });
-
-            //    var config = new Config
-            //    {
-            //        InputPath = input,
-            //        OutputPath = output,
-            //        Grouping = groupingValue
-            //    };
-
-            //    var cancellationTokenSource = new CancellationTokenSource();
-
-            //    var gameData = GameDataHelper.LoadGameData();
-
-            //    var repacker = new Repacker();
-            //    repacker.StartRepacking(gameData, config, null, logger, new Stopwatch(), cancellationTokenSource.Token);
-
-            //    if (logStream != null)
-            //    {
-            //        logStream.Dispose();
-            //    }
-
-            //    Console.WriteLine("Done!");
-            //    Console.ReadLine();
-
-
         }
     }
 }
