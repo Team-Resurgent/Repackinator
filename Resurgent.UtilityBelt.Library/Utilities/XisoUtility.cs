@@ -592,7 +592,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             var dataSectors1 = GetDataSectorsFromXiso(input1, progress, default);
 
             log("Calculating data sector hashes for first...");
-            using var dataSectorsHash1 = SHA256.Create();
+            using var dataSectorsHash1 = SHA1.Create();
             for (var i = 0; i < dataSectors1.Count; i++)
             {
                 var dataSector1 = dataSectors1.ElementAt(i);
@@ -614,7 +614,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             var dataSectors2 = GetDataSectorsFromXiso(input2, progress, default);
 
             log("Calculating data sector hash for second...");
-            using var dataSectorsHash2 = SHA256.Create();
+            using var dataSectorsHash2 = SHA1.Create();
             for (var i = 0; i < dataSectors2.Count; i++)
             {
                 var dataSector2 = dataSectors1.ElementAt(i);
@@ -648,7 +648,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             var securitySectors1 = GetSecuritySectorsFromXiso(input1, dataSectors1, progress, default);
 
             log("Calculating security sector hashes for first...");
-            using var securitySectorsHash1 = SHA256.Create();
+            using var securitySectorsHash1 = SHA1.Create();
             for (var i = 0; i < securitySectors1.Count; i++)
             {
                 var securitySector1 = securitySectors1.ElementAt(i);
@@ -670,7 +670,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             var securitySectors2 = GetSecuritySectorsFromXiso(input2, dataSectors2, progress, default);
 
             log("Calculating security sector hash for second...");
-            using var securitySectorsHash2 = SHA256.Create();
+            using var securitySectorsHash2 = SHA1.Create();
             for (var i = 0; i < securitySectors2.Count; i++)
             {
                 var securitySector2 = securitySectors2.ElementAt(i);

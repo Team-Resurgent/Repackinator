@@ -62,20 +62,28 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 return false;
             }
 
-            using var stream = new MemoryStream(input);
-            using var reader = new BinaryReader(stream);
-            var header = StructUtility.ByteToType<XbeHheader>(reader);
-
-            var baseAddress = header.Base;
-            var certAddress = header.Certificate_Addr;
-            stream.Position = certAddress - baseAddress;
-
-            output = StructUtility.ByteToType<XbeCertificate>(reader);
-            if (output != null)
+            try
             {
-                output.Version &= 0x7fffffff;
+                using var stream = new MemoryStream(input);
+                using var reader = new BinaryReader(stream);
+                var header = StructUtility.ByteToType<XbeHheader>(reader);
+
+                var baseAddress = header.Base;
+                var certAddress = header.Certificate_Addr;
+                stream.Position = certAddress - baseAddress;
+
+                output = StructUtility.ByteToType<XbeCertificate>(reader);
+                if (output != null)
+                {
+                    output.Version &= 0x7fffffff;
+                }
+                return true;
             }
-            return true;
+            catch
+            {
+
+            }
+            return false;
         }
 
         public static bool TryReplaceXbeTitleImage(byte[]? input, byte[]? image)

@@ -762,6 +762,11 @@ namespace Repackinator.Actions
                 }
             };
 
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+
             await downloader.DownloadFileTaskAsync(url, path);
 
             return downloader.Status == DownloadStatus.Completed;
