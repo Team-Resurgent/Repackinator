@@ -116,6 +116,11 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             stream.Position = certAddress - baseAddress;
 
             var cert = StructUtility.ByteToType<XbeCertificate>(reader);
+            if (cert == null)
+            {
+                return false;
+            }
+
             var bitmapAddress = header.Logo_Bitmap_Addr;
             var bitmapSize = header.Logo_Bitmap_Size;
             stream.Position = bitmapAddress - baseAddress;
@@ -173,6 +178,11 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             stream.Position = certAddress - baseAddress;
 
             var cert = StructUtility.ByteToType<XbeCertificate>(reader);
+            if (cert == null)
+            {
+                return false;
+            }
+
             var bitmapAddress = header.Logo_Bitmap_Addr;
             var bitmapSize = header.Logo_Bitmap_Size;
             stream.Position = bitmapAddress - baseAddress;
