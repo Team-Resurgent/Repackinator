@@ -40,6 +40,9 @@ namespace Repackinator.Models
         [JsonPropertyName("Scrub")]
         public string Scrub { get; set; }
 
+        [JsonPropertyName("Category")]
+        public string Category { get; set; }
+
         [JsonPropertyName("Link")]
         public string Link { get; set; }
 
