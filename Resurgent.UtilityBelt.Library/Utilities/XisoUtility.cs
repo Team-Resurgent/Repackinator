@@ -370,7 +370,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                     start = currentSector;
                     flag = true;
                 }
-                else if (isEmptySector == false)
+                else if (isEmptySector == false && flag == true)
                 {
                     var end = currentSector - 1;
                     flag = false;
