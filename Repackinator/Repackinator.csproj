@@ -18,6 +18,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="AltRepackList.json" />
 	  <None Remove="Resources\attach.xbe" />
 	</ItemGroup>
 
@@ -39,6 +40,9 @@
 		<None Include="..\Artwork\icon1.ico">
 		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</None>
+		<Content Include="..\AltRepackList.json" Link="AltRepackList.json">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
 		<Content Include="..\RepackList.json">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
