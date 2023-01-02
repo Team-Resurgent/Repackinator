@@ -771,8 +771,6 @@ namespace Repackinator.UI
                 m_config.Compress = compress;
                 Config.SaveConfig(m_config);
             }
-            ImGui.SameLine();
-            ImGui.Text("NOTE: Support is WIP in CERBIOS");
 
             ImGui.Spacing();
 
