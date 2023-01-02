@@ -1,18 +1,18 @@
 [![.NET](https://github.com/Team-Resurgent/Repackinator/actions/workflows/dotnet.yml/badge.svg)](https://github.com/Team-Resurgent/Repackinator/actions/workflows/dotnet.yml)
 
-Note: Compressed ISO support is currently under development and no current BIOS's support it.
+NOTE: This readme needs updating...
 
                               # Team Resurgent   
                                                                              
                                                                           
-      [ Program ..................................... Repackinator V1.0.1 ]
-      [ Type ................................................. Iso Manager]
+      [ Program ..................................... Repackinator V1.2.4 ]
+      [ Type ................................................ Iso Manager ]
       [ Platform .................................... Windows, Linux, OSX ]
       [ OS Architecture ............................................. X64 ]
       [ By ............................................... Team Resurgent ]
       [ Homepage ..........https://github.com/Team-Resurgent/Repackinator ]
       [ Patreon ....................https://www.patreon.com/teamresurgent ]
-      [ Release date ......................................... 25.09.2022 ]
+      [ Release date ......................................... 01.01.2023 ]
 	  
       [                          Team Members:                            ]
       [ EqUiNoX ......................................... Lead Programmer ]
@@ -27,7 +27,7 @@ Note: Compressed ISO support is currently under development and no current BIOS'
 ///                                                                           ///
 ///  -----------------------------------------------------------------------  ///
 ///                                                                           ///
-///   Release: V1.1.8                                                         ///
+///   Release: V1.2.4                                                         ///
 ///  -----------------------------------------------------------------------  ///
 ///  1.  Added native support for Linux & OSX                                 ///
 ///  2.  Fixed typos in GUI                                                   ///
