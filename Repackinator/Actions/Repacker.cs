@@ -908,7 +908,7 @@ namespace Repackinator.Actions
                 else
                 {
                     var acceptedFiletypes = new string[] { ".iso", ".cci", ".zip", ".rar", ".7z" };
-                    var tempFiles = Directory.GetFileSystemEntries(config.InputPath, "*", config.RecurseInput ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly)
+                    var tempFiles = Directory.GetFileSystemEntries(config.InputPath, "*", new EnumerationOptions { IgnoreInaccessible = true, RecurseSubdirectories = config.RecurseInput, MatchCasing = MatchCasing.CaseInsensitive })
                         .Where(file => acceptedFiletypes.Contains(Path.GetExtension(file), StringComparer.CurrentCultureIgnoreCase))
                         .ToList();
 
