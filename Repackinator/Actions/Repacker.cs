@@ -1,5 +1,4 @@
 ﻿using Downloader;
-using Newtonsoft.Json.Serialization;
 using Repackinator.Exceptions;
 using Repackinator.Helpers;
 using Repackinator.Logging;
@@ -9,12 +8,8 @@ using Resurgent.UtilityBelt.Library.Utilities;
 using Resurgent.UtilityBelt.Library.Utilities.ImageInput;
 using Resurgent.UtilityBelt.Library.Utilities.XbeModels;
 using SharpCompress.Archives;
-using SharpCompress.Common;
-using System;
 using System.Diagnostics;
-using System.Net;
 using System.Text;
-using System.Web;
 
 namespace Repackinator.Actions
 {

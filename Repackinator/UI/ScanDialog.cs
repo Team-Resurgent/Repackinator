@@ -2,7 +2,6 @@
 using Repackinator.Localization.Language;
 using Repackinator.Logging;
 using Repackinator.Models;
-using Resurgent.UtilityBelt.Library.Utilities;
 using System.Diagnostics;
 using System.Numerics;
 using System.Text;

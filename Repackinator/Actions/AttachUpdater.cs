@@ -3,10 +3,7 @@ using Repackinator.Logging;
 using Repackinator.Models;
 using Resurgent.UtilityBelt.Library.Utilities;
 using Resurgent.UtilityBelt.Library.Utilities.XbeModels;
-using SharpCompress;
 using System.Diagnostics;
-using System.Text;
-using System.Threading;
 
 namespace Repackinator.Actions
 {

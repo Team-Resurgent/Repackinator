@@ -1,7 +1,4 @@
 ﻿using LibDeflate;
-using SharpCompress.Compressors;
-using SharpCompress.Compressors.Deflate;
-using SharpCompress.IO;
 using System.Text;
 
 namespace Resurgent.UtilityBelt.Library.Utilities.ImageInput
@@ -39,7 +36,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities.ImageInput
 
         private bool m_disposed = false;
 
-        public long m_cacheStartSector = -1;
+        public long m_cacheStartSector = 0;
 
         private byte[] m_cacheSectorData = Array.Empty<byte>();
 
@@ -76,26 +73,12 @@ namespace Resurgent.UtilityBelt.Library.Utilities.ImageInput
                         {
                             var outputBuffer = new byte[2048];
                             var buffer = reader.ReadBytes(size);
-                            using (var outputStream = new MemoryStream())
                             using (var inputStream = new MemoryStream(buffer))
                             using (Decompressor decompressor = new DeflateDecompressor())
                             {
-                                decompressor.Decompress(buffer, outputBuffer, out var w, out var re);
+                                decompressor.Decompress(buffer, outputBuffer, out _, out _);
                             }
                             Array.Copy(outputBuffer, 0, result, sectorOffset << 11, 2048);
-                            //using (var decompressor = new DeflateStream(inputStream, CompressionMode.Decompress))
-                            //{
-                            //    try
-                            //    {
-                            //        decompressor.CopyTo(outputStream);
-                            //    }
-                            //    catch (Exception ex)
-                            //    {
-                            //        var a = 1;
-                            //    }
-                            //    var outputData = outputStream.ToArray();
-                            //    Array.Copy(outputData, 0, result, sectorOffset << 11, 2048);
-                            //}
                         }
                         else
                         {
