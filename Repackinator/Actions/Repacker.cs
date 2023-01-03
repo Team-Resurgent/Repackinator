@@ -832,6 +832,7 @@ namespace Repackinator.Actions
 
                         byte[] linkBytes = Convert.FromBase64String(gameDataItem.Link);
                         var decodedLink = Encoding.ASCII.GetString(linkBytes);
+
                         var tempPath = Path.Combine(Path.GetTempPath(), $"RepackinatorDownload{Path.GetExtension(decodedLink)}");
                         if (config.LeechType > 1)
                         {
@@ -851,8 +852,6 @@ namespace Repackinator.Actions
 
                             Log(LogMessageLevel.Info, $"Downloading '{gameDataItem.ISOName}'.");
 
-                            byte[] linkBytes = Convert.FromBase64String(gameDataItem.Link);
-                            var decodedLink = Encoding.ASCII.GetString(linkBytes);
                             var result = DownloadFromUrlToPath(decodedLink, tempPath, (downloaded, totalLength, bytesPerSecond) =>
                             {
                                 CurrentProgress.Progress2 = downloaded / (float)totalLength;
