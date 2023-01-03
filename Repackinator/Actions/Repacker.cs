@@ -61,7 +61,7 @@ namespace Repackinator.Actions
                 Log(LogMessageLevel.Info, $"Processing '{Path.GetFileName(inputFile)}'...");
 
                 var extension = Path.GetExtension(inputFile).ToLower();
-                if (extension.Equals(".iso") || extension.Equals(".cci"))
+                if (extension.Equals(".iso") || extension.Equals(".cso") || extension.Equals(".cci"))
                 {
                     return ProcessIso(inputFile, outputPath, grouping, upperCase, compress, trimmedScrub, cancellationToken);
                 }
@@ -665,7 +665,7 @@ namespace Repackinator.Actions
                         SendProgress();
                     });
 
-                    using (var cciInput = new XisoInput(inputSlices))
+                    using (var cciInput = ImageImputHelper.GetImageInput(inputSlices))
                     {
                         if (!XisoUtility.CreateCCI(cciInput, processOutput, isoFileName, ".cci", scrub, trimmedScrub, repackProgress, cancellationToken))
                         {
@@ -700,7 +700,7 @@ namespace Repackinator.Actions
                         SendProgress();
                     });
 
-                    using (var isoInput = new XisoInput(inputSlices))
+                    using (var isoInput = ImageImputHelper.GetImageInput(inputSlices))
                     {
                         if (!XisoUtility.Split(isoInput, processOutput, isoFileName, ".iso", scrub, trimmedScrub, repackProgress, cancellationToken))
                         {
@@ -914,7 +914,7 @@ namespace Repackinator.Actions
                 }
                 else
                 {
-                    var acceptedFiletypes = new string[] { ".iso", ".cci", ".zip", ".rar", ".7z" };
+                    var acceptedFiletypes = new string[] { ".iso", ".cso", ".cci", ".zip", ".rar", ".7z" };
                     var tempFiles = Directory.GetFileSystemEntries(config.InputPath, "*", new EnumerationOptions { IgnoreInaccessible = true, RecurseSubdirectories = config.RecurseInput, MatchCasing = MatchCasing.CaseInsensitive })
                         .Where(file => acceptedFiletypes.Contains(Path.GetExtension(file), StringComparer.CurrentCultureIgnoreCase))
                         .ToList();

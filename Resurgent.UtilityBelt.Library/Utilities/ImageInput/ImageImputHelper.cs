@@ -9,6 +9,10 @@
             {
                 return new XisoInput(filenames);
             }
+            if (extension.Equals(".cso", StringComparison.CurrentCultureIgnoreCase))
+            {
+                return new CsoInput(filenames);
+            }
             if (extension.Equals(".cci", StringComparison.CurrentCultureIgnoreCase))
             {
                 return new CciInput(filenames);
