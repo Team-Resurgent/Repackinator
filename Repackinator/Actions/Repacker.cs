@@ -829,11 +829,13 @@ namespace Repackinator.Actions
                         }
 
                         count++;
-                    
-                        var tempPath = Path.Combine(Path.GetTempPath(), $"RepackinatorDownload{Path.GetExtension(gameDataItem.Link)}");
+
+                        byte[] linkBytes = Convert.FromBase64String(gameDataItem.Link);
+                        var decodedLink = Encoding.ASCII.GetString(linkBytes);
+                        var tempPath = Path.Combine(Path.GetTempPath(), $"RepackinatorDownload{Path.GetExtension(decodedLink)}");
                         if (config.LeechType > 1)
                         {
-                            tempPath = Path.Combine(config.InputPath, $"{gameDataItem.ISOName}{Path.GetExtension(gameDataItem.Link)}");
+                            tempPath = Path.Combine(config.InputPath, $"{gameDataItem.ISOName}{Path.GetExtension(decodedLink)}");
                         }
 
                         if (File.Exists(tempPath))
@@ -849,7 +851,9 @@ namespace Repackinator.Actions
 
                             Log(LogMessageLevel.Info, $"Downloading '{gameDataItem.ISOName}'.");
 
-                            var result = DownloadFromUrlToPath(gameDataItem.Link, tempPath, (downloaded, totalLength, bytesPerSecond) =>
+                            byte[] linkBytes = Convert.FromBase64String(gameDataItem.Link);
+                            var decodedLink = Encoding.ASCII.GetString(linkBytes);
+                            var result = DownloadFromUrlToPath(decodedLink, tempPath, (downloaded, totalLength, bytesPerSecond) =>
                             {
                                 CurrentProgress.Progress2 = downloaded / (float)totalLength;
                                 CurrentProgress.Progress2Text = $"Downloaded {Math.Round(downloaded / (1024 * 1024.0f), 2)}MB of {Math.Round(totalLength / (1024 * 1024.0f), 2)}MB ({Math.Round(bytesPerSecond / 1024, 2)}KB/s)";

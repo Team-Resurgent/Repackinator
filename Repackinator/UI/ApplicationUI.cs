@@ -511,10 +511,6 @@ namespace Repackinator.UI
                             }
                             else if (colIndex == 12)
                             {
-                                m_gameDataList = (specs.SortDirection == ImGuiSortDirection.Ascending ? m_gameDataList.OrderBy(s => s.Link) : m_gameDataList.OrderByDescending(s => s.Link)).ToArray();
-                            }
-                            else if (colIndex == 13)
-                            {
                                 m_gameDataList = (specs.SortDirection == ImGuiSortDirection.Ascending ? m_gameDataList.OrderBy(s => s.Info) : m_gameDataList.OrderByDescending(s => s.Info)).ToArray();
                             }
                         }
