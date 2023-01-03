@@ -830,8 +830,12 @@ namespace Repackinator.Actions
 
                         count++;
 
-                        byte[] linkBytes = Convert.FromBase64String(gameDataItem.Link);
-                        var decodedLink = Encoding.ASCII.GetString(linkBytes);
+                        var decodedLink = gameDataItem.Link;
+                        if (!decodedLink.StartsWith("http", StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            byte[] linkBytes = Convert.FromBase64String(gameDataItem.Link);
+                            decodedLink = Encoding.ASCII.GetString(linkBytes);
+                        }
 
                         var tempPath = Path.Combine(Path.GetTempPath(), $"RepackinatorDownload{Path.GetExtension(decodedLink)}");
                         if (config.LeechType > 1)
