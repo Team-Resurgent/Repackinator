@@ -1,5 +1,4 @@
 ﻿using Repackinator.Exceptions;
-using System.Threading;
 
 namespace Repackinator.Streams
 {

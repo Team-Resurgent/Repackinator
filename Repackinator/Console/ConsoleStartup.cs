@@ -5,13 +5,8 @@ using Repackinator.Logging;
 using Repackinator.Models;
 using Resurgent.UtilityBelt.Library.Utilities;
 using Resurgent.UtilityBelt.Library.Utilities.ImageInput;
-using System;
 using System.Diagnostics;
-using System.Linq;
-using System.Numerics;
 using System.Text;
-using System.Xml.Linq;
-using static System.Collections.Specialized.BitVector32;
 
 namespace Repackinator.Console
 {
