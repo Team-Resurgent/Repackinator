@@ -455,7 +455,7 @@ namespace Repackinator.Console
                     {
                         while (processed < size)
                         {
-                            var buffer = imageInput.ReadSectors(sector + imageInput.SectorOffset, 1);
+                            var buffer = imageInput.ReadSectors(sector, 1);
                             var bytesToCopy = (uint)Math.Min(size - processed, 2048);
                             Array.Copy(buffer, 0, result, processed, bytesToCopy);
                             sector++;

@@ -2,7 +2,7 @@
 using Repackinator.Console;
 using Repackinator.UI;
 
-var version = "v1.2.5";
+var version = "v1.2.6";
 
 if (OperatingSystem.IsWindows())
 {
