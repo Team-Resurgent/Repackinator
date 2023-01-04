@@ -73,10 +73,13 @@ namespace Resurgent.UtilityBelt.Library.Utilities.ImageInput
                         {
                             var outputBuffer = new byte[2048];
                             var buffer = reader.ReadBytes(size);
-                            using (var inputStream = new MemoryStream(buffer))
                             using (Decompressor decompressor = new DeflateDecompressor())
                             {
-                                decompressor.Decompress(buffer, outputBuffer, out _, out _);
+                                decompressor.Decompress(buffer, outputBuffer, out var bytesWritten, out var bytesRead);
+                                if (bytesWritten == 0 || bytesRead == 0)
+                                {
+                                    throw new IndexOutOfRangeException("Unable to decompress sector.");
+                                }
                             }
                             Array.Copy(outputBuffer, 0, result, sectorOffset << 11, 2048);
                         }
@@ -197,7 +200,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities.ImageInput
                     var index = reader.ReadUInt32();
                     indexInfos.Add(new IndexInfo
                     {
-                        Value = (index & 0x7FFFFFFF) << indexAlignment,
+                        Value = (ulong)(index & 0x7FFFFFFF) << indexAlignment,
                         Compressed = (index & 0x80000000) == 0
                     });
                 }
