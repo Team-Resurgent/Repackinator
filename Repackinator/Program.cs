@@ -2,30 +2,11 @@
 using Repackinator.Console;
 using Repackinator.UI;
 
-var version = "v1.2.6";
-
-if (OperatingSystem.IsWindows())
-{
-    if (args.Length == 1 && args[0].Equals("Unregister", StringComparison.CurrentCultureIgnoreCase))
-    {        
-        var result = ContextMenu.UnregisterContext();
-        if (result)
-        {
-            Console.WriteLine("Context menu removed.");
-        }
-        else
-        {
-            Console.WriteLine("Failed to remove context menu (need to run as admin).");
-        }
-        return;
-    }
-}
-
-ContextMenu.RegisterContext();
+var version = "v1.2.7";
 
 if (args.Length > 0)
 {
-    ConsoleStartup.Start(version, args);
+    ConsoleStartup.Process(version, args);
 }
 else
 {
