@@ -6,7 +6,7 @@ GenericName[en_US]=Repackinator
 GenericName=Repackinator
 Icon=repackinator
 Keywords=Utility;Games;Xbox;XISO
-MimeType=application/x-nintendo-3ds-rom;application/x-cd-image;application/x-cci;
+MimeType=application/x-nintendo-3ds-rom;application/x-cd-image;application/x-cci;application/x-compressed-iso;
 Name[en_US]=Repackinator
 Name=Repackinator
 Type=Service
@@ -52,22 +52,22 @@ Name=Convert To CCI (Scrub + Truncate)
 [Desktop Action CompareISO1]
 Exec=gnome-terminal -- repackinator -a compare -f %U
 Icon=repackinator
-Name=Compare ISO - 1st
+Name=Compare ISO ↘ 1st
 
 [Desktop Action CompareISO2]
 Exec=gnome-terminal -- repackinator -a compare -c -w -s %U
 Icon=repackinator
-Name=Compare ISO - 2nd
+Name=Compare ISO ↗ 2nd
 
 [Desktop Action CompareCCI1]
 Exec=gnome-terminal -- repackinator -a compare -f %U
 Icon=repackinator
-Name=Compare CCI - 1st
+Name=Compare CCI ↘ 1st
 
 [Desktop Action CompareCCI2]
 Exec=gnome-terminal -- repackinator -a compare -c -w -s %U
 Icon=repackinator
-Name=Compare CCI - 2nd
+Name=Compare CCI ↗ 2nd
 
 [Desktop Action InfoCCIorISO]
 Exec=gnome-terminal -- repackinator -a info -w -i %U
