@@ -41,7 +41,7 @@ namespace Repackinator.Console
                         System.Console.WriteLine();
                         System.Console.WriteLine("Register Action...");
                         System.Console.WriteLine();
-                        System.Console.WriteLine("This action adds or updates repackinor's context menu (needs admin privileges).");
+                        System.Console.WriteLine("This action adds or updates repackinator's context menu (needs admin privileges).");
                         System.Console.WriteLine();
                         ConsoleUnregister.ShowOptionDescription();
                     }
@@ -51,7 +51,7 @@ namespace Repackinator.Console
                         System.Console.WriteLine();
                         System.Console.WriteLine("Unregister Action...");
                         System.Console.WriteLine();
-                        System.Console.WriteLine("This action removes repackinor's context menu  (needs admin privileges).");
+                        System.Console.WriteLine("This action removes repackinator's context menu  (needs admin privileges).");
                         System.Console.WriteLine();
                         ConsoleUnregister.ShowOptionDescription();
                     }
