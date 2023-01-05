@@ -73,7 +73,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities.ImageInput
                         {
                             var outputBuffer = new byte[2048];
                             var buffer = reader.ReadBytes(size);
-                            using (Decompressor decompressor = new DeflateDecompressor())
+                            using (var decompressor = new DeflateDecompressor())
                             {
                                 decompressor.Decompress(buffer, outputBuffer, out var bytesWritten, out var bytesRead);
                                 if (bytesWritten == 0 || bytesRead == 0)
@@ -170,7 +170,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities.ImageInput
 
                 ulong uncompressedSize = reader.ReadUInt64();
 
-                ulong indexOffset = 24;
+                ulong indexOffset = headerSize;
 
                 uint blockSize = reader.ReadUInt32();
                 if (blockSize != 2048)

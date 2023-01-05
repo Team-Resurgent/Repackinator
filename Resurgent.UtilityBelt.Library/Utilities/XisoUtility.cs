@@ -1,4 +1,6 @@
-﻿using Resurgent.UtilityBelt.Library.Utilities.ImageInput;
+﻿using LibDeflate;
+using Resurgent.UtilityBelt.Library.Utilities.ImageInput;
+using System;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
@@ -934,6 +936,162 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 outputStream.Position = 8;
                 outputWriter.Write(uncompressedSize);
                 outputWriter.Write(indexOffset);
+
+                outputStream.Dispose();
+                outputWriter.Dispose();
+
+                if (splitting)
+                {
+                    File.Move(outputFile, Path.Combine(outputPath, $"{name}.{iteration + 1}{extension}"));
+                }
+
+                iteration++;
+            }
+
+            return true;
+        }
+
+        // This needs refactoring to write compressed data to a temp file
+        public static bool CreateCSO(IImageInput input, string outputPath, string name, string extension, bool scrub, bool trimmedScrub, Action<int, float>? progress, CancellationToken cancellationToken)
+        {
+            if (progress != null)
+            {
+                progress(0, 0);
+            }
+
+            Action<float> progress1 = (percent) => {
+                if (progress != null)
+                {
+                    progress(0, percent);
+                }
+            };
+
+            Action<float> progress2 = (percent) => {
+                if (progress != null)
+                {
+                    progress(1, percent);
+                }
+            };
+
+            var endSector = input.TotalSectors;
+            var dataSectors = new HashSet<uint>();
+            if (scrub)
+            {
+                dataSectors = GetDataSectorsFromXiso(input, progress1, cancellationToken);
+
+                if (trimmedScrub)
+                {
+                    endSector = Math.Min(dataSectors.Max() + 1, input.TotalSectors);
+                }
+
+                var securitySectors = GetSecuritySectorsFromXiso(input, dataSectors, progress2, cancellationToken);
+                for (var i = 0; i < securitySectors.Count; i++)
+                {
+                    dataSectors.Add(securitySectors.ElementAt(i));
+                }
+            }
+
+            var sectorOffset = input.TotalSectors == Constants.RedumpSectors ? Constants.VideoSectors : 0U;
+
+            var splitMargin = 0xFF000000L;
+            var emptySector = new byte[2048];
+            var compressedData = new byte[2048 * 2];
+            var sectorsWritten = (uint)sectorOffset;
+            var iteration = 0;
+
+            while (sectorsWritten < endSector)
+            {
+                var indexInfos = new List<IndexInfo>();
+                using var sectorDataStream = new MemoryStream();
+                using var sectorDataWriter = new BinaryWriter(sectorDataStream);
+
+                ulong uncompressedSize = 0;
+                byte indexAlignment = 2;
+
+                var splitting = false;
+                var sectorCount = 0U;
+                while (sectorsWritten < endSector)
+                {
+                    var writeSector = true;
+                    if (scrub)
+                    {
+                        writeSector = dataSectors.Contains(sectorsWritten);
+                    }
+
+                    var sectorToWrite = writeSector == true ? input.ReadSectors(sectorsWritten, 1) : emptySector;
+
+                    using (var compressor = new DeflateCompressor(9))
+                    {
+                        var compressedSize = compressor.Compress(sectorToWrite, compressedData);
+                        if (compressedSize > 0 && compressedSize < (2048 - (4 + (1 << indexAlignment))))
+                        {
+                            var multiple = (1 << indexAlignment);
+                            var padding = ((compressedSize + multiple - 1) / multiple * multiple) - compressedSize;
+                            sectorDataWriter.Write(compressedData, 0, compressedSize);
+                            if (padding != 0)
+                            {
+                                sectorDataWriter.Write(new byte[padding]);
+                            }
+                            indexInfos.Add(new IndexInfo { Value = (ushort)(compressedSize + padding), Compressed = true });
+                        }
+                        else
+                        {
+                            sectorDataWriter.Write(sectorToWrite);
+                            indexInfos.Add(new IndexInfo { Value = 2048, Compressed = false });
+                        }
+                    }
+
+                    uncompressedSize += 2048;
+                    sectorsWritten++;
+                    sectorCount++;
+
+                    if (sectorDataStream.Length > splitMargin)
+                    {
+                        splitting = true;
+                        break;
+                    }
+
+                    if (progress != null)
+                    {
+                        progress(2, sectorsWritten / (float)(endSector - sectorOffset));
+                    }
+
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        break;
+                    }
+                }
+
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    sectorDataStream.Dispose();
+                    sectorDataWriter.Dispose();
+                    return true;
+                }
+
+                var outputFile = Path.Combine(outputPath, iteration > 0 ? $"{name}.{iteration + 1}{extension}" : $"{name}{extension}");
+                var outputStream = new FileStream(outputFile, FileMode.Create, FileAccess.Write);
+                var outputWriter = new BinaryWriter(outputStream);
+
+                outputWriter.Write((uint)0x4F534943);
+                outputWriter.Write((uint)24);
+                outputWriter.Write(uncompressedSize);
+                outputWriter.Write((uint)2048);
+                outputWriter.Write((byte)1);
+                outputWriter.Write(indexAlignment);
+                outputWriter.Write((ushort)0);
+
+                var position = (ulong)(24 + ((indexInfos.Count + 1) * 4));
+                for (var i = 0; i < indexInfos.Count; i++)
+                {
+                    var index = (uint)(position >> indexAlignment) | (indexInfos[i].Compressed ? 0U : 0x80000000U);
+                    outputWriter.Write(index);
+                    position += indexInfos[i].Value;
+                }
+                var indexEnd = (uint)(position >> indexAlignment);
+                outputWriter.Write(indexEnd);
+
+                outputWriter.Write(sectorDataStream.ToArray());
 
                 outputStream.Dispose();
                 outputWriter.Dispose();
