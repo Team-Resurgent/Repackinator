@@ -72,18 +72,19 @@ Also included, is the ability to easily update legacy Attacher (default.xbe) cre
 * *Windows Only* ***Must run `Repackinator.exe -a=register` as admin to enable context menu use. Use `Repackinator.exe -a=unregister` as admin to remove context menu.***
 * Run `Repackinator.exe -a=repack -h` to view possible  commands in CLI.
 * Run `Repackinator.exe -a=repack` along with the following options, based on your intended results.
-  * **-i**, --input=VALUE          Input folder
-  * **-o**, --output=VALUE         Output folder
-  * **-g**, --grouping=VALUE       Grouping (None ***default***, Region, Letter,
- 	                                           RegionLetter, LetterRegion)
-  * **-u**, --upperCase            Upper Case
-  * **-r**, --recurse              Recurse (Traverse Sub Dirs)
-  * **-c**, --compress             Compress (As .CCI)
-  * **-t**, --trimmedScrub         Trimmed Scrub
-  * **-l**, --log=VALUE            log file
-  * **-h**, --help                 show this message and exit
-  * **-w**, --wait                 Wait on exit
-
+```
+  -i, --input=VALUE          Input folder
+  -o, --output=VALUE         Output folder
+  -g, --grouping=VALUE       Grouping (None Default, Region, Letter,
+ 	                                       RegionLetter, LetterRegion)
+  -u, --upperCase            Upper Case
+  -r, --recurse              Recurse (Traverse Sub Dirs)
+  -c, --compress             Compress (As .CCI)
+  -t, --trimmedScrub         Trimmed Scrub
+  -l, --log=VALUE            log file
+  -h, --help                 show this message and exit
+  -w, --wait                 Wait on exit
+```
 ## Context Menu
 <div align="center">
 
