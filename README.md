@@ -76,7 +76,7 @@ Also included, is the ability to easily update legacy Attacher (default.xbe) cre
   -i, --input=VALUE          Input folder
   -o, --output=VALUE         Output folder
   -g, --grouping=VALUE       Grouping (None Default, Region, Letter,
- 	                                       RegionLetter, LetterRegion)
+ 	                                  RegionLetter, LetterRegion)
   -u, --upperCase            Upper Case
   -r, --recurse              Recurse (Traverse Sub Dirs)
   -c, --compress             Compress (As .CCI)
