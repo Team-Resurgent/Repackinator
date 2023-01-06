@@ -103,6 +103,8 @@ namespace Repackinator.Actions
 
                 var needsSecondPass = false;
 
+                var isoFound = false;
+
                 try
                 {
                     using (var archiveStream = File.OpenRead(inputFile))
@@ -114,6 +116,8 @@ namespace Repackinator.Actions
                             {
                                 continue;
                             }
+
+                            isoFound = true;
 
                             var entryCRC = entry.Crc.ToString("X8");
 
@@ -184,6 +188,12 @@ namespace Repackinator.Actions
 
                 if (cancellationToken.IsCancellationRequested)
                 {
+                    return -1;
+                }
+
+                if (!isoFound)
+                {
+                    Log(LogMessageLevel.Error, $"Repackinator only accepts archive containing an ISO file.");
                     return -1;
                 }
 
