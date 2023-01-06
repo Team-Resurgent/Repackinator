@@ -59,7 +59,7 @@ Also included, is the ability to easily update legacy Attacher (default.xbe) cre
 
 ![GUI](https://github.com/Team-Resurgent/Repackinator/blob/main/readmeStuff/gui.png?raw=true)</div>
 * Select Grouping Type *creates grouped folders in the output directory. Default = no grouping*
-* Set Input Folder. (Path to your Redump .ZIP/.7Z or .ISO Files) ***SHOULD NOT INCLUDE REPACKINATOR'S ROOT, ANY SYSTEM FILES, OR BE A CHILD OF 'OUTPUT'***
+* Set Input Folder. (Path to your Redump .ZIP/.7Z/.RAR/.CCI or .ISO Files) ***SHOULD NOT INCLUDE REPACKINATOR'S ROOT, ANY SYSTEM FILES, OR BE A CHILD OF 'OUTPUT'***
 * Set Output Path. (Path to where you want to save your processed games)
 * **Process**: Must be selected for titles you desire to have prepaired
 * **Scrub**: is selected by default. This will replace the padding with zeros, for greater compression. de-selecting will simply split ISO for Xbox FATX file system during processing.
