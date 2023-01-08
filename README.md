@@ -54,7 +54,15 @@ Current database contains 1044 games. The info shown has been compiled by extrac
 Also included, is the ability to easily update legacy Attacher (default.xbe) created by tools like DVD2Xbox with new improved Cerbios Attacher (default.xbe).
 
 ## Install Notes
-* Run Repackinator.exe ***first run must be as administrator to enable context menu under Windows***
+* Run Repackinator.exe first time as administrator. ***first run must be as administrator to enable context menu under Windows, CLI included***
+
+## Known Issues
+* XBMC based FTP programs are known to "trim" files that get too close to the FATX limit. Repackinator is designed to be aware of this limit and will never produce a file larger than 4,290,735,312 bytes. We have had issues reported from this scenario. ***This will manifest as a black screen when trying to launch your game. If you transfer to Xbox with FTP and experence this, verify your *.1.cci or *.1.iso file size matches what is on your computer.***
+  * ***UNVERIFIED*** EvolutionX FTP has been reported to work properly for this use.
+
+* We ***only*** recommend [FATXplorer by Eaton Works](https://fatxplorer.eaton-works.com/3-0-beta/) offically at this time. This is to ensure no problems transfering files to and from your Xbox hard drive. *Recommendation may be updated as more tools are tested in the future.*
+
+## GUI Functionality
 <div align="center">
 
 ![GUI](https://github.com/Team-Resurgent/Repackinator/blob/main/readmeStuff/gui.png?raw=true)</div>
