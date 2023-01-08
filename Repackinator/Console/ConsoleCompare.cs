@@ -8,6 +8,7 @@ namespace Repackinator.Console
 {
     public static class ConsoleCompare
     {
+        public const string Action = "Compare";
         public static string First { get; set; } = string.Empty;
         public static string Second { get; set; } = string.Empty;
         public static bool Compare { get; set; } = false;
@@ -27,8 +28,12 @@ namespace Repackinator.Console
 
         public static void ShowOptionDescription()
         {
-            var options = GetOptions();
-            options.WriteOptionDescriptions(System.Console.Out);
+            System.Console.WriteLine();
+            System.Console.WriteLine("Compare Action...");
+            System.Console.WriteLine();
+            System.Console.WriteLine("This action is used to compare one xbox disk image with another.");
+            System.Console.WriteLine();
+            GetOptions().WriteOptionDescriptions(System.Console.Out);
         }
 
         public static void Process(string version, string[] args)
@@ -41,8 +46,7 @@ namespace Repackinator.Console
                 options.Parse(args);
                 if (ShowHelp)
                 {
-                    ConsoleUtil.ShowHelpHeader(version);
-                    options.WriteOptionDescriptions(System.Console.Out);
+                    ConsoleUtil.ShowHelpHeaderForAction(version, Action, options);
                     ConsoleUtil.ProcessWait(Wait);
                     return;
                 }
