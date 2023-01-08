@@ -9,12 +9,22 @@ namespace Repackinator.Console
         public static bool ShowHelp { get; set; } = false;
         public static bool Wait { get; set; } = false;
 
+        private static Dictionary<string, Action<string, string[]>> ActionsRegister = new Dictionary<string, Action<string, string[]>>(StringComparer.CurrentCultureIgnoreCase)
+        {
+            { ConsoleRegister.Action, ConsoleRegister.Process, OperatingSystem.IsWindows() }, // Conditional on windows entry
+            { ConsoleUnregister.Action, ConsoleUnregister.Process, OperatingSystem.IsWindows() }, // Conditional on windows entry
+            { ConsoleConvert.Action, ConsoleConvert.Process },
+            { ConsoleCompare.Action, ConsoleCompare.Process },
+            { ConsoleInfo.Action, ConsoleInfo.Process },
+            { ConsoleChecksum.Action, ConsoleChecksum.Process },
+            { ConsoleExtract.Action, ConsoleExtract.Process },
+            { ConsoleRepack.Action, ConsoleRepack.Process },
+        };
+
         public static void Process(string version, string[] args)
         {
-            var actions = $"{(OperatingSystem.IsWindows() ? $"{ConsoleRegister.Action}, {ConsoleUnregister.Action}, " : "" )}{ConsoleConvert.Action}, {ConsoleCompare.Action}, {ConsoleInfo.Action}, {ConsoleChecksum.Action}, {ConsoleExtract.Action}, {ConsoleRepack.Action}";
-
             var options = new OptionSet {
-                { "a|action=", $"Action ({actions})", a => Action = a },
+                { "a|action=", $"Action ({string.Join(", ", ActionsRegister.Keys)})", a => Action = a },
                 { "h|help", "show help", h => ShowHelp = h != null },
                 { "w|wait", "Wait on exit", w => Wait = w != null }
             };
@@ -43,37 +53,9 @@ namespace Repackinator.Console
                     return;
                 }
 
-                if (OperatingSystem.IsWindows() && Action.Equals(ConsoleRegister.Action, StringComparison.CurrentCultureIgnoreCase))
+                if (ActionsRegister.ContainsKey(Action))
                 {
-                    ConsoleRegister.Process(version, args);
-                }
-                else if (OperatingSystem.IsWindows() && Action.Equals(ConsoleUnregister.Action, StringComparison.CurrentCultureIgnoreCase))
-                {
-                    ConsoleUnregister.Process(version, args);
-                }
-                else if (Action.Equals(ConsoleConvert.Action, StringComparison.CurrentCultureIgnoreCase))
-                {
-                    ConsoleConvert.Process(version, args);
-                }
-                else if (Action.Equals(ConsoleCompare.Action, StringComparison.CurrentCultureIgnoreCase))
-                {
-                    ConsoleCompare.Process(version, args);
-                }
-                else if (Action.Equals(ConsoleInfo.Action, StringComparison.CurrentCultureIgnoreCase))
-                {
-                    ConsoleInfo.Process(version, args);
-                }
-                else if (Action.Equals(ConsoleChecksum.Action, StringComparison.CurrentCultureIgnoreCase))
-                {
-                    ConsoleChecksum.Process(version, args);
-                }
-                else if (Action.Equals(ConsoleExtract.Action, StringComparison.CurrentCultureIgnoreCase))
-                {
-                    ConsoleExtract.Process(version, args);
-                }
-                else if (Action.Equals(ConsoleRepack.Action, StringComparison.CurrentCultureIgnoreCase))
-                {
-                    ConsoleRepack.Process(version, args);
+                    ActionsRegister[Action](version, args);
                 }
                 else
                 {
@@ -87,5 +69,15 @@ namespace Repackinator.Console
 
             ConsoleUtil.ProcessWait(Wait);
         }
+        
+        // Custom extension to dictionary to allow for conditional entries
+        public static void Add( this Dictionary<String, Action<string, string[]>> dict, String key, Action<string, string[]> value, Boolean condition )
+        {
+            if( condition )
+            {
+                dict.Add( key, value );
+            }
+        }
+        
     }
 }
