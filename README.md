@@ -19,8 +19,7 @@ Programmed for the very specific task of compressing original Xbox ISO structure
                         [ Program ..................................... Repackinator V1.2.7 ]
                         [ Type ................................................ Iso Manager ]
                         [ Patreon ....................https://www.patreon.com/teamresurgent ]
-                        [ Release date ......................................... 01.01.2023 ]
-                
+                                        
                         [                          Team Members:                            ]
                         [ EqUiNoX ......................................... Lead Programmer ]
                         [ HoRnEyDvL ............................... Tester/ Project Manager ]
