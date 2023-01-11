@@ -9,6 +9,7 @@ namespace Repackinator.Console
 {
     public static class ConsoleRepack
     {
+        public const string Action = "Repack";
         public static string Input { get; set; } = string.Empty;
         public static string Output { get; set; } = string.Empty;
         public static string Grouping { get; set; } = "NONE";
@@ -38,8 +39,12 @@ namespace Repackinator.Console
 
         public static void ShowOptionDescription()
         {
-            var options = GetOptions();
-            options.WriteOptionDescriptions(System.Console.Out);
+            System.Console.WriteLine();
+            System.Console.WriteLine("Repack Action...");
+            System.Console.WriteLine();
+            System.Console.WriteLine("This action is used to repackinate your collection of xbox disk images.");
+            System.Console.WriteLine();
+            GetOptions().WriteOptionDescriptions(System.Console.Out);
         }
 
         public static void Process(string version, string[] args)
@@ -50,8 +55,7 @@ namespace Repackinator.Console
                 options.Parse(args);
                 if (ShowHelp)
                 {
-                    ConsoleUtil.ShowHelpHeader(version);
-                    options.WriteOptionDescriptions(System.Console.Out);
+                    ConsoleUtil.ShowHelpHeaderForAction(version, Action, options);
                     ConsoleUtil.ProcessWait(Wait);
                     return;
                 }
