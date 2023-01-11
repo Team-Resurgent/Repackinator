@@ -84,4 +84,46 @@
     <data name="logger.level.done" xml:space="preserve">
         <value>Done</value>
     </data>
+    <data name="launcher.context-menu.removed" xml:space="preserve">
+        <value>Context menu removed.</value>
+    </data>
+    <data name="launcher.context-menu.remove.failed" xml:space="preserve">
+        <value>Failed to remove context menu (need to run as admin).</value>
+    </data>
+    <data name="console.application.version" xml:space="preserve">
+        <value>Repackinator {0}</value>
+    </data>
+    <data name="console.application.utility" xml:space="preserve">
+        <value>Repackinator by EqUiNoX, original xbox utility.</value>
+    </data>
+    <data name="console.application.credits" xml:space="preserve">
+        <value>Credits go to {0}.</value>
+    </data>
+    <data name="console.application.usage" xml:space="preserve">
+        <value>Usage: Repackinator [options]+</value>
+    </data>
+    <data name="console.application.input.exception" xml:space="preserve">
+        <value>Input is not a valid file.</value>
+    </data>
+    <data name="console.application.option.convert.input" xml:space="preserve">
+        <value>Input file</value>
+    </data>
+    <data name="console.application.option.convert.scrub" xml:space="preserve">
+        <value>Scrub mode (None *default*, Scrub, TrimmedScrub)</value>
+    </data>
+    <data name="console.application.option.convert.compress" xml:space="preserve">
+        <value>Compress</value>
+    </data>
+    <data name="console.application.option.convert.wait" xml:space="preserve">
+        <value>Wait on exit</value>
+    </data>
+    <data name="console.application.option.action" xml:space="preserve">
+        <value>Action (Convert, Compare, Info, Checksum, Extract)</value>
+    </data>
+    <data name="console.application.option.help" xml:space="preserve">
+        <value>Show this help or for provided action</value>
+    </data>
+    <data name="console.application.option.usage" xml:space="preserve">
+        <value>Usage: Repackinator {0} [options]+</value>
+    </data>
 </root>

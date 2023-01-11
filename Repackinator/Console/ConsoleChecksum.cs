@@ -8,6 +8,7 @@ namespace Repackinator.Console
 {
     public static class ConsoleChecksum
     {
+        public const string Action = "Checksum";
         public static string Input { get; set; } = string.Empty;
         public static bool ShowHelp { get; set; } = false;
         public static bool Wait { get; set; } = false;
@@ -23,8 +24,12 @@ namespace Repackinator.Console
 
         public static void ShowOptionDescription()
         {
-            var options = GetOptions();
-            options.WriteOptionDescriptions(System.Console.Out);
+            System.Console.WriteLine();
+            System.Console.WriteLine("Checksum Action...");
+            System.Console.WriteLine();
+            System.Console.WriteLine("This action is used to checksum xbox disk image sectors after any decompression if applicable.");
+            System.Console.WriteLine();
+            GetOptions().WriteOptionDescriptions(System.Console.Out);
         }
 
         public static void Process(string version, string[] args)
@@ -37,8 +42,7 @@ namespace Repackinator.Console
                 options.Parse(args);
                 if (ShowHelp)
                 {
-                    ConsoleUtil.ShowHelpHeader(version);
-                    options.WriteOptionDescriptions(System.Console.Out);
+                    ConsoleUtil.ShowHelpHeaderForAction(version, Action, options);
                     ConsoleUtil.ProcessWait(Wait);
                     return;
                 }

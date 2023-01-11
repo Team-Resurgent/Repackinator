@@ -50,4 +50,43 @@
     <data name="scandialog.logger.message.mixed-iso-cci" xml:space="preserve">
         <value>Mappen '{0}' inneholder en blanding av ISO- og CCI-filer.</value>
     </data>
+    <data name="launcher.context-menu.removed" xml:space="preserve">
+        <value>Kontekstmenyen er fjernet.</value>
+    </data>
+    <data name="launcher.context-menu.remove.failed" xml:space="preserve">
+        <value>Kunne ikke fjerne kontekstmenyen (kjør som admin).</value>
+    </data>
+    <data name="console.application.utility" xml:space="preserve">
+        <value>Repackinator av EqUiNoX, uavhengig utviklet xbox verktøy.</value>
+    </data>
+    <data name="console.application.usage" xml:space="preserve">
+        <value>Bruk: Repackinator [handling]+</value>
+    </data>
+    <data name="console.application.input.exception" xml:space="preserve">
+        <value>Input er ikke en gyldig fil.</value>
+    </data>
+    <data name="console.application.option.convert.input" xml:space="preserve">
+        <value>Input fil</value>
+    </data>
+    <data name="console.application.option.convert.compress" xml:space="preserve">
+        <value>Komprimer</value>
+    </data>
+    <data name="console.application.option.convert.wait" xml:space="preserve">
+        <value>Vent til ferdig</value>
+    </data>
+    <data name="console.application.credits" xml:space="preserve">
+        <value>Takk til {0}.</value>
+    </data>
+    <data name="console.application.option.convert.scrub" xml:space="preserve">
+        <value>Skrubbemodus (None *standard*, Scrub, TrimmedScrub)</value>
+    </data>
+    <data name="console.application.option.action" xml:space="preserve">
+        <value>Handling (Convert, Compare, Info, Checksum, Extract)</value>
+    </data>
+    <data name="console.application.option.help" xml:space="preserve">
+        <value>Vis denne hjelpen eller for den valgte handlingen.</value>
+    </data>
+    <data name="console.application.option.usage" xml:space="preserve">
+        <value>Bruk: Repackinator {0} [handling]+</value>
+    </data>
 </root>
