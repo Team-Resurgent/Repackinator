@@ -60,6 +60,132 @@ namespace Repackinator.Localization.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Credits go to {0}..
+        /// </summary>
+        internal static string console_application_credits {
+            get {
+                return ResourceManager.GetString("console.application.credits", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Input is not a valid file..
+        /// </summary>
+        internal static string console_application_input_exception {
+            get {
+                return ResourceManager.GetString("console.application.input.exception", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Action (Convert, Compare, Info, Checksum, Extract).
+        /// </summary>
+        internal static string console_application_option_action {
+            get {
+                return ResourceManager.GetString("console.application.option.action", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Compress.
+        /// </summary>
+        internal static string console_application_option_convert_compress {
+            get {
+                return ResourceManager.GetString("console.application.option.convert.compress", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Input file.
+        /// </summary>
+        internal static string console_application_option_convert_input {
+            get {
+                return ResourceManager.GetString("console.application.option.convert.input", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Scrub mode (None *default*, Scrub, TrimmedScrub).
+        /// </summary>
+        internal static string console_application_option_convert_scrub {
+            get {
+                return ResourceManager.GetString("console.application.option.convert.scrub", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Wait on exit.
+        /// </summary>
+        internal static string console_application_option_convert_wait {
+            get {
+                return ResourceManager.GetString("console.application.option.convert.wait", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Show this help or for provided action.
+        /// </summary>
+        internal static string console_application_option_help {
+            get {
+                return ResourceManager.GetString("console.application.option.help", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Usage: Repackinator {0} [options]+.
+        /// </summary>
+        internal static string console_application_option_usage {
+            get {
+                return ResourceManager.GetString("console.application.option.usage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Usage: Repackinator [options]+.
+        /// </summary>
+        internal static string console_application_usage {
+            get {
+                return ResourceManager.GetString("console.application.usage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Repackinator by EqUiNoX, original xbox utility..
+        /// </summary>
+        internal static string console_application_utility {
+            get {
+                return ResourceManager.GetString("console.application.utility", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Repackinator {0}.
+        /// </summary>
+        internal static string console_application_version {
+            get {
+                return ResourceManager.GetString("console.application.version", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to remove context menu (need to run as admin)..
+        /// </summary>
+        internal static string launcher_context_menu_remove_failed {
+            get {
+                return ResourceManager.GetString("launcher.context-menu.remove.failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Context menu removed..
+        /// </summary>
+        internal static string launcher_context_menu_removed {
+            get {
+                return ResourceManager.GetString("launcher.context-menu.removed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Completed.
         /// </summary>
         internal static string logger_level_completed {

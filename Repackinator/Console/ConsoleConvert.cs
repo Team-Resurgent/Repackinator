@@ -7,6 +7,7 @@ namespace Repackinator.Console
 {
     public static class ConsoleConvert 
     {
+        public const string Action = "Convert";
         public static string Input { get; set; } = string.Empty;
         public static string ScrubMode { get; set; } = "NONE";
         public static bool Compress { get; set; } = false;
@@ -30,8 +31,12 @@ namespace Repackinator.Console
 
         public static void ShowOptionDescription()
         {
-            var options = GetOptions();
-            options.WriteOptionDescriptions(System.Console.Out);
+            System.Console.WriteLine();
+            System.Console.WriteLine("Convert Action...");
+            System.Console.WriteLine();
+            System.Console.WriteLine("This action is used to convert one xbox disk image format to another.");
+            System.Console.WriteLine();
+            GetOptions().WriteOptionDescriptions(System.Console.Out);
         }
 
         public static void Process(string version, string[] args)
@@ -42,8 +47,7 @@ namespace Repackinator.Console
                 options.Parse(args);
                 if (ShowHelp)
                 {
-                    ConsoleUtil.ShowHelpHeader(version);
-                    options.WriteOptionDescriptions(System.Console.Out);
+                    ConsoleUtil.ShowHelpHeaderForAction(version, Action, options);
                     ConsoleUtil.ProcessWait(Wait);
                     return;
                 }
