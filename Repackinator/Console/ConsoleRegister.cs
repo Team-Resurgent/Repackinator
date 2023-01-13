@@ -58,8 +58,6 @@ namespace Repackinator.Console
             {
                 ConsoleUtil.ShowOptionException(e);
             }
-
-            ConsoleUtil.ProcessWait(Wait);
         }
     }
 }
