@@ -1,7 +1,6 @@
 ﻿using LibDeflate;
 using Resurgent.UtilityBelt.Library.Utilities.ImageInput;
-using System;
-using System.Runtime.InteropServices;
+using System.IO.Hashing;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -265,7 +264,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                         var startSector = (int)(input.SectorOffset + sector);
                         var endSector = (int)((input.SectorOffset + sector) + ((size + 2047) >> 11) - 1);
                         var stringBuilder = new StringBuilder();
-                        var slices = new HashSet<int>();
+                        var slices = new List<int>();
                         if (size > 0)
                         {
                             slices.Add(input.SectorInSlice(startSector));
@@ -276,7 +275,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                                 {
                                     stringBuilder.Append("-");
                                 }
-                                stringBuilder.Append(slices.ElementAt(i).ToString());
+                                stringBuilder.Append(slices[i].ToString());
                             }
                         }
                         else
@@ -592,20 +591,21 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
             log("Getting data sectors hash for first...");
             var dataSectors1 = GetDataSectorsFromXiso(input1, progress, default);
+            var dataSectors1Array = dataSectors1.ToArray();
 
             log("Calculating data sector hashes for first...");
-            using var dataSectorsHash1 = SHA1.Create();
-            for (var i = 0; i < dataSectors1.Count; i++)
+            var dataSectorsHash1 = new XxHash64();
+            for (var i = 0; i < dataSectors1Array.Length; i++)
             {
-                var dataSector1 = dataSectors1.ElementAt(i);
+                var dataSector1 = dataSectors1Array[i];
                 var buffer = input1.ReadSectors(dataSector1 + input1.SectorOffset, 1);
-                dataSectorsHash1.TransformBlock(buffer, 0, buffer.Length, null, 0);
+                dataSectorsHash1.Append(buffer);
                 if (progress != null)
                 {
-                    progress(i / (float)dataSectors1.Count);
+                    progress(i / (float)dataSectors1Array.Length);
                 }
             }
-            var dataChecksum1 = dataSectorsHash1.Hash;
+            var dataChecksum1 = dataSectorsHash1.GetCurrentHash();
             if (dataChecksum1 == null)
             {
                 throw new ArgumentOutOfRangeException();
@@ -614,20 +614,21 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
             log("Getting data sectors hash for second...");
             var dataSectors2 = GetDataSectorsFromXiso(input2, progress, default);
+            var dataSectors2Array = dataSectors2.ToArray();
 
             log("Calculating data sector hash for second...");
-            using var dataSectorsHash2 = SHA1.Create();
-            for (var i = 0; i < dataSectors2.Count; i++)
+            var dataSectorsHash2 = new XxHash64();
+            for (var i = 0; i < dataSectors2Array.Length; i++)
             {
-                var dataSector2 = dataSectors1.ElementAt(i);
-                var buffer = input1.ReadSectors(dataSector2 + input2.SectorOffset, 1);
-                dataSectorsHash2.TransformBlock(buffer, 0, buffer.Length, null, 0);
+                var dataSector2 = dataSectors2Array[i];
+                var buffer = input2.ReadSectors(dataSector2 + input2.SectorOffset, 1);
+                dataSectorsHash2.Append(buffer);
                 if (progress != null)
                 {
-                    progress(i / (float)dataSectors2.Count);
+                    progress(i / (float)dataSectors2Array.Length);
                 }
             }
-            var dataChecksum2 = dataSectorsHash2.Hash;
+            var dataChecksum2 = dataSectorsHash2.GetCurrentHash();
             if (dataChecksum2 == null)
             {
                 throw new ArgumentOutOfRangeException();
@@ -647,21 +648,21 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             log("");
 
             log("Getting security sectors hash for first...");
-            var securitySectors1 = GetSecuritySectorsFromXiso(input1, dataSectors1, progress, default);
+            var securitySectors1 = GetSecuritySectorsFromXiso(input1, dataSectors1, progress, default).ToArray();
 
             log("Calculating security sector hashes for first...");
-            using var securitySectorsHash1 = SHA1.Create();
-            for (var i = 0; i < securitySectors1.Count; i++)
+            var securitySectorsHash1 = new XxHash64();
+            for (var i = 0; i < securitySectors1.Length; i++)
             {
-                var securitySector1 = securitySectors1.ElementAt(i);
+                var securitySector1 = securitySectors1[i];
                 var buffer = input1.ReadSectors(securitySector1 + input1.SectorOffset, 1);
-                securitySectorsHash1.TransformBlock(buffer, 0, buffer.Length, null, 0);
+                securitySectorsHash1.Append(buffer);
                 if (progress != null)
                 {
-                    progress(i / (float)securitySectors1.Count);
+                    progress(i / (float)securitySectors1.Length);
                 }
             }
-            var secutityChecksum1 = securitySectorsHash1.Hash;
+            var secutityChecksum1 = securitySectorsHash1.GetCurrentHash();
             if (secutityChecksum1 == null)
             {
                 throw new ArgumentOutOfRangeException();
@@ -669,22 +670,21 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             var securitySectorsHash1Result = BitConverter.ToString(secutityChecksum1).Replace("-", string.Empty);
 
             log("Getting security sectors hash for second...");
-            var securitySectors2 = GetSecuritySectorsFromXiso(input2, dataSectors2, progress, default);
+            var securitySectors2 = GetSecuritySectorsFromXiso(input2, dataSectors2, progress, default).ToArray();
 
             log("Calculating security sector hash for second...");
-            using var securitySectorsHash2 = SHA1.Create();
-            for (var i = 0; i < securitySectors2.Count; i++)
+            var securitySectorsHash2 = new XxHash64();
+            for (var i = 0; i < securitySectors2.Length; i++)
             {
-                var securitySector2 = securitySectors2.ElementAt(i);
-                var buffer = input1.ReadSectors(securitySector2 + input2.SectorOffset, 1);
-                securitySectorsHash2.TransformBlock(buffer, 0, buffer.Length, null, 0);
+                var securitySector2 = securitySectors2[i];
+                var buffer = input2.ReadSectors(securitySector2 + input2.SectorOffset, 1);
+                securitySectorsHash2.Append(buffer);
                 if (progress != null)
                 {
-                    progress(i / (float)securitySectors2.Count);
+                    progress(i / (float)securitySectors2.Length);
                 }
             }
-            securitySectorsHash2.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
-            var secutityChecksum2 = securitySectorsHash2.Hash;
+            var secutityChecksum2 = securitySectorsHash2.GetCurrentHash();
             if (secutityChecksum2 == null)
             {
                 throw new ArgumentOutOfRangeException();
@@ -733,10 +733,10 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                     endSector = Math.Min(dataSectors.Max() + 1, input.TotalSectors);
                 }
 
-                var securitySectors = GetSecuritySectorsFromXiso(input, dataSectors, progress2, cancellationToken);
-                for (var i = 0; i < securitySectors.Count; i++)
+                var securitySectors = GetSecuritySectorsFromXiso(input, dataSectors, progress2, cancellationToken).ToArray();
+                for (var i = 0; i < securitySectors.Length; i++)
                 {
-                    dataSectors.Add(securitySectors.ElementAt(i));
+                    dataSectors.Add(securitySectors[i]);
                 }
             }
 
@@ -815,10 +815,10 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                     endSector = Math.Min(dataSectors.Max() + 1, input.TotalSectors);
                 }
 
-                var securitySectors = GetSecuritySectorsFromXiso(input, dataSectors, progress2, cancellationToken);
-                for (var i = 0; i < securitySectors.Count; i++)
+                var securitySectors = GetSecuritySectorsFromXiso(input, dataSectors, progress2, cancellationToken).ToArray();
+                for (var i = 0; i < securitySectors.Length; i++)
                 {
-                    dataSectors.Add(securitySectors.ElementAt(i));
+                    dataSectors.Add(securitySectors[i]);
                 }
             }
 
@@ -984,10 +984,10 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                     endSector = Math.Min(dataSectors.Max() + 1, input.TotalSectors);
                 }
 
-                var securitySectors = GetSecuritySectorsFromXiso(input, dataSectors, progress2, cancellationToken);
-                for (var i = 0; i < securitySectors.Count; i++)
+                var securitySectors = GetSecuritySectorsFromXiso(input, dataSectors, progress2, cancellationToken).ToArray();
+                for (var i = 0; i < securitySectors.Length; i++)
                 {
-                    dataSectors.Add(securitySectors.ElementAt(i));
+                    dataSectors.Add(securitySectors[i]);
                 }
             }
 
