@@ -348,8 +348,9 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             var flag = false;
             var start = 0U;
 
-            const int endSector = 0x345B60;
-            for (var sectorIndex = 0; sectorIndex <= endSector; sectorIndex++)
+            const uint endSector = 0x345B60;
+
+            for (uint sectorIndex = 0; sectorIndex <= endSector; sectorIndex++)
             {
                 var currentSector = (uint)(input.SectorOffset + sectorIndex);
 
@@ -381,6 +382,14 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                         {
                             securitySectors.Add(i);
                         }
+                    }
+                    else if (end - start > 0xFFF)      // if more than 0xFFF, we "guess" this image is scrubbed so we stop
+                    {
+                        if (progress != null)
+                        {
+                            progress(100);
+                        }
+                        return securitySectors;
                     }
                 }
 
@@ -533,72 +542,73 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 log("Expected sector counts do not match, assuming image could be trimmed.");
             }
 
-            var flag = false;
-            var startRange = 0L;
-            var endRange = 0L;
-            for (var i = 0; i < input1.TotalSectors - input1.SectorOffset; i++)
-            {
-                var buffer1 = new byte[2048];
-                var buffer2 = new byte[2048];
+            //var flag = false;
+            //var startRange = 0L;
+            //var endRange = 0L;
+            //for (var i = 0; i < input1.TotalSectors - input1.SectorOffset; i++)
+            //{
+            //    var buffer1 = new byte[2048];
+            //    var buffer2 = new byte[2048];
 
-                if (i < input1.TotalSectors)
-                {
-                    buffer1 = input1.ReadSectors(i + input1.SectorOffset, 1);
-                }
+            //    if (i < input1.TotalSectors)
+            //    {
+            //        buffer1 = input1.ReadSectors(i + input1.SectorOffset, 1);
+            //    }
 
-                if (i < input2.TotalSectors) 
-                { 
-                    buffer2 = input2.ReadSectors(i + input2.SectorOffset, 1);
-                }
+            //    if (i < input2.TotalSectors) 
+            //    { 
+            //        buffer2 = input2.ReadSectors(i + input2.SectorOffset, 1);
+            //    }
 
-                var same = true;
-                for (var j = 0; j < 2048; j++)
-                {
-                    if (buffer1[j] != buffer2[j])
-                    {
-                        same = false;
-                        break;
-                    }
-                }
+            //    var same = true;
+            //    for (var j = 0; j < 2048; j++)
+            //    {
+            //        if (buffer1[j] != buffer2[j])
+            //        {
+            //            same = false;
+            //            break;
+            //        }
+            //    }
 
-                endRange = i;
-                if (!same)
-                {
-                    if (!flag)
-                    {
-                        startRange = i;
-                        flag = true;
-                    }
-                }
-                else if (flag)
-                {
-                    log($"Game partition sectors in range {startRange}-{endRange} (Redump range {startRange + (Constants.VideoSectors - input1.SectorOffset)}-{endRange + (Constants.VideoSectors - input1.SectorOffset)}) are different.");
-                    flag = false;
-                }
+            //    endRange = i;
+            //    if (!same)
+            //    {
+            //        if (!flag)
+            //        {
+            //            startRange = i;
+            //            flag = true;
+            //        }
+            //    }
+            //    else if (flag)
+            //    {
+            //        log($"Game partition sectors in range {startRange}-{endRange} (Redump range {startRange + (Constants.VideoSectors - input1.SectorOffset)}-{endRange + (Constants.VideoSectors - input1.SectorOffset)}) are different.");
+            //        flag = false;
+            //    }
 
-                if (progress != null)
-                {
-                    progress(i / (float)(input1.TotalSectors - input1.SectorOffset));
-                }
-            }
+            //    if (progress != null)
+            //    {
+            //        progress(i / (float)(input1.TotalSectors - input1.SectorOffset));
+            //    }
+            //}
 
-            if (flag)
-            {
-                log($"Game partition sectors in range {startRange}-{endRange} (Redump range {startRange + (Constants.VideoSectors - input1.SectorOffset)}-{endRange + (Constants.VideoSectors - input1.SectorOffset)}) are different.");
-            }
+            //if (flag)
+            //{
+            //    log($"Game partition sectors in range {startRange}-{endRange} (Redump range {startRange + (Constants.VideoSectors - input1.SectorOffset)}-{endRange + (Constants.VideoSectors - input1.SectorOffset)}) are different.");
+            //}
 
             log("");
 
             log("Getting data sectors hash for first...");
             var dataSectors1 = GetDataSectorsFromXiso(input1, progress, default);
             var dataSectors1Array = dataSectors1.ToArray();
+            Array.Sort(dataSectors1Array);
 
             log("Calculating data sector hashes for first...");
             var dataSectorsHash1 = new XxHash64();
             for (var i = 0; i < dataSectors1Array.Length; i++)
             {
                 var dataSector1 = dataSectors1Array[i];
-                var buffer = input1.ReadSectors(dataSector1 + input1.SectorOffset, 1);
+                var buffer = input1.ReadSectors(dataSector1, 1);
                 dataSectorsHash1.Append(buffer);
                 if (progress != null)
                 {
@@ -615,13 +625,14 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             log("Getting data sectors hash for second...");
             var dataSectors2 = GetDataSectorsFromXiso(input2, progress, default);
             var dataSectors2Array = dataSectors2.ToArray();
+            Array.Sort(dataSectors2Array);
 
             log("Calculating data sector hash for second...");
             var dataSectorsHash2 = new XxHash64();
             for (var i = 0; i < dataSectors2Array.Length; i++)
             {
                 var dataSector2 = dataSectors2Array[i];
-                var buffer = input2.ReadSectors(dataSector2 + input2.SectorOffset, 1);
+                var buffer = input2.ReadSectors(dataSector2, 1);
                 dataSectorsHash2.Append(buffer);
                 if (progress != null)
                 {
@@ -646,20 +657,90 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
 
             log("");
+            log("");
 
-            log("Getting security sectors hash for first...");
+            log("Getting security sectors for first...");
             var securitySectors1 = GetSecuritySectorsFromXiso(input1, dataSectors1, progress, default).ToArray();
+            Array.Sort(securitySectors1);
+
+            log("Getting security sectors for second...");
+            var securitySectors2 = GetSecuritySectorsFromXiso(input2, dataSectors2, progress, default).ToArray();
+            Array.Sort(securitySectors2);
+
+            if (securitySectors1.Length > 0 && securitySectors2.Length > 0)
+            {
+                // TO-DO: do array compare without reading sectors since we know they are empty sectors already, taking into account redump video offset eventually
+            }
+
+            log("");
+            log("");
+
+            var securitySectorsCompare = securitySectors1.Length > securitySectors2.Length ? securitySectors1 : securitySectors2;   // we use the array with the most security sectors to check against
+            var minTotalSectors = Math.Min(input1.TotalSectors, input2.TotalSectors);
+            log($"Minimum total sectors to compare = {minTotalSectors}");
+
+            log("");
 
             log("Calculating security sector hashes for first...");
             var securitySectorsHash1 = new XxHash64();
-            for (var i = 0; i < securitySectors1.Length; i++)
+            long firstSecuritySector = -1;
+            long lastSecuritySector = -1;
+            int securitySectorsCount = 0;
+            var hashedSectorsCount1 = 0;
+            for (var i = 0; i < securitySectorsCompare.Length; i++)
             {
-                var securitySector1 = securitySectors1[i];
-                var buffer = input1.ReadSectors(securitySector1 + input1.SectorOffset, 1);
-                securitySectorsHash1.Append(buffer);
-                if (progress != null)
+                long securitySector1;
+                if (securitySectors1 == securitySectorsCompare)
                 {
-                    progress(i / (float)securitySectors1.Length);
+                    securitySector1 = securitySectors1[i];
+                    lastSecuritySector = i > 0 ? securitySectors1[i - 1] : lastSecuritySector;
+                }
+                else if (input1.TotalSectors != Constants.RedumpSectors)
+                {
+                    securitySector1 = securitySectorsCompare[i] - (uint)input2.SectorOffset;
+                    lastSecuritySector = i > 0 ? securitySectorsCompare[i - 1] - (uint)input2.SectorOffset : lastSecuritySector;
+                }
+                else if (input2.TotalSectors != Constants.RedumpSectors)
+                {
+                    securitySector1 = securitySectorsCompare[i] + (uint)input1.SectorOffset;
+                    lastSecuritySector = i > 0 ? securitySectorsCompare[i - 1] - (uint)input1.SectorOffset : lastSecuritySector;
+                }
+                else
+                {
+                    securitySector1 = securitySectorsCompare[i];
+                    lastSecuritySector = i > 0 ? securitySectorsCompare[i - 1] : lastSecuritySector;
+                }
+
+                if (i == 0)
+                {
+                    firstSecuritySector = securitySector1;
+                }
+
+                if (securitySector1 >= input1.TotalSectors)     // stop the cycle when reached the end of input1 file
+                {
+                    securitySectorsCount = i;
+                    if (progress != null)
+                    {
+                        progress(100);
+                    }
+                    break;
+                }
+
+                if (securitySector1 < minTotalSectors + input1.SectorOffset)        // only hash sectors that are available to hash in the input that has lower file size
+                {
+                    var buffer = input1.ReadSectors(securitySector1, 1);
+                    securitySectorsHash1.Append(buffer);
+                    if (progress != null)
+                    {
+                        progress(i / (float)securitySectorsCompare.Length);
+                    }
+                    hashedSectorsCount1++;
+                }
+
+                if (i == securitySectorsCompare.Length - 1)
+                {
+                    lastSecuritySector = securitySector1;
+                    securitySectorsCount = i + 1;
                 }
             }
             var secutityChecksum1 = securitySectorsHash1.GetCurrentHash();
@@ -669,19 +750,72 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             }
             var securitySectorsHash1Result = BitConverter.ToString(secutityChecksum1).Replace("-", string.Empty);
 
-            log("Getting security sectors hash for second...");
-            var securitySectors2 = GetSecuritySectorsFromXiso(input2, dataSectors2, progress, default).ToArray();
+            log($"First image (first - last) Security Sector: {(firstSecuritySector < 0 ? "N/A" : firstSecuritySector)} - {(lastSecuritySector < 0 ? "N/A" : lastSecuritySector)}");
+            log($"First image Security Sectors count: {(securitySectorsCount < 0 ? "N/A" : securitySectorsCount)}");
+            log($"First image number of hashed sectors: {hashedSectorsCount1}");
 
-            log("Calculating security sector hash for second...");
+            log("");
+
+            log("Calculating security sector hashes for second...");
             var securitySectorsHash2 = new XxHash64();
-            for (var i = 0; i < securitySectors2.Length; i++)
+            firstSecuritySector = -1;
+            lastSecuritySector = -1;
+            securitySectorsCount = 0;
+            var hashedSectorsCount2 = 0;
+            for (var i = 0; i < securitySectorsCompare.Length; i++)
             {
-                var securitySector2 = securitySectors2[i];
-                var buffer = input2.ReadSectors(securitySector2 + input2.SectorOffset, 1);
-                securitySectorsHash2.Append(buffer);
-                if (progress != null)
+                long securitySector2;
+                if (securitySectors2 == securitySectorsCompare)
                 {
-                    progress(i / (float)securitySectors2.Length);
+                    securitySector2 = securitySectors2[i];
+                    lastSecuritySector = i > 0 ? securitySectors2[i - 1] : lastSecuritySector;
+                }
+                else if (input2.TotalSectors != Constants.RedumpSectors)
+                {
+                    securitySector2 = securitySectorsCompare[i] - (uint)input1.SectorOffset;
+                    lastSecuritySector = i > 0 ? securitySectorsCompare[i - 1] - (uint)input1.SectorOffset : lastSecuritySector;
+                }
+                else if (input1.TotalSectors != Constants.RedumpSectors)
+                {
+                    securitySector2 = securitySectorsCompare[i] + (uint)input2.SectorOffset;
+                    lastSecuritySector = i > 0 ? securitySectorsCompare[i - 1] - (uint)input2.SectorOffset : lastSecuritySector;
+                }
+                else
+                {
+                    securitySector2 = securitySectorsCompare[i];
+                    lastSecuritySector = i > 0 ? securitySectorsCompare[i - 1] : lastSecuritySector;
+                }
+
+                if (i == 0)
+                {
+                    firstSecuritySector = securitySector2;
+                }
+
+                if (securitySector2 >= input2.TotalSectors)
+                {
+                    securitySectorsCount = i;
+                    if (progress != null)
+                    {
+                        progress(100);
+                    }
+                    break;
+                }
+
+                if (securitySector2 < minTotalSectors + input2.SectorOffset)
+                {
+                    var buffer = input2.ReadSectors(securitySector2, 1);
+                    securitySectorsHash2.Append(buffer);
+                    if (progress != null)
+                    {
+                        progress(i / (float)securitySectorsCompare.Length);
+                    }
+                    hashedSectorsCount2++;
+                }
+
+                if (i == securitySectorsCompare.Length - 1)
+                {
+                    lastSecuritySector = securitySector2;
+                    securitySectorsCount = i + 1;
                 }
             }
             var secutityChecksum2 = securitySectorsHash2.GetCurrentHash();
@@ -691,14 +825,30 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             }
             var securitySectorsHash2Result = BitConverter.ToString(secutityChecksum2).Replace("-", string.Empty);
 
-            if (securitySectorsHash1Result == securitySectorsHash2Result)
+            log($"Second image (first - last) Security Sector: {(firstSecuritySector < 0 ? "N/A" : firstSecuritySector)} - {(lastSecuritySector < 0 ? "N/A" : lastSecuritySector)}");
+            log($"Second image Security Sectors count: {(securitySectorsCount < 0 ? "N/A" : securitySectorsCount)}");
+            log($"Second image number of hashed sectors: {hashedSectorsCount2}");
+
+            log("");
+
+            if (hashedSectorsCount1 == 0 || hashedSectorsCount2 == 0)
             {
-                log("Security sectors match.");
+                log("Couldn't hash one or both images, possible reason: impossible to determine presence of security sectors.");
+            }
+            else if (securitySectorsHash1Result == securitySectorsHash2Result)
+            {
+                log("Hashed Security sectors match.");
             }
             else
             {
-                log("Security sectors do not match.");
+                log("Hashed Security sectors do not match.");
             }
+
+            log("");
+
+            log($"First image data sectors range: {dataSectors1Array.First()} - {dataSectors1Array.Last()}");
+            log($"Second image data sectors range: {dataSectors2Array.First()} - {dataSectors2Array.Last()}");
+            log("");
         }
 
         public static bool Split(IImageInput input, string outputPath, string name, string extension, bool scrub, bool trimmedScrub, Action<int, float>? progress, CancellationToken cancellationToken)
