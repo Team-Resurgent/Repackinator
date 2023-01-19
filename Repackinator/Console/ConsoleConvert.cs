@@ -58,6 +58,7 @@ namespace Repackinator.Console
                     throw new OptionException("Input is not a valid file.", "input");
                 }
 
+                var outputSuffix = string.Empty;
                 var outputPath = Path.GetDirectoryName(input);
                 var outputNameWithoutExtension = Path.GetFileNameWithoutExtension(input);
                 var subExtension = Path.GetExtension(outputNameWithoutExtension);
@@ -72,13 +73,13 @@ namespace Repackinator.Console
                 if (string.Equals(ScrubMode, ScrubModeScrub, StringComparison.CurrentCultureIgnoreCase))
                 {
                     scrub = true;
-                    outputNameWithoutExtension = $"{outputNameWithoutExtension}-Scrub";
+                    outputSuffix = "-Scrub";
                 }
                 else if (string.Equals(ScrubMode, ScrubModeTrimmedScrub, StringComparison.CurrentCultureIgnoreCase))
                 {
                     scrub = true;
                     trimmedScrub = true;
-                    outputNameWithoutExtension = $"{outputNameWithoutExtension}-TrimmedScrub";
+                    outputSuffix = "-TrimmedScrub";
                 }
                 else if (!string.Equals(ScrubMode, ScrubModeNone, StringComparison.CurrentCultureIgnoreCase))
                 {
@@ -92,13 +93,13 @@ namespace Repackinator.Console
                     System.Console.WriteLine(Path.GetFileName(inputSlice));
                 }
 
+                outputPath = Path.Combine(outputPath, $"Converted{outputSuffix}");
+                Directory.CreateDirectory(outputPath);
+
                 var previousProgress = -1.0f;
 
                 if (outputPath != null)
                 {
-                    outputPath = Path.Combine(outputPath, "Converted");
-                    Directory.CreateDirectory(outputPath);
-
                     if (Compress)
                     {
                         XisoUtility.CreateCCI(ImageImputHelper.GetImageInput(inputSlices), outputPath, outputNameWithoutExtension, ".cci", scrub, trimmedScrub, (s, p) =>
