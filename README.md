@@ -30,6 +30,7 @@ Programmed for the very specific task of compressing original Xbox ISO structure
 * OS: Windows 7+ x64, x86-64 Linux, or MacOS (verified on Big Sur, should run from High Sierra onwards, please report any findings). 32-bit is not supported.
     * Repackinator can be ran in a virtual machine with GPU passthrough. (Virtual GPU must be disabled)
 * RAM: 8gb of RAM for proper operation.
+* A GPU ***capable of running DirectX 11 or better***!
 
 ## Prerequisites
   * [64-bit (x64) Visual C++ 2022 Redistributable](https://aka.ms/vs/17/release/vc_redist.x86.exe)
