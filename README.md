@@ -33,7 +33,8 @@ Programmed for the very specific task of compressing original Xbox ISO structure
 * A GPU ***capable of running DirectX 11 or better***!
 
 ## Prerequisites
-  * [64-bit (x64) Visual C++ 2022 Redistributable](https://aka.ms/vs/17/release/vc_redist.x86.exe)
+  * [32-bit (x86) Visual C++ 2022 Redistributable](https://aka.ms/vs/17/release/vc_redist.x86.exe)
+  * [64-bit (x64) Visual C++ 2022 Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe)
 
 ## Core Features & Functionality
 Repackinator will extract Certs, Title ID & Title Image (.tbn) from the XBE located inside the ISO Dump. It will then generate a new `default.xbe`, which will be used to load the ISO on ISO Enabled Bioses, such as Cerbios (Native ISO Support) iND-BiOS (Patched), EvoX M8+ (Patched)
