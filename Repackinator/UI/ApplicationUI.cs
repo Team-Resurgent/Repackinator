@@ -2,6 +2,7 @@
 using Repackinator.Helpers;
 using Repackinator.Models;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Text;
 using Veldrid;
 using Veldrid.Sdl2;
@@ -38,6 +39,9 @@ namespace Repackinator.UI
         private int m_splitterOffset = 0;
         private int m_splitterMouseY;
         private int m_splitterDragOffset = 0;
+
+        [DllImport("dwmapi.dll", PreserveSig = true)]
+        public static extern int DwmSetWindowAttribute(IntPtr hwnd, uint attr, ref int attrValue, int attrSize);
 
         public ApplicationUI(string version)
         {
@@ -247,6 +251,13 @@ namespace Repackinator.UI
             VeldridStartup.CreateWindowAndGraphicsDevice(new WindowCreateInfo(50, 50, 1280, 720, WindowState.Normal, $"Repackinator - {m_version}{admin}"), new GraphicsDeviceOptions(true, null, true, ResourceBindingModel.Improved, true, true), VeldridStartup.GetPlatformDefaultBackend(), out m_window, out m_graphicsDevice);
 
             m_controller = new ImGuiController(m_graphicsDevice, m_graphicsDevice.MainSwapchain.Framebuffer.OutputDescription, m_window.Width, m_window.Height);
+
+            if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000, 0))
+            {
+                int value = -1;
+                uint DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
+                _ = DwmSetWindowAttribute(m_window.Handle, DWMWA_USE_IMMERSIVE_DARK_MODE, ref value, sizeof(int));
+            }
 
             SetXboxTheme();
 
