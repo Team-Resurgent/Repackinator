@@ -93,8 +93,13 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
                 var nameLength = input.ReadByte(currentPosition + 13);
                 var filenameBytes = input.ReadBytes(currentPosition + 14, nameLength);
+
                 var filename = Encoding.ASCII.GetString(filenameBytes);
-                //System.Diagnostics.Debug.WriteLine(filename);
+                var encoding = CodePagesEncodingProvider.Instance.GetEncoding(1252);
+                if (encoding != null)
+                {
+                    filename = encoding.GetString(filenameBytes);
+                }
 
                 if (left == 0xFFFF)
                 {
@@ -214,7 +219,13 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
                 var nameLength = input.ReadByte(currentPosition + 13);
                 var filenameBytes = input.ReadBytes(currentPosition + 14, nameLength);
+
                 var filename = Encoding.ASCII.GetString(filenameBytes);
+                var encoding = CodePagesEncodingProvider.Instance.GetEncoding(1252);
+                if (encoding != null)
+                {
+                    filename = encoding.GetString(filenameBytes);
+                }
 
                 if (left == 0xFFFF)
                 {
@@ -474,7 +485,13 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
                 var nameLength = input.ReadByte(currentPosition + 13);
                 var filenameBytes = input.ReadBytes(currentPosition + 14, nameLength);
+   
                 var filename = Encoding.ASCII.GetString(filenameBytes);
+                var encoding = CodePagesEncodingProvider.Instance.GetEncoding(1252);
+                if (encoding != null)
+                {
+                    filename = encoding.GetString(filenameBytes);
+                }
 
                 if ((attribute & 0x10) == 0 && filename.Equals("default.xbe", StringComparison.CurrentCultureIgnoreCase))
                 {
