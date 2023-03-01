@@ -805,6 +805,18 @@ namespace Repackinator.UI
 
             ImGui.Spacing();
 
+            ImGui.Text("Do not split ISO:");
+            ImGui.SameLine();
+            ImGui.SetCursorPosX(150);
+            bool noSplit = m_config.NoSplit;
+            if (Toggle("##noSplit", ref noSplit, new Vector2(38, 24)))
+            {
+                m_config.NoSplit = noSplit;
+                Config.SaveConfig(m_config);
+            }
+
+            ImGui.Spacing();
+
             ImGui.Text("Input Folder:");
             ImGui.SameLine();
             ImGui.SetCursorPosX(150);

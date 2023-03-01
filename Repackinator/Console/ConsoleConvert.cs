@@ -115,7 +115,7 @@ namespace Repackinator.Console
                     }
                     else
                     {
-                        XisoUtility.Split(ImageImputHelper.GetImageInput(inputSlices), outputPath, outputNameWithoutExtension, ".iso", scrub, trimmedScrub, (s, p) =>
+                        XisoUtility.Split(ImageImputHelper.GetImageInput(inputSlices), outputPath, outputNameWithoutExtension, ".iso", scrub, trimmedScrub, false, (s, p) =>
                         {
                             var amount = (float)Math.Round(p * 100);
                             if (amount != previousProgress)
