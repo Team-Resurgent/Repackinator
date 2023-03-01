@@ -868,7 +868,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             log("");
         }
 
-        public static bool Split(IImageInput input, string outputPath, string name, string extension, bool scrub, bool trimmedScrub, Action<int, float>? progress, CancellationToken cancellationToken)
+        public static bool Split(IImageInput input, string outputPath, string name, string extension, bool scrub, bool trimmedScrub, bool noSplit, Action<int, float>? progress, CancellationToken cancellationToken)
         {
             if (progress != null)
             {
@@ -909,42 +909,56 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
             var sectorSplit = (uint)(endSector - input.SectorOffset) / 2;
 
-            using var partStream1 = new FileStream(Path.Combine(outputPath, $"{name}.1{extension}"), FileMode.Create, FileAccess.Write);
-            using var partWriter1 = new BinaryWriter(partStream1);
-
-            using var partStream2 = new FileStream(Path.Combine(outputPath, $"{name}.2{extension}"), FileMode.Create, FileAccess.Write);
-            using var partWriter2 = new BinaryWriter(partStream2);
+            var partStream = new FileStream(Path.Combine(outputPath, $"{name}.1{extension}"), FileMode.Create, FileAccess.Write);
+            var partWriter = new BinaryWriter(partStream);
 
             var emptySector = new byte[2048];
+            var hasSplit = false;
 
-            for (var i = (uint)input.SectorOffset; i < endSector; i++)
+            try
             {
-                var currentWriter = i - input.SectorOffset >= sectorSplit ? partWriter2 : partWriter1;
-               
-                var writeSector = true;
-                if (scrub)
-                {
-                    writeSector = dataSectors.Contains(i);
-                }
-                if (writeSector == true)
-                {
-                    var sectorBuffer = input.ReadSectors(i, 1);
-                    currentWriter.Write(sectorBuffer);
-                }
-                else
-                {
-                    currentWriter.Write(emptySector);
-                }
 
-                if (progress != null)
+                for (var i = (uint)input.SectorOffset; i < endSector; i++)
                 {
-                    progress(2, i / (float)(endSector - input.SectorOffset));
-                }
+                    if (noSplit == false && hasSplit == false && i - input.SectorOffset >= sectorSplit)
+                    {
+                        hasSplit = true;
+                        partWriter.Dispose();
+                        partStream.Dispose();
+                        partStream = new FileStream(Path.Combine(outputPath, $"{name}.2{extension}"), FileMode.Create, FileAccess.Write);
+                        partWriter = new BinaryWriter(partStream);
+                    }
 
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    break;
+                    var writeSector = true;
+                    if (scrub)
+                    {
+                        writeSector = dataSectors.Contains(i);
+                    }
+                    if (writeSector == true)
+                    {
+                        var sectorBuffer = input.ReadSectors(i, 1);
+                        partWriter.Write(sectorBuffer);
+                    }
+                    else
+                    {
+                        partWriter.Write(emptySector);
+                    }
+
+                    if (progress != null)
+                    {
+                        progress(2, i / (float)(endSector - input.SectorOffset));
+                    }
+
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        break;
+                    }
                 }
+            }
+            finally
+            {
+                partWriter.Dispose();
+                partStream.Dispose();
             }
 
             return true;

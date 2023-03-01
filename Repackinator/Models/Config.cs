@@ -26,6 +26,8 @@ namespace Repackinator.Models
 
         public bool Compress { get; set; }
 
+        public bool NoSplit { get; set; }
+
         public bool TrimmedScrub { get; set; }
 
         public int LeechType { get; set; }
@@ -44,6 +46,7 @@ namespace Repackinator.Models
             RecurseInput = false;
             UpperCase = false;
             Compress = false;
+            NoSplit = false;
             LeechType = 0;
             TrimmedScrub = false;
             SearchField = 0;
