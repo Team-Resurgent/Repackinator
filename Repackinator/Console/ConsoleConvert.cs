@@ -130,7 +130,8 @@ namespace Repackinator.Console
                     }
                 }
 
-                if (!Quiet) {
+                if (!Quiet)
+                {
                     System.Console.WriteLine();
                     System.Console.WriteLine("Convert completed.");
                 }
