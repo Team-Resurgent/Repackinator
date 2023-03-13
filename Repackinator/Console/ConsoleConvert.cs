@@ -13,6 +13,7 @@ namespace Repackinator.Console
         public static bool Compress { get; set; } = false;
         public static bool ShowHelp { get; set; } = false;
         public static bool Wait { get; set; } = false;
+        public static bool Quiet { get; set; } = false;
 
         private static string ScrubModeNone = "None";
         private static string ScrubModeScrub = "Scrub";
@@ -25,7 +26,8 @@ namespace Repackinator.Console
                 { "s|scrub=", "Scrub mode (None *default*, Scrub, TrimmedScrub)", s => ScrubMode = s },
                 { "c|compress", "Compress", c => Compress = c != null },
                 { "h|help", "show help", h => ShowHelp = h != null },
-                { "w|wait", "Wait on exit", w => Wait = w != null }
+                { "w|wait", "Wait on exit", w => Wait = w != null },
+                { "q|quiet", "Suppress status output", q => Quiet = q != null }
             };
         }
 
@@ -105,7 +107,7 @@ namespace Repackinator.Console
                         XisoUtility.CreateCCI(ImageImputHelper.GetImageInput(inputSlices), outputPath, outputNameWithoutExtension, ".cci", scrub, trimmedScrub, (s, p) =>
                         {
                             var amount = (float)Math.Round(p * 100);
-                            if (amount != previousProgress)
+                            if (!Quiet && amount != previousProgress)
                             {
                                 System.Console.Write($"Stage {s + 1} of 3, Progress {amount}%");
                                 System.Console.CursorLeft = 0;
@@ -118,7 +120,7 @@ namespace Repackinator.Console
                         XisoUtility.Split(ImageImputHelper.GetImageInput(inputSlices), outputPath, outputNameWithoutExtension, ".iso", scrub, trimmedScrub, false, (s, p) =>
                         {
                             var amount = (float)Math.Round(p * 100);
-                            if (amount != previousProgress)
+                            if (!Quiet && amount != previousProgress)
                             {
                                 System.Console.Write($"Stage {s + 1} of 3, Progress {amount}%");
                                 System.Console.CursorLeft = 0;
@@ -128,8 +130,11 @@ namespace Repackinator.Console
                     }
                 }
 
-                System.Console.WriteLine();
-                System.Console.WriteLine("Convert completed.");
+                if (!Quiet)
+                {
+                    System.Console.WriteLine();
+                    System.Console.WriteLine("Convert completed.");
+                }
             }
             catch (OptionException e)
             {
