@@ -1,6 +1,6 @@
 <div align="center">
 
-[![Download](https://img.shields.io/badge/download-latest-brightgreen.svg?style=for-the-badge&logo=appveyor)](https://github.com/Team-Resurgent/Repackinator/releases/latest)
+[![Download](https://img.shields.io/badge/download-latest-brightgreen.svg?style=for-the-badge&logo=github)](https://github.com/Team-Resurgent/Repackinator/releases/latest)
 
   
 # Team Resurgent Presents, Repackinator
