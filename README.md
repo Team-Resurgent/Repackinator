@@ -1,7 +1,7 @@
 <div align="center">
 
-<script async defer src="https://buttons.github.io/buttons.js"></script>
-<a class="github-button" href="https://github.com/Team-Resurgent/Repackinator/archive/HEAD.zip" data-size="large" aria-label="Download Team-Resurgent/Repackinator on GitHub">Download</a>
+<!-- Place this tag where you want the button to render. -->
+<a class="github-button" href="https://github.com/Team-Resurgent/Repackinator/archive/HEAD.zip" data-icon="octicon-download" data-size="large" aria-label="Download Team-Resurgent/Repackinator on GitHub">Download</a>
 
 # Team Resurgent Presents, Repackinator
 **A Modern ISO Manager for Original Xbox**
@@ -124,3 +124,6 @@ After Repackinator has been ran as admin the first time, the context menu will p
 * To all the people behind projects such as [xemu](https://github.com/mborgerson/xemu) and [Insignia](https://insignia.live/). Keep up the amazing work! We can't wait for your final product releases.
 * Greetz to the following scene people, in no particular order - Milenko, Iriez, Mattie, ODB718, ILTB, HoZy, IceKiller, Rowdy360, Lantus, Kl0wn, nghtshd, Redline99, The_Mad_M, Und3ad, HermesConrad, Rocky5, xbox7887, tuxuser, Masonly, manderson, InsaneNutter, IDC, Fyb3roptik, Bucko, Aut0botKilla, headph0ne,Xer0 449, hazardous774, rusjr1908, Octal450, Gunz4Hire, Dai, bluemeanie23, T3, ToniHC, Emaxx, Incursion64, empyreal96, Fredr1kh, Natetronn, braxtron
 <!--* I'm sure there is someone else that belongs here too ;)-->
+
+<!-- Place this tag in your head or just before your close body tag. -->
+<script async defer src="https://buttons.github.io/buttons.js"></script>
