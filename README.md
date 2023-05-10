@@ -1,17 +1,8 @@
 <div align="center">
 
-<!-- Place this tag where you want the button to render. -->
-<github-button href="https://github.com/Team-Resurgent/Repackinator/archive/HEAD.zip" data-icon="octicon-download" data-size="large" aria-label="Download Team-Resurgent/Repackinator on GitHub">Download</github-button>
+[![Download](https://img.shields.io/badge/download-latest-brightgreen.svg)?style=for-the-badge&logo=appveyor](https://github.com/Team-Resurgent/Repackinator/releases/latest)
+
   
-  import GithubButton from 'vue-github-button'
-
-export default {
-  components: {
-    GithubButton
-  },
-  // ...
-}
-
 # Team Resurgent Presents, Repackinator
 **A Modern ISO Manager for Original Xbox**
 
