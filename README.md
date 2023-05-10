@@ -1,5 +1,8 @@
 <div align="center">
 
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+<a class="github-button" href="https://github.com/Team-Resurgent/Repackinator/archive/HEAD.zip" data-size="large" aria-label="Download Team-Resurgent/Repackinator on GitHub">Download</a>
+
 # Team Resurgent Presents, Repackinator
 **A Modern ISO Manager for Original Xbox**
 
