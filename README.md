@@ -126,6 +126,7 @@ After Repackinator has been ran as admin the first time, the context menu will p
 
 <div align="center">
   
+![GitHub contributors](https://img.shields.io/github/contributors/Team-Resurgent/Repackinator?style=flat-square)
 ![GitHub repo file count](https://img.shields.io/github/directory-file-count/Team-Resurgent/Repackinator?style=flat-square)
 ![Lines of code](https://img.shields.io/tokei/lines/github/Team-Resurgent/Repackinator?style=flat-square)
 ![GitHub repo size](https://img.shields.io/github/repo-size/Team-Resurgent/Repackinator?style=flat-square)
