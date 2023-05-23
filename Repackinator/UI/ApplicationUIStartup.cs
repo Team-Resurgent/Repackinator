@@ -7,10 +7,10 @@ namespace Repackinator.UI
         [DllImport("kernel32.dll")]
         private static extern IntPtr GetConsoleWindow();
 
-        [DllImport("user32.dll")]
-        private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        private static extern IntPtr SendMessage(IntPtr hWnd, UInt32 Msg, IntPtr wParam, IntPtr lParam);
 
-        private const int SW_HIDE = 0;
+        private const int WM_CLOSE = 0x0010;
 
         public static void Start(string version)
         {
@@ -19,7 +19,7 @@ namespace Repackinator.UI
                 if (OperatingSystem.IsWindows())
                 {
                     var handle = GetConsoleWindow();
-                    ShowWindow(handle, SW_HIDE);
+                    SendMessage(handle, WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
                 }
 
                 var application = new ApplicationUI(version);
