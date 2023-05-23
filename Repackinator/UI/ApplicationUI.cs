@@ -1,12 +1,14 @@
 ﻿using ImGuiNET;
+using OpenTK.Graphics;
 using Repackinator.Helpers;
 using Repackinator.Models;
+using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 using Veldrid;
 using Veldrid.Sdl2;
-using Veldrid.StartupUtilities;
+using OpenTK.Graphics.OpenGL;
 
 //TODO: on repack close cancel
 
@@ -15,8 +17,6 @@ namespace Repackinator.UI
     public class ApplicationUI
     {
         private Sdl2Window? m_window;
-        private GraphicsDevice? m_graphicsDevice;
-        private CommandList? m_commandList;
         private ImGuiController? m_controller;
         private GameData[]? m_gameDataList;
         private PathPicker? m_inputFolderPicker;
@@ -27,6 +27,7 @@ namespace Repackinator.UI
         private CreditsDialog? m_creditsDialog;
         private RepackDialog? m_repackDialog;
         private ScanDialog? m_scanDialog;
+        private SplashDialog m_splashDialog = new();
         private AttachUpdateDialog? m_attachUpdateDialog;
         private Config m_config = new Config();
 
@@ -39,6 +40,7 @@ namespace Repackinator.UI
         private int m_splitterOffset = 0;
         private int m_splitterMouseY;
         private int m_splitterDragOffset = 0;
+        private bool m_showSplash = true;
 
         [DllImport("dwmapi.dll", PreserveSig = true)]
         public static extern int DwmSetWindowAttribute(IntPtr hwnd, uint attr, ref int attrValue, int attrSize);
@@ -248,9 +250,15 @@ namespace Repackinator.UI
             m_searchText = string.Empty;
 
             var admin = Utility.IsAdmin() ? " ADMIN" : string.Empty;
-            VeldridStartup.CreateWindowAndGraphicsDevice(new WindowCreateInfo(50, 50, 1280, 720, WindowState.Normal, $"Repackinator - {m_version}{admin}"), new GraphicsDeviceOptions(true, null, true, ResourceBindingModel.Improved, true, true), VeldridStartup.GetPlatformDefaultBackend(), out m_window, out m_graphicsDevice);
 
-            m_controller = new ImGuiController(m_graphicsDevice, m_graphicsDevice.MainSwapchain.Framebuffer.OutputDescription, m_window.Width, m_window.Height);
+            m_window = new Sdl2Window($"Repackinator - {m_version}{admin}", 50, 50, 1280, 720, SDL_WindowFlags.Shown | SDL_WindowFlags.Resizable | SDL_WindowFlags.OpenGL, true);
+
+            var windowInfo = OpenTK.Platform.Utilities.CreateSdl2WindowInfo(m_window.SdlWindowHandle);
+            var graphicsContext = new GraphicsContext(GraphicsMode.Default, windowInfo);
+            graphicsContext.LoadAll();
+            graphicsContext.MakeCurrent(windowInfo);
+
+            m_controller = new ImGuiController(m_window.Width, m_window.Height);
 
             if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000, 0))
             {
@@ -297,36 +305,37 @@ namespace Repackinator.UI
 
             m_window.Resized += () =>
             {
-                m_graphicsDevice.MainSwapchain.Resize((uint)m_window.Width, (uint)m_window.Height);
                 m_controller.WindowResized(m_window.Width, m_window.Height);
             };
 
-            m_commandList = m_graphicsDevice.ResourceFactory.CreateCommandList();
-
-            while (m_window.Exists)
+            float previousPollTimeSeconds = 0;
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            while (true)
             {
                 InputSnapshot snapshot = m_window.PumpEvents();
                 if (!m_window.Exists)
                 {
                     break;
                 }
-                m_controller.Update(1f / 60f, snapshot);
+
+                float currentTimeSeconds = (float)(stopwatch.ElapsedMilliseconds / 1000.0f);
+                m_controller.Update(currentTimeSeconds, snapshot);
 
                 RenderUI();
 
-                m_commandList.Begin();
-                m_commandList.SetFramebuffer(m_graphicsDevice.MainSwapchain.Framebuffer);
-                m_commandList.ClearColorTarget(0, new RgbaFloat(0.0f, 0.0f, 0.0f, 1f));
-                m_controller.Render(m_graphicsDevice, m_commandList);
-                m_commandList.End();
-                m_graphicsDevice.SubmitCommands(m_commandList);
-                m_graphicsDevice.SwapBuffers(m_graphicsDevice.MainSwapchain);
+                GL.Viewport(0, 0, m_window.Width, m_window.Height);
+                GL.ClearColor(new Color4(0, 0, 0, 255));
+                GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
+
+                m_controller.Render();
+
+                Sdl2Native.SDL_GL_SwapWindow(m_window.SdlWindowHandle);
+
+                previousPollTimeSeconds = currentTimeSeconds;
             }
 
-            m_graphicsDevice.WaitForIdle();
             m_controller.Dispose();
-            m_commandList.Dispose();
-            m_graphicsDevice.Dispose();
         }
 
         private void RenderUI()
@@ -398,6 +407,14 @@ namespace Repackinator.UI
             m_creditsDialog.Render();
             m_repackDialog.Render();
             m_attachUpdateDialog.Render();
+
+            m_splashDialog.Render();
+
+            if (m_showSplash)
+            {
+                m_showSplash = false;
+                m_splashDialog.ShowdDialog(m_controller.SplashTexture);
+            }
 
             ImGui.Begin("Main", ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize);
             ImGui.SetWindowSize(new Vector2(m_window.Width, m_window.Height));

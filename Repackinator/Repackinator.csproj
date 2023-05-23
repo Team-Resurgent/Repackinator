@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>net7.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -20,20 +20,16 @@
 	<ItemGroup>
 	  <None Remove="AltRepackList.json" />
 	  <None Remove="Resources\attach.xbe" />
+	  <None Remove="Resources\TeamResurgent.jpg" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<EmbeddedResource Include="Resources\ARIALUNI.TTF" />
 		<EmbeddedResource Include="Resources\attach.xbe" />
 		<EmbeddedResource Include="Resources\Stuart Wilson - Not Another Comic Bakery Remix.mp3" />
-		<EmbeddedResource Include="Shaders/GLSL/imgui-vertex.glsl" LogicalName="imgui-vertex.glsl" />
-		<EmbeddedResource Include="Shaders/GLSL/imgui-frag.glsl" LogicalName="imgui-frag.glsl" />
-		<EmbeddedResource Include="Shaders/HLSL/imgui-vertex.hlsl.bytes" LogicalName="imgui-vertex.hlsl.bytes" />
-		<EmbeddedResource Include="Shaders/HLSL/imgui-frag.hlsl.bytes" LogicalName="imgui-frag.hlsl.bytes" />
-		<EmbeddedResource Include="Shaders/SPIR-V/imgui-vertex.spv" LogicalName="imgui-vertex.spv" />
-		<EmbeddedResource Include="Shaders/SPIR-V/imgui-frag.spv" LogicalName="imgui-frag.spv" />
-		<EmbeddedResource Include="Shaders/Metal/imgui-vertex.metallib" LogicalName="imgui-vertex.metallib" />
-		<EmbeddedResource Include="Shaders/Metal/imgui-frag.metallib" LogicalName="imgui-frag.metallib" />
+		<EmbeddedResource Include="Resources\imgui-vertex.glsl" />
+		<EmbeddedResource Include="Resources\imgui-frag.glsl" />
+		<EmbeddedResource Include="Resources\TeamResurgent.jpg" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -74,17 +70,23 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Downloader" Version="3.0.1" />
-		<PackageReference Include="ImGui.NET" Version="1.88.0" />
+		<PackageReference Include="Downloader" Version="3.0.4" />
+		<PackageReference Include="ImGui.NET" Version="1.89.5" />
 		<PackageReference Include="ManagedBass.FftSignalProvider" Version="1.0.1" />
 		<PackageReference Include="Mono.Options" Version="6.12.0.148" />
-		<PackageReference Include="Veldrid.StartupUtilities" Version="4.8.0" />
-		<PackageReference Include="SharpCompress" Version="0.32.2" />
+		<PackageReference Include="SharpCompress" Version="0.33.0" />
+		<PackageReference Include="Veldrid.SDL2" Version="4.9.0" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\Repackinator.Localization\Repackinator.Localization.csproj" />
 		<ProjectReference Include="..\Resurgent.UtilityBelt.Library\Resurgent.UtilityBelt.Library.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Reference Include="OpenTK">
+	    <HintPath>OpenTK.dll</HintPath>
+	  </Reference>
 	</ItemGroup>
 
 </Project>
