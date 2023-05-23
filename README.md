@@ -23,7 +23,7 @@ Programmed for the very specific task of compressing original Xbox ISO structure
                         [ Type ................................................ Iso Manager ]
                         [ Patreon ....................https://www.patreon.com/teamresurgent ]
                                         
-                        [                          Team Members:                            ]
+                        [                           Team Members:                           ]
                         [ EqUiNoX ......................................... Lead Programmer ]
                         [ HoRnEyDvL ............................... Tester/ Project Manager ]
                         [ Hazeno ................................................... Tester ]
