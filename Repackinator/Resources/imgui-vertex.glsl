@@ -1,15 +1,13 @@
-#version 130
-precision mediump float;
-precision mediump int;
+#version 330 core
 
 uniform mat4 projection_matrix;
 
-attribute vec2 in_position;
-attribute vec2 in_texCoord;
-attribute vec4 in_color;
+layout(location = 0) in vec2 in_position;
+layout(location = 1) in vec2 in_texCoord;
+layout(location = 2) in vec4 in_color;
 
-varying vec4 color;
-varying vec2 texCoord;
+out vec4 color;
+out vec2 texCoord;
 
 void main()
 {
