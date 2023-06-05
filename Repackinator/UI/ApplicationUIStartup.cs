@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices;
-
-namespace Repackinator.UI
+﻿namespace Repackinator.UI
 {
     public static class ApplicationUIStartup
     {

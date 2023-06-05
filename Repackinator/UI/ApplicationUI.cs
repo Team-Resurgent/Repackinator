@@ -1,22 +1,18 @@
 ﻿using ImGuiNET;
-using OpenTK.Graphics;
 using Repackinator.Helpers;
 using Repackinator.Models;
-using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
-using Veldrid;
-using Veldrid.Sdl2;
-using OpenTK.Graphics.OpenGL;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 //TODO: on repack close cancel
 
 namespace Repackinator.UI
 {
-    public class ApplicationUI
+    public unsafe class ApplicationUI
     {
-        private Sdl2Window? m_window;
+        private Window? m_window;
         private ImGuiController? m_controller;
         private GameData[]? m_gameDataList;
         private PathPicker? m_inputFolderPicker;
@@ -251,12 +247,9 @@ namespace Repackinator.UI
 
             var admin = Utility.IsAdmin() ? " ADMIN" : string.Empty;
 
-            m_window = new Sdl2Window($"Repackinator - {m_version}{admin}", 50, 50, 1280, 720, SDL_WindowFlags.Shown | SDL_WindowFlags.Resizable | SDL_WindowFlags.OpenGL, true);
-
-            var windowInfo = OpenTK.Platform.Utilities.CreateSdl2WindowInfo(m_window.SdlWindowHandle);
-            var graphicsContext = new GraphicsContext(GraphicsMode.Default, windowInfo);
-            graphicsContext.LoadAll();
-            graphicsContext.MakeCurrent(windowInfo);
+            m_window = new Window();
+            m_window.Title = $"Repackinator - {m_version}{admin}";
+            m_window.Size = new OpenTK.Mathematics.Vector2i(1280, 720);
 
             m_controller = new ImGuiController(m_window.Width, m_window.Height);
 
@@ -264,7 +257,7 @@ namespace Repackinator.UI
             {
                 int value = -1;
                 uint DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
-                _ = DwmSetWindowAttribute(m_window.Handle, DWMWA_USE_IMMERSIVE_DARK_MODE, ref value, sizeof(int));
+                _ = DwmSetWindowAttribute(GLFW.GetWin32Window(m_window.WindowPtr), DWMWA_USE_IMMERSIVE_DARK_MODE, ref value, sizeof(int));
             }
 
             SetXboxTheme();
@@ -303,39 +296,8 @@ namespace Repackinator.UI
             }
             m_gameDataList = m_gameDataList.OrderBy(s => s.TitleName).ToArray();
 
-            m_window.Resized += () =>
-            {
-                m_controller.WindowResized(m_window.Width, m_window.Height);
-            };
-
-            float previousPollTimeSeconds = 0;
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-            while (true)
-            {
-                InputSnapshot snapshot = m_window.PumpEvents();
-                if (!m_window.Exists)
-                {
-                    break;
-                }
-
-                float currentTimeSeconds = (float)(stopwatch.ElapsedMilliseconds / 1000.0f);
-                m_controller.Update(currentTimeSeconds, snapshot);
-
-                RenderUI();
-
-                GL.Viewport(0, 0, m_window.Width, m_window.Height);
-                GL.ClearColor(new Color4(0, 0, 0, 255));
-                GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
-
-                m_controller.Render();
-
-                Sdl2Native.SDL_GL_SwapWindow(m_window.SdlWindowHandle);
-
-                previousPollTimeSeconds = currentTimeSeconds;
-            }
-
-            m_controller.Dispose();
+            m_window.RenderUI = RenderUI;
+            m_window.Run();
         }
 
         private void RenderUI()

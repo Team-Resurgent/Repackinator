@@ -74,19 +74,13 @@
 		<PackageReference Include="ImGui.NET" Version="1.89.5" />
 		<PackageReference Include="ManagedBass.FftSignalProvider" Version="1.0.1" />
 		<PackageReference Include="Mono.Options" Version="6.12.0.148" />
+		<PackageReference Include="OpenTK" Version="4.7.7" />
 		<PackageReference Include="SharpCompress" Version="0.33.0" />
-		<PackageReference Include="Veldrid.SDL2" Version="4.9.0" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\Repackinator.Localization\Repackinator.Localization.csproj" />
 		<ProjectReference Include="..\Resurgent.UtilityBelt.Library\Resurgent.UtilityBelt.Library.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Reference Include="OpenTK">
-	    <HintPath>OpenTK.dll</HintPath>
-	  </Reference>
 	</ItemGroup>
 
 </Project>

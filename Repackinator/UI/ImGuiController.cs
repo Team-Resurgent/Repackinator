@@ -4,11 +4,11 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using OpenTK.Graphics.OpenGL;
-using Veldrid;
 using System.Diagnostics;
 using Repackinator.Helpers;
-using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using OpenTK.Windowing.Desktop;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace Repackinator.UI
 {
@@ -95,7 +95,7 @@ namespace Repackinator.UI
         private unsafe int CreateTextureFromResource(string resourceName)
         {
             var resourceBytes = ResourceLoader.GetEmbeddedResourceBytes(resourceName);
-            using var resourceImage = Image.Load<Bgra32>(resourceBytes);
+            using var resourceImage = SixLabors.ImageSharp.Image.Load<Bgra32>(resourceBytes);
             var pixelSpan = new Span<Bgra32>(new Bgra32[resourceImage.Width * resourceImage.Height]);
             resourceImage.CopyPixelDataTo(pixelSpan);
 
@@ -134,6 +134,65 @@ namespace Repackinator.UI
             _splashTexture = CreateTextureFromResource("Repackinator.Resources.TeamResurgent.jpg");
         }
 
+        private static void SetXboxTheme()
+        {
+            ImGui.StyleColorsDark();
+            var style = ImGui.GetStyle();
+            var colors = style.Colors;
+            colors[(int)ImGuiCol.Text] = new Vector4(0.94f, 0.94f, 0.94f, 1.00f);
+            colors[(int)ImGuiCol.TextDisabled] = new Vector4(0.86f, 0.93f, 0.89f, 0.28f);
+            colors[(int)ImGuiCol.WindowBg] = new Vector4(0.10f, 0.10f, 0.10f, 1.00f);
+            colors[(int)ImGuiCol.ChildBg] = new Vector4(0.06f, 0.06f, 0.06f, 0.98f);
+            colors[(int)ImGuiCol.PopupBg] = new Vector4(0.10f, 0.10f, 0.10f, 1.00f);
+            colors[(int)ImGuiCol.Border] = new Vector4(0.11f, 0.11f, 0.11f, 0.60f);
+            colors[(int)ImGuiCol.BorderShadow] = new Vector4(0.16f, 0.16f, 0.16f, 0.00f);
+            colors[(int)ImGuiCol.FrameBg] = new Vector4(0.18f, 0.18f, 0.18f, 1.00f);
+            colors[(int)ImGuiCol.FrameBgHovered] = new Vector4(0.30f, 0.30f, 0.30f, 1.00f);
+            colors[(int)ImGuiCol.FrameBgActive] = new Vector4(0.28f, 0.71f, 0.25f, 1.00f);
+            colors[(int)ImGuiCol.TitleBg] = new Vector4(0.20f, 0.51f, 0.18f, 1.00f);
+            colors[(int)ImGuiCol.TitleBgActive] = new Vector4(0.26f, 0.66f, 0.23f, 1.00f);
+            colors[(int)ImGuiCol.TitleBgCollapsed] = new Vector4(0.16f, 0.16f, 0.16f, 0.75f);
+            colors[(int)ImGuiCol.MenuBarBg] = new Vector4(0.14f, 0.14f, 0.14f, 0.00f);
+            colors[(int)ImGuiCol.ScrollbarBg] = new Vector4(0.16f, 0.16f, 0.16f, 0.00f);
+            colors[(int)ImGuiCol.ScrollbarGrab] = new Vector4(0.30f, 0.30f, 0.30f, 1.00f);
+            colors[(int)ImGuiCol.ScrollbarGrabHovered] = new Vector4(0.24f, 0.60f, 0.00f, 1.00f);
+            colors[(int)ImGuiCol.ScrollbarGrabActive] = new Vector4(0.24f, 0.60f, 0.00f, 1.00f);
+            colors[(int)ImGuiCol.CheckMark] = new Vector4(0.26f, 0.66f, 0.23f, 1.00f);
+            colors[(int)ImGuiCol.SliderGrab] = new Vector4(0.90f, 0.90f, 0.90f, 1.00f);
+            colors[(int)ImGuiCol.SliderGrabActive] = new Vector4(1.00f, 1.00f, 1.00f, 1.00f);
+            colors[(int)ImGuiCol.Button] = new Vector4(0.17f, 0.17f, 0.17f, 1.00f);
+            colors[(int)ImGuiCol.ButtonHovered] = new Vector4(0.24f, 0.60f, 0.00f, 1.00f);
+            colors[(int)ImGuiCol.ButtonActive] = new Vector4(0.26f, 0.66f, 0.23f, 1.00f);
+            colors[(int)ImGuiCol.Header] = new Vector4(0.24f, 0.60f, 0.00f, 1.00f);
+            colors[(int)ImGuiCol.HeaderHovered] = new Vector4(0.24f, 0.60f, 0.00f, 1.00f);
+            colors[(int)ImGuiCol.HeaderActive] = new Vector4(0.24f, 0.60f, 0.00f, 1.00f);
+            colors[(int)ImGuiCol.Separator] = new Vector4(1.00f, 1.00f, 1.00f, 0.25f);
+            colors[(int)ImGuiCol.SeparatorHovered] = new Vector4(0.13f, 0.87f, 0.16f, 0.78f);
+            colors[(int)ImGuiCol.SeparatorActive] = new Vector4(0.25f, 0.75f, 0.10f, 1.00f);
+            colors[(int)ImGuiCol.ResizeGrip] = new Vector4(0.47f, 0.83f, 0.49f, 0.04f);
+            colors[(int)ImGuiCol.ResizeGripHovered] = new Vector4(0.28f, 0.71f, 0.25f, 0.78f);
+            colors[(int)ImGuiCol.ResizeGripActive] = new Vector4(0.28f, 0.71f, 0.25f, 1.00f);
+            colors[(int)ImGuiCol.Tab] = new Vector4(0.26f, 0.67f, 0.23f, 0.95f);
+            colors[(int)ImGuiCol.TabHovered] = new Vector4(0.24f, 0.60f, 0.00f, 1.00f);
+            colors[(int)ImGuiCol.TabActive] = new Vector4(0.24f, 0.60f, 0.00f, 1.00f);
+            colors[(int)ImGuiCol.TabUnfocused] = new Vector4(0.21f, 0.54f, 0.19f, 0.99f);
+            colors[(int)ImGuiCol.TabUnfocusedActive] = new Vector4(0.24f, 0.60f, 0.21f, 1.00f);
+            colors[(int)ImGuiCol.PlotLines] = new Vector4(0.86f, 0.93f, 0.89f, 0.63f);
+            colors[(int)ImGuiCol.PlotLinesHovered] = new Vector4(0.28f, 0.71f, 0.25f, 1.00f);
+            colors[(int)ImGuiCol.PlotHistogram] = new Vector4(0.86f, 0.93f, 0.89f, 0.63f);
+            colors[(int)ImGuiCol.PlotHistogramHovered] = new Vector4(0.28f, 0.71f, 0.25f, 1.00f);
+            colors[(int)ImGuiCol.TextSelectedBg] = new Vector4(0.26f, 0.66f, 0.23f, 1.00f);
+            colors[(int)ImGuiCol.DragDropTarget] = new Vector4(1.00f, 1.00f, 0.00f, 0.90f);
+            colors[(int)ImGuiCol.NavHighlight] = new Vector4(0.28f, 0.71f, 0.25f, 1.00f);
+            colors[(int)ImGuiCol.NavWindowingHighlight] = new Vector4(1.00f, 1.00f, 1.00f, 0.70f);
+            colors[(int)ImGuiCol.NavWindowingDimBg] = new Vector4(0.80f, 0.80f, 0.80f, 0.20f);
+            colors[(int)ImGuiCol.ModalWindowDimBg] = new Vector4(0.16f, 0.16f, 0.16f, 0.73f);
+
+            style.WindowRounding = 6;
+            style.FrameRounding = 6;
+            style.PopupRounding = 6;
+        }
+
         public unsafe ImGuiController(int width, int height)
         {
             _windowWidth = width;
@@ -161,6 +220,8 @@ namespace Repackinator.UI
             SetKeyMappings();
 
             SetPerFrameImGuiData(1 / 60f);
+
+            SetXboxTheme();
 
             ImGui.NewFrame();
             _frameBegun = true;
@@ -261,7 +322,7 @@ namespace Repackinator.UI
             }
         }
 
-        public void Update(float deltaSeconds, InputSnapshot snapshot)
+        public void Update(float deltaSeconds, GameWindow wnd)
         {
             if (_frameBegun)
             {
@@ -269,7 +330,7 @@ namespace Repackinator.UI
             }
 
             SetPerFrameImGuiData(1 / 60f);
-            UpdateImGuiInput(snapshot);
+            UpdateImGuiInput(wnd);
 
             _frameBegun = true;
             ImGui.NewFrame();
@@ -282,100 +343,77 @@ namespace Repackinator.UI
             io.DisplayFramebufferScale = _scaleFactor;
             io.DeltaTime = deltaSeconds;
         }
+        readonly List<char> PressedChars = new List<char>();
 
-        private void UpdateImGuiInput(InputSnapshot snapshot)
+        internal void PressChar(char keyChar)
+        {
+            PressedChars.Add(keyChar);
+        }
+
+        internal void MouseScroll(Vector2 offset)
         {
             ImGuiIOPtr io = ImGui.GetIO();
 
-            Vector2 mousePosition = snapshot.MousePosition;
+            io.MouseWheel = offset.Y;
+            io.MouseWheelH = offset.X;
+        }
 
-            bool leftPressed = false;
-            bool middlePressed = false;
-            bool rightPressed = false;
-            foreach (MouseEvent me in snapshot.MouseEvents)
+        private void UpdateImGuiInput(GameWindow wnd)
+        {
+            ImGuiIOPtr io = ImGui.GetIO();
+
+            MouseState MouseState = wnd.MouseState;
+            KeyboardState KeyboardState = wnd.KeyboardState;
+
+            io.MouseDown[0] = MouseState[MouseButton.Left];
+            io.MouseDown[1] = MouseState[MouseButton.Right];
+            io.MouseDown[2] = MouseState[MouseButton.Middle];
+
+            io.MousePos = new Vector2((int)MouseState.X, (int)MouseState.Y);
+
+            foreach (Keys key in Enum.GetValues(typeof(Keys)))
             {
-                if (me.Down)
+                if (key == Keys.Unknown)
                 {
-                    switch (me.MouseButton)
-                    {
-                        case MouseButton.Left:
-                            leftPressed = true;
-                            break;
-                        case MouseButton.Middle:
-                            middlePressed = true;
-                            break;
-                        case MouseButton.Right:
-                            rightPressed = true;
-                            break;
-                    }
+                    continue;
                 }
+                io.KeysDown[(int)key] = KeyboardState.IsKeyDown(key);
             }
 
-            io.MouseDown[0] = leftPressed || snapshot.IsMouseDown(MouseButton.Left);
-            io.MouseDown[1] = rightPressed || snapshot.IsMouseDown(MouseButton.Right);
-            io.MouseDown[2] = middlePressed || snapshot.IsMouseDown(MouseButton.Middle);
-            io.MousePos = mousePosition;
-            io.MouseWheel = snapshot.WheelDelta;
-
-            IReadOnlyList<char> keyCharPresses = snapshot.KeyCharPresses;
-            for (int i = 0; i < keyCharPresses.Count; i++)
+            foreach (var c in PressedChars)
             {
-                char c = keyCharPresses[i];
                 io.AddInputCharacter(c);
             }
+            PressedChars.Clear();
 
-            IReadOnlyList<KeyEvent> keyEvents = snapshot.KeyEvents;
-            for (int i = 0; i < keyEvents.Count; i++)
-            {
-                KeyEvent keyEvent = keyEvents[i];
-                io.KeysDown[(int)keyEvent.Key] = keyEvent.Down;
-                if (keyEvent.Key == Key.ControlLeft)
-                {
-                    _controlDown = keyEvent.Down;
-                }
-                if (keyEvent.Key == Key.ShiftLeft)
-                {
-                    _shiftDown = keyEvent.Down;
-                }
-                if (keyEvent.Key == Key.AltLeft)
-                {
-                    _altDown = keyEvent.Down;
-                }
-                if (keyEvent.Key == Key.WinLeft)
-                {
-                    _winKeyDown = keyEvent.Down;
-                }
-            }
-
-            io.KeyCtrl = _controlDown;
-            io.KeyAlt = _altDown;
-            io.KeyShift = _shiftDown;
-            io.KeySuper = _winKeyDown;
+            io.KeyCtrl = KeyboardState.IsKeyDown(Keys.LeftControl) || KeyboardState.IsKeyDown(Keys.RightControl);
+            io.KeyAlt = KeyboardState.IsKeyDown(Keys.LeftAlt) || KeyboardState.IsKeyDown(Keys.RightAlt);
+            io.KeyShift = KeyboardState.IsKeyDown(Keys.LeftShift) || KeyboardState.IsKeyDown(Keys.RightShift);
+            io.KeySuper = KeyboardState.IsKeyDown(Keys.LeftSuper) || KeyboardState.IsKeyDown(Keys.RightSuper);
         }
 
         private static void SetKeyMappings()
         {
             ImGuiIOPtr io = ImGui.GetIO();
-            io.KeyMap[(int)ImGuiKey.Tab] = (int)Key.Tab;
-            io.KeyMap[(int)ImGuiKey.LeftArrow] = (int)Key.Left;
-            io.KeyMap[(int)ImGuiKey.RightArrow] = (int)Key.Right;
-            io.KeyMap[(int)ImGuiKey.UpArrow] = (int)Key.Up;
-            io.KeyMap[(int)ImGuiKey.DownArrow] = (int)Key.Down;
-            io.KeyMap[(int)ImGuiKey.PageUp] = (int)Key.PageUp;
-            io.KeyMap[(int)ImGuiKey.PageDown] = (int)Key.PageDown;
-            io.KeyMap[(int)ImGuiKey.Home] = (int)Key.Home;
-            io.KeyMap[(int)ImGuiKey.End] = (int)Key.End;
-            io.KeyMap[(int)ImGuiKey.Delete] = (int)Key.Delete;
-            io.KeyMap[(int)ImGuiKey.Backspace] = (int)Key.BackSpace;
-            io.KeyMap[(int)ImGuiKey.Enter] = (int)Key.Enter;
-            io.KeyMap[(int)ImGuiKey.Escape] = (int)Key.Escape;
-            io.KeyMap[(int)ImGuiKey.Space] = (int)Key.Space;
-            io.KeyMap[(int)ImGuiKey.A] = (int)Key.A;
-            io.KeyMap[(int)ImGuiKey.C] = (int)Key.C;
-            io.KeyMap[(int)ImGuiKey.V] = (int)Key.V;
-            io.KeyMap[(int)ImGuiKey.X] = (int)Key.X;
-            io.KeyMap[(int)ImGuiKey.Y] = (int)Key.Y;
-            io.KeyMap[(int)ImGuiKey.Z] = (int)Key.Z;
+            io.KeyMap[(int)ImGuiKey.Tab] = (int)Keys.Tab;
+            io.KeyMap[(int)ImGuiKey.LeftArrow] = (int)Keys.Left;
+            io.KeyMap[(int)ImGuiKey.RightArrow] = (int)Keys.Right;
+            io.KeyMap[(int)ImGuiKey.UpArrow] = (int)Keys.Up;
+            io.KeyMap[(int)ImGuiKey.DownArrow] = (int)Keys.Down;
+            io.KeyMap[(int)ImGuiKey.PageUp] = (int)Keys.PageUp;
+            io.KeyMap[(int)ImGuiKey.PageDown] = (int)Keys.PageDown;
+            io.KeyMap[(int)ImGuiKey.Home] = (int)Keys.Home;
+            io.KeyMap[(int)ImGuiKey.End] = (int)Keys.End;
+            io.KeyMap[(int)ImGuiKey.Delete] = (int)Keys.Delete;
+            io.KeyMap[(int)ImGuiKey.Backspace] = (int)Keys.Backspace;
+            io.KeyMap[(int)ImGuiKey.Enter] = (int)Keys.Enter;
+            io.KeyMap[(int)ImGuiKey.Escape] = (int)Keys.Escape;
+            io.KeyMap[(int)ImGuiKey.A] = (int)Keys.A;
+            io.KeyMap[(int)ImGuiKey.C] = (int)Keys.C;
+            io.KeyMap[(int)ImGuiKey.V] = (int)Keys.V;
+            io.KeyMap[(int)ImGuiKey.X] = (int)Keys.X;
+            io.KeyMap[(int)ImGuiKey.Y] = (int)Keys.Y;
+            io.KeyMap[(int)ImGuiKey.Z] = (int)Keys.Z;
         }
 
         private void RenderImDrawData(ImDrawDataPtr draw_data)
@@ -443,7 +481,7 @@ namespace Repackinator.UI
             // Setup orthographic projection matrix into our constant buffer
             ImGuiIOPtr io = ImGui.GetIO();
 
-            var mvp = OpenTK.Matrix4.CreateOrthographicOffCenter(0.0f, io.DisplaySize.X, io.DisplaySize.Y, 0.0f, -1.0f, 1.0f);
+            var mvp = OpenTK.Mathematics.Matrix4.CreateOrthographicOffCenter(0.0f, io.DisplaySize.X, io.DisplaySize.Y, 0.0f, -1.0f, 1.0f);
 
             GL.UseProgram(_shader);
             GL.UniformMatrix4(_shaderProjectionMatrixLocation, false, ref mvp);
@@ -458,7 +496,7 @@ namespace Repackinator.UI
             GL.Enable(EnableCap.Blend);
             GL.Enable(EnableCap.ScissorTest);
             GL.BlendEquation(BlendEquationMode.FuncAdd);
-            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             GL.Disable(EnableCap.CullFace);
             GL.Disable(EnableCap.DepthTest);
 
@@ -591,9 +629,9 @@ namespace Repackinator.UI
 
         public static void CheckGLError(string title)
         {
-            ErrorCode error;
+            OpenTK.Graphics.OpenGL.ErrorCode error;
             int i = 1;
-            while ((error = GL.GetError()) != ErrorCode.NoError)
+            while ((error = GL.GetError()) != OpenTK.Graphics.OpenGL.ErrorCode.NoError)
             {
                 System.Console.WriteLine($"Error: {title} ({i++}) - {error}");
             }
