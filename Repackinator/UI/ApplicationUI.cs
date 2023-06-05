@@ -5,6 +5,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using SixLabors.ImageSharp.PixelFormats;
 
 //TODO: on repack close cancel
 
@@ -250,6 +251,14 @@ namespace Repackinator.UI
             m_window = new Window();
             m_window.Title = $"Repackinator - {m_version}{admin}";
             m_window.Size = new OpenTK.Mathematics.Vector2i(1280, 720);
+
+            var resourceBytes = ResourceLoader.GetEmbeddedResourceBytes("Repackinator.Resources.icon.png");
+            using var resourceImage = SixLabors.ImageSharp.Image.Load<Rgba32>(resourceBytes);
+            var pixelSpan = new Span<Rgba32>(new Rgba32[resourceImage.Width * resourceImage.Height]);
+            resourceImage.CopyPixelDataTo(pixelSpan);
+            var byteSpan = MemoryMarshal.AsBytes(pixelSpan);
+            var iconImage = new OpenTK.Windowing.Common.Input.Image(resourceImage.Width, resourceImage.Height, byteSpan.ToArray());
+            m_window.Icon = new OpenTK.Windowing.Common.Input.WindowIcon(iconImage);
 
             m_controller = new ImGuiController(m_window.Width, m_window.Height);
 

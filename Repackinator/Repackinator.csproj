@@ -21,12 +21,14 @@
 	<ItemGroup>
 	  <None Remove="AltRepackList.json" />
 	  <None Remove="Resources\attach.xbe" />
+	  <None Remove="Resources\icon.png" />
 	  <None Remove="Resources\TeamResurgent.jpg" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<EmbeddedResource Include="Resources\ARIALUNI.TTF" />
 		<EmbeddedResource Include="Resources\attach.xbe" />
+		<EmbeddedResource Include="Resources\icon.png" />
 		<EmbeddedResource Include="Resources\Stuart Wilson - Not Another Comic Bakery Remix.mp3" />
 		<EmbeddedResource Include="Resources\imgui-vertex.glsl" />
 		<EmbeddedResource Include="Resources\imgui-frag.glsl" />
