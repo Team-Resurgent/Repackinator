@@ -10,7 +10,8 @@ namespace Repackinator.UI
     {
         public enum PickerMode
         {
-            File,
+            FileOpen,
+            FileSave,
             Folder
         }
 
@@ -38,6 +39,14 @@ namespace Repackinator.UI
             set => _selectedFolder = value;
         }
 
+        private string _saveName = string.Empty;
+        public string SaveName
+        {
+            get => _saveName;
+            set => _saveName = value;
+        }
+
+        public string Title { get; set; } = "Picker";
         public string SelectedFile { get; private set; } = string.Empty;
         public bool Cancelled { get; private set; } = false;
         public string[] AllowedFiles { get; set; } = Array.Empty<string>();
@@ -58,8 +67,8 @@ namespace Repackinator.UI
 
         public PathPicker()
         {
-            Mode = PickerMode.File;
-            AllowedFiles = new[] { "*.*" };
+            Mode = PickerMode.FileOpen;
+            AllowedFiles = new[] { "*.bin" };
             ShowHidden = false;
         }
 
@@ -105,8 +114,8 @@ namespace Repackinator.UI
             var drawList = ImGui.GetWindowDrawList();
             for (var i = 0; i < points.Count; i += 2)
             {
-                var vector1 = points[i] / 100 * size;
-                var vector2 = points[i + 1] / 100 * size;
+                var vector1 = (points[i] / 100) * size;
+                var vector2 = (points[i + 1] / 100) * size;
                 drawList.AddLine(location + vector1, location + vector2, iconColor);
             }
         }
@@ -215,10 +224,11 @@ namespace Repackinator.UI
                 var lineHeight = ImGui.GetTextLineHeight();
                 ImGui.SetCursorPosX(lineHeight * 2);
 
-                var isSelected = SelectedFile == fse;
+                var isSelected = SelectedFile == Path.GetFileName(fse);
                 if (ImGui.Selectable(name, isSelected, ImGuiSelectableFlags.DontClosePopups | ImGuiSelectableFlags.AllowDoubleClick))
                 {
-                    SelectedFile = fse;
+                    SelectedFile = Path.GetFileName(fse);
+                    SaveName = Path.GetFileName(fse);
                     if (ImGui.IsMouseDoubleClicked(0))
                     {
                         Cancelled = false;
@@ -239,7 +249,7 @@ namespace Repackinator.UI
             {
                 _showModal = false;
                 _open = true;
-                ImGui.OpenPopup($"{Mode} Browser");
+                ImGui.OpenPopup(Title);
             }
 
             if (!_open)
@@ -247,7 +257,7 @@ namespace Repackinator.UI
                 return false;
             }
 
-            if (!ImGui.BeginPopupModal($"{Mode} Browser"))
+            if (!ImGui.BeginPopupModal(Title))
             {
                 return false;
             }
@@ -256,16 +266,26 @@ namespace Repackinator.UI
 
             if (ImGui.IsWindowAppearing())
             {
-                ImGui.SetWindowSize(new Vector2(800, 600));
+                ImGui.SetWindowSize(new Vector2(760, 480));
+                ImGui.SetWindowPos(new Vector2(50, 40));
             }
 
             var size = ImGui.GetWindowSize();
 
             ImGui.PushItemWidth(size.X - 16);
-            ImGui.InputText("###file-path", ref _selectedFolder, 300, ImGuiInputTextFlags.ReadOnly);
+            ImGui.InputText("###file-path", ref _selectedFolder, 300);
             ImGui.Spacing();
 
-            if (ImGui.BeginChildFrame(1, new Vector2(200, size.Y - 104), ImGuiWindowFlags.None))
+            if (Mode == PickerMode.FileSave)
+            {
+                ImGui.PushItemWidth(size.X - 16);
+                ImGui.InputText("###file-name", ref _saveName, 300);
+                ImGui.Spacing();
+            }
+
+            var frameYOffset = ImGui.GetCursorPosY();
+
+            if (ImGui.BeginChildFrame(1, new Vector2(200, size.Y - (46 + frameYOffset)), ImGuiWindowFlags.None))
             {
                 var specialFolders = GetSpecialFolders();
                 foreach (var specialFolder in specialFolders)
@@ -280,24 +300,28 @@ namespace Repackinator.UI
             }
 
             ImGui.SameLine();
-            if (ImGui.BeginChildFrame(2, new Vector2(size.X - 224, size.Y - 104), ImGuiWindowFlags.None))
+
+            if (ImGui.BeginChildFrame(2, new Vector2(size.X - 224, size.Y - (46 + frameYOffset)), ImGuiWindowFlags.None))
             {
-                var directoryInfo = new DirectoryInfo(_selectedFolder);
-                if (directoryInfo.Parent != null)
+                if (Directory.Exists(_selectedFolder))
                 {
-                    if (ImGui.Selectable("..", false, ImGuiSelectableFlags.DontClosePopups))
+                    var directoryInfo = new DirectoryInfo(_selectedFolder);
+                    if (directoryInfo.Parent != null)
                     {
-                        _selectedFolder = directoryInfo.Parent.FullName;
+                        if (ImGui.Selectable("..", false, ImGuiSelectableFlags.DontClosePopups))
+                        {
+                            _selectedFolder = directoryInfo.Parent.FullName;
+                        }
                     }
-                }
-                try
-                {
-                    result |= ProcessChildFolders(directoryInfo.FullName);
-                    result |= ProcessChildFiles(directoryInfo.FullName);
-                }
-                catch
-                {
-                    Debug.Print($"Unable to process path '{directoryInfo.FullName}'.");
+                    try
+                    {
+                        result |= ProcessChildFolders(directoryInfo.FullName);
+                        result |= ProcessChildFiles(directoryInfo.FullName);
+                    }
+                    catch
+                    {
+                        Debug.Print($"Unable to process path '{directoryInfo.FullName}'.");
+                    }
                 }
                 ImGui.EndChildFrame();
             }
@@ -314,7 +338,8 @@ namespace Repackinator.UI
             if (ImGui.Button(ButtonName, new Vector2(100, 30)))
             {
                 var valid = false;
-                valid |= Mode == PickerMode.File && !string.IsNullOrEmpty(SelectedFile);
+                valid |= Mode == PickerMode.FileSave;
+                valid |= Mode == PickerMode.FileOpen && !string.IsNullOrEmpty(SelectedFile);
                 valid |= Mode == PickerMode.Folder && !string.IsNullOrEmpty(SelectedFolder);
                 if (valid)
                 {
