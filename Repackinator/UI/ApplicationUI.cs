@@ -312,6 +312,7 @@ namespace Repackinator.UI
         private void RenderUI()
         {
             if (m_window == null ||
+                m_controller == null ||
                 m_inputFolderPicker == null ||
                 m_outputFolderPicker == null ||
                 m_exportFolderPicker == null ||
