@@ -324,7 +324,7 @@ namespace Repackinator.UI
                 ImGui.Render();
             }
 
-            SetPerFrameImGuiData(1 / 60f);
+            SetPerFrameImGuiData(deltaSeconds);
             UpdateImGuiInput(wnd);
 
             _frameBegun = true;
