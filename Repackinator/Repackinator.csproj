@@ -15,6 +15,7 @@
 		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
 		<OutputType>exe</OutputType>
 		<AssemblyName>repackinator</AssemblyName>
+		<Platforms>x64</Platforms>
 	</PropertyGroup>
 
 	<ItemGroup>

@@ -34,11 +34,6 @@ namespace Repackinator.UI
 
         private int _splashTexture;
 
-        private bool _controlDown;
-        private bool _shiftDown;
-        private bool _altDown;
-        private bool _winKeyDown;
-
         private int _windowWidth;
         private int _windowHeight;
         private Vector2 _scaleFactor = Vector2.One;
