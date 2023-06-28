@@ -478,15 +478,13 @@ namespace Repackinator.Actions
             var processOutput = string.Empty;
             var deleteProcessOutput = false;
 
-            var inputSlices = Utility.GetSlicesFromFile(inputFile);
-
             try
             {
                 var processStopwatch = new Stopwatch();
                 processStopwatch.Start();
 
                 var xbeData = Array.Empty<byte>();
-                using (var xisoInput = ImageImputHelper.GetImageInput(inputSlices))
+                using (var xisoInput = ImageImputHelper.GetImageInput(inputFile))
                 {
                     if (!XisoUtility.TryGetDefaultXbeFromXiso(xisoInput, ref xbeData))
                     {
@@ -670,7 +668,7 @@ namespace Repackinator.Actions
                         SendProgress();
                     });
 
-                    using (var cciInput = ImageImputHelper.GetImageInput(inputSlices))
+                    using (var cciInput = ImageImputHelper.GetImageInput(inputFile))
                     {
                         if (!XisoUtility.CreateCCI(cciInput, processOutput, isoFileName, ".cci", scrub, trimmedScrub, repackProgress, cancellationToken))
                         {
@@ -705,7 +703,7 @@ namespace Repackinator.Actions
                         SendProgress();
                     });
 
-                    using (var isoInput = ImageImputHelper.GetImageInput(inputSlices))
+                    using (var isoInput = ImageImputHelper.GetImageInput(inputFile))
                     {
                         if (!XisoUtility.Split(isoInput, processOutput, isoFileName, ".iso", scrub, trimmedScrub, noSplit, repackProgress, cancellationToken))
                         {

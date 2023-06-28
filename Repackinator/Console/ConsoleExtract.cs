@@ -53,10 +53,10 @@ namespace Repackinator.Console
                 }
 
                 System.Console.WriteLine("Calculating Checksum From:");
-                var inputSlices = Utility.GetSlicesFromFile(Input);
-                foreach (var inputSlice in inputSlices)
+                var imageInput = ImageImputHelper.GetImageInput(Input);
+                foreach (var inputPart in imageInput.Parts)
                 {
-                    System.Console.WriteLine(Path.GetFileName(inputSlice));
+                    System.Console.WriteLine(Path.GetFileName(inputPart));
                 }
 
                 System.Console.WriteLine("Extracting...");
@@ -68,8 +68,6 @@ namespace Repackinator.Console
                 }
                 outputPath = Path.Combine(outputPath, Utility.GetNameFromSlice(Input));
                 Directory.CreateDirectory(outputPath);
-
-                var imageInput = ImageImputHelper.GetImageInput(inputSlices);
 
                 var previousProgress = -1.0f;
                 XisoUtility.GetFileInfoFromXiso(imageInput, f => {

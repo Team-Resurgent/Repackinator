@@ -39,6 +39,10 @@ namespace Repackinator.Console
         public static void Process(string version, string[] args)
         {
             var config = Config.LoadConfig();
+            if (config == null)
+            {
+                throw new Exception("Config error.");
+            }
 
             try
             {
@@ -84,17 +88,17 @@ namespace Repackinator.Console
                     }
 
                     System.Console.WriteLine("Comparing:");
-                    var firstSlices = Utility.GetSlicesFromFile(config.CompareFirst);
-                    foreach (var firstSlice in firstSlices)
+                    var firstInput = ImageImputHelper.GetImageInput(config.CompareFirst);
+                    foreach (var firstPart in firstInput.Parts)
                     {
-                        System.Console.WriteLine(Path.GetFileName(firstSlice));
+                        System.Console.WriteLine(Path.GetFileName(firstPart));
                     }
 
                     System.Console.WriteLine("Against:");
-                    var secondSlices = Utility.GetSlicesFromFile(config.CompareSecond);
-                    foreach (var secondSlice in secondSlices)
+                    var secondInput = ImageImputHelper.GetImageInput(config.CompareSecond);
+                    foreach (var secondPart in secondInput.Parts)
                     {
-                        System.Console.WriteLine(Path.GetFileName(secondSlice));
+                        System.Console.WriteLine(Path.GetFileName(secondPart));
                     }
 
                     System.Console.WriteLine();
@@ -102,7 +106,7 @@ namespace Repackinator.Console
                     var previousProgress = -1.0f;
 
                     System.Console.WriteLine("Processing...");
-                    XisoUtility.CompareXISO(ImageImputHelper.GetImageInput(firstSlices), ImageImputHelper.GetImageInput(secondSlices), s =>
+                    XisoUtility.CompareXISO(firstInput, secondInput, s =>
                     {
                         System.Console.WriteLine(s);
                     }, p =>

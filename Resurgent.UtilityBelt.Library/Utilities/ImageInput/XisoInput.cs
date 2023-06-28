@@ -26,6 +26,9 @@ namespace Resurgent.UtilityBelt.Library.Utilities.ImageInput
 
         public long SectorOffset => m_totalSectors == Constants.RedumpSectors ? Constants.VideoSectors : 0U;
 
+        private string[] m_parts = Array.Empty<string>();
+        public string[] Parts => m_parts;
+
         public byte[] ReadSectors(long startSector, long count)
         {
             if (m_cacheStartSector == startSector && m_cacheSectorData.Length == count << 11)
@@ -100,6 +103,8 @@ namespace Resurgent.UtilityBelt.Library.Utilities.ImageInput
 
         public XisoInput(string[] parts)
         {
+            m_parts = parts;
+
             var totalSectors = 0L;
             var startSector = 0L;
             m_slices = new List<IsoSliceInfo>();  

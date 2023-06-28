@@ -1,7 +1,7 @@
 ﻿namespace Resurgent.UtilityBelt.Library.Utilities.ImageInput
 {
     public interface IImageInput : IDisposable
-    {        
+    {
         long TotalSectors { get; }
         long SectorOffset { get; }
         byte ReadByte(long position);
@@ -10,5 +10,6 @@
         ushort ReadUint16(long position);
         uint ReadUint32(long position);
         int SectorInSlice(long sector);
+        string[] Parts { get;}
     }
 }
