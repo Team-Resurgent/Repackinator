@@ -24,8 +24,6 @@ namespace Resurgent.UtilityBelt.Library.Utilities.ImageInput
         private long m_totalSectors = 0;
         public long TotalSectors => m_totalSectors;
 
-        public long SectorOffset => m_totalSectors == Constants.RedumpSectors ? Constants.VideoSectors : 0U;
-
         private string[] m_parts = Array.Empty<string>();
         public string[] Parts => m_parts;
 

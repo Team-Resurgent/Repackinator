@@ -3,7 +3,6 @@
     public interface IImageInput : IDisposable
     {
         long TotalSectors { get; }
-        long SectorOffset { get; }
         byte ReadByte(long position);
         byte[] ReadBytes(long position, uint length);
         byte[] ReadSectors(long startSector, long count);
