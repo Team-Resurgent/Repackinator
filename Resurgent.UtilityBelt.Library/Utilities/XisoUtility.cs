@@ -41,10 +41,12 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 progress(0);
             }
 
+            var sectorOffset = input.TotalSectors == Constants.RedumpSectors ? Constants.VideoSectors : 0U;
+
             var dataSectors = new HashSet<uint>();
 
             var position = 20U;
-            var headerSector = (uint)input.SectorOffset + 0x20U;
+            var headerSector = (uint)sectorOffset + 0x20U;
             dataSectors.Add(headerSector);
             dataSectors.Add(headerSector + 1);
             position += headerSector << 11;
@@ -73,7 +75,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 treeNodes.RemoveAt(0);
                 processedNodes++;
 
-                var currentPosition = (input.SectorOffset << 11) + currentTreeNode.DirectoryPos + currentTreeNode.Offset * 4;
+                var currentPosition = (sectorOffset << 11) + currentTreeNode.DirectoryPos + currentTreeNode.Offset * 4;
 
                 for (var i = currentPosition >> 11; i < (currentPosition >> 11) + ((currentTreeNode.DirectorySize - (currentTreeNode.Offset * 4) + 2047) >> 11); i++)
                 {
@@ -136,7 +138,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 {
                     if (size > 0)
                     {
-                        for (var i = (input.SectorOffset + sector); i < (input.SectorOffset + sector) + ((size + 2047) >> 11); i++)
+                        for (var i = (sectorOffset + sector); i < (sectorOffset + sector) + ((size + 2047) >> 11); i++)
                         {
                             dataSectors.Add((uint)i);
                         }
@@ -176,8 +178,10 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 progress(0);
             }
 
+            var sectorOffset = input.TotalSectors == Constants.RedumpSectors ? Constants.VideoSectors : 0U;
+
             var position = 20U;
-            var headerSector = (uint)input.SectorOffset + 0x20U;
+            var headerSector = (uint)sectorOffset + 0x20U;
             position += headerSector << 11;
 
             var rootSector = input.ReadUint32(position);
@@ -204,7 +208,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 treeNodes.RemoveAt(0);
                 processedNodes++;
 
-                var currentPosition = (input.SectorOffset << 11) + currentTreeNode.DirectoryPos + currentTreeNode.Offset * 4;
+                var currentPosition = (sectorOffset << 11) + currentTreeNode.DirectoryPos + currentTreeNode.Offset * 4;
 
                 if ((currentTreeNode.Offset * 4) >= currentTreeNode.DirectorySize)
                 {
@@ -262,8 +266,8 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                             Path = Path.Combine(currentTreeNode.Path, filename),
                             Filename = filename,
                             Size = size,
-                            StartSector = (int)(input.SectorOffset + sector),
-                            EndSector = (int)((input.SectorOffset + sector) + ((size + 2047) >> 11) - 1),
+                            StartSector = (int)(sectorOffset + sector),
+                            EndSector = (int)((sectorOffset + sector) + ((size + 2047) >> 11) - 1),
                             InSlices = "N/A"
                         });
                     }
@@ -272,8 +276,8 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 {
                     if (size > 0)
                     {
-                        var startSector = (int)(input.SectorOffset + sector);
-                        var endSector = (int)((input.SectorOffset + sector) + ((size + 2047) >> 11) - 1);
+                        var startSector = (int)(sectorOffset + sector);
+                        var endSector = (int)((sectorOffset + sector) + ((size + 2047) >> 11) - 1);
                         var stringBuilder = new StringBuilder();
                         var slices = new List<int>();
                         if (size > 0)
@@ -345,6 +349,8 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
         public static HashSet<uint> GetSecuritySectorsFromXiso(IImageInput input, HashSet<uint> datasecs, bool compareMode, Action<float>? progress, CancellationToken cancellationToken)
         {
+            var sectorOffset = input.TotalSectors == Constants.RedumpSectors ? Constants.VideoSectors : 0U;
+
             var securitySectors = new HashSet<uint>();            
             if (input.TotalSectors != Constants.RedumpSectors && input.TotalSectors != Constants.IsoSectors)
             {
@@ -363,7 +369,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
             for (uint sectorIndex = 0; sectorIndex <= endSector; sectorIndex++)
             {
-                var currentSector = (uint)(input.SectorOffset + sectorIndex);
+                var currentSector = (uint)(sectorOffset + sectorIndex);
 
                 byte[] sectorBuffer = input.ReadSectors(currentSector, 1);
 
@@ -446,8 +452,10 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
         public static bool TryGetDefaultXbeFromXiso(IImageInput input, ref byte[] xbeData)
         {
+            var sectorOffset = input.TotalSectors == Constants.RedumpSectors ? Constants.VideoSectors : 0U;
+
             var position = 20U;
-            var headerSector = (uint)input.SectorOffset + 0x20U;
+            var headerSector = (uint)sectorOffset + 0x20U;
             position += headerSector << 11;
 
             var rootSector = input.ReadUint32(position);
@@ -470,7 +478,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 var currentTreeNode = treeNodes[0];
                 treeNodes.RemoveAt(0);
 
-                var currentPosition = (input.SectorOffset << 11) + currentTreeNode.DirectoryPos + currentTreeNode.Offset * 4;
+                var currentPosition = (sectorOffset << 11) + currentTreeNode.DirectoryPos + currentTreeNode.Offset * 4;
 
                 if ((currentTreeNode.Offset * 4) >= currentTreeNode.DirectorySize)
                 {
@@ -499,7 +507,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                     var processed = 0U;
                     while (processed < size)
                     {
-                        var buffer = input.ReadSectors(sector + input.SectorOffset, 1);
+                        var buffer = input.ReadSectors(sector + sectorOffset, 1);
                         var bytesToCopy = Math.Min(size - processed, 2048);
                         Array.Copy(buffer, 0, result, processed, bytesToCopy);
                         sector++;
@@ -544,17 +552,19 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
         public static void CompareXISO(IImageInput input1, IImageInput input2, Action<string> log, Action<float>? progress)
         {
-            if (input1.SectorOffset > 0)
+            var sectorOffset1 = input1.TotalSectors == Constants.RedumpSectors ? Constants.VideoSectors : 0U;
+            if (sectorOffset1 > 0)
             {
                 log("First contains a video partition, compare will ignore those sectors.");
             }
 
-            if (input2.SectorOffset > 0)
+            var sectorOffset2 = input2.TotalSectors == Constants.RedumpSectors ? Constants.VideoSectors : 0U;
+            if (sectorOffset2 > 0)
             {
                 log("Second contains a video partition, compare will ignore those sectors.");
             }
 
-            if (input1.TotalSectors - input1.SectorOffset != input2.TotalSectors - input2.SectorOffset)
+            if (input1.TotalSectors - sectorOffset1 != input2.TotalSectors - sectorOffset2)
             {
                 log("Expected sector counts do not match, assuming image could be trimmed.");
             }
@@ -714,13 +724,13 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 }
                 else if (input1.TotalSectors != Constants.RedumpSectors)
                 {
-                    securitySector1 = securitySectorsCompare[i] - (uint)input2.SectorOffset;
-                    lastSecuritySector = i > 0 ? securitySectorsCompare[i - 1] - (uint)input2.SectorOffset : lastSecuritySector;
+                    securitySector1 = securitySectorsCompare[i] - (uint)sectorOffset2;
+                    lastSecuritySector = i > 0 ? securitySectorsCompare[i - 1] - (uint)sectorOffset2 : lastSecuritySector;
                 }
-                else if (input2.TotalSectors != Constants.RedumpSectors)
+                else if (input2.TotalSectors != Constants.RedumpSectors)    
                 {
-                    securitySector1 = securitySectorsCompare[i] + (uint)input1.SectorOffset;
-                    lastSecuritySector = i > 0 ? securitySectorsCompare[i - 1] - (uint)input1.SectorOffset : lastSecuritySector;
+                    securitySector1 = securitySectorsCompare[i] + (uint)sectorOffset1;
+                    lastSecuritySector = i > 0 ? securitySectorsCompare[i - 1] - (uint)sectorOffset1 : lastSecuritySector;
                 }
                 else
                 {
@@ -743,7 +753,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                     break;
                 }
 
-                if (securitySector1 < minTotalSectors + input1.SectorOffset)        // only hash sectors that are available to hash in the input that has lower file size
+                if (securitySector1 < minTotalSectors + sectorOffset1)        // only hash sectors that are available to hash in the input that has lower file size
                 {
                     var buffer = input1.ReadSectors(securitySector1, 1);
                     securitySectorsHash1.Append(buffer);
@@ -789,13 +799,13 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 }
                 else if (input2.TotalSectors != Constants.RedumpSectors)
                 {
-                    securitySector2 = securitySectorsCompare[i] - (uint)input1.SectorOffset;
-                    lastSecuritySector = i > 0 ? securitySectorsCompare[i - 1] - (uint)input1.SectorOffset : lastSecuritySector;
+                    securitySector2 = securitySectorsCompare[i] - (uint)sectorOffset1;
+                    lastSecuritySector = i > 0 ? securitySectorsCompare[i - 1] - (uint)sectorOffset1 : lastSecuritySector;
                 }
                 else if (input1.TotalSectors != Constants.RedumpSectors)
                 {
-                    securitySector2 = securitySectorsCompare[i] + (uint)input2.SectorOffset;
-                    lastSecuritySector = i > 0 ? securitySectorsCompare[i - 1] - (uint)input2.SectorOffset : lastSecuritySector;
+                    securitySector2 = securitySectorsCompare[i] + (uint)sectorOffset2;
+                    lastSecuritySector = i > 0 ? securitySectorsCompare[i - 1] - (uint)sectorOffset2 : lastSecuritySector;
                 }
                 else
                 {
@@ -818,7 +828,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                     break;
                 }
 
-                if (securitySector2 < minTotalSectors + input2.SectorOffset)
+                if (securitySector2 < minTotalSectors + sectorOffset2)
                 {
                     var buffer = input2.ReadSectors(securitySector2, 1);
                     securitySectorsHash2.Append(buffer);
@@ -875,6 +885,8 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 progress(0, 0);
             }
 
+            var sectorOffset = input.TotalSectors == Constants.RedumpSectors ? Constants.VideoSectors : 0U;
+
             Action<float> progress1 = (percent) => {
                 if (progress != null)
                 {
@@ -907,7 +919,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 }
             }
 
-            var sectorSplit = (uint)(endSector - input.SectorOffset) / 2;
+            var sectorSplit = (uint)(endSector - sectorOffset) / 2;
 
             var partStream = new FileStream(Path.Combine(outputPath, $"{name}.1{extension}"), FileMode.Create, FileAccess.Write);
             var partWriter = new BinaryWriter(partStream);
@@ -918,9 +930,9 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             try
             {
 
-                for (var i = (uint)input.SectorOffset; i < endSector; i++)
+                for (var i = (uint)sectorOffset; i < endSector; i++)
                 {
-                    if (noSplit == false && hasSplit == false && i - input.SectorOffset >= sectorSplit)
+                    if (noSplit == false && hasSplit == false && i - sectorOffset >= sectorSplit)
                     {
                         hasSplit = true;
                         partWriter.Dispose();
@@ -946,7 +958,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
                     if (progress != null)
                     {
-                        progress(2, i / (float)(endSector - input.SectorOffset));
+                        progress(2, i / (float)(endSector - sectorOffset));
                     }
 
                     if (cancellationToken.IsCancellationRequested)
