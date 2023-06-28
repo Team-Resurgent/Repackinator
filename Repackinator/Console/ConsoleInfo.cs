@@ -53,15 +53,15 @@ namespace Repackinator.Console
                 }
 
                 System.Console.WriteLine("Getting Info From:");
-                var inputSlices = Utility.GetSlicesFromFile(Input);
-                foreach (var inputSlice in inputSlices)
+                var imageInput = ImageImputHelper.GetImageInput(Input);
+                foreach (var inputPart in imageInput.Parts)
                 {
-                    System.Console.WriteLine(Path.GetFileName(inputSlice));
+                    System.Console.WriteLine(Path.GetFileName(inputPart));
                 }
 
                 System.Console.WriteLine("Processing...");
                 System.Console.WriteLine($"Type,Filename,Size,StartSector,EndSector,InSlices");
-                XisoUtility.GetFileInfoFromXiso(ImageImputHelper.GetImageInput(inputSlices), f => {
+                XisoUtility.GetFileInfoFromXiso(imageInput, f => {
                     var type = f.IsFile ? "F" : "D";
                     var startSector = f.StartSector > 0 ? f.StartSector.ToString() : "N/A";
                     var endSector = f.EndSector > 0 ? f.EndSector.ToString() : "N/A";

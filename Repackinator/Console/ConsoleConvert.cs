@@ -89,10 +89,10 @@ namespace Repackinator.Console
                 }
 
                 System.Console.WriteLine("Converting:");
-                var inputSlices = Utility.GetSlicesFromFile(input);
-                foreach (var inputSlice in inputSlices)
+                var imageInput = ImageImputHelper.GetImageInput(input);
+                foreach (var inputPart in imageInput.Parts)
                 {
-                    System.Console.WriteLine(Path.GetFileName(inputSlice));
+                    System.Console.WriteLine(Path.GetFileName(inputPart));
                 }
 
                 outputPath = Path.Combine(outputPath, $"Converted{outputSuffix}");
@@ -104,7 +104,7 @@ namespace Repackinator.Console
                 {
                     if (Compress)
                     {
-                        XisoUtility.CreateCCI(ImageImputHelper.GetImageInput(inputSlices), outputPath, outputNameWithoutExtension, ".cci", scrub, trimmedScrub, (s, p) =>
+                        XisoUtility.CreateCCI(imageInput, outputPath, outputNameWithoutExtension, ".cci", scrub, trimmedScrub, (s, p) =>
                         {
                             var amount = (float)Math.Round(p * 100);
                             if (!Quiet && amount != previousProgress)
@@ -117,7 +117,7 @@ namespace Repackinator.Console
                     }
                     else
                     {
-                        XisoUtility.Split(ImageImputHelper.GetImageInput(inputSlices), outputPath, outputNameWithoutExtension, ".iso", scrub, trimmedScrub, false, (s, p) =>
+                        XisoUtility.Split(imageInput, outputPath, outputNameWithoutExtension, ".iso", scrub, trimmedScrub, false, (s, p) =>
                         {
                             var amount = (float)Math.Round(p * 100);
                             if (!Quiet && amount != previousProgress)
