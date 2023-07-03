@@ -12,5 +12,11 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             handle.Free();
             return theStructure;
         }
+
+        public static int SizeOf<T>()
+        {
+            return Marshal.SizeOf(typeof(T));
+        }
+
     }
 }
