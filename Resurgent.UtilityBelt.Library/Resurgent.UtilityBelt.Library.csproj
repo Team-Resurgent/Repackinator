@@ -5,14 +5,16 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<Platforms>x64</Platforms>
+		<AllowUnsafeBlocks>False</AllowUnsafeBlocks>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="K4os.Compression.LZ4" Version="1.2.16" />
+		<PackageReference Include="K4os.Compression.LZ4" Version="1.3.5" />
 		<PackageReference Include="LibDeflate.NET" Version="1.9.1" />
 		<PackageReference Include="SharpZipLib" Version="1.4.1" />
 		<PackageReference Include="SixLabors.ImageSharp" Version="2.1.3" />
 		<PackageReference Include="System.IO.Hashing" Version="7.0.0" />
+		<PackageReference Include="XexUnpack" Version="1.0.0" />
 	</ItemGroup>
 
 </Project>
