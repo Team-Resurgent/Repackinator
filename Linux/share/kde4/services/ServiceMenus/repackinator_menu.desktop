@@ -1,0 +1,85 @@
+[Desktop Entry]
+Actions=ConvertToISO;ConvertToISOScrub;ConvertToISOTrimmedScrub;ConvertToCCI;ConvertToCCIScrub;ConvertToCCITrimmedScrub;CompareISO1;CompareISO2;CompareCCI1;CompareCCI2;InfoCCIorISO;ChecksumSectorData;ExtractCCIorISO;
+Comment[en_US]=OG Xbox XISO and CCI image creation tool context menu
+Comment=OG Xbox XISO and CCI image creation tool context menu
+GenericName[en_US]=Repackinator
+GenericName=Repackinator
+Icon=repackinator
+Keywords=Utility;Games;Xbox;XISO
+MimeType=application/x-nintendo-3ds-rom;application/x-cd-image;application/x-cci;application/x-compressed-iso;
+Name[en_US]=Repackinator
+Name=Repackinator
+Type=Service
+X-DBUS-ServiceName=
+X-DBUS-StartupType=none
+X-KDE-Icon=repackinator
+X-KDE-Priority=TopLevel
+X-KDE-ServiceTypes=KonqPopupMenu/Plugin
+X-KDE-Submenu=Repackinator
+X-KDE-SubstituteUID=false
+X-KDE-Username=
+
+[Desktop Action ConvertToISO]
+Exec=gnome-terminal -- repackinator -a convert -w -i %U
+Icon=repackinator
+Name=Convert To ISO
+
+[Desktop Action ConvertToISOScrub]
+Exec=gnome-terminal -- repackinator -a convert -s Scrub -w -i %U
+Icon=repackinator
+Name=Convert To ISO (Scrub)
+
+[Desktop Action ConvertToISOTrimmedScrub]
+Exec=gnome-terminal -- repackinator -a convert -s TrimmedScrub -w -i %U
+Icon=repackinator
+Name=Convert To ISO (Scrub + Truncate)
+
+[Desktop Action ConvertToCCI]
+Exec=gnome-terminal -- repackinator -a convert -c -w -i %U
+Icon=repackinator
+Name=Convert To CCI
+
+[Desktop Action ConvertToCCIScrub]
+Exec=gnome-terminal -- repackinator -a convert -c -s Scrub -w -i %U
+Icon=repackinator
+Name=Convert To CCI (Scrub)
+
+[Desktop Action ConvertToCCITrimmedScrub]
+Exec=gnome-terminal -- repackinator -a convert -c -s TrimmedScrub -w -i %U
+Icon=repackinator
+Name=Convert To CCI (Scrub + Truncate)
+
+[Desktop Action CompareISO1]
+Exec=gnome-terminal -- repackinator -a compare -f %U
+Icon=repackinator
+Name=Compare ISO ↘ 1st
+
+[Desktop Action CompareISO2]
+Exec=gnome-terminal -- repackinator -a compare -c -w -s %U
+Icon=repackinator
+Name=Compare ISO ↗ 2nd 
+
+[Desktop Action CompareCCI1]
+Exec=gnome-terminal -- repackinator -a compare -f %U
+Icon=repackinator
+Name=Compare CCI ↘ 1st
+
+[Desktop Action CompareCCI2]
+Exec=gnome-terminal -- repackinator -a compare -c -w -s %U
+Icon=repackinator
+Name=Compare CCI ↗ 2nd
+
+[Desktop Action InfoCCIorISO]
+Exec=gnome-terminal -- repackinator -a info -w -i %U
+Icon=repackinator
+Name=Information CCI or ISO
+
+[Desktop Action ChecksumSectorData]
+Exec=gnome-terminal -- repackinator -a checksum -w -i %U
+Icon=repackinator
+Name=Checksum Sector Data (SHA256)
+
+[Desktop Action ExtractCCIorISO]
+Exec=gnome-terminal -- repackinator -a extract -w -i %U
+Icon=repackinator
+Name=Extract CCI or ISO

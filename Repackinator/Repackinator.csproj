@@ -1,39 +1,89 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<OutputType>Exe</OutputType>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>net7.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<ApplicationIcon>..\Artwork\icon1.ico</ApplicationIcon>
+		<PublishTrimmed>false</PublishTrimmed>
+		<PublishSingleFile Condition="'$(Configuration)' == 'Release'">true</PublishSingleFile>
+		<SelfContained Condition="'$(Configuration)' == 'Release'">true</SelfContained>
+		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+		<RuntimeIdentifiers>win-x64;linux-x64;osx-x64</RuntimeIdentifiers>
+		<PublishReadyToRun>true</PublishReadyToRun>
+		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+		<OutputType>exe</OutputType>
+		<AssemblyName>repackinator</AssemblyName>
+		<Platforms>x64</Platforms>
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <None Remove="AltRepackList.json" />
+	  <None Remove="Resources\attach.xbe" />
+	  <None Remove="Resources\icon.png" />
+	  <None Remove="Resources\TeamResurgent.jpg" />
+	</ItemGroup>
 
 	<ItemGroup>
-    <None Remove="Resources\7za.exe" />
-    <None Remove="Resources\attach.xbe" />
-    <None Remove="Resources\dd.exe" />
-    <None Remove="Resources\fSplit.exe" />
-    <None Remove="Resources\xdvdfs_maker.exe" />
-  </ItemGroup>
+		<EmbeddedResource Include="Resources\ARIALUNI.TTF" />
+		<EmbeddedResource Include="Resources\attach.xbe" />
+		<EmbeddedResource Include="Resources\icon.png" />
+		<EmbeddedResource Include="Resources\Stuart Wilson - Not Another Comic Bakery Remix.mp3" />
+		<EmbeddedResource Include="Resources\imgui-vertex.glsl" />
+		<EmbeddedResource Include="Resources\imgui-frag.glsl" />
+		<EmbeddedResource Include="Resources\TeamResurgent.jpg" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\7za.exe">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Resources\attach.xbe" />
-    <EmbeddedResource Include="Resources\dd.exe" />
-    <EmbeddedResource Include="Resources\fSplit.exe">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="..\Artwork\icon1.ico">
+		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
+		<Content Include="..\AltRepackList.json" Link="AltRepackList.json">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="..\RepackList.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+		</Content>
+		<Content Include="..\README.md">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+		</Content>
+		<Content Include="..\Repackinator.nfo">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+		</Content>
+		<Content Include="..\Linux\**\*.*" Condition="'$(RuntimeIdentifier)' == 'linux-x64'">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+		</Content>
+		<Content Include="bass.dll" Condition="'$(RuntimeIdentifier)' == 'win-x64'">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+		</Content>
+		<Content Include="libbass.so" Condition="'$(RuntimeIdentifier)' == 'linux-x64'">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+		</Content>
+		<Content Include="libbass.dylib" Condition="'$(RuntimeIdentifier)' == 'osx-x64'">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+		</Content>
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Mono.Options" Version="6.12.0.148" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.1" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Downloader" Version="3.0.4" />
+		<PackageReference Include="ImGui.NET" Version="1.89.5" />
+		<PackageReference Include="ManagedBass.FftSignalProvider" Version="1.0.1" />
+		<PackageReference Include="Mono.Options" Version="6.12.0.148" />
+		<PackageReference Include="OpenTK" Version="4.7.7" />
+		<PackageReference Include="SharpCompress" Version="0.33.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Resurgent.UtilityBelt.Library\Resurgent.UtilityBelt.Library.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Repackinator.Localization\Repackinator.Localization.csproj" />
+		<ProjectReference Include="..\Resurgent.UtilityBelt.Library\Resurgent.UtilityBelt.Library.csproj" />
+	</ItemGroup>
 
 </Project>

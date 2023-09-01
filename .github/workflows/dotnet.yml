@@ -1,0 +1,73 @@
+name: BuildRepackinator
+
+on:
+  push:
+    branches: [ "main", "workflow" ]
+  pull_request:
+    branches: [ "main", "workflow" ]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        arch: [x64]
+        os_flavor: [win-x64,linux-x64,osx-x64]
+        project: [Repackinator]
+        project_lowercase: [repackinator]
+        include:
+          - os_flavor: win-x64
+            archive_ext: zip
+          - os_flavor: linux-x64
+            archive_ext: tar
+          - os_flavor: osx-x64
+            archive_ext: tar
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 7.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore --no-self-contained
+    - name: Publish
+      run: dotnet publish ./${{ matrix.project }}/${{ matrix.project }}.csproj -p:Platform=${{ matrix.arch }} -r ${{ matrix.os_flavor }} -c Release --self-contained true -p:DebugType=None -p:DebugSymbols=false
+    - name: Chmod (Unix)
+      if: ${{ matrix.os_flavor == 'linux-x64' || matrix.os_flavor == 'osx-x64' }}
+      run: chmod +x ${{ github.workspace }}/${{ matrix.project }}/bin/${{ matrix.arch }}/Release/net7.0/${{ matrix.os_flavor }}/publish/${{ matrix.project_lowercase }}
+    - name: Compress binaries
+      run: 7z a ${{ github.workspace }}/${{ matrix.project }}-${{ matrix.os_flavor }}.${{ matrix.archive_ext }} ${{ github.workspace }}/${{ matrix.project }}/bin/${{ matrix.arch }}/Release/net7.0/${{ matrix.os_flavor }}/publish/*
+    - name: List directories and files
+      run: find .
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ matrix.project }}-${{ matrix.os_flavor }}
+        path: ${{ github.workspace }}/${{ matrix.project }}/bin/${{ matrix.arch }}/Release/net7.0/${{ matrix.os_flavor }}/publish/*
+        if-no-files-found: error
+    - name: Create draft Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/heads/main')
+      with:
+        tag_name: latest
+        draft: true
+        files: |
+          ${{ github.workspace }}/Repackinator.nfo
+          ${{ github.workspace }}/README.md
+          ${{ github.workspace }}/${{ matrix.project }}-${{ matrix.os_flavor }}.${{ matrix.archive_ext }}
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          ${{ github.workspace }}/Repackinator.nfo
+          ${{ github.workspace }}/README.md
+          ${{ github.workspace }}/${{ matrix.project }}-${{ matrix.os_flavor }}.${{ matrix.archive_ext }}

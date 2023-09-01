@@ -1,0 +1,18 @@
+[Desktop Entry]
+Categories=Game;
+Comment[en_US]=OG Xbox XISO and CCI image creation tool.
+Comment=OG Xbox XISO and CCI image creation tool.
+Exec=repackinator
+GenericName[en_US]=Repackinator
+GenericName=Repackinator
+Icon=repackinator
+Keywords=Utility;Games;Xbox;XISO;
+MimeType=
+Name[en_US]=Repackinator
+Name=Repackinator
+Type=Application
+PrefersNonDefaultGPU=true
+X-DBUS-ServiceName=
+X-DBUS-StartupType=
+X-KDE-SubstituteUID=false
+X-KDE-Username=

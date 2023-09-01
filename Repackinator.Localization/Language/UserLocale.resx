@@ -1,0 +1,129 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:element name="root" msdata:IsDataSet="true">
+            
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="scanner.log.completed" xml:space="preserve">
+        <value>Completed Scanning List (Time Taken {0:00}:{1:00}:{2:00})</value>
+    </data>
+    <data name="scandialog.progress.searching-directories" xml:space="preserve">
+        <value>Scanning Directories</value>
+    </data>
+    <data name="scandialog.log.table.level" xml:space="preserve">
+        <value>Level</value>
+    </data>
+    <data name="scandialog.log.table.message" xml:space="preserve">
+        <value>Message</value>
+    </data>
+    <data name="scandialog.log.table.time" xml:space="preserve">
+        <value>Time</value>
+    </data>
+    <data name="scandialog.totals" xml:space="preserve">
+        <value>Totals: Warnings = {0}, Errors = {1}, Skipped = {2}, Missing = {3}, Completed = {4}</value>
+    </data>
+    <data name="scandialog.button.close" xml:space="preserve">
+        <value>Close</value>
+    </data>
+    <data name="scandialog.button.cancelling" xml:space="preserve">
+        <value>Cancelling...</value>
+    </data>
+    <data name="scandialog.button.cancel" xml:space="preserve">
+        <value>Cancel</value>
+    </data>
+    <data name="scandialog.button.copy-log" xml:space="preserve">
+        <value>Copy Log</value>
+    </data>
+    <data name="scandialog.title" xml:space="preserve">
+        <value>Scanning</value>
+    </data>
+    <data name="scandialog.total-time-elapsed" xml:space="preserve">
+        <value>Total Time: {0:00}:{1:00}:{2:00}</value>
+    </data>
+    <data name="scandialog.logger.message.mixed-iso-cci" xml:space="preserve">
+        <value>Folder '{0}' contains mixed ISO and CCI.</value>
+    </data>
+    <data name="logger.level.unknown" xml:space="preserve">
+        <value>UNKNOWN</value>
+    </data>
+    <data name="logger.level.none" xml:space="preserve">
+        <value>None</value>
+    </data>
+    <data name="logger.level.info" xml:space="preserve">
+        <value>Info</value>
+    </data>
+    <data name="logger.level.completed" xml:space="preserve">
+        <value>Completed</value>
+    </data>
+    <data name="logger.level.skipped" xml:space="preserve">
+        <value>Skipped</value>
+    </data>
+    <data name="logger.level.warning" xml:space="preserve">
+        <value>Warning</value>
+    </data>
+    <data name="logger.level.notfound" xml:space="preserve">
+        <value>NotFound</value>
+    </data>
+    <data name="logger.level.error" xml:space="preserve">
+        <value>Error</value>
+    </data>
+    <data name="logger.level.done" xml:space="preserve">
+        <value>Done</value>
+    </data>
+    <data name="launcher.context-menu.removed" xml:space="preserve">
+        <value>Context menu removed.</value>
+    </data>
+    <data name="launcher.context-menu.remove.failed" xml:space="preserve">
+        <value>Failed to remove context menu (need to run as admin).</value>
+    </data>
+    <data name="console.application.version" xml:space="preserve">
+        <value>Repackinator {0}</value>
+    </data>
+    <data name="console.application.utility" xml:space="preserve">
+        <value>Repackinator by EqUiNoX, original xbox utility.</value>
+    </data>
+    <data name="console.application.credits" xml:space="preserve">
+        <value>Credits go to {0}.</value>
+    </data>
+    <data name="console.application.usage" xml:space="preserve">
+        <value>Usage: Repackinator [options]+</value>
+    </data>
+    <data name="console.application.input.exception" xml:space="preserve">
+        <value>Input is not a valid file.</value>
+    </data>
+    <data name="console.application.option.convert.input" xml:space="preserve">
+        <value>Input file</value>
+    </data>
+    <data name="console.application.option.convert.scrub" xml:space="preserve">
+        <value>Scrub mode (None *default*, Scrub, TrimmedScrub)</value>
+    </data>
+    <data name="console.application.option.convert.compress" xml:space="preserve">
+        <value>Compress</value>
+    </data>
+    <data name="console.application.option.convert.wait" xml:space="preserve">
+        <value>Wait on exit</value>
+    </data>
+    <data name="console.application.option.action" xml:space="preserve">
+        <value>Action (Convert, Compare, Info, Checksum, Extract)</value>
+    </data>
+    <data name="console.application.option.help" xml:space="preserve">
+        <value>Show this help or for provided action</value>
+    </data>
+    <data name="console.application.option.usage" xml:space="preserve">
+        <value>Usage: Repackinator {0} [options]+</value>
+    </data>
+</root>
