@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 using Repackinator.Helpers;
 
 namespace Repackinator.Models
@@ -37,6 +38,7 @@ namespace Repackinator.Models
 
         public bool TrimmedScrub { get; set; }
 
+        [JsonIgnore]
         public int LeechType { get; set; }
 
         public int SearchField { get; set; }
