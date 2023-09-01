@@ -56,12 +56,27 @@ namespace Repackinator.Actions
 
                 var isoToProcess = Directory.GetFiles(folder, "*.iso").OrderBy(o => o).ToArray();
                 var cciToProcess = Directory.GetFiles(folder, "*.cci").OrderBy(o => o).ToArray();
-                if (isoToProcess.Length == 0 && cciToProcess.Length == 0)
+                var csoToProcess = Directory.GetFiles(folder, "*.cso").OrderBy(o => o).ToArray();
+
+                var mixedCount = 0;
+                if (isoToProcess.Length > 0)
+                {
+                    mixedCount++;
+                }
+                if (cciToProcess.Length > 0)
+                {
+                    mixedCount++;
+                }
+                if (csoToProcess.Length > 0)
+                {
+                    mixedCount++;
+                }
+
+                if (mixedCount == 0)
                 {
                     return;
                 }
-
-                if (isoToProcess.Length > 0 && cciToProcess.Length > 0)
+                else if (mixedCount > 1)
                 {
                     Log(LogMessageLevel.Error, $"Folder '{folder}' contains mixed ISO and CCI.");
                     return;
@@ -77,9 +92,18 @@ namespace Repackinator.Actions
                         return;
                     }
                 }
-                else
+                else if (cciToProcess.Length > 0)
                 {
                     using var xisoInput = new CciInput(cciToProcess);
+                    if (!XisoUtility.TryGetDefaultXbeFromXiso(xisoInput, ref xbeData))
+                    {
+                        Log(LogMessageLevel.Error, $"Unable to extract default.xbe.");
+                        return;
+                    }
+                }
+                else if (csoToProcess.Length > 0)
+                {
+                    using var xisoInput = new CsoInput(csoToProcess);
                     if (!XisoUtility.TryGetDefaultXbeFromXiso(xisoInput, ref xbeData))
                     {
                         Log(LogMessageLevel.Error, $"Unable to extract default.xbe.");
