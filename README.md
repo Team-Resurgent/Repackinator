@@ -17,9 +17,11 @@ Repackinator was designed to be a modern all-in-one ISO management tool for the 
 It provides you the ability to convert your OG Xbox ISO dumps into full working split ISO images, as well as optionally replacing padding for even greater compression. Repackinator can also create reduced size ISO images by trimming the unused space, if desired. Additionally, the ability to create playable compressed ISO images was introduced to dovetail the newly released .CCI (Cerbios Compressed Image) compression method; this after being written from scratch, in collaboration with Team Cerbios. 
 
 Programmed for the very specific task of compressing original Xbox ISO structures, all while removing unused and or wasted space, Cerbios Compressed Images are the gold standard of Xbox ISO compression. The smallest file sizes all while mantaining maximum playablity is the name of the game.
+
+StellarOS's CSO format is now fully supported.
 </div>
 
-                        [ Program ..................................... Repackinator V1.3.1 ]
+                        [ Program ..................................... Repackinator V1.3.4 ]
                         [ Type ................................................ Iso Manager ]
                         [ Patreon ....................https://www.patreon.com/teamresurgent ]
                                         
@@ -107,8 +109,9 @@ After Repackinator has been ran as admin the first time, the context menu will p
 ***CONTEXT MENU OPTIONS WILL NOT CREATE `default.xbe` OR `default.tbn` FILES!***
 </div>
 
-* .ISO files can be split as, well as .CCI files can be decompressed using the **Convert to ISO** functions.
+* .ISO files can be split as, well as .CCI/.CSO files can be decompressed using the **Convert to ISO** functions.
 * .ISO files can be compressed to various types of .CCI using the **Convert to CCI** functions.
+* .ISO files can be compressed to various types of .CSO using the **Convert to CSO** functions.
 * Compatible files can be cryptographically compaired by selecting **Compare Set First** on initial file, then **Compare First With** on the second file.
 * Info will print the sector data.
 * Extract will create a HDD ready file from *any* supported input type.
