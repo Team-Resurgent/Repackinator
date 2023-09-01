@@ -55,7 +55,6 @@ namespace Repackinator.Shell
             RegisterSubMenu(key, "17menu", "Convert To CCI (Scrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=Scrub -c -w", ".cso");
             RegisterSubMenu(key, "18menu", "Convert To CCI (TrimmedScrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=TrimmedScrub -c -w", ".cso");
 
-
             RegisterSubMenu(key, "19menu", "Compare Set First", $"\"{exePath}\" -f=\"%L\" -a=compare", ".iso");
             RegisterSubMenu(key, "20menu", "Compare First With", $"\"{exePath}\" -s=\"%L\" -a=compare -c -w", ".iso");
             RegisterSubMenu(key, "21menu", "Compare Set First", $"\"{exePath}\" -f=\"%L\" -a=compare", ".cci");

@@ -1,4 +1,5 @@
 ﻿using LibDeflate;
+using System.IO;
 using System.Text;
 
 namespace Resurgent.UtilityBelt.Library.Utilities.ImageInput
@@ -9,10 +10,10 @@ namespace Resurgent.UtilityBelt.Library.Utilities.ImageInput
         {
             public ulong Value { get; set; }
 
-            public bool Compressed { get; set; }
+            public bool LZ4 { get; set; }
         }
 
-        private struct CsoSliceInfo
+        private class CsoSliceInfo
         {
             public Stream Stream { get; set; }
 
@@ -20,7 +21,24 @@ namespace Resurgent.UtilityBelt.Library.Utilities.ImageInput
 
             public long EndSector { get; set; }
 
-            public IndexInfo[] IndexInfos { get; set; }
+            public CsoSliceInfo(Stream stream)
+            {
+                Stream = stream;
+                StartSector = 0; 
+                EndSector = 0;
+            }
+        }
+
+        private struct CsoInfo
+        {
+            public List<CsoSliceInfo> SliceInfos { get; set; } 
+            public List<IndexInfo> IndexInfos { get; set; } 
+
+            public CsoInfo() 
+            {
+                SliceInfos = new List<CsoSliceInfo>();
+                IndexInfos =  new List<IndexInfo>();
+            }
         }
 
         private struct SectorCache
@@ -32,7 +50,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities.ImageInput
             public byte[] SectorData { get; set;} 
         }
 
-        private readonly List<CsoSliceInfo> m_slices;
+        private readonly CsoInfo m_csoInfo;
 
         private bool m_disposed = false;
 
@@ -54,45 +72,48 @@ namespace Resurgent.UtilityBelt.Library.Utilities.ImageInput
             }
 
             var result = new byte[count << 11];
+            var sector = startSector;
             var sectorOffset = 0;
 
             while (count > 0)
             {
-                foreach (var slice in m_slices)
+
+                var indexInfo = m_csoInfo.IndexInfos[(int)sector];
+                var compressed = indexInfo.LZ4;
+                var position = (long)indexInfo.Value;
+                var size = (long)m_csoInfo.IndexInfos[(int)sector + 1].Value - position;
+
+                var sliceIndex = SectorInSlice(startSector);
+                var stream = m_csoInfo.SliceInfos[sliceIndex].Stream;
+
+                stream.Position = position;
+
+                using (var reader = new BinaryReader(stream, Encoding.Default, true))
                 {
-                    if (count > 0 && startSector >= slice.StartSector && startSector <= slice.EndSector)
+                    if (compressed)
                     {
-                        var position = slice.IndexInfos[startSector - slice.StartSector].Value;
-                        var compressed = slice.IndexInfos[startSector - slice.StartSector].Compressed;
-                        var size = (int)(slice.IndexInfos[startSector - slice.StartSector + 1].Value - position);
+                        var outputBuffer = new byte[2048];
+                        var length = reader.ReadUInt32();
+                        var rawData = reader.ReadBytes((int)length);
+                        reader.BaseStream.Position = position + (size - length - 4);
 
-                        slice.Stream.Position = (long)position;
-
-                        using var reader = new BinaryReader(slice.Stream, Encoding.Default, true);
-
-                        if (compressed)
+                        var compressedSize = K4os.Compression.LZ4.LZ4Codec.Decode(rawData, 0, rawData.Length, outputBuffer, 0, 2048);
+                        if (compressedSize != 2048)
                         {
-                            var outputBuffer = new byte[2048];
-                            var buffer = reader.ReadBytes(size);
-                            using (var decompressor = new DeflateDecompressor())
-                            {
-                                decompressor.Decompress(buffer, outputBuffer, out var bytesWritten, out var bytesRead);
-                                if (bytesWritten == 0 || bytesRead == 0)
-                                {
-                                    throw new IndexOutOfRangeException("Unable to decompress sector.");
-                                }
-                            }
-                            Array.Copy(outputBuffer, 0, result, sectorOffset << 11, 2048);
-                        }
-                        else
-                        {
-                            var temp = reader.ReadBytes(2048);
-                            Array.Copy(temp, 0, result, sectorOffset << 11, 2048);
+                            throw new IndexOutOfRangeException("Unable to decompress sector.");
                         }
 
-                        sectorOffset++;
-                        count--;
+                        Array.Copy(outputBuffer, 0, result, sectorOffset << 11, 2048);
                     }
+                    else
+                    {
+                        var temp = reader.ReadBytes(2048);
+                        Array.Copy(temp, 0, result, sectorOffset << 11, 2048);
+                    }
+
+                    sector++;
+                    sectorOffset++;
+                    count--;
                 }
             }
 
@@ -135,9 +156,9 @@ namespace Resurgent.UtilityBelt.Library.Utilities.ImageInput
 
         public int SectorInSlice(long sector)
         {
-            for (int i = 0; i < m_slices.Count; i++)
+            for (int i = 0; i < m_csoInfo.SliceInfos.Count; i++)
             {
-                CsoSliceInfo slice = m_slices[i];
+                CsoSliceInfo slice = m_csoInfo.SliceInfos[i];
                 if (sector >= slice.StartSector && sector <= slice.EndSector)
                 {
                     return i;
@@ -150,15 +171,16 @@ namespace Resurgent.UtilityBelt.Library.Utilities.ImageInput
         {
             m_parts = parts;
 
-            var totalSectors = 0L;
-            var startSector = 0L;
-            m_slices = new List<CsoSliceInfo>();
-            foreach (var part in parts)
+            m_csoInfo.SliceInfos = new List<CsoSliceInfo>();
+            for (var i = 0; i < parts.Length; i++)
             {
-                var stream = new FileStream(part, FileMode.Open, FileAccess.Read);
+                var stream = new FileStream(parts[i], FileMode.Open, FileAccess.Read);
+                m_csoInfo.SliceInfos.Add(new CsoSliceInfo(stream));
+            }
 
-                using var reader = new BinaryReader(stream, Encoding.Default, true);
-
+            using (var stream = new FileStream(parts[0], FileMode.Open, FileAccess.Read))
+            using (var reader = new BinaryReader(stream, Encoding.Default, true))
+            {
                 var header = reader.ReadUInt32();
                 if (header != 0x4F534943)
                 {
@@ -178,11 +200,11 @@ namespace Resurgent.UtilityBelt.Library.Utilities.ImageInput
                 uint blockSize = reader.ReadUInt32();
                 if (blockSize != 2048)
                 {
-                    throw new IOException("Invalid block size in cso header."); 
+                    throw new IOException("Invalid block size in cso header.");
                 }
 
                 byte version = reader.ReadByte();
-                if (version != 1)
+                if (version != 2)
                 {
                     throw new IOException("Invalid version in cso header.");
                 }
@@ -197,31 +219,35 @@ namespace Resurgent.UtilityBelt.Library.Utilities.ImageInput
 
                 stream.Position = (long)indexOffset;
 
-                var indexInfos = new List<IndexInfo>();
+                m_csoInfo.IndexInfos = new List<IndexInfo>();
                 for (var i = 0; i <= entries; i++)
                 {
                     var index = reader.ReadUInt32();
-                    indexInfos.Add(new IndexInfo
+                    m_csoInfo.IndexInfos.Add(new IndexInfo
                     {
                         Value = (ulong)(index & 0x7FFFFFFF) << indexAlignment,
-                        Compressed = (index & 0x80000000) == 0
+                        LZ4 = (index & 0x80000000) > 0
                     });
                 }
 
-                var sectorCount = entries;
-                m_slices.Add(new CsoSliceInfo
-                {
-                    Stream = stream,
-                    StartSector = startSector,
-                    EndSector = startSector + sectorCount - 1,
-                    IndexInfos = indexInfos.ToArray()
-                });
+                var totalSectors = uncompressedSize >> 11;
 
-                startSector += sectorCount;
-                totalSectors += sectorCount;
+                var currentPart = 0;
+                for (var i = 0; i <= m_csoInfo.IndexInfos.Count - 1; i++)
+                {
+                    var part = m_csoInfo.SliceInfos[currentPart];
+                    var position = m_csoInfo.IndexInfos[i].Value;
+                    if (position == 0)
+                    {
+                        m_csoInfo.SliceInfos[currentPart].EndSector = i - 1;
+                        currentPart++;
+                        m_csoInfo.SliceInfos[currentPart].StartSector = i;
+                        m_csoInfo.SliceInfos[currentPart].EndSector = m_csoInfo.IndexInfos.Count - 1;
+                    }
+                }
             }
 
-            m_totalSectors = totalSectors;
+            m_totalSectors = m_csoInfo.IndexInfos.Count - 1;
         }
 
         public void Dispose()
@@ -238,7 +264,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities.ImageInput
             }
             if (disposing)
             {
-                foreach (var slice in m_slices)
+                foreach (var slice in m_csoInfo.SliceInfos)
                 {
                     slice.Stream.Dispose();
                 }
