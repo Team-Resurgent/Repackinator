@@ -43,7 +43,7 @@ namespace Repackinator.Actions
             File.AppendAllText("RepackLog.txt", logMessage.ToLogFormat());
         }
 
-        private int ProcessFile(string inputFile, string outputPath, GroupingEnum grouping, bool hasAllCrcs, bool upperCase, bool compress, bool trimmedScrub, bool noSplit, CancellationToken cancellationToken)
+        private int ProcessFile(string inputFile, string outputPath, GroupingEnum grouping, bool hasAllCrcs, bool upperCase, CompressEnum compressType, bool trimmedScrub, bool noSplit, CancellationToken cancellationToken)
         {
             try
             {
@@ -58,10 +58,10 @@ namespace Repackinator.Actions
                 var extension = Path.GetExtension(inputFile).ToLower();
                 if (extension.Equals(".iso") || extension.Equals(".cso") || extension.Equals(".cci"))
                 {
-                    return ProcessIso(inputFile, outputPath, grouping, upperCase, compress, trimmedScrub, noSplit, cancellationToken);
+                    return ProcessIso(inputFile, outputPath, grouping, upperCase, compressType, trimmedScrub, noSplit, cancellationToken);
                 }
 
-                return ProcessArchive(inputFile, outputPath, grouping, hasAllCrcs, upperCase, compress, trimmedScrub, noSplit, cancellationToken);
+                return ProcessArchive(inputFile, outputPath, grouping, hasAllCrcs, upperCase, compressType, trimmedScrub, noSplit, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -70,7 +70,7 @@ namespace Repackinator.Actions
             }
         }
 
-        public int ProcessArchive(string inputFile, string outputPath, GroupingEnum grouping, bool hasAllCrcs, bool upperCase, bool compress, bool trimmedScrub, bool noSplit, CancellationToken cancellationToken)
+        public int ProcessArchive(string inputFile, string outputPath, GroupingEnum grouping, bool hasAllCrcs, bool upperCase, CompressEnum compressType, bool trimmedScrub, bool noSplit, CancellationToken cancellationToken)
         {
             if (GameDataList == null)
             {
@@ -140,7 +140,7 @@ namespace Repackinator.Actions
                                 Log(LogMessageLevel.Info, "Extracting And Splitting ISO...");
 
                                 var willScrub = tempGameData == null ? false : tempGameData.Value.Scrub.Equals("Y", StringComparison.CurrentCultureIgnoreCase);
-                                if (tempGameData == null || compress == true || willScrub == true)
+                                if (tempGameData == null || compressType != CompressEnum.None || willScrub == true)
                                 {
                                     needsSecondPass = true;
                                 }
@@ -318,7 +318,7 @@ namespace Repackinator.Actions
 
                 if (needsSecondPass)
                 {
-                    if (compress == true)
+                    if (compressType != CompressEnum.None)
                     {
                         var message = $"Creating Compressed ISO...";
 
@@ -346,10 +346,21 @@ namespace Repackinator.Actions
 
                         using (var isoInput = new XisoInput(new string[] { Path.Combine(unpackPath, @"Repackinator.1.temp"), Path.Combine(unpackPath, @"Repackinator.2.temp") }))
                         {
-                            if (!XisoUtility.CreateCCI(isoInput, processOutput, isoFileName, ".cci", scrub, trimmedScrub, repackProgress, cancellationToken))
+                            if (compressType == CompressEnum.CCI)
                             {
-                                Log(LogMessageLevel.Error, $"Unable process file 'Repackinator.temp'.");
-                                return -1;
+                                if (!XisoUtility.CreateCCI(isoInput, processOutput, isoFileName, ".cci", scrub, trimmedScrub, repackProgress, cancellationToken))
+                                {
+                                    Log(LogMessageLevel.Error, $"Unable process file 'Repackinator.temp'.");
+                                    return -1;
+                                }
+                            }
+                            else if (compressType == CompressEnum.CSO)
+                            {
+                                if (!XisoUtility.CreateCSO(isoInput, processOutput, isoFileName, ".cso", scrub, trimmedScrub, repackProgress, cancellationToken))
+                                {
+                                    Log(LogMessageLevel.Error, $"Unable process file 'Repackinator.temp'.");
+                                    return -1;
+                                }
                             }
                         }
                     }
@@ -467,7 +478,7 @@ namespace Repackinator.Actions
             }
         }
 
-        public int ProcessIso(string inputFile, string outputPath, GroupingEnum grouping, bool upperCase, bool compress, bool trimmedScrub, bool noSplit, CancellationToken cancellationToken)
+        public int ProcessIso(string inputFile, string outputPath, GroupingEnum grouping, bool upperCase, CompressEnum compressType, bool trimmedScrub, bool noSplit, CancellationToken cancellationToken)
         {
             if (GameDataList == null)
             {
@@ -642,7 +653,7 @@ namespace Repackinator.Actions
                     return -1;
                 }
 
-                if (compress == true)
+                if (compressType != CompressEnum.None)
                 {
                     var message = $"Creating Compressed ISO...";
 
@@ -670,10 +681,21 @@ namespace Repackinator.Actions
 
                     using (var cciInput = ImageImputHelper.GetImageInput(inputFile))
                     {
-                        if (!XisoUtility.CreateCCI(cciInput, processOutput, isoFileName, ".cci", scrub, trimmedScrub, repackProgress, cancellationToken))
+                        if (compressType == CompressEnum.CCI)
                         {
-                            Log(LogMessageLevel.Error, $"Unable process file '{inputFile}'.");
-                            return -1;
+                            if (!XisoUtility.CreateCCI(cciInput, processOutput, isoFileName, ".cci", scrub, trimmedScrub, repackProgress, cancellationToken))
+                            {
+                                Log(LogMessageLevel.Error, $"Unable process file '{inputFile}'.");
+                                return -1;
+                            }
+                        }
+                        else if(compressType == CompressEnum.CSO)
+                        {
+                            if (!XisoUtility.CreateCSO(cciInput, processOutput, isoFileName, ".cso", scrub, trimmedScrub, repackProgress, cancellationToken))
+                            {
+                                Log(LogMessageLevel.Error, $"Unable process file '{inputFile}'.");
+                                return -1;
+                            }
                         }
                     }
                 }
@@ -886,7 +908,7 @@ namespace Repackinator.Actions
                                 continue;
                             }
 
-                            var gameIndex = ProcessFile(tempPath, config.OutputPath, config.Grouping, crcMissingCount == 0, config.UpperCase, config.Compress, config.TrimmedScrub, config.NoSplit, cancellationToken);
+                            var gameIndex = ProcessFile(tempPath, config.OutputPath, config.Grouping, crcMissingCount == 0, config.UpperCase, config.CompressType, config.TrimmedScrub, config.NoSplit, cancellationToken);
                             if (gameIndex >= 0)
                             {
                                 gameData[gameIndex].Process = "N";
@@ -941,7 +963,7 @@ namespace Repackinator.Actions
                         CurrentProgress.Progress1Text = $"Processing {i + 1} of {files.Count}";
                         SendProgress();
 
-                        var gameIndex = ProcessFile(file, config.OutputPath, config.Grouping, crcMissingCount == 0, config.UpperCase, config.Compress, config.TrimmedScrub, config.NoSplit, cancellationToken);
+                        var gameIndex = ProcessFile(file, config.OutputPath, config.Grouping, crcMissingCount == 0, config.UpperCase, config.CompressType, config.TrimmedScrub, config.NoSplit, cancellationToken);
                         if (gameIndex >= 0)
                         {
                             gameData[gameIndex].Process = "N";

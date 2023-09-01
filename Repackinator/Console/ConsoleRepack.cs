@@ -16,7 +16,7 @@ namespace Repackinator.Console
         public static bool UpperCase { get; set; } = false;
         public static bool Recurse { get; set; } = false;
         public static string Log { get; set; } = string.Empty;
-        public static bool Compress { get; set; } = false;
+        public static string CompressType { get; set; } = "NONE";
         public static bool TrimmedScrub { get; set; } = false;
         public static bool ShowHelp { get; set; } = false;
         public static bool Wait { get; set; } = false;
@@ -29,7 +29,7 @@ namespace Repackinator.Console
                 { "g|grouping=", "Grouping (None *default*, Region, Letter, RegionLetter, LetterRegion)", g => Grouping = g.ToUpper() },
                 { "u|upperCase", "Upper Case", u => UpperCase = u != null },
                 { "r|recurse", "Recurse (Traverse Sub Dirs)", r => Recurse = r != null },
-                { "c|compress", "Compress", c => Compress = c != null },
+                { "c|compress", "Compress (None *default, CCi, CSO)", c => CompressType = c.ToUpper() },
                 { "t|trimmedScrub", "Trimmed Scrub", t => TrimmedScrub = t != null },
                 { "l|log=", "log file", l => Log = l },
                 { "h|help", "show help", h => ShowHelp = h != null },
@@ -102,6 +102,24 @@ namespace Repackinator.Console
                     throw new OptionException("grouping is not valid.", "grouping");
                 }
 
+                var compressValue = CompressEnum.None;
+                if (string.Equals(CompressType, "NONE"))
+                {
+                    compressValue = CompressEnum.None;
+                }
+                else if (string.Equals(CompressType, "CCI"))
+                {
+                    compressValue = CompressEnum.CCI;
+                }
+                else if (string.Equals(CompressType, "CSO"))
+                {
+                    compressValue = CompressEnum.CSO;
+                }
+                else
+                {
+                    throw new OptionException("grouping is not valid.", "grouping");
+                }
+
                 var output = Path.GetFullPath(Output);
                 if (!Directory.Exists(output))
                 {
@@ -140,7 +158,7 @@ namespace Repackinator.Console
                     Grouping = groupingValue,
                     RecurseInput = Recurse,
                     UpperCase = UpperCase,
-                    Compress = Compress,
+                    CompressType = compressValue,
                     TrimmedScrub = TrimmedScrub,
                 };
 
