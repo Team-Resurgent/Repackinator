@@ -757,16 +757,20 @@ namespace Repackinator.UI
 
             ImGui.Spacing();
 
+
+            string[] compressTypes = new string[] { "None", "CCI", "CSO" };
+
             ImGui.Text("Compress:");
             ImGui.SameLine();
             ImGui.SetCursorPosX(150);
-            bool compress = m_config.Compress;
-            if (Toggle("##compress", ref compress, new Vector2(38, 24)))
+            ImGui.PushItemWidth(100);
+            int compressType = (int)m_config.CompressType;
+            if (ImGui.Combo("##compressTypes", ref compressType, compressTypes, compressTypes.Length))
             {
-                m_config.Compress = compress;
+                m_config.CompressType = (CompressEnum)compressType;
                 Config.SaveConfig(m_config);
             }
-
+            ImGui.PopItemWidth();
             ImGui.Spacing();
 
             ImGui.Text("Trim Scrub:");

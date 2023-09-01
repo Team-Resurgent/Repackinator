@@ -1,6 +1,9 @@
 ﻿using LibDeflate;
 using Resurgent.UtilityBelt.Library.Utilities.ImageInput;
+using SixLabors.ImageSharp.PixelFormats;
+using System;
 using System.IO.Hashing;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -1098,7 +1101,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
                     if (progress != null)
                     {
-                        progress(2, sectorsWritten / (float)(endSector - sectorOffset));
+                        progress(2, (sectorsWritten - sectorOffset) / (float)(endSector - sectorOffset));
                     }
 
                     if (cancellationToken.IsCancellationRequested)
@@ -1144,7 +1147,6 @@ namespace Resurgent.UtilityBelt.Library.Utilities
             return true;
         }
 
-        // This needs refactoring to write compressed data to a temp file
         public static bool CreateCSO(IImageInput input, string outputPath, string name, string extension, bool scrub, bool trimmedScrub, Action<int, float>? progress, CancellationToken cancellationToken)
         {
             if (progress != null)
@@ -1186,115 +1188,117 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
             var sectorOffset = input.TotalSectors == Constants.RedumpSectors ? Constants.VideoSectors : 0U;
 
-            var splitMargin = 0xFF000000L;
+            var splitMargin = 0xFFBF6000L;
             var emptySector = new byte[2048];
-            var compressedData = new byte[2048 * 2];
-            var sectorsWritten = (uint)sectorOffset;
-            var iteration = 0;
+            var compressedData = new byte[2048];
 
-            while (sectorsWritten < endSector)
+            var headerSize = (uint)24;
+            var uncompressedSize = (ulong)0;
+            var indexAlignment = (byte)2;
+
+            // Create header
+
+            var indexInfos = new List<uint>();
+            var streams = new List<Stream>();
+
+            var currentStream = 0;
+            var outputFile = Path.Combine(outputPath, $"{name}.{currentStream + 1}{extension}");
+            streams.Add(new FileStream(outputFile, FileMode.Create, FileAccess.Write));
+
+            streams[currentStream].WriteUInt(0x4F534943);
+            streams[currentStream].WriteUInt(headerSize);
+            streams[currentStream].WriteULong(uncompressedSize);
+            streams[currentStream].WriteUInt(2048);
+            streams[currentStream].WriteByte(2);
+            streams[currentStream].WriteByte(indexAlignment);
+            streams[currentStream].WriteUShort(0);
+            for (var i = sectorOffset; i <= endSector; i++)
             {
-                var indexInfos = new List<IndexInfo>();
-                using var sectorDataStream = new MemoryStream();
-                using var sectorDataWriter = new BinaryWriter(sectorDataStream);
+                indexInfos.Add(0);
+                streams[currentStream].WriteUInt(0);
+            }
 
-                ulong uncompressedSize = 0;
-                byte indexAlignment = 2;
+            var currentPosition = (uint)streams[currentStream].Position >> indexAlignment;
 
-                var splitting = false;
-                var sectorCount = 0U;
-                while (sectorsWritten < endSector)
+            for (int i = 0; i < endSector - sectorOffset; i++)
+            {
+                if (streams[currentStream].Position > splitMargin)
                 {
-                    var writeSector = true;
-                    if (scrub)
+                    currentStream++;
+
+                    outputFile = Path.Combine(outputPath, $"{name}.{currentStream + 1}{extension}");
+                    var stream = new FileStream(outputFile, FileMode.Create, FileAccess.Write);
+                    streams.Add(stream);
+
+                    currentPosition = 0;
+                }
+
+                var sectorIndex = (uint)(i + sectorOffset);
+
+                var writeSector = true;
+                if (scrub)
+                {
+                    writeSector = dataSectors.Contains(sectorIndex);
+                }
+                var sectorToWrite = writeSector == true ? input.ReadSectors(sectorIndex, 1) : emptySector;
+
+                var compressedSize = K4os.Compression.LZ4.LZ4Codec.Encode(sectorToWrite, compressedData, K4os.Compression.LZ4.LZ4Level.L12_MAX);
+                if (compressedSize < 0 || compressedSize + 12 > 2048)
+                {
+                    streams[currentStream].Write(sectorToWrite);
+                    indexInfos[i] = currentPosition;
+                    currentPosition += (uint)(2048 >> indexAlignment);
+                }
+                else
+                {
+                    var multiple = (1 << indexAlignment);
+                    var padding = ((compressedSize + sizeof(uint) + multiple - 1) / multiple * multiple) - (compressedSize + sizeof(uint));
+                    streams[currentStream].WriteUInt((uint)compressedSize);
+                    streams[currentStream].Write(compressedData, 0, compressedSize);
+                    if (padding != 0)
                     {
-                        writeSector = dataSectors.Contains(sectorsWritten);
+                        streams[currentStream].Write(new byte[padding]);
                     }
+                    indexInfos[i] = currentPosition | 0x80000000;
+                    currentPosition += (uint)((compressedSize + sizeof(uint) + padding) >> indexAlignment);
+                }
 
-                    var sectorToWrite = writeSector == true ? input.ReadSectors(sectorsWritten, 1) : emptySector;
+                uncompressedSize += 2048;
 
-                    using (var compressor = new DeflateCompressor(9))
-                    {
-                        var compressedSize = compressor.Compress(sectorToWrite, compressedData);
-                        if (compressedSize > 0 && compressedSize < (2048 - (4 + (1 << indexAlignment))))
-                        {
-                            var multiple = (1 << indexAlignment);
-                            var padding = ((compressedSize + multiple - 1) / multiple * multiple) - compressedSize;
-                            sectorDataWriter.Write(compressedData, 0, compressedSize);
-                            if (padding != 0)
-                            {
-                                sectorDataWriter.Write(new byte[padding]);
-                            }
-                            indexInfos.Add(new IndexInfo { Value = (ushort)(compressedSize + padding), Compressed = true });
-                        }
-                        else
-                        {
-                            sectorDataWriter.Write(sectorToWrite);
-                            indexInfos.Add(new IndexInfo { Value = 2048, Compressed = false });
-                        }
-                    }
-
-                    uncompressedSize += 2048;
-                    sectorsWritten++;
-                    sectorCount++;
-
-                    if (sectorDataStream.Length > splitMargin)
-                    {
-                        splitting = true;
-                        break;
-                    }
-
-                    if (progress != null)
-                    {
-                        progress(2, sectorsWritten / (float)(endSector - sectorOffset));
-                    }
-
-                    if (cancellationToken.IsCancellationRequested)
-                    {
-                        break;
-                    }
+                if (progress != null)
+                {
+                    progress(2, i / (float)(endSector - sectorOffset));
                 }
 
                 if (cancellationToken.IsCancellationRequested)
                 {
-                    sectorDataStream.Dispose();
-                    sectorDataWriter.Dispose();
-                    return true;
+                    break;
                 }
+            }
 
-                var outputFile = Path.Combine(outputPath, iteration > 0 ? $"{name}.{iteration + 1}{extension}" : $"{name}{extension}");
-                var outputStream = new FileStream(outputFile, FileMode.Create, FileAccess.Write);
-                var outputWriter = new BinaryWriter(outputStream);
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return true;
+            }
 
-                outputWriter.Write((uint)0x4F534943);
-                outputWriter.Write((uint)24);
-                outputWriter.Write(uncompressedSize);
-                outputWriter.Write((uint)2048);
-                outputWriter.Write((byte)1);
-                outputWriter.Write(indexAlignment);
-                outputWriter.Write((ushort)0);
+            indexInfos[indexInfos.Count - 1] = currentPosition;
 
-                var position = (ulong)(24 + ((indexInfos.Count + 1) * 4));
-                for (var i = 0; i < indexInfos.Count; i++)
-                {
-                    var index = (uint)(position >> indexAlignment) | (indexInfos[i].Compressed ? 0U : 0x80000000U);
-                    outputWriter.Write(index);
-                    position += indexInfos[i].Value;
-                }
-                var indexEnd = (uint)(position >> indexAlignment);
-                outputWriter.Write(indexEnd);
+            streams[0].Position = 8;
+            streams[0].WriteULong(uncompressedSize);
 
-                outputWriter.Write(sectorDataStream.ToArray());
+            streams[0].Position = headerSize;
+            for (var i = 0; i < indexInfos.Count; i++)
+            {
+                streams[0].WriteUInt(indexInfos[i]);
+            }
 
-                outputStream.Dispose();
-                outputWriter.Dispose();
-
-                if (splitting)
-                {
-                    File.Move(outputFile, Path.Combine(outputPath, $"{name}.{iteration + 1}{extension}"));
-                }
-
-                iteration++;
+            for (var i = 0; i < streams.Count; i++)
+            {
+                var size = streams[i].Length;
+                streams[i].Position = size;
+                var padding = 0x400 - (size & 0x3FF);
+                streams[i].Write(new byte[padding]);
+                streams[i].Dispose();
             }
 
             return true;

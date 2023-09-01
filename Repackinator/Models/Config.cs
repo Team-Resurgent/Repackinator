@@ -12,6 +12,13 @@ namespace Repackinator.Models
         LetterRegion
     }
 
+    public enum CompressEnum
+    {
+        None,
+        CCI,
+        CSO
+    }
+
     public class Config
     {
         public string InputPath { get; set; }
@@ -24,7 +31,7 @@ namespace Repackinator.Models
 
         public bool UpperCase { get; set; }
 
-        public bool Compress { get; set; }
+        public CompressEnum CompressType { get; set; }
 
         public bool NoSplit { get; set; }
 
@@ -45,7 +52,7 @@ namespace Repackinator.Models
             Grouping = GroupingEnum.None;
             RecurseInput = false;
             UpperCase = false;
-            Compress = false;
+            CompressType = CompressEnum.None;
             NoSplit = false;
             LeechType = 0;
             TrimmedScrub = false;
