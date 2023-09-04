@@ -117,7 +117,7 @@ namespace Repackinator.Console
                 }
                 else
                 {
-                    throw new OptionException("grouping is not valid.", "grouping");
+                    throw new OptionException("compress is not valid.", "compress");
                 }
 
                 var output = Path.GetFullPath(Output);

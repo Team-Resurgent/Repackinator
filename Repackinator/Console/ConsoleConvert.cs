@@ -2,6 +2,7 @@
 using Repackinator.Helpers;
 using Resurgent.UtilityBelt.Library.Utilities.ImageInput;
 using Resurgent.UtilityBelt.Library.Utilities;
+using Repackinator.Models;
 
 namespace Repackinator.Console
 {
@@ -10,7 +11,7 @@ namespace Repackinator.Console
         public const string Action = "Convert";
         public static string Input { get; set; } = string.Empty;
         public static string ScrubMode { get; set; } = "NONE";
-        public static bool Compress { get; set; } = false;
+        public static string CompressType { get; set; } = "NONE";
         public static bool ShowHelp { get; set; } = false;
         public static bool Wait { get; set; } = false;
         public static bool Quiet { get; set; } = false;
@@ -24,7 +25,7 @@ namespace Repackinator.Console
             return new OptionSet {
                 { "i|input=", "Input file", i => Input = i },
                 { "s|scrub=", "Scrub mode (None *default*, Scrub, TrimmedScrub)", s => ScrubMode = s },
-                { "c|compress", "Compress", c => Compress = c != null },
+                { "c|compress", "Compress (None *default, CCi, CSO)", c => CompressType = c.ToUpper() },
                 { "h|help", "show help", h => ShowHelp = h != null },
                 { "w|wait", "Wait on exit", w => Wait = w != null },
                 { "q|quiet", "Suppress status output", q => Quiet = q != null }
@@ -88,6 +89,24 @@ namespace Repackinator.Console
                     throw new OptionException("Scrub mode is not valid.", "scrub");
                 }
 
+                var compressValue = CompressEnum.None;
+                if (string.Equals(CompressType, "NONE"))
+                {
+                    compressValue = CompressEnum.None;
+                }
+                else if (string.Equals(CompressType, "CCI"))
+                {
+                    compressValue = CompressEnum.CCI;
+                }
+                else if (string.Equals(CompressType, "CSO"))
+                {
+                    compressValue = CompressEnum.CSO;
+                }
+                else
+                {
+                    throw new OptionException("compress is not valid.", "compress");
+                }
+
                 System.Console.WriteLine("Converting:");
                 var imageInput = ImageImputHelper.GetImageInput(input);
                 foreach (var inputPart in imageInput.Parts)
@@ -102,9 +121,22 @@ namespace Repackinator.Console
 
                 if (outputPath != null)
                 {
-                    if (Compress)
+                    if (compressValue == CompressEnum.CCI)
                     {
                         XisoUtility.CreateCCI(imageInput, outputPath, outputNameWithoutExtension, ".cci", scrub, trimmedScrub, (s, p) =>
+                        {
+                            var amount = (float)Math.Round(p * 100);
+                            if (!Quiet && amount != previousProgress)
+                            {
+                                System.Console.Write($"Stage {s + 1} of 3, Progress {amount}%");
+                                System.Console.CursorLeft = 0;
+                                previousProgress = amount;
+                            }
+                        }, default);
+                    }
+                    if (compressValue == CompressEnum.CSO)
+                    {
+                        XisoUtility.CreateCSO(imageInput, outputPath, outputNameWithoutExtension, ".cci", scrub, trimmedScrub, (s, p) =>
                         {
                             var amount = (float)Math.Round(p * 100);
                             if (!Quiet && amount != previousProgress)
