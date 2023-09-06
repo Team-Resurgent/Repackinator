@@ -36,7 +36,12 @@ namespace Repackinator.UI
 
         private int _windowWidth;
         private int _windowHeight;
-        public Vector2 ScaleFactor = Vector2.One * 1.5f;
+        private Vector2 _scaleFactor = Vector2.One;
+
+        public Vector2 GetScaleFactor()
+        {
+            return _scaleFactor;
+        }
 
         public int SplashTexture => _splashTexture;
 
@@ -188,10 +193,11 @@ namespace Repackinator.UI
             style.PopupRounding = 6;
         }
 
-        public unsafe ImGuiController(int width, int height)
+        public unsafe ImGuiController(int width, int height, Vector2 scaleFactor)
         {
             _windowWidth = width;
             _windowHeight = height;
+            _scaleFactor = scaleFactor;
 
             int major = GL.GetInteger(GetPName.MajorVersion);
             int minor = GL.GetInteger(GetPName.MinorVersion);
@@ -334,7 +340,7 @@ namespace Repackinator.UI
         private void SetPerFrameImGuiData(float deltaSeconds)
         {
             ImGuiIOPtr io = ImGui.GetIO();
-            io.DisplaySize = new Vector2(_windowWidth, _windowHeight) / ScaleFactor;
+            io.DisplaySize = new Vector2(_windowWidth, _windowHeight) / GetScaleFactor();
             io.DeltaTime = deltaSeconds;
         }
 
@@ -364,7 +370,7 @@ namespace Repackinator.UI
             io.MouseDown[1] = MouseState[MouseButton.Right];
             io.MouseDown[2] = MouseState[MouseButton.Middle];
 
-            io.MousePos = new Vector2((int)MouseState.X, (int)MouseState.Y) / ScaleFactor;
+            io.MousePos = new Vector2((int)MouseState.X, (int)MouseState.Y) / GetScaleFactor();
 
             foreach (Keys key in Enum.GetValues(typeof(Keys)))
             {
@@ -486,7 +492,7 @@ namespace Repackinator.UI
             GL.BindVertexArray(_vertexArray);
             CheckGLError("VAO");
 
-            draw_data.ScaleClipRects(ScaleFactor);
+            draw_data.ScaleClipRects(GetScaleFactor());
 
             GL.Enable(EnableCap.Blend);
             GL.Enable(EnableCap.ScissorTest);

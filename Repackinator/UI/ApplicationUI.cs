@@ -14,7 +14,6 @@ namespace Repackinator.UI
     public unsafe class ApplicationUI
     {
         private Window? m_window;
-        private ImGuiController? m_controller;
         private GameData[]? m_gameDataList;
         private PathPicker? m_inputFolderPicker;
         private PathPicker? m_outputFolderPicker;
@@ -49,7 +48,7 @@ namespace Repackinator.UI
 
         private Vector2 GetScaledWindowSize()
         {
-            return new Vector2(m_window.Size.X, m_window.Size.Y) / m_controller.ScaleFactor;
+            return new Vector2(m_window.Size.X, m_window.Size.Y) / m_window.Controller.GetScaleFactor();
         }
 
         private bool IsFiltered(int index)
@@ -266,8 +265,6 @@ namespace Repackinator.UI
             var iconImage = new OpenTK.Windowing.Common.Input.Image(resourceImage.Width, resourceImage.Height, byteSpan.ToArray());
             m_window.Icon = new OpenTK.Windowing.Common.Input.WindowIcon(iconImage);
 
-            m_controller = new ImGuiController(m_window.Width, m_window.Height);
-
             if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000, 0))
             {
                 int value = -1;
@@ -318,7 +315,6 @@ namespace Repackinator.UI
         private void RenderUI()
         {
             if (m_window == null ||
-                m_controller == null ||
                 m_inputFolderPicker == null ||
                 m_outputFolderPicker == null ||
                 m_exportFolderPicker == null ||
@@ -391,7 +387,7 @@ namespace Repackinator.UI
             if (m_showSplash)
             {
                 m_showSplash = false;
-                m_splashDialog.ShowdDialog(m_controller.SplashTexture);
+                m_splashDialog.ShowdDialog(m_window.Controller.SplashTexture);
             }
 
             ImGui.Begin("Main", ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize);

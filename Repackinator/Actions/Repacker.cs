@@ -889,37 +889,37 @@ namespace Repackinator.Actions
                                     CurrentProgress.Progress2Text = $"Downloaded {Math.Round(downloaded / (1024 * 1024.0f), 2)}MB of {Math.Round(totalLength / (1024 * 1024.0f), 2)}MB ({Math.Round(bytesPerSecond / 1024, 2)}KB/s)";
                                     SendProgress();
                                 }, cancellationToken).Result;
+
+                                if (cancellationToken.IsCancellationRequested)
+                                {
+                                    Log(LogMessageLevel.None, "");
+                                    Log(LogMessageLevel.Info, "Cancelled.");
+                                    break;
+                                }
+
+                                if (!result)
+                                {
+                                    Log(LogMessageLevel.Error, "Download Failed.");
+                                    continue;
+                                }
+
+                                if (config.LeechType == 3)
+                                {
+                                    gameDataItem.Process = "N";
+                                    GameDataHelper.SaveGameData(gameData);
+                                    continue;
+                                }
+
+                                var gameIndex = ProcessFile(tempPath, config.OutputPath, config.Grouping, crcMissingCount == 0, config.UpperCase, config.CompressType, config.TrimmedScrub, config.NoSplit, cancellationToken);
+                                if (gameIndex >= 0)
+                                {
+                                    gameData[gameIndex].Process = "N";
+                                    GameDataHelper.SaveGameData(gameData);
+                                }
                             }
                             else
                             {
                                 Log(LogMessageLevel.Warning, $"No download link for '{gameDataItem.ISOName}'.");
-                            }
-
-                            if (cancellationToken.IsCancellationRequested)
-                            {
-                                Log(LogMessageLevel.None, "");
-                                Log(LogMessageLevel.Info, "Cancelled.");
-                                break;
-                            }
-
-                            if (!result)
-                            {
-                                Log(LogMessageLevel.Error, "Download Failed.");
-                                continue;
-                            }
-
-                            if (config.LeechType == 3)
-                            {
-                                gameDataItem.Process = "N";
-                                GameDataHelper.SaveGameData(gameData);
-                                continue;
-                            }
-
-                            var gameIndex = ProcessFile(tempPath, config.OutputPath, config.Grouping, crcMissingCount == 0, config.UpperCase, config.CompressType, config.TrimmedScrub, config.NoSplit, cancellationToken);
-                            if (gameIndex >= 0)
-                            {
-                                gameData[gameIndex].Process = "N";
-                                GameDataHelper.SaveGameData(gameData);
                             }
                         }
                         catch
