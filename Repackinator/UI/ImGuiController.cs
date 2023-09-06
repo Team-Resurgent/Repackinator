@@ -36,7 +36,7 @@ namespace Repackinator.UI
 
         private int _windowWidth;
         private int _windowHeight;
-        private Vector2 _scaleFactor = Vector2.One;
+        public Vector2 ScaleFactor = Vector2.One * 1.5f;
 
         public int SplashTexture => _splashTexture;
 
@@ -334,10 +334,10 @@ namespace Repackinator.UI
         private void SetPerFrameImGuiData(float deltaSeconds)
         {
             ImGuiIOPtr io = ImGui.GetIO();
-            io.DisplaySize = new Vector2(_windowWidth / _scaleFactor.X, _windowHeight / _scaleFactor.Y);
-            io.DisplayFramebufferScale = _scaleFactor;
+            io.DisplaySize = new Vector2(_windowWidth, _windowHeight) / ScaleFactor;
             io.DeltaTime = deltaSeconds;
         }
+
         readonly List<char> PressedChars = new List<char>();
 
         internal void PressChar(char keyChar)
@@ -364,7 +364,7 @@ namespace Repackinator.UI
             io.MouseDown[1] = MouseState[MouseButton.Right];
             io.MouseDown[2] = MouseState[MouseButton.Middle];
 
-            io.MousePos = new Vector2((int)MouseState.X, (int)MouseState.Y);
+            io.MousePos = new Vector2((int)MouseState.X, (int)MouseState.Y) / ScaleFactor;
 
             foreach (Keys key in Enum.GetValues(typeof(Keys)))
             {
@@ -486,7 +486,7 @@ namespace Repackinator.UI
             GL.BindVertexArray(_vertexArray);
             CheckGLError("VAO");
 
-            draw_data.ScaleClipRects(io.DisplayFramebufferScale);
+            draw_data.ScaleClipRects(ScaleFactor);
 
             GL.Enable(EnableCap.Blend);
             GL.Enable(EnableCap.ScissorTest);

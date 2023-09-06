@@ -47,6 +47,11 @@ namespace Repackinator.UI
             m_version = version;
         }
 
+        private Vector2 GetScaledWindowSize()
+        {
+            return new Vector2(m_window.Size.X, m_window.Size.Y) / m_controller.ScaleFactor;
+        }
+
         private bool IsFiltered(int index)
         {
             if (string.IsNullOrEmpty(m_searchText) || m_gameDataList == null)
@@ -390,7 +395,7 @@ namespace Repackinator.UI
             }
 
             ImGui.Begin("Main", ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize);
-            ImGui.SetWindowSize(new Vector2(m_window.Width, m_window.Height));
+            ImGui.SetWindowSize(GetScaledWindowSize());
             ImGui.SetWindowPos(new Vector2(0, 0), ImGuiCond.Always);
 
             string[] searchItems = new string[] { "Process", "Scrub", "Title ID", "Region", "Version", "Title Name", "Letter", "XBE Title", "Folder Name", "Iso Name", "Iso Checksum" };
@@ -433,8 +438,10 @@ namespace Repackinator.UI
             const int MyItemColumnID_IsoChecksum = 11;
             const int MyItemColumnID_Info = 12;
 
+            var windowSize = ImGui.GetWindowSize();
+
             ImGuiTableFlags flags = ImGuiTableFlags.Resizable | ImGuiTableFlags.Borders | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable | ImGuiTableFlags.Sortable | ImGuiTableFlags.ScrollX | ImGuiTableFlags.ScrollY | ImGuiTableFlags.RowBg;
-            if (ImGui.BeginTable("table_sorting", 13, flags, new Vector2(0.0f, m_window.Height - (404 + m_splitterOffset)), 0.0f))
+            if (ImGui.BeginTable("table_sorting", 13, flags, new Vector2(0.0f, windowSize.Y - (404 + m_splitterOffset)), 0.0f))
             {
                 ImGui.TableSetupColumn("Process", ImGuiTableColumnFlags.WidthFixed, 75.0f, MyItemColumnID_Process);
                 ImGui.TableSetupColumn("Scrub", ImGuiTableColumnFlags.WidthFixed, 75.0f, MyItemColumnID_Scrub);
@@ -699,7 +706,7 @@ namespace Repackinator.UI
             ImGui.Spacing();
 
             ImGui.Separator();
-            ImGui.Selectable("", m_splitterDragBegin, ImGuiSelectableFlags.None, new Vector2(m_window.Width - 18, 6));
+            ImGui.Selectable("", m_splitterDragBegin, ImGuiSelectableFlags.None, new Vector2(windowSize.X - 18, 6));
             if (ImGui.IsMouseDown(ImGuiMouseButton.Left))
             {
                 if (ImGui.IsItemHovered())
@@ -727,7 +734,7 @@ namespace Repackinator.UI
 
             ImGui.Text("Config:");
 
-            ImGui.BeginChild(3, new Vector2(m_window.Width - 16, 224 + m_splitterOffset), true, ImGuiWindowFlags.AlwaysUseWindowPadding);
+            ImGui.BeginChild(3, new Vector2(windowSize.X - 16, 224 + m_splitterOffset), true, ImGuiWindowFlags.AlwaysUseWindowPadding);
 
             string[] groupingItems = new string[] { "Default", "Region", "Letter", "Region Letter", "Letter Region" };
 
@@ -849,7 +856,7 @@ namespace Repackinator.UI
 
             ImGui.EndChild();
 
-            ImGui.SetCursorPosY(m_window.Height - 40);
+            ImGui.SetCursorPosY(windowSize.Y - 40);
 
             if (ImGui.Button("Save Game Data", new Vector2(100, 30)))
             {
@@ -908,7 +915,7 @@ namespace Repackinator.UI
 
             ImGui.SameLine();
 
-            ImGui.SetCursorPosX(m_window.Width - 216);
+            ImGui.SetCursorPosX(windowSize.X - 216);
             if (ImGui.Button("Coded by EqUiNoX - Team Resurgent", new Vector2(208, 30)))
             {
                 m_creditsDialog.ShowModal(m_config);
