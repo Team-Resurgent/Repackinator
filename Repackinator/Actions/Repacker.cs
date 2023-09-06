@@ -856,7 +856,7 @@ namespace Repackinator.Actions
                         count++;
 
                         var decodedLink = gameDataItem.Link;
-                        if (!decodedLink.StartsWith("http", StringComparison.CurrentCultureIgnoreCase))
+                        if (!decodedLink.StartsWith("http", StringComparison.CurrentCultureIgnoreCase) && string.IsNullOrEmpty(decodedLink) == false)
                         {
                             byte[] linkBytes = Convert.FromBase64String(gameDataItem.Link);
                             decodedLink = Encoding.ASCII.GetString(linkBytes);
@@ -879,14 +879,21 @@ namespace Repackinator.Actions
                             CurrentProgress.Progress1Text = $"Processing {count} of {leechlistCount}";
                             SendProgress();
 
-                            Log(LogMessageLevel.Info, $"Downloading '{gameDataItem.ISOName}'.");
-
-                            var result = DownloadFromUrlToPath(decodedLink, tempPath, (downloaded, totalLength, bytesPerSecond) =>
+                            if (string.IsNullOrEmpty(decodedLink) == false)
                             {
-                                CurrentProgress.Progress2 = downloaded / (float)totalLength;
-                                CurrentProgress.Progress2Text = $"Downloaded {Math.Round(downloaded / (1024 * 1024.0f), 2)}MB of {Math.Round(totalLength / (1024 * 1024.0f), 2)}MB ({Math.Round(bytesPerSecond / 1024, 2)}KB/s)";
-                                SendProgress();
-                            }, cancellationToken).Result;
+                                Log(LogMessageLevel.Info, $"Downloading '{gameDataItem.ISOName}'.");
+
+                                var result = DownloadFromUrlToPath(decodedLink, tempPath, (downloaded, totalLength, bytesPerSecond) =>
+                                {
+                                    CurrentProgress.Progress2 = downloaded / (float)totalLength;
+                                    CurrentProgress.Progress2Text = $"Downloaded {Math.Round(downloaded / (1024 * 1024.0f), 2)}MB of {Math.Round(totalLength / (1024 * 1024.0f), 2)}MB ({Math.Round(bytesPerSecond / 1024, 2)}KB/s)";
+                                    SendProgress();
+                                }, cancellationToken).Result;
+                            }
+                            else
+                            {
+                                Log(LogMessageLevel.Warning, $"No download link for '{gameDataItem.ISOName}'.");
+                            }
 
                             if (cancellationToken.IsCancellationRequested)
                             {
