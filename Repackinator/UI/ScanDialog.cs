@@ -15,7 +15,7 @@ namespace Repackinator.UI
         private string _progress2Text = string.Empty;
         private float _progress2 = 0f;
         private List<LogMessage> _log = new();
-        private Config _config;
+        private Config _config = new();
         private GameData[]? _gameData;
         private Stopwatch _stopwatch = new();
         private CancellationTokenSource _cancellationTokenSource = new();

@@ -19,8 +19,7 @@ namespace Repackinator
 
         public Action? RenderUI { get; set; }
 
-        public ImGuiController? Controller { get; set; }
-
+        public ImGuiController Controller { get; set; }
 
         protected override void OnResize(ResizeEventArgs e)
         {

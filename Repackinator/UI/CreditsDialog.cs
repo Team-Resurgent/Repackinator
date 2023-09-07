@@ -16,7 +16,7 @@ namespace Repackinator.UI
             public float Scale { get; set; }
         }
 
-        private Config _config;
+        private Config _config = new();
         private bool _showModal;
         private bool _open;
 

@@ -63,6 +63,11 @@ namespace Repackinator.Console
 
                 var outputSuffix = string.Empty;
                 var outputPath = Path.GetDirectoryName(input);
+                if (outputPath == null)
+                {
+                    throw new OptionException("Unable to get directory from input.", "input");
+                }
+
                 var outputNameWithoutExtension = Path.GetFileNameWithoutExtension(input);
                 var subExtension = Path.GetExtension(outputNameWithoutExtension);
                 if (subExtension.Equals(".1") || subExtension.Equals(".2"))

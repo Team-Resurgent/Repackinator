@@ -13,7 +13,7 @@ namespace Repackinator.UI
 {
     public unsafe class ApplicationUI
     {
-        private Window? m_window;
+        private Window m_window;
         private GameData[]? m_gameDataList;
         private PathPicker? m_inputFolderPicker;
         private PathPicker? m_outputFolderPicker;
@@ -43,6 +43,7 @@ namespace Repackinator.UI
 
         public ApplicationUI(string version)
         {
+            m_window = new Window();
             m_version = version;
         }
 

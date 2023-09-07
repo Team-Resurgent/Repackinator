@@ -67,7 +67,7 @@ namespace Repackinator.Models
         {
             var configJson = File.ReadAllText(path);
             var result = JsonSerializer.Deserialize<Config>(configJson);
-            return result;
+            return result ?? new();
         }
 
         public static Config LoadConfig()
