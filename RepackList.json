@@ -6871,9 +6871,13 @@
   },
   {
     "Title ID": "4D53005D",
+    "Title Name": "Links 2004",
     "Version": "00000001",
     "Region": "USA",
     "Letter": "L",
+    "XBE Title": "Links 2004 (USA)",
+    "Folder Name": "Links 2004 (USA)",
+    "ISO Name": "Links 2004 (USA)",
     "ISO Checksum": "9218CB76",
     "Process": "Y",
     "Scrub": "Y",
@@ -9927,7 +9931,7 @@
   },
   {
     "Title ID": "5553004C",
-    "Title Name": "Peter Jackson\u0027s King Kong official Game ",
+    "Title Name": "Peter Jackson\u0027s King Kong official Game",
     "Version": "00000002",
     "Region": "GLO",
     "Letter": "P",
@@ -13197,7 +13201,7 @@
   },
   {
     "Title ID": "42560003",
-    "Title Name": "The Chronicles of Narnia: The Lion, the ",
+    "Title Name": "The Chronicles of Narnia: The Lion, the",
     "Version": "00000001",
     "Region": "USA-JPN",
     "Letter": "T",
