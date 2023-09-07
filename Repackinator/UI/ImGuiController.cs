@@ -36,11 +36,12 @@ namespace Repackinator.UI
 
         private int _windowWidth;
         private int _windowHeight;
-        private Vector2 _scaleFactor = Vector2.One;
+        private Vector2 _hdpiScale = Vector2.One;
+        private Vector2 _retinaScale = Vector2.One;
 
         public Vector2 GetScaleFactor()
         {
-            return _scaleFactor;
+            return _hdpiScale / _retinaScale;
         }
 
         public int SplashTexture => _splashTexture;
@@ -193,11 +194,18 @@ namespace Repackinator.UI
             style.PopupRounding = 6;
         }
 
-        public unsafe ImGuiController(int width, int height, Vector2 scaleFactor)
+        public unsafe ImGuiController(Window window)
         {
-            _windowWidth = width;
-            _windowHeight = height;
-            _scaleFactor = scaleFactor;
+            _windowWidth = window.ClientSize.X;
+            _windowHeight = window.ClientSize.Y;
+
+            _hdpiScale = Vector2.One;
+            if (window.TryGetCurrentMonitorScale(out var scaleX, out var scaleY))
+            {
+                _hdpiScale = new Vector2(scaleX, scaleY);
+            }
+
+            _retinaScale = new Vector2(window.Width / (float)window.Size.X, window.Height / (float)window.Size.Y);
 
             int major = GL.GetInteger(GetPName.MajorVersion);
             int minor = GL.GetInteger(GetPName.MinorVersion);
@@ -340,7 +348,7 @@ namespace Repackinator.UI
         private void SetPerFrameImGuiData(float deltaSeconds)
         {
             ImGuiIOPtr io = ImGui.GetIO();
-            io.DisplaySize = new Vector2(_windowWidth, _windowHeight) / GetScaleFactor();
+            io.DisplaySize = new Vector2(_windowWidth, _windowHeight) / _hdpiScale;
             io.DeltaTime = deltaSeconds;
         }
 
@@ -492,7 +500,7 @@ namespace Repackinator.UI
             GL.BindVertexArray(_vertexArray);
             CheckGLError("VAO");
 
-            draw_data.ScaleClipRects(GetScaleFactor());
+            draw_data.ScaleClipRects(_hdpiScale);
 
             GL.Enable(EnableCap.Blend);
             GL.Enable(EnableCap.ScissorTest);

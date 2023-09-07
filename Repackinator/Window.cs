@@ -10,12 +10,7 @@ namespace Repackinator
     {
         public Window() : base(GameWindowSettings.Default, new NativeWindowSettings() { Size = new Vector2i(1600, 900), APIVersion = new Version(3, 3) })
         {
-            var scaleFactor = System.Numerics.Vector2.One;
-            if (TryGetCurrentMonitorScale(out var scaleX, out var scaleY))
-            {
-                scaleFactor = new System.Numerics.Vector2(scaleX, scaleY);
-            }
-            Controller = new ImGuiController(ClientSize.X, ClientSize.Y, scaleFactor);
+            Controller = new ImGuiController(this);
         }
 
         public int Width => ClientSize.X;
