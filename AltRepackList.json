@@ -15816,6 +15816,21 @@
     "Category": "AlphaGame",
     "Info": "http://redump.org/disc/93368"
   },
+    {
+    "Title ID": "584C0008",
+    "Title Name": "Re-Volt",
+    "Version": "00000003",
+    "Region": "JPN",
+    "Letter": "R",
+    "XBE Title": "Re-Volt (JPN)",
+    "Folder Name": "Re-Volt (JPN)",
+    "ISO Name": "Re-Volt (JPN)",
+    "ISO Checksum": "DF0FBDAB",
+    "Process": "Y",
+    "Scrub": "Y",
+    "Category": "AlphaGame",
+    "Info": "http://redump.org/disc/104042"
+  },
   {
     "Title ID": "5454001A",
     "Title Name": "Red Dead Revolver",
