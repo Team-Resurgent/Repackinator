@@ -25,7 +25,7 @@ namespace Repackinator.Console
             return new OptionSet {
                 { "i|input=", "Input file", i => Input = i },
                 { "s|scrub=", "Scrub mode (None *default*, Scrub, TrimmedScrub)", s => ScrubMode = s },
-                { "c|compress", "Compress (None *default, CCi, CSO)", c => CompressType = c.ToUpper() },
+                { "c|compress=", "Compress (None *default*, CCi, CSO)", c => CompressType = c.ToUpper() },
                 { "h|help", "show help", h => ShowHelp = h != null },
                 { "w|wait", "Wait on exit", w => Wait = w != null },
                 { "q|quiet", "Suppress status output", q => Quiet = q != null }
