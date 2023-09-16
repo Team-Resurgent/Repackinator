@@ -25,7 +25,7 @@ namespace Repackinator.Console
             return new OptionSet {
                 { "i|input=", "Input file", i => Input = i },
                 { "s|scrub=", "Scrub mode (None *default*, Scrub, TrimmedScrub)", s => ScrubMode = s },
-                { "c|compress=", "Compress (None *default*, CCi, CSO)", c => CompressType = c.ToUpper() },
+                { "c|compress=", "Compress (None *default*, CCI, CSO)", c => CompressType = c },
                 { "h|help", "show help", h => ShowHelp = h != null },
                 { "w|wait", "Wait on exit", w => Wait = w != null },
                 { "q|quiet", "Suppress status output", q => Quiet = q != null }
@@ -95,15 +95,15 @@ namespace Repackinator.Console
                 }
 
                 var compressValue = CompressEnum.None;
-                if (string.Equals(CompressType, "NONE"))
+                if (string.Equals(CompressType, "NONE", StringComparison.CurrentCultureIgnoreCase))
                 {
                     compressValue = CompressEnum.None;
                 }
-                else if (string.Equals(CompressType, "CCI"))
+                else if (string.Equals(CompressType, "CCI", StringComparison.CurrentCultureIgnoreCase))
                 {
                     compressValue = CompressEnum.CCI;
                 }
-                else if (string.Equals(CompressType, "CSO"))
+                else if (string.Equals(CompressType, "CSO", StringComparison.CurrentCultureIgnoreCase))
                 {
                     compressValue = CompressEnum.CSO;
                 }
