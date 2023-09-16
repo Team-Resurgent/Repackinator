@@ -141,7 +141,7 @@ namespace Repackinator.Console
                     }
                     if (compressValue == CompressEnum.CSO)
                     {
-                        XisoUtility.CreateCSO(imageInput, outputPath, outputNameWithoutExtension, ".cci", scrub, trimmedScrub, (s, p) =>
+                        XisoUtility.CreateCSO(imageInput, outputPath, outputNameWithoutExtension, ".cso", scrub, trimmedScrub, (s, p) =>
                         {
                             var amount = (float)Math.Round(p * 100);
                             if (!Quiet && amount != previousProgress)
