@@ -942,8 +942,6 @@
     "Process": "Y",
     "Scrub": "Y",
     "Category": "Game",
-    "Info": "http://redump.org/disc/23943"
-  },
   {
     "Title ID": "4950000A",
     "Title Name": "Baldur\u0027s Gate: Dark Alliance 2",
@@ -3135,21 +3133,6 @@
     "Info": "http://redump.org/disc/27118"
   },
   {
-    "Title ID": "52410006",
-    "Title Name": "Crash",
-    "Version": "00000002",
-    "Region": "PAL",
-    "Letter": "C",
-    "XBE Title": "Crash (PAL)",
-    "Folder Name": "Crash (PAL)",
-    "ISO Name": "Crash (PAL)",
-    "ISO Checksum": "44D31F3E",
-    "Process": "Y",
-    "Scrub": "Y",
-    "Category": "Game",
-    "Info": "http://redump.org/disc/26948"
-  },
-  {
     "Title ID": "56550003",
     "Title Name": "Crash Bandicoot: tWoC",
     "Version": "00000001",
@@ -3900,21 +3883,6 @@
     "Info": "http://redump.org/disc/33855"
   },
   {
-    "Title ID": "42550001",
-    "Title Name": "DOUBLE-STEAL",
-    "Version": "00000001",
-    "Region": "JPN",
-    "Letter": "D",
-    "XBE Title": "Double-S.T.E.A.L (JPN)",
-    "Folder Name": "Double-S.T.E.A.L (JPN)",
-    "ISO Name": "Double-S.T.E.A.L (JPN)",
-    "ISO Checksum": "1D19E528",
-    "Process": "Y",
-    "Scrub": "Y",
-    "Category": "Game",
-    "Info": "http://redump.org/disc/33386"
-  },
-  {
     "Title ID": "4D570011",
     "Title Name": "Dr. Muto",
     "Version": "00000001",
@@ -4483,21 +4451,6 @@
     "Scrub": "Y",
     "Category": "Game",
     "Info": "http://redump.org/disc/48892"
-  },
-  {
-    "Title ID": "49460001",
-    "Title Name": "ExChaser",
-    "Version": "00000001",
-    "Region": "JPN",
-    "Letter": "E",
-    "XBE Title": "Ex-Chaser (JPN)",
-    "Folder Name": "Ex-Chaser (JPN)",
-    "ISO Name": "Ex-Chaser (JPN)",
-    "ISO Checksum": "9757ABC5",
-    "Process": "Y",
-    "Scrub": "Y",
-    "Category": "Game",
-    "Info": "http://redump.org/disc/33856"
   },
   {
     "Title ID": "4B4B0003",
@@ -6045,21 +5998,6 @@
     "Info": "http://redump.org/disc/50450"
   },
   {
-    "Title ID": "4B4E000A",
-    "Title Name": "\u30CF\u30A4\u30D1\u30FC\u30B9\u30DD\u30FC\u30C4 2002 WINTER",
-    "Version": "00000001",
-    "Region": "JPN",
-    "Letter": "H",
-    "XBE Title": "Hyper Sports 2002 Winter (JPN)",
-    "Folder Name": "Hyper Sports 2002 Winter (JPN)",
-    "ISO Name": "Hyper Sports 2002 Winter (JPN)",
-    "ISO Checksum": "F46250B4",
-    "Process": "Y",
-    "Scrub": "Y",
-    "Category": "Game",
-    "Info": "http://redump.org/disc/34122"
-  },
-  {
     "Title ID": "4E4D000F",
     "Title Name": "I-Ninja",
     "Version": "00000001",
@@ -7318,36 +7256,6 @@
     "Scrub": "Y",
     "Category": "Game",
     "Info": "http://redump.org/disc/46335"
-  },
-  {
-    "Title ID": "43430007",
-    "Title Name": "MARVEL VS. CAPCOM2",
-    "Version": "00000001",
-    "Region": "JPN",
-    "Letter": "M",
-    "XBE Title": "Marvel Vs. Capcom 2 - N.A.O.H (JPN)",
-    "Folder Name": "Marvel Vs. Capcom 2 - N.A.O.H (JPN)",
-    "ISO Name": "Marvel Vs. Capcom 2 - N.A.O.H (JPN)",
-    "ISO Checksum": "B14AD756",
-    "Process": "Y",
-    "Scrub": "Y",
-    "Category": "Game",
-    "Info": "http://redump.org/disc/33860"
-  },
-  {
-    "Title ID": "43430007",
-    "Title Name": "MARVEL VS. CAPCOM2",
-    "Version": "00000003",
-    "Region": "PAL",
-    "Letter": "M",
-    "XBE Title": "Marvel Vs. Capcom 2 - N.A.O.H (PAL)",
-    "Folder Name": "Marvel Vs. Capcom 2 - N.A.O.H (PAL)",
-    "ISO Name": "Marvel Vs. Capcom 2 - N.A.O.H (PAL)",
-    "ISO Checksum": "D1A913A6",
-    "Process": "Y",
-    "Scrub": "Y",
-    "Category": "Game",
-    "Info": "http://redump.org/disc/21820"
   },
   {
     "Title ID": "43430007",
@@ -10245,36 +10153,6 @@
     "Info": "http://redump.org/disc/54254"
   },
   {
-    "Title ID": "4B4E0022",
-    "Title Name": "ProEvolutionSoccer4",
-    "Version": "00000001",
-    "Region": "PAL",
-    "Letter": "P",
-    "XBE Title": "Pro Evolution Soccer 4 (PAL)",
-    "Folder Name": "Pro Evolution Soccer 4 (PAL)",
-    "ISO Name": "Pro Evolution Soccer 4 (PAL)",
-    "ISO Checksum": "536A28D5",
-    "Process": "Y",
-    "Scrub": "Y",
-    "Category": "Game",
-    "Info": "http://redump.org/disc/12166"
-  },
-  {
-    "Title ID": "4B4E0030",
-    "Title Name": "ProEvolutionSoccer5",
-    "Version": "00000002",
-    "Region": "PAL",
-    "Letter": "P",
-    "XBE Title": "Pro Evolution Soccer 5 (PAL)",
-    "Folder Name": "Pro Evolution Soccer 5 (PAL)",
-    "ISO Name": "Pro Evolution Soccer 5 (PAL)",
-    "ISO Checksum": "9CA0D7B5",
-    "Process": "Y",
-    "Scrub": "Y",
-    "Category": "Game",
-    "Info": "http://redump.org/disc/21021"
-  },
-  {
     "Title ID": "41540003",
     "Title Name": "ProFishingChallenge",
     "Version": "00000001",
@@ -10438,21 +10316,6 @@
     "Scrub": "Y",
     "Category": "Game",
     "Info": "http://redump.org/disc/23580"
-  },
-  {
-    "Title ID": "53450027",
-    "Title Name": "Puyo Pop Fever",
-    "Version": "0016D902",
-    "Region": "PAL",
-    "Letter": "P",
-    "XBE Title": "Puyo Pop Fever (PAL)",
-    "Folder Name": "Puyo Pop Fever (PAL)",
-    "ISO Name": "Puyo Pop Fever (PAL)",
-    "ISO Checksum": "4712B304",
-    "Process": "Y",
-    "Scrub": "Y",
-    "Category": "Game",
-    "Info": "http://redump.org/disc/21720"
   },
   {
     "Title ID": "4D530015",
@@ -12990,21 +12853,6 @@
     "Info": "http://redump.org/disc/21167"
   },
   {
-    "Title ID": "46530005",
-    "Title Name": "\u5929\u8A85 \u53C2\u3000\uFF5E\u56DE\u5E30\u30CE\u7AE0\uFF5E",
-    "Version": "00000001",
-    "Region": "JPN",
-    "Letter": "T",
-    "XBE Title": "Tenchu 3 - Kaiki No Shou (JPN)",
-    "Folder Name": "Tenchu 3 - Kaiki No Shou (JPN)",
-    "ISO Name": "Tenchu 3 - Kaiki No Shou (JPN)",
-    "ISO Checksum": "A5261DD1",
-    "Process": "Y",
-    "Scrub": "Y",
-    "Category": "Game",
-    "Info": "http://redump.org/disc/33396"
-  },
-  {
     "Title ID": "41500001",
     "Title Name": "Tenerezza",
     "Version": "00000001",
@@ -13018,21 +12866,6 @@
     "Scrub": "Y",
     "Category": "Game",
     "Info": "http://redump.org/disc/61888"
-  },
-  {
-    "Title ID": "4D53002F",
-    "Title Name": "Tenku",
-    "Version": "00000001",
-    "Region": "JPN",
-    "Letter": "T",
-    "XBE Title": "Tenku - Freestyle Snowboarding (JPN)",
-    "Folder Name": "Tenku - Freestyle Snowboarding (JPN)",
-    "ISO Name": "Tenku - Freestyle Snowboarding (JPN)",
-    "ISO Checksum": "42240A3A",
-    "Process": "Y",
-    "Scrub": "Y",
-    "Category": "Game",
-    "Info": "http://redump.org/disc/21176"
   },
   {
     "Title ID": "4D490003",
@@ -13965,21 +13798,6 @@
     "Info": "http://redump.org/disc/54502"
   },
   {
-    "Title ID": "434D0002",
-    "Title Name": "Race Driver",
-    "Version": "00000002",
-    "Region": "PAL",
-    "Letter": "T",
-    "XBE Title": "Toca Race Driver (PAL)",
-    "Folder Name": "Toca Race Driver (PAL)",
-    "ISO Name": "Toca Race Driver (PAL)",
-    "ISO Checksum": "5DB1ABBE",
-    "Process": "Y",
-    "Scrub": "Y",
-    "Category": "Game",
-    "Info": "http://redump.org/disc/24426"
-  },
-  {
     "Title ID": "434D0011",
     "Title Name": "Race Driver 2",
     "Version": "00000002",
@@ -14728,21 +14546,6 @@
     "Scrub": "Y",
     "Category": "Game",
     "Info": "http://redump.org/disc/13645"
-  },
-  {
-    "Title ID": "4143000C",
-    "Title Name": "Urban Freestyle Soccer",
-    "Version": "00000002",
-    "Region": "PAL",
-    "Letter": "U",
-    "XBE Title": "Urban Freestyle Soccer (PAL)",
-    "Folder Name": "Urban Freestyle Soccer (PAL)",
-    "ISO Name": "Urban Freestyle Soccer (PAL)",
-    "ISO Checksum": "065E74E9",
-    "Process": "Y",
-    "Scrub": "Y",
-    "Category": "Game",
-    "Info": "http://redump.org/disc/24498"
   },
   {
     "Title ID": "49470034",
@@ -15643,21 +15446,6 @@
     "Scrub": "Y",
     "Category": "Game",
     "Info": "http://redump.org/disc/49769"
-  },
-  {
-    "Title ID": "47450001",
-    "Title Name": "Zan Kabuki",
-    "Version": "00000001",
-    "Region": "JPN",
-    "Letter": "Z",
-    "XBE Title": "Zan Kabuki (JPN)",
-    "Folder Name": "Zan Kabuki (JPN)",
-    "ISO Name": "Zan Kabuki (JPN)",
-    "ISO Checksum": "02687341",
-    "Process": "Y",
-    "Scrub": "Y",
-    "Category": "Game",
-    "Info": "http://redump.org/disc/21168"
   },
   {
     "Title ID": "49470012",
