@@ -54,12 +54,22 @@ namespace Repackinator.UI
 
         private bool IsFiltered(int index)
         {
-            if (string.IsNullOrEmpty(m_searchText) || m_gameDataList == null)
+            if (m_gameDataList == null)
             {
                 return false;
             }
 
             GameData gameData = m_gameDataList[index];
+
+            if (gameData.List.Equals(m_config.List, StringComparison.CurrentCultureIgnoreCase) == false)
+            {
+                return true;
+            }
+
+            if (string.IsNullOrEmpty(m_searchText))
+            {
+                return false;
+            }
 
             if (m_config.SearchField == 0 && gameData.Process != null)
             {
@@ -395,7 +405,33 @@ namespace Repackinator.UI
 
             string[] searchItems = new string[] { "Process", "Scrub", "Title ID", "Region", "Version", "Title Name", "Letter", "XBE Title", "Folder Name", "Iso Name", "Iso Checksum" };
 
+            var listItems = m_gameDataList?.GroupBy(s => s.List).Select(s => s.Key).ToArray() ?? Array.Empty<string>();
+
+            ImGui.Spacing();
+
+            ImGui.Text("List:");
+            ImGui.SameLine();
+            ImGui.PushItemWidth(200);
+            var listIndex = 0;
+            for (int i = 0; i < listItems.Length; i++)
+            {
+                if (listItems[i].Equals(m_config.List, StringComparison.CurrentCultureIgnoreCase) == false)
+                {
+                    continue;
+                }
+                listIndex = i;
+                break;
+            }
+            if (ImGui.Combo("##list", ref listIndex, listItems, listItems.Length))
+            {
+                m_config.List = listItems[listIndex];
+                Config.SaveConfig(m_config);
+            }
+            ImGui.PopItemWidth();
+            ImGui.SameLine();
+
             ImGui.Text("Search:");
+            ImGui.SameLine();
             ImGui.PushItemWidth(200);
             var searchField = m_config.SearchField;
             if (ImGui.Combo("##searchField", ref searchField, searchItems, searchItems.Length))
@@ -417,6 +453,7 @@ namespace Repackinator.UI
             ImGui.SameLine();
             Toggle("##compress", ref m_showInvalid, new Vector2(38, 20));
 
+            ImGui.Spacing();
             ImGui.Spacing();
 
             const int MyItemColumnID_Process = 0;

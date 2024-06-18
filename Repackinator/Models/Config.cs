@@ -22,6 +22,8 @@ namespace Repackinator.Models
 
     public class Config
     {
+        public string List { get; set; }
+
         public string InputPath { get; set; }
 
         public string OutputPath { get; set; }
@@ -49,6 +51,7 @@ namespace Repackinator.Models
 
         public Config()
         {
+            List = "Main";
             InputPath = string.Empty;
             OutputPath = string.Empty;
             Grouping = GroupingEnum.None;

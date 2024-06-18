@@ -40,7 +40,7 @@ namespace Repackinator.Actions
             File.AppendAllText("ScanLog.txt", logMessage.ToLogFormat());
         }
 
-        private void ProcessFolder(string folder, Stopwatch procesTime, CancellationToken cancellationToken)
+        private void ProcessFolder(string folder, Config config, Stopwatch procesTime, CancellationToken cancellationToken)
         {
             if (GameDataList == null)
             {
@@ -125,6 +125,10 @@ namespace Repackinator.Actions
                 bool found = false;
                 for (int i = 0; i < GameDataList.Length; i++)
                 {
+                    if (GameDataList[i].List.Equals(config.List, StringComparison.CurrentCultureIgnoreCase) == false)
+                    {
+                        continue;
+                    }
                     if (GameDataList[i].TitleID == titleId && GameDataList[i].Region == gameRegion && GameDataList[i].Version == version)
                     {
                         found = true;
@@ -196,7 +200,7 @@ namespace Repackinator.Actions
                     CurrentProgress.Progress1 = pathsScanned / (float)totalPaths;
                     SendProgress();
 
-                    ProcessFolder(pathToProcess, stopwatch, cancellationToken);
+                    ProcessFolder(pathToProcess, config, stopwatch, cancellationToken);
 
                     try
                     {

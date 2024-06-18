@@ -848,7 +848,13 @@ namespace Repackinator.Actions
                     for (int i = 0; i < GameDataList.Length; i++)
                     {
                         GameData gameDataItem = GameDataList[i];
-                        if (!gameDataItem.Process.Equals("Y", StringComparison.CurrentCultureIgnoreCase))
+
+                        if (gameDataItem.List.Equals(config.List, StringComparison.CurrentCultureIgnoreCase) == false)
+                        {
+                            continue;
+                        }
+
+                        if (gameDataItem.Process.Equals("Y", StringComparison.CurrentCultureIgnoreCase) == false)
                         {
                             continue;
                         }

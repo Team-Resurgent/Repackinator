@@ -7,6 +7,9 @@ namespace Repackinator.Models
         [JsonIgnore]
         public bool Selected { get; set; }
 
+        [JsonPropertyName("List")]
+        public string List { get; set; }
+
         [JsonPropertyName("Title ID")]
         public string TitleID { get; set; }
 
