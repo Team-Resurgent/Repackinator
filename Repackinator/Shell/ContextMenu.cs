@@ -33,7 +33,7 @@ namespace Repackinator.Shell
 
             RegisterSubMenu(key, "01ConvertToISO", "Convert To ISO", $"\"{exePath}\" -i=\"%L\" -a=convert -w");
             RegisterSubMenu(key, "02ConvertToISOScrub", "Convert To ISO (Scrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=Scrub -w");
-            RegisterSubMenu(key, "03ConvertToIsoTrimmedScrub", "Convert To ISO (TrimmedScrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=TrimmedScrub -w",);
+            RegisterSubMenu(key, "03ConvertToIsoTrimmedScrub", "Convert To ISO (TrimmedScrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=TrimmedScrub -w");
 
             RegisterSubMenu(key, "04ConvertToCCI", "Convert To CCI", $"\"{exePath}\" -i=\"%L\" -a=convert -c=CCI -w");
             RegisterSubMenu(key, "05ConvertToCCIScrub", "Convert To CCI (Scrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=Scrub -c=CCI -w");
