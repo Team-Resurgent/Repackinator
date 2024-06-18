@@ -33,7 +33,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 7.0.x
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
@@ -42,16 +42,16 @@ jobs:
       run: dotnet publish ./${{ matrix.project }}/${{ matrix.project }}.csproj -p:Platform=${{ matrix.arch }} -r ${{ matrix.os_flavor }} -c Release --self-contained true -p:DebugType=None -p:DebugSymbols=false
     - name: Chmod (Unix)
       if: ${{ matrix.os_flavor == 'linux-x64' || matrix.os_flavor == 'osx-x64' }}
-      run: chmod +x ${{ github.workspace }}/${{ matrix.project }}/bin/${{ matrix.arch }}/Release/net8.0/${{ matrix.os_flavor }}/publish/${{ matrix.project_lowercase }}
+      run: chmod +x ${{ github.workspace }}/${{ matrix.project }}/bin/${{ matrix.arch }}/Release/net7.0/${{ matrix.os_flavor }}/publish/${{ matrix.project_lowercase }}
     - name: Compress binaries
-      run: 7z a ${{ github.workspace }}/${{ matrix.project }}-${{ matrix.os_flavor }}.${{ matrix.archive_ext }} ${{ github.workspace }}/${{ matrix.project }}/bin/${{ matrix.arch }}/Release/net8.0/${{ matrix.os_flavor }}/publish/*
+      run: 7z a ${{ github.workspace }}/${{ matrix.project }}-${{ matrix.os_flavor }}.${{ matrix.archive_ext }} ${{ github.workspace }}/${{ matrix.project }}/bin/${{ matrix.arch }}/Release/net7.0/${{ matrix.os_flavor }}/publish/*
     - name: List directories and files
       run: find .
     - name: Upload Build Artifact
       uses: actions/upload-artifact@v3
       with:
         name: ${{ matrix.project }}-${{ matrix.os_flavor }}
-        path: ${{ github.workspace }}/${{ matrix.project }}/bin/${{ matrix.arch }}/Release/net8.0/${{ matrix.os_flavor }}/publish/*
+        path: ${{ github.workspace }}/${{ matrix.project }}/bin/${{ matrix.arch }}/Release/net7.0/${{ matrix.os_flavor }}/publish/*
         if-no-files-found: error
     - name: Create draft Release
       uses: softprops/action-gh-release@v1
