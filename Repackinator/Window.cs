@@ -8,7 +8,7 @@ namespace Repackinator
 {
     public class Window : GameWindow
     {
-        public Window() : base(GameWindowSettings.Default, new NativeWindowSettings() { Title = "", Size = new Vector2i(1600, 900), APIVersion = new Version(3, 3) })
+        public Window() : base(GameWindowSettings.Default, new NativeWindowSettings() { Title = "", ClientSize = new Vector2i(640, 480), APIVersion = new Version(3, 3) })
         {
             Controller = new ImGuiController(this);
         }

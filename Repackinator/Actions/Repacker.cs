@@ -112,7 +112,7 @@ namespace Repackinator.Actions
                     {
                         foreach (var entry in archive.Entries)
                         {
-                            if (!Path.GetExtension(entry.Key).Equals(".iso", StringComparison.CurrentCultureIgnoreCase))
+                            if (!Path.GetExtension(entry.Key)?.Equals(".iso", StringComparison.CurrentCultureIgnoreCase) ?? true)
                             {
                                 continue;
                             }
