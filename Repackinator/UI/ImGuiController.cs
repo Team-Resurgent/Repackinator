@@ -205,7 +205,7 @@ namespace Repackinator.UI
                 _hdpiScale = new Vector2(scaleX, scaleY);
             }
 
-            _retinaScale = new Vector2(window.Width / (float)window.Size.X, window.Height / (float)window.Size.Y);
+            //_retinaScale = new Vector2(window.Width / (float)window.Size.X, window.Height / (float)window.Size.Y);
 
             int major = GL.GetInteger(GetPName.MajorVersion);
             int minor = GL.GetInteger(GetPName.MinorVersion);
