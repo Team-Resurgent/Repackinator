@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         arch: [x64]
-        os_flavor: [win-x64,linux-x64,osx-x64]
+        os_flavor: [win-x64]
         project: [Repackinator]
         project_lowercase: [repackinator]
         include:
