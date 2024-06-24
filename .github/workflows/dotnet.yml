@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         arch: [x64]
-        os_flavor: [win-x64]
+        os_flavor: [win-x64, linux-x64, osx-x64]
         project: [Repackinator]
         project_lowercase: [repackinator]
         include:
@@ -36,8 +36,6 @@ jobs:
         dotnet-version: 7.0.x
     - name: Restore dependencies
       run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore --no-self-contained
     - name: Publish
       run: dotnet publish ./${{ matrix.project }}/${{ matrix.project }}.csproj -p:Platform=${{ matrix.arch }} -r ${{ matrix.os_flavor }} -c Release -p:DebugType=None -p:DebugSymbols=false -maxcpucount:1
     - name: Chmod (Unix)
