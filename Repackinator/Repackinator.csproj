@@ -10,6 +10,7 @@
 		<AnalysisLevel>latest</AnalysisLevel>
 		<Platforms>x64</Platforms>
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+		<PublishSingleFile>true</PublishSingleFile>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(RuntimeIdentifier)' == 'win-x64'">
