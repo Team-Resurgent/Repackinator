@@ -400,7 +400,8 @@ namespace Repackinator.UI
             }
 
             ImGui.Begin("Main", ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize);
-            ImGui.SetWindowSize(GetScaledWindowSize());
+            ImGui.SetWindowSize(GetScaledWindowSize() + new Vector2(16, 16));
+           
             ImGui.SetWindowPos(new Vector2(0, 0), ImGuiCond.Always);
 
             string[] searchItems = new string[] { "Process", "Scrub", "Title ID", "Region", "Version", "Title Name", "Letter", "XBE Title", "Folder Name", "Iso Name", "Iso Checksum" };
@@ -766,7 +767,7 @@ namespace Repackinator.UI
 
             ImGui.Text("Config:");
 
-            ImGui.BeginChild(3, new Vector2(windowSize.X - 16, 224 + m_splitterOffset), true, ImGuiWindowFlags.AlwaysUseWindowPadding);
+            ImGui.BeginChild(3, new Vector2(windowSize.X - 16, 224 + m_splitterOffset));
 
             string[] groupingItems = new string[] { "Default", "Region", "Letter", "Region Letter", "Letter Region" };
 

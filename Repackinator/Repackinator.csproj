@@ -1,25 +1,27 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net7.0</TargetFramework>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<ApplicationIcon>..\Artwork\icon1.ico</ApplicationIcon>
-		<PublishTrimmed>false</PublishTrimmed>
-		<PublishSingleFile Condition="'$(Configuration)' == 'Release'">true</PublishSingleFile>
-		<SelfContained Condition="'$(Configuration)' == 'Release'">true</SelfContained>
-		<PublishReadyToRun>true</PublishReadyToRun>
-		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
-		<OutputType>exe</OutputType>
 		<AssemblyName>repackinator</AssemblyName>
+		<AnalysisLevel>latest</AnalysisLevel>
 		<Platforms>x64</Platforms>
+		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(RuntimeIdentifier)' == 'win-x64'">
+		<OutputType>WinExe</OutputType>
+		<DefineConstants>WINDOWS</DefineConstants>
 	</PropertyGroup>
 
 	<ItemGroup>
 	  <None Remove="Resources\attach.xbe" />
 	  <None Remove="Resources\icon.png" />
 	  <None Remove="Resources\TeamResurgent.jpg" />
+	  <None Remove="runtimes\win-x64\native\bass.dll" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -48,27 +50,29 @@
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 		</Content>
-		<Content Include="..\Linux\**\*.*" Condition="'$(RuntimeIdentifier)' == 'linux-x64'">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(RuntimeIdentifier)' == 'win-x64'">
+		<Content Include="bass.dll">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
-		<Content Include="bass.dll" Condition="'$(RuntimeIdentifier)' == 'win-x64'">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(RuntimeIdentifier)' == 'linux-x64'">
+		<Content Include="libbass.so">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
-		<Content Include="libbass.so" Condition="'$(RuntimeIdentifier)' == 'linux-x64'">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-		</Content>
-		<Content Include="libbass.dylib" Condition="'$(RuntimeIdentifier)' == 'osx-x64'">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(RuntimeIdentifier)' == 'osx-x64'">
+		<Content Include="libbass.dylib">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Downloader" Version="3.0.6" />
-		<PackageReference Include="ImGui.NET" Version="1.89.5" />
+		<PackageReference Include="ImGui.NET" Version="1.90.8.1" />
 		<PackageReference Include="ManagedBass.FftSignalProvider" Version="1.0.1" />
 		<PackageReference Include="Microsoft.DotNet.PlatformAbstractions" Version="3.1.6" />
 		<PackageReference Include="Mono.Options" Version="6.12.0.148" />

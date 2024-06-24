@@ -285,7 +285,7 @@ namespace Repackinator.UI
 
             var frameYOffset = ImGui.GetCursorPosY();
 
-            if (ImGui.BeginChildFrame(1, new Vector2(200, size.Y - (46 + frameYOffset)), ImGuiWindowFlags.None))
+            if (ImGui.BeginChild(1, new Vector2(200, size.Y - (46 + frameYOffset))))
             {
                 var specialFolders = GetSpecialFolders();
                 foreach (var specialFolder in specialFolders)
@@ -296,12 +296,12 @@ namespace Repackinator.UI
                         _selectedFolder = parts[1];
                     }
                 }
-                ImGui.EndChildFrame();
+                ImGui.EndChild();
             }
 
             ImGui.SameLine();
 
-            if (ImGui.BeginChildFrame(2, new Vector2(size.X - 224, size.Y - (46 + frameYOffset)), ImGuiWindowFlags.None))
+            if (ImGui.BeginChild(2, new Vector2(size.X - 224, size.Y - (46 + frameYOffset))))
             {
                 if (Directory.Exists(_selectedFolder))
                 {
@@ -323,7 +323,7 @@ namespace Repackinator.UI
                         Debug.Print($"Unable to process path '{directoryInfo.FullName}'.");
                     }
                 }
-                ImGui.EndChildFrame();
+                ImGui.EndChild();
             }
 
             ImGui.Spacing();

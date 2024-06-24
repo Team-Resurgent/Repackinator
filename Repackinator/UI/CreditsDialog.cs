@@ -25,7 +25,7 @@ namespace Repackinator.UI
         private int m_playBackHandle;
         private SignalProvider? m_signalProvider;
 
-        public string Title { get; set; } = string.Empty;
+        public string Title { get; set; } = "Credits";
 
         public string Message { get; set; } = "Repackinator brought to you by Team Resurgent and in collaboration with Team Cerbios, what application wouldn't be complete without some retro style credits... Repackinator is Open Source on our GitHub and is open to the Community to contribute to and help evolve the application into something amazing... Music is a remix of the C64 classic Comic Bakery by Stuart Wilson... Coding by EqUiNoX... Application Design by EqUiNoX, HoRnEyDvL, Hazeno... Testing by HoRnEyDvL, Hazeno, Rocky5, navi, Zatchbot... Shout outs in no particular order go to Grizzly Adams, Kekule, Blackbolt, Ryzee119, Xbox7887, Incursion64, Redline99, Empreal96, Fredr1kh, Braxton, Natetronn... Keep your eye out for more future applications from Team Resurgent... Til then, enjoy, and we will see you on our discord................................................................................. ";
         private float charOffset = 0;
