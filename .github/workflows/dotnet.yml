@@ -39,7 +39,7 @@ jobs:
     - name: Build
       run: dotnet build --no-restore --no-self-contained
     - name: Publish
-      run: dotnet publish ./${{ matrix.project }}/${{ matrix.project }}.csproj -p:Platform=${{ matrix.arch }} -r ${{ matrix.os_flavor }} -c Release -p:DebugType=None -p:DebugSymbols=false
+      run: dotnet publish ./${{ matrix.project }}.sln -p:Platform=${{ matrix.arch }} -r ${{ matrix.os_flavor }} -c Release -p:DebugType=None -p:DebugSymbols=false
     - name: Chmod (Unix)
       if: ${{ matrix.os_flavor == 'linux-x64' || matrix.os_flavor == 'osx-x64' }}
       run: chmod +x ${{ github.workspace }}/${{ matrix.project }}/bin/${{ matrix.arch }}/Release/net7.0/${{ matrix.os_flavor }}/publish/${{ matrix.project_lowercase }}
