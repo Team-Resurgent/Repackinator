@@ -205,7 +205,7 @@ namespace Repackinator.UI
                 _hdpiScale = new Vector2(scaleX, scaleY);
             }
 
-            //_retinaScale = new Vector2(window.Width / (float)window.Size.X, window.Height / (float)window.Size.Y);
+            _retinaScale = new Vector2(window.FramebufferSize.X / window.Width);
 
             int major = GL.GetInteger(GetPName.MajorVersion);
             int minor = GL.GetInteger(GetPName.MinorVersion);
@@ -450,7 +450,7 @@ namespace Repackinator.UI
             //var screenPoint = new Vector2i((int)MouseState.X, (int)MouseState.Y);
             //var point = screenPoint;//wnd.PointToClient(screenPoint);
             //io.MousePos = new System.Numerics.Vector2(point.X, point.Y);
-            io.MousePos = new Vector2((int)MouseState.X, (int)MouseState.Y);// / GetScaleFactor();
+            io.MousePos = new Vector2((int)MouseState.X, (int)MouseState.Y) / _hdpiScale;
 
             foreach (Keys key in Enum.GetValues(typeof(Keys)))
             {
