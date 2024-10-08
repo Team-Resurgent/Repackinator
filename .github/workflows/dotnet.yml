@@ -33,7 +33,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: 7.0.x
+        dotnet-version: 8.0.x
     - name: Publish
       run: dotnet publish ./${{ matrix.project }}/${{ matrix.project }}.csproj -p:Platform=${{ matrix.arch }} -r ${{ matrix.os_flavor }} -c Release -p:DebugType=None -p:DebugSymbols=false -maxcpucount:1
     - name: Chmod (Unix)
