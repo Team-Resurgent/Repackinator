@@ -400,7 +400,7 @@ namespace Repackinator.UI
             }
 
             ImGui.Begin("Main", ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize);
-            ImGui.SetWindowSize(GetScaledWindowSize() + new Vector2(16, 16));
+            ImGui.SetWindowSize(GetScaledWindowSize());
            
             ImGui.SetWindowPos(new Vector2(0, 0), ImGuiCond.Always);
 
