@@ -21,7 +21,7 @@ Programmed for the very specific task of compressing original Xbox ISO structure
 StellarOS's CSO format is now fully supported.
 </div>
 
-                        [ Program ..................................... Repackinator V1.4.4 ]
+                        [ Program ..................................... Repackinator V1.5.1 ]
                         [ Type ................................................ Iso Manager ]
                         [ Patreon ....................https://www.patreon.com/teamresurgent ]
 
