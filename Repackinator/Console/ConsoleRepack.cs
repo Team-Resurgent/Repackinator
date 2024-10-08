@@ -15,6 +15,7 @@ namespace Repackinator.Console
         public static string Grouping { get; set; } = "NONE";
         public static bool UpperCase { get; set; } = false;
         public static bool Recurse { get; set; } = false;
+        public static bool NoSplit { get; set; } = false;
         public static string Log { get; set; } = string.Empty;
         public static string CompressType { get; set; } = "NONE";
         public static bool TrimmedScrub { get; set; } = false;
@@ -30,6 +31,7 @@ namespace Repackinator.Console
                 { "u|upperCase", "Upper Case", u => UpperCase = u != null },
                 { "r|recurse", "Recurse (Traverse Sub Dirs)", r => Recurse = r != null },
                 { "c|compress=", "Compress (None *default*, CCi, CSO)", c => CompressType = c.ToUpper() },
+                { "n|nosplit", "No Split of output file", n => NoSplit = n != null },
                 { "t|trimmedScrub", "Trimmed Scrub", t => TrimmedScrub = t != null },
                 { "l|log=", "log file", l => Log = l },
                 { "h|help", "show help", h => ShowHelp = h != null },
@@ -159,6 +161,7 @@ namespace Repackinator.Console
                     RecurseInput = Recurse,
                     UpperCase = UpperCase,
                     CompressType = compressValue,
+                    NoSplit = NoSplit,
                     TrimmedScrub = TrimmedScrub,
                 };
 

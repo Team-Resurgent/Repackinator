@@ -12,6 +12,7 @@ namespace Repackinator.Console
         public static string Input { get; set; } = string.Empty;
         public static string ScrubMode { get; set; } = "NONE";
         public static string CompressType { get; set; } = "NONE";
+        public static bool NoSplit { get; set; } = false;
         public static bool ShowHelp { get; set; } = false;
         public static bool Wait { get; set; } = false;
         public static bool Quiet { get; set; } = false;
@@ -26,6 +27,7 @@ namespace Repackinator.Console
                 { "i|input=", "Input file", i => Input = i },
                 { "s|scrub=", "Scrub mode (None *default*, Scrub, TrimmedScrub)", s => ScrubMode = s },
                 { "c|compress=", "Compress (None *default*, CCI, CSO)", c => CompressType = c },
+                { "n|nosplit", "No Split of output file", n => NoSplit = n != null },
                 { "h|help", "show help", h => ShowHelp = h != null },
                 { "w|wait", "Wait on exit", w => Wait = w != null },
                 { "q|quiet", "Suppress status output", q => Quiet = q != null }
@@ -154,7 +156,7 @@ namespace Repackinator.Console
                     }
                     else
                     {
-                        XisoUtility.Split(imageInput, outputPath, outputNameWithoutExtension, ".iso", scrub, trimmedScrub, false, (s, p) =>
+                        XisoUtility.Split(imageInput, outputPath, outputNameWithoutExtension, ".iso", scrub, trimmedScrub, NoSplit, (s, p) =>
                         {
                             var amount = (float)Math.Round(p * 100);
                             if (!Quiet && amount != previousProgress)

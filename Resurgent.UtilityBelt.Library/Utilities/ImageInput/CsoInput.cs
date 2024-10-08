@@ -1,5 +1,4 @@
-﻿using LibDeflate;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 
 namespace Resurgent.UtilityBelt.Library.Utilities.ImageInput
