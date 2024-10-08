@@ -1,5 +1,4 @@
-﻿using LibDeflate;
-using Resurgent.UtilityBelt.Library.Utilities.ImageInput;
+﻿using Resurgent.UtilityBelt.Library.Utilities.ImageInput;
 using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.IO.Hashing;
