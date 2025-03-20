@@ -29,9 +29,9 @@ jobs:
             archive_ext: tar
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Setup .NET
-      uses: actions/setup-dotnet@v2
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
     - name: Publish
@@ -44,13 +44,13 @@ jobs:
     - name: List directories and files
       run: find .
     - name: Upload Build Artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.project }}-${{ matrix.os_flavor }}
         path: ${{ github.workspace }}/${{ matrix.project }}/bin/${{ matrix.arch }}/Release/net8.0/${{ matrix.os_flavor }}/publish/*
         if-no-files-found: error
     - name: Create draft Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       if: startsWith(github.ref, 'refs/heads/main')
       with:
         tag_name: latest
@@ -60,7 +60,7 @@ jobs:
           ${{ github.workspace }}/README.md
           ${{ github.workspace }}/${{ matrix.project }}-${{ matrix.os_flavor }}.${{ matrix.archive_ext }}
     - name: Create Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       if: startsWith(github.ref, 'refs/tags/')
       with:
         files: |
