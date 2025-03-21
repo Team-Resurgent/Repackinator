@@ -316,8 +316,8 @@ namespace Repackinator.UI
 
             ImGui.SetCursorPos(new Vector2(0, 5));
             if (ImGui.InvisibleButton("##closeCredits", new Vector2(600, 390)))
-            {                
-                if (ImGui.GetIO().KeyCtrl && ImGui.GetIO().KeyAlt)
+            {
+                if (ImGui.IsKeyDown(ImGuiKey.LeftCtrl) && ImGui.IsKeyDown(ImGuiKey.LeftAlt))
                 {
                     _config.LeechType = (_config.LeechType + 1) % 4;
                     Config.SaveConfig(_config);
