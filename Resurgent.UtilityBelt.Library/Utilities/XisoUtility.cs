@@ -923,7 +923,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
             var sectorSplit = (uint)(endSector - sectorOffset) / 2;
 
-            var partStream = new FileStream(Path.Combine(outputPath, $"{name}.1{extension}"), FileMode.Create, FileAccess.Write);
+            var partStream = new FileStream(Path.Combine(outputPath, $"{name}.1{extension}"), FileMode.Create, FileAccess.Write, FileShare.None, 2048 * 4096);
             var partWriter = new BinaryWriter(partStream);
 
             var emptySector = new byte[2048];
@@ -939,7 +939,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                         hasSplit = true;
                         partWriter.Dispose();
                         partStream.Dispose();
-                        partStream = new FileStream(Path.Combine(outputPath, $"{name}.2{extension}"), FileMode.Create, FileAccess.Write);
+                        partStream = new FileStream(Path.Combine(outputPath, $"{name}.2{extension}"), FileMode.Create, FileAccess.Write, FileShare.None, 2048 * 4096);
                         partWriter = new BinaryWriter(partStream);
                     }
 
