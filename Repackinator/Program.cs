@@ -3,7 +3,7 @@ using Repackinator.Shell;
 using Repackinator.Console;
 using Repackinator.UI;
 
-var version = "v1.5.1";
+var version = "v1.5.2";
 
 ContextMenu.RegisterContext();
 CultureInfo.DefaultThreadCurrentUICulture = Thread.CurrentThread.CurrentCulture;
