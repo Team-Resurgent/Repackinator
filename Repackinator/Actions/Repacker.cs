@@ -147,8 +147,8 @@ namespace Repackinator.Actions
                                     needsSecondPass = true;
                                 }
 
-                                using (var fileStream1 = new FileStream(Path.Combine(unpackPath, @"Repackinator.1.temp"), FileMode.Create))
-                                using (var fileStream2 = new FileStream(Path.Combine(unpackPath, @"Repackinator.2.temp"), FileMode.Create))
+                                using (var fileStream1 = new FileStream(Path.Combine(unpackPath, @"Repackinator.1.temp"), FileMode.Create, FileAccess.Write, FileShare.None, 2048 * 4096))
+                                using (var fileStream2 = new FileStream(Path.Combine(unpackPath, @"Repackinator.2.temp"), FileMode.Create, FileAccess.Write, FileShare.None, 2048 * 4096))
                                 {
                                     var extractProgress = new Action<float>((progress) =>
                                     {

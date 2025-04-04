@@ -923,7 +923,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
             var sectorSplit = (uint)(endSector - sectorOffset) / 2;
 
-            var partStream = new FileStream(Path.Combine(outputPath, $"{name}.1{extension}"), FileMode.Create, FileAccess.Write);
+            var partStream = new FileStream(Path.Combine(outputPath, $"{name}.1{extension}"), FileMode.Create, FileAccess.Write, FileShare.None, 2048 * 4096);
             var partWriter = new BinaryWriter(partStream);
 
             var emptySector = new byte[2048];
@@ -939,7 +939,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                         hasSplit = true;
                         partWriter.Dispose();
                         partStream.Dispose();
-                        partStream = new FileStream(Path.Combine(outputPath, $"{name}.2{extension}"), FileMode.Create, FileAccess.Write);
+                        partStream = new FileStream(Path.Combine(outputPath, $"{name}.2{extension}"), FileMode.Create, FileAccess.Write, FileShare.None, 2048 * 4096);
                         partWriter = new BinaryWriter(partStream);
                     }
 
@@ -1030,7 +1030,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 var indexInfos = new List<IndexInfo>();
 
                 var outputFile = Path.Combine(outputPath, iteration > 0 ? $"{name}.{iteration + 1}{extension}" : $"{name}{extension}");
-                var outputStream = new FileStream(outputFile, FileMode.Create, FileAccess.Write);
+                var outputStream = new FileStream(outputFile, FileMode.Create, FileAccess.Write, FileShare.None, 2048 * 4096);
                 var outputWriter = new BinaryWriter(outputStream);
 
                 uint header = 0x4D494343U;
@@ -1202,7 +1202,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
 
             var currentStream = 0;
             var outputFile = Path.Combine(outputPath, $"{name}.{currentStream + 1}{extension}");
-            streams.Add(new FileStream(outputFile, FileMode.Create, FileAccess.Write));
+            streams.Add(new FileStream(outputFile, FileMode.Create, FileAccess.Write, FileShare.None, 2048 * 4096));
 
             streams[currentStream].WriteUInt(0x4F534943);
             streams[currentStream].WriteUInt(headerSize);
@@ -1226,7 +1226,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                     currentStream++;
 
                     outputFile = Path.Combine(outputPath, $"{name}.{currentStream + 1}{extension}");
-                    var stream = new FileStream(outputFile, FileMode.Create, FileAccess.Write);
+                    var stream = new FileStream(outputFile, FileMode.Create, FileAccess.Write, FileShare.None, 2048 * 4096);
                     streams.Add(stream);
 
                     currentPosition = 0;
@@ -1342,7 +1342,7 @@ namespace Resurgent.UtilityBelt.Library.Utilities
                 return false;
             }
 
-            using var outputStream = new FileStream(outputFile, FileMode.Create, FileAccess.Write);
+            using var outputStream = new FileStream(outputFile, FileMode.Create, FileAccess.Write, FileShare.None, 2048 * 4096);
             using var outputWriter = new BinaryWriter(outputStream);
 
             var entries = (int)(uncompressedSize / (ulong)blockSize);
