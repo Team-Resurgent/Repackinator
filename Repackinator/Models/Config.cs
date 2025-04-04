@@ -28,6 +28,8 @@ namespace Repackinator.Models
 
         public string OutputPath { get; set; }
 
+        public string UnpackPath { get; set; }
+
         public GroupingEnum Grouping { get; set; }
 
         public bool RecurseInput { get; set; }
@@ -54,6 +56,7 @@ namespace Repackinator.Models
             List = "Main";
             InputPath = string.Empty;
             OutputPath = string.Empty;
+            UnpackPath = string.Empty;
             Grouping = GroupingEnum.None;
             RecurseInput = false;
             UpperCase = false;
