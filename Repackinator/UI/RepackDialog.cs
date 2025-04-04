@@ -4,12 +4,20 @@ using Repackinator.Logging;
 using Repackinator.Models;
 using System.Diagnostics;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Repackinator.UI
 {
     public class RepackDialog
     {
+
+        // sleep prevention
+        [DllImport("kernel32.dll")]
+        public static extern uint SetThreadExecutionState(uint esFlags);
+        public const uint ES_CONTINUOUS = 0x80000000;
+        public const uint ES_SYSTEM_REQUIRED = 0x00000001;
+
         private string _progress1Text = string.Empty;
         private float _progress1 = 0f;
         private string _progress2Text = string.Empty;
@@ -56,8 +64,22 @@ namespace Repackinator.UI
 
             _cancellationTokenSource = new CancellationTokenSource();
 
+            if (OperatingSystem.IsWindows()) {
+                if (SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED) != 0) {
+                    logger(new LogMessage(LogMessageLevel.Info, "Blocking computer entering sleep..."));
+                } else {
+                    logger(new LogMessage(LogMessageLevel.Warning, "Unable to prevent computer entering sleep."));
+                }
+            }
+
             var repacker = new Repacker();
             repacker.StartRepacking(_gameData, _config, progress, logger, _stopwatch, _cancellationTokenSource.Token);
+
+            if (OperatingSystem.IsWindows()) {
+                if (SetThreadExecutionState(ES_CONTINUOUS) != 0) {
+                    logger(new LogMessage(LogMessageLevel.Info, "Sleep unblocked."));
+                }
+            }
 
             _completed = true;
         }
