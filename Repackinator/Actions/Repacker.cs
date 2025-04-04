@@ -43,7 +43,7 @@ namespace Repackinator.Actions
             File.AppendAllText("RepackLog.txt", logMessage.ToLogFormat());
         }
 
-        private int ProcessFile(string inputFile, string outputPath, GroupingEnum grouping, bool hasAllCrcs, bool upperCase, CompressEnum compressType, bool trimmedScrub, bool noSplit, CancellationToken cancellationToken)
+        private int ProcessFile(string inputFile, string outputPath, string unpackPath, GroupingEnum grouping, bool hasAllCrcs, bool upperCase, CompressEnum compressType, bool trimmedScrub, bool noSplit, CancellationToken cancellationToken)
         {
             try
             {
@@ -61,7 +61,7 @@ namespace Repackinator.Actions
                     return ProcessIso(inputFile, outputPath, grouping, upperCase, compressType, trimmedScrub, noSplit, cancellationToken);
                 }
 
-                return ProcessArchive(inputFile, outputPath, grouping, hasAllCrcs, upperCase, compressType, trimmedScrub, noSplit, cancellationToken);
+                return ProcessArchive(inputFile, outputPath, unpackPath, grouping, hasAllCrcs, upperCase, compressType, trimmedScrub, noSplit, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -70,7 +70,7 @@ namespace Repackinator.Actions
             }
         }
 
-        public int ProcessArchive(string inputFile, string outputPath, GroupingEnum grouping, bool hasAllCrcs, bool upperCase, CompressEnum compressType, bool trimmedScrub, bool noSplit, CancellationToken cancellationToken)
+        public int ProcessArchive(string inputFile, string outputPath, string tempPath, GroupingEnum grouping, bool hasAllCrcs, bool upperCase, CompressEnum compressType, bool trimmedScrub, bool noSplit, CancellationToken cancellationToken)
         {
             if (GameDataList == null)
             {
@@ -78,7 +78,9 @@ namespace Repackinator.Actions
                 return -1;
             }
 
+
             var unpackPath = Path.Combine(outputPath, "Repackinator-Temp");
+            if (!string.IsNullOrEmpty(tempPath)) unpackPath = Path.Combine(tempPath, "Repackinator-Temp");
             var processOutput = string.Empty;
             var deleteProcessOutput = false;
 
@@ -145,8 +147,8 @@ namespace Repackinator.Actions
                                     needsSecondPass = true;
                                 }
 
-                                using (var fileStream1 = new FileStream(Path.Combine(unpackPath, @"Repackinator.1.temp"), FileMode.Create))
-                                using (var fileStream2 = new FileStream(Path.Combine(unpackPath, @"Repackinator.2.temp"), FileMode.Create))
+                                using (var fileStream1 = new FileStream(Path.Combine(unpackPath, @"Repackinator.1.temp"), FileMode.Create, FileAccess.Write, FileShare.None, 2048 * 4096))
+                                using (var fileStream2 = new FileStream(Path.Combine(unpackPath, @"Repackinator.2.temp"), FileMode.Create, FileAccess.Write, FileShare.None, 2048 * 4096))
                                 {
                                     var extractProgress = new Action<float>((progress) =>
                                     {
@@ -916,7 +918,7 @@ namespace Repackinator.Actions
                                     continue;
                                 }
 
-                                var gameIndex = ProcessFile(tempPath, config.OutputPath, config.Grouping, crcMissingCount == 0, config.UpperCase, config.CompressType, config.TrimmedScrub, config.NoSplit, cancellationToken);
+                                var gameIndex = ProcessFile(tempPath, config.OutputPath, config.UnpackPath, config.Grouping, crcMissingCount == 0, config.UpperCase, config.CompressType, config.TrimmedScrub, config.NoSplit, cancellationToken);
                                 if (gameIndex >= 0)
                                 {
                                     gameData[gameIndex].Process = "N";
@@ -976,7 +978,7 @@ namespace Repackinator.Actions
                         CurrentProgress.Progress1Text = $"Processing {i + 1} of {files.Count}";
                         SendProgress();
 
-                        var gameIndex = ProcessFile(file, config.OutputPath, config.Grouping, crcMissingCount == 0, config.UpperCase, config.CompressType, config.TrimmedScrub, config.NoSplit, cancellationToken);
+                        var gameIndex = ProcessFile(file, config.OutputPath, config.UnpackPath, config.Grouping, crcMissingCount == 0, config.UpperCase, config.CompressType, config.TrimmedScrub, config.NoSplit, cancellationToken);
                         if (gameIndex >= 0)
                         {
                             gameData[gameIndex].Process = "N";

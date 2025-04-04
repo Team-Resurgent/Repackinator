@@ -17,6 +17,7 @@ namespace Repackinator.UI
         private GameData[]? m_gameDataList;
         private PathPicker? m_inputFolderPicker;
         private PathPicker? m_outputFolderPicker;
+        private PathPicker? m_unpackFolderPicker;
         private PathPicker? m_exportFolderPicker;
         private EditDialog? m_editDialog;
         private OkDialog? m_okDialog;
@@ -295,6 +296,10 @@ namespace Repackinator.UI
                 Mode = PathPicker.PickerMode.Folder
             };
 
+            m_unpackFolderPicker = new PathPicker {
+                Mode = PathPicker.PickerMode.Folder
+            };
+
             m_exportFolderPicker = new PathPicker
             {
                 Mode = PathPicker.PickerMode.Folder,
@@ -327,6 +332,7 @@ namespace Repackinator.UI
         {
             if (m_inputFolderPicker == null ||
                 m_outputFolderPicker == null ||
+                m_unpackFolderPicker == null ||
                 m_exportFolderPicker == null ||
                 m_editDialog == null ||
                 m_okDialog == null ||
@@ -349,6 +355,11 @@ namespace Repackinator.UI
             if (m_outputFolderPicker.Render() && !m_outputFolderPicker.Cancelled)
             {
                 m_config.OutputPath = m_outputFolderPicker.SelectedFolder;
+                Config.SaveConfig(m_config);
+            }
+
+            if (m_unpackFolderPicker.Render() && !m_unpackFolderPicker.Cancelled) {
+                m_config.UnpackPath = m_unpackFolderPicker.SelectedFolder;
                 Config.SaveConfig(m_config);
             }
 
@@ -886,6 +897,23 @@ namespace Repackinator.UI
             if (ImGui.Button("...##outputPicker", new Vector2(30, 21)))
             {
                 m_outputFolderPicker.ShowModal(Directory.GetCurrentDirectory());
+            }
+
+            ImGui.Spacing();
+
+            ImGui.Text("Unpack Folder:");
+            ImGui.SameLine();
+            ImGui.SetCursorPosX(150);
+            ImGui.PushItemWidth(400);
+            string unpackPath = m_config.UnpackPath;
+            if (ImGui.InputText("##unpackFolder", ref unpackPath, 260)) {
+                m_config.UnpackPath = unpackPath;
+                Config.SaveConfig(m_config);
+            }
+            ImGui.PopItemWidth();
+            ImGui.SameLine();
+            if (ImGui.Button("...##unpackPicker", new Vector2(30, 21))) {
+                m_unpackFolderPicker.ShowModal(Directory.GetCurrentDirectory());
             }
 
             ImGui.EndChild();
