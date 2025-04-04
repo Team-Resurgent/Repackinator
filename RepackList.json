@@ -7728,7 +7728,7 @@
     "Info": "http://redump.org/disc/21868"
   },
   {
-    "List": "Main",
+    "List": "Alt",
     "Title ID": "4B410001",
     "Title Name": "World Soccer 2002",
     "Version": "00000001",
@@ -8352,7 +8352,7 @@
     "Info": "http://redump.org/disc/44279"
   },
   {
-    "List": "Alt",
+    "List": "Main",
     "Title ID": "4B4E0022",
     "Title Name": "ProEvolutionSoccer4",
     "Version": "00000001",
@@ -8416,7 +8416,7 @@
     "Info": "http://redump.org/disc/50485"
   },
   {
-    "List": "Main",
+    "List": "Alt",
     "Title ID": "4B4E0027",
     "Title Name": "Winning Eleven 8 International",
     "Version": "00000001",
@@ -8528,7 +8528,7 @@
     "Info": "http://redump.org/disc/50486"
   },
   {
-    "List": "Main",
+    "List": "Alt",
     "Title ID": "4B4E002F",
     "Title Name": "World Soccer Winning Eleven 9",
     "Version": "00000002",
@@ -8544,7 +8544,7 @@
     "Info": "http://redump.org/disc/50009"
   },
   {
-    "List": "Alt",
+    "List": "Main",
     "Title ID": "4B4E0030",
     "Title Name": "ProEvolutionSoccer5",
     "Version": "00000002",
@@ -10710,9 +10710,9 @@
     "Version": "00000002",
     "Region": "USA",
     "Letter": "R",
-    "XBE Title": "RedCard 20-03 (USA)",
-    "Folder Name": "Redcard 20-03 (USA)",
-    "ISO Name": "RedCard 20-03 (USA)",
+    "XBE Title": "RedCard 2003 (USA)",
+    "Folder Name": "Redcard 2003 (USA)",
+    "ISO Name": "RedCard 2003 (USA)",
     "ISO Checksum": "630AF9EC",
     "Process": "Y",
     "Scrub": "Y",
@@ -16768,7 +16768,7 @@
     "Info": "http://redump.org/disc/34119"
   },
   {
-    "List": "Alt",
+    "List": "Main",
     "Title ID": "43430008",
     "Title Name": "CAPCOM VS. SNK2 EO",
     "Version": "00000003",
@@ -33750,9 +33750,9 @@
     "Version": "00000003",
     "Region": "PAL",
     "Letter": "R",
-    "XBE Title": "Redcard 20-03 (PAL)",
-    "Folder Name": "Redcard 20-03 (PAL)",
-    "ISO Name": "Redcard 20-03 (PAL)",
+    "XBE Title": "Redcard 2003 (PAL)",
+    "Folder Name": "Redcard 2003 (PAL)",
+    "ISO Name": "Redcard 2003 (PAL)",
     "ISO Checksum": "8343599E",
     "Process": "Y",
     "Scrub": "Y",
