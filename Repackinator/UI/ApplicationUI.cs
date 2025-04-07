@@ -141,11 +141,6 @@ namespace Repackinator.UI
 
             GameData gameData = m_gameDataList[index];
 
-            if (gameData.FolderName.StartsWith("marc", StringComparison.OrdinalIgnoreCase))
-            {
-                int a = 1;
-            }
-
             if (gameData.XBETitle != null && gameData.XBETitle.Length > 40 && ValidateFatX(gameData.XBETitle))
             {
                 return false;
@@ -584,7 +579,7 @@ namespace Repackinator.UI
                             continue;
                         }
 
-                        if (m_showInvalid && !IsValidRow(i))
+                        if (m_showInvalid && IsValidRow(i))
                         {
                             continue;
                         }
