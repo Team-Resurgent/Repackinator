@@ -134,12 +134,17 @@ namespace Repackinator.UI
 
         private bool IsValidRow(int index)
         {
-            if (string.IsNullOrEmpty(m_searchText) || m_gameDataList == null)
+            if (m_gameDataList == null)
             {
                 return false;
             }
 
             GameData gameData = m_gameDataList[index];
+
+            if (gameData.FolderName.StartsWith("marc", StringComparison.OrdinalIgnoreCase))
+            {
+                int a = 1;
+            }
 
             if (gameData.XBETitle != null && gameData.XBETitle.Length > 40 && ValidateFatX(gameData.XBETitle))
             {
@@ -153,6 +158,8 @@ namespace Repackinator.UI
             {
                 return false;
             }
+
+
             return true;
         }
 
