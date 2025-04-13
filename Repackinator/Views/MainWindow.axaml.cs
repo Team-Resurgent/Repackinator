@@ -26,7 +26,7 @@ namespace Repackinator.Views
         {
             InitializeComponent();
             WindowLocator.MainWindow = this;
-            this.AttachDevTools(new KeyGesture(Key.F12, KeyModifiers.Control | KeyModifiers.Alt));
+            //this.AttachDevTools(new KeyGesture(Key.F12, KeyModifiers.Control | KeyModifiers.Alt));
 
             Title = $"Repackinator V{Repackinator.Core.Version.Value}";
 
