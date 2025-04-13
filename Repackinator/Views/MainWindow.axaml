@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Window xmlns="https://github.com/avaloniaui" 
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+        xmlns:vm="using:Repackinator.ViewModels" 
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+        xmlns:views="clr-namespace:Repackinator.Views" 
+        xmlns:utils="using:Repackinator.Utils" 
+        mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720" 
+        x:Class="Repackinator.Views.MainWindow" 
+        x:DataType="vm:MainWindowViewModel" 
+        Icon="/Assets/repackinator.ico" 
+        Title="">
+ 
+  <Window.Resources>
+    <utils:StringToBoolConverter x:Key="StringToBoolConverter" />
+    <utils:WarningColorConverter x:Key="WarningColorConverter" />
+    <Animation x:Key="FadeInAnimation" x:SetterTargetType="Grid" Duration="0:0:3" FillMode="Forward">
+      <KeyFrame Cue="0%">
+        <Setter Property="Opacity" Value="0.0"/>
+      </KeyFrame>
+      <KeyFrame Cue="100%">
+        <Setter Property="Opacity" Value="1.0"/>
+      </KeyFrame>
+    </Animation>
+    <Animation x:Key="FadeOutAnimation" x:SetterTargetType="Grid" Duration="0:0:3" FillMode="Forward">
+      <KeyFrame Cue="0%">
+        <Setter Property="Opacity" Value="1.0"/>
+      </KeyFrame>
+      <KeyFrame Cue="100%">
+        <Setter Property="Opacity" Value="0.0"/>
+      </KeyFrame>
+    </Animation>
+  </Window.Resources>
+  
+  <Design.DataContext>
+    <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+    <vm:MainWindowViewModel />
+  </Design.DataContext>
+
+  <Grid>
+    <Grid x:Name="MainContent" Opacity="0" Margin="10">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*" MinHeight="200" />
+        <RowDefinition Height="4" />
+        <RowDefinition Height="*" MinHeight="200" />
+      </Grid.RowDefinitions>
+      <DockPanel Grid.Row="0" LastChildFill="True">
+        <Menu DockPanel.Dock="Top" Margin="0, 0, 0, 10">
+          <MenuItem Header="_File">
+            <MenuItem Header="_Exit" Command="{Binding CloseCommand}"/>
+          </MenuItem>
+          <MenuItem Header="_List Options">
+            <MenuItem Header="Process Options">
+              <MenuItem.Items>
+                <MenuItem Header="Enable Process for Filtered Rows" Command="{Binding ProcessOptionCommand}" CommandParameter="Enable" />
+                <MenuItem Header="Disable Process for Filtered Rows" Command="{Binding ProcessOptionCommand}" CommandParameter="Disable" />
+                <MenuItem Header="Invert Process for Filtered Rows" Command="{Binding ProcessOptionCommand}" CommandParameter="Invert" />
+              </MenuItem.Items>
+            </MenuItem>
+            <MenuItem Header="Scrub Options">
+              <MenuItem.Items>
+                <MenuItem Header="Enable Scrub for Filtered Rows" Command="{Binding ScrubOptionCommand}" CommandParameter="Enable" />
+                <MenuItem Header="Disable Scrub for Filtered Rows" Command="{Binding ScrubOptionCommand}" CommandParameter="Disable" />
+                <MenuItem Header="Invert Scrub for Filtered Rows" Command="{Binding ScrubOptionCommand}" CommandParameter="Invert" />
+              </MenuItem.Items>
+            </MenuItem>
+          </MenuItem>
+        </Menu>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="10">
+          <Label VerticalAlignment="Center">List</Label>
+          <ComboBox ItemsSource="{Binding GameDataSectionList}" SelectedItem="{Binding SelectedGameDataSection}" Width="150">
+            <ComboBox.ItemTemplate>
+              <DataTemplate>
+                <TextBlock Text="{Binding Name}" />
+              </DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
+          <Label VerticalAlignment="Center">Search</Label>
+          <ComboBox ItemsSource="{Binding GameDataFilterList}" SelectedItem="{Binding SelectedGameDataFilter}" Width="150">
+            <ComboBox.ItemTemplate>
+              <DataTemplate>
+                <TextBlock Text="{Binding Name}" />
+              </DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
+          <Label VerticalAlignment="Center">for</Label>
+          <TextBox Width="300" Text="{Binding SearchForFilter}" />
+          <Label VerticalAlignment="Center">Show Invalid</Label>
+          <ToggleSwitch IsChecked="{Binding ShowInvalid}" OffContent="" OnContent="" />
+        </StackPanel>
+        <DataGrid x:Name="GameDataGrid" Grid.Row="0" Margin="10" ItemsSource="{Binding FilteredGameDataList}" CellEditEnding="GameDataListCellEditEnding" IsReadOnly="False" CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="True" GridLinesVisibility="All" BorderThickness="2" BorderBrush="Gray">
+          <DataGrid.Columns>
+            <DataGridCheckBoxColumn Header="Process" Tag="Process" Binding="{Binding Process, Converter={StaticResource StringToBoolConverter}}" />
+            <DataGridCheckBoxColumn Header="Scrub" Tag="Scrub" Binding="{Binding Scrub, Converter={StaticResource StringToBoolConverter}}" />
+            <DataGridTextColumn Header="Title ID" Tag="TitleID" Binding="{Binding TitleID}" />
+            <DataGridTextColumn Header="Version" Tag="Version" Binding="{Binding Version}" />
+            <DataGridTextColumn Header="Region" Tag="Region" Binding="{Binding Region}" />
+            <DataGridTextColumn Header="Title Name" Tag="Name" Binding="{Binding TitleName}" />
+            <DataGridTextColumn Header="Letter" Tag="Letter" Binding="{Binding Letter}" />
+            <DataGridTemplateColumn Header="XBE Title" Tag="XBETitle">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBox BorderThickness="0" Background="Transparent" Foreground="{Binding IsValidXBETitle, Converter={StaticResource WarningColorConverter}}" Text="{Binding XBETitle}" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTemplateColumn Header="Folder Name" Tag="FolderName">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBox BorderThickness="0" Background="Transparent" Foreground="{Binding IsValidFolderName, Converter={StaticResource WarningColorConverter}}" Text="{Binding FolderName}" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTemplateColumn Header="Iso Name" Tag="ISOName">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBox BorderThickness="0" Background="Transparent" Foreground="{Binding IsValidISOName, Converter={StaticResource WarningColorConverter}}" Text="{Binding ISOName}" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTextColumn Header="Iso Checksum" Tag="ISOChecksum" Binding="{Binding ISOChecksum}" />
+            <DataGridTextColumn Header="Info" Tag="Info" Binding="{Binding Info}" />
+          </DataGrid.Columns>
+        </DataGrid>
+      </DockPanel>
+      <GridSplitter Grid.Row="1" Background="{DynamicResource SystemControlBackgroundChromeMediumBrush}" ResizeDirection="Rows" />
+      <DockPanel Grid.Row="2" LastChildFill="True">
+        <Label DockPanel.Dock="Top" Margin="0,10,0,10" FontWeight="Bold" Content="Config" />
+        <StackPanel DockPanel.Dock="Bottom" Margin="10" Spacing="10" Orientation="Horizontal">
+          <Button Content="Save Changes" Command="{Binding SaveChangesCommand}"/>
+          <Button Content="Export Selected" Command="{Binding ExportSelectedCommand}"/>
+          <Button Content="Scan Output" Command="{Binding ScanOutputCommand}"/>
+          <Button Content="Attach Update" Command="{Binding AttachUpdateCommand}"/>
+          <Button Content="Process" Command="{Binding ProcessCommand}"/>
+          <Button Content="Coded by EqUiNox - Team Resurgent" Command="{Binding ShowAboutCommand}" />
+        </StackPanel>
+        <Border BorderThickness="2" BorderBrush="Gray">
+          <ScrollViewer Margin="10">
+            <Grid VerticalAlignment="Top">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="40" />
+                <RowDefinition Height="40" />
+                <RowDefinition Height="40" />
+                <RowDefinition Height="40" />
+                <RowDefinition Height="40" />
+                <RowDefinition Height="40" />
+                <RowDefinition Height="40" />
+                <RowDefinition Height="40" />
+                <RowDefinition Height="40" />
+              </Grid.RowDefinitions>
+              <Label Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Content="Grouping Option" />
+              <ComboBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" ItemsSource="{Binding GroupingOptionList}" SelectedItem="{Binding SelectedGroupingOption}" Width="150">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding Name}" />
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
+              <Label Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Content="Use Uppercase" />
+              <ToggleSwitch Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" IsChecked="{Binding UseUppercase}" OffContent="" OnContent="" />
+              <Label Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Content="Compress Option" />
+              <ComboBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" ItemsSource="{Binding CompressOptionList}" SelectedItem="{Binding SelectedCompressOption}" Width="150">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding Name}" />
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
+              <Label Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" Content="Trim Scrub" />
+              <ToggleSwitch Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" IsChecked="{Binding TrimScrub}" OffContent="" OnContent="" ToolTip.Tip="Removes Unused data at end of data partition" ToolTip.Placement="Right" />
+              <Label Grid.Row="4" Grid.Column="0" VerticalAlignment="Center" Content="Traverse Input Subdir's" />
+              <ToggleSwitch Grid.Row="4" Grid.Column="1" VerticalAlignment="Center" IsChecked="{Binding TraverseInputSubdirs}" OffContent="" OnContent="" />
+              <Label Grid.Row="5" Grid.Column="0" VerticalAlignment="Center" Content="Do Not Split ISO" />
+              <ToggleSwitch Grid.Row="5" Grid.Column="1" VerticalAlignment="Center" IsChecked="{Binding DoNotSplitISO}" OffContent="" OnContent="" />
+              <Label Grid.Row="6" Grid.Column="0" VerticalAlignment="Center" Content="Input Folder" />
+              <StackPanel Grid.Row="6" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Spacing="10">
+                <TextBox HorizontalAlignment="Left" Width="300" Text="{Binding InputFolder}" />
+                <Button HorizontalAlignment="Left" Content="..." Command="{Binding SelectPathCommand}" CommandParameter="Input" />
+              </StackPanel>
+              <Label Grid.Row="7" Grid.Column="0" VerticalAlignment="Center" Content="Output Folder" />
+              <StackPanel Grid.Row="7" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Spacing="10">
+                <TextBox HorizontalAlignment="Left" Width="300" Text="{Binding OutputFolder}" />
+                <Button HorizontalAlignment="Left" Content="..." Command="{Binding SelectPathCommand}" CommandParameter="Output" />
+              </StackPanel>
+              <Label Grid.Row="8" Grid.Column="0" VerticalAlignment="Center" Content="Unpack Folder" />
+              <StackPanel Grid.Row="8" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Spacing="10">
+                <TextBox HorizontalAlignment="Left" Width="300" Text="{Binding UnpackFolder}" />
+                <Button HorizontalAlignment="Left" Content="..." Command="{Binding SelectPathCommand}" CommandParameter="Unpack" />
+              </StackPanel>
+            </Grid>
+          </ScrollViewer>
+        </Border>
+      </DockPanel>
+    </Grid>
+
+    <!-- Splash Screen -->
+    <Grid x:Name="SplashView" Opacity="1">
+      <Image Source="/Assets/teamresurgent.jpg" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Center" Width="600" Height="600" />
+    </Grid>
+  </Grid>
+</Window>

@@ -26,7 +26,8 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="Repackinator" />
-    <InternalsVisibleTo Include="Repackinator" />
+    <InternalsVisibleTo Include="Repackinator.Redux" />
+    <InternalsVisibleTo Include="Repackinator.Core" />
   </ItemGroup>
 
 </Project>

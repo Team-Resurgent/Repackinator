@@ -1,0 +1,53 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Repackinator.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:utils="using:Repackinator.Utils" 
+        mc:Ignorable="d" d:DesignWidth="720" d:DesignHeight="480"
+        x:Class="Repackinator.ProcessWindow"
+        x:DataType="vm:ProcessViewModel"
+        Width="720"
+        Height="480"
+        CanResize="True"
+        ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner"
+        Icon="/Assets/repackinator.ico"
+        Title="Process">
+
+  <Window.Resources>
+    <utils:LogLevelColorConverter x:Key="LogLevelColorConverter" />
+  </Window.Resources>
+
+  <DockPanel LastChildFill="True" Margin="10">
+    <StackPanel DockPanel.Dock="Top" Orientation="Vertical" Margin="10">
+      <Label Content="{Binding Progress1Text}"/>
+      <ProgressBar Orientation="Horizontal" ShowProgressText="True" Minimum="0" Maximum="1" Value="{Binding Progress1}"/>
+      <Label Content="{Binding Progress2Text}"/>
+      <ProgressBar Orientation="Horizontal" ShowProgressText="True" Minimum="0" Maximum="1" Value="{Binding Progress2}"/>
+    </StackPanel>
+    <StackPanel DockPanel.Dock="Bottom" Orientation="Vertical" Margin="10">
+      <DockPanel>
+        <Label Margin="0, 0, 0, 10" DockPanel.Dock="Left" Content="{Binding Summary}"/>
+        <Label Margin="0, 0, 0, 10" HorizontalAlignment="Right" Content="{Binding TotalTime}"/>
+      </DockPanel>
+      <StackPanel Orientation="Horizontal">
+        <Button Margin="0, 0, 10, 0" Content="Close" Command="{Binding CloseCommand}"/>
+        <Button Content="Copy Log" Command="{Binding CopyLogCommand}"/>
+      </StackPanel>
+    </StackPanel>
+    <DataGrid ItemsSource="{Binding Log}" Margin="10" IsReadOnly="True" CanUserReorderColumns="False" CanUserResizeColumns="True" CanUserSortColumns="False" GridLinesVisibility="All" BorderThickness="2" BorderBrush="Gray">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="Time" Tag="Time" Binding="{Binding Time}" />
+        <DataGridTemplateColumn Header="Level" Tag="Level">
+          <DataGridTemplateColumn.CellTemplate>
+            <DataTemplate>
+              <TextBox BorderThickness="0" Background="Transparent" Foreground="{Binding Level, Converter={StaticResource LogLevelColorConverter}}" Text="{Binding Level}" />
+            </DataTemplate>
+          </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
+        <DataGridTextColumn Header="Message" Tag="Message" Binding="{Binding Message}"/>
+      </DataGrid.Columns>
+    </DataGrid>
+  </DockPanel>
+</Window>
