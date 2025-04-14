@@ -90,7 +90,7 @@
           <Label VerticalAlignment="Center">Show Invalid</Label>
           <ToggleSwitch IsChecked="{Binding ShowInvalid}" OffContent="" OnContent="" />
         </StackPanel>
-        <DataGrid x:Name="GameDataGrid" Grid.Row="0" Margin="10" ItemsSource="{Binding FilteredGameDataList}" CellEditEnding="GameDataListCellEditEnding" IsReadOnly="False" CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="True" GridLinesVisibility="All" BorderThickness="2" BorderBrush="Gray">
+        <DataGrid x:Name="GameDataGrid" Grid.Row="0" Margin="10" ItemsSource="{Binding FilteredGameDataList}" CellEditEnding="GameDataListCellEditEnding" IsReadOnly="False" CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="True" GridLinesVisibility="All" BorderThickness="2" BorderBrush="Green">
           <DataGrid.Columns>
             <DataGridCheckBoxColumn Header="Process" Tag="Process" Binding="{Binding Process, Converter={StaticResource StringToBoolConverter}}" />
             <DataGridCheckBoxColumn Header="Scrub" Tag="Scrub" Binding="{Binding Scrub, Converter={StaticResource StringToBoolConverter}}" />
@@ -102,21 +102,21 @@
             <DataGridTemplateColumn Header="XBE Title" Tag="XBETitle">
               <DataGridTemplateColumn.CellTemplate>
                 <DataTemplate>
-                  <TextBox BorderThickness="0" Background="Transparent" Foreground="{Binding IsValidXBETitle, Converter={StaticResource WarningColorConverter}}" Text="{Binding XBETitle}" />
+                  <TextBox FontSize="10" BorderThickness="0" Background="Transparent" Foreground="{Binding IsValidXBETitle, Converter={StaticResource WarningColorConverter}}" Text="{Binding XBETitle}" />
                 </DataTemplate>
               </DataGridTemplateColumn.CellTemplate>
             </DataGridTemplateColumn>
             <DataGridTemplateColumn Header="Folder Name" Tag="FolderName">
               <DataGridTemplateColumn.CellTemplate>
                 <DataTemplate>
-                  <TextBox BorderThickness="0" Background="Transparent" Foreground="{Binding IsValidFolderName, Converter={StaticResource WarningColorConverter}}" Text="{Binding FolderName}" />
+                  <TextBox FontSize="10" BorderThickness="0" Background="Transparent" Foreground="{Binding IsValidFolderName, Converter={StaticResource WarningColorConverter}}" Text="{Binding FolderName}" />
                 </DataTemplate>
               </DataGridTemplateColumn.CellTemplate>
             </DataGridTemplateColumn>
             <DataGridTemplateColumn Header="Iso Name" Tag="ISOName">
               <DataGridTemplateColumn.CellTemplate>
                 <DataTemplate>
-                  <TextBox BorderThickness="0" Background="Transparent" Foreground="{Binding IsValidISOName, Converter={StaticResource WarningColorConverter}}" Text="{Binding ISOName}" />
+                  <TextBox FontSize="10" BorderThickness="0" Background="Transparent" Foreground="{Binding IsValidISOName, Converter={StaticResource WarningColorConverter}}" Text="{Binding ISOName}" />
                 </DataTemplate>
               </DataGridTemplateColumn.CellTemplate>
             </DataGridTemplateColumn>
@@ -136,7 +136,7 @@
           <Button Content="Process" Command="{Binding ProcessCommand}"/>
           <Button Content="Coded by EqUiNox - Team Resurgent" Command="{Binding ShowAboutCommand}" />
         </StackPanel>
-        <Border BorderThickness="2" BorderBrush="Gray">
+        <Border BorderThickness="2" BorderBrush="Green">
           <ScrollViewer Margin="10">
             <Grid VerticalAlignment="Top">
               <Grid.ColumnDefinitions>

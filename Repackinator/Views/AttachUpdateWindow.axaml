@@ -36,7 +36,7 @@
         <Button Content="Copy Log" Command="{Binding CopyLogCommand}"/>
       </StackPanel>
     </StackPanel>
-    <DataGrid ItemsSource="{Binding Log}" Margin="10" IsReadOnly="True" CanUserReorderColumns="False" CanUserResizeColumns="True" CanUserSortColumns="False" GridLinesVisibility="All" BorderThickness="2" BorderBrush="Gray">
+    <DataGrid ItemsSource="{Binding Log}" Margin="10" IsReadOnly="True" CanUserReorderColumns="False" CanUserResizeColumns="True" CanUserSortColumns="False" GridLinesVisibility="All" BorderThickness="2" BorderBrush="Green">
       <DataGrid.Columns>
         <DataGridTextColumn Header="Time" Tag="Time" Binding="{Binding Time}" />
         <DataGridTemplateColumn Header="Level" Tag="Level">
