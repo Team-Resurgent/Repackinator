@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         arch: [x64]
-        os_flavor: [win-x64, linux-x64, osx-x64]
+        os_flavor: [win-x64, linux-x64, osx-x64, osx-arm64]
         project: [Repackinator]
         project_lowercase: [repackinator]
         include:
@@ -27,6 +27,8 @@ jobs:
           - os_flavor: linux-x64
             archive_ext: tar
           - os_flavor: osx-x64
+            archive_ext: tar
+          - os_flavor: osx-arm64
             archive_ext: tar
 
     steps:
@@ -38,7 +40,7 @@ jobs:
     - name: Publish
       run: dotnet publish ./${{ matrix.project }}/${{ matrix.project }}.csproj -p:Platform=${{ matrix.arch }} -r ${{ matrix.os_flavor }} -c Release -p:DebugType=None -p:DebugSymbols=false -maxcpucount:1
     - name: Chmod (Unix)
-      if: ${{ matrix.os_flavor == 'linux-x64' || matrix.os_flavor == 'osx-x64' }}
+      if: ${{ matrix.os_flavor == 'linux-x64' || matrix.os_flavor == 'osx-x64' || matrix.os_flavor == 'osx-arm64'}}
       run: chmod +x ${{ github.workspace }}/${{ matrix.project }}/bin/${{ matrix.arch }}/Release/net8.0/${{ matrix.os_flavor }}/publish/${{ matrix.project_lowercase }}
     - name: Compress binaries
       run: 7z a ${{ github.workspace }}/${{ matrix.project }}-${{ matrix.os_flavor }}.${{ matrix.archive_ext }} ${{ github.workspace }}/${{ matrix.project }}/bin/${{ matrix.arch }}/Release/net8.0/${{ matrix.os_flavor }}/publish/*
