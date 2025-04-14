@@ -446,18 +446,24 @@ namespace Repackinator.ViewModels
                 File.WriteAllText(result.Path.LocalPath, stringBuilder.ToString());
 
                 var messageWindow = new MessageWindow("Export Selected", "Game data selection has been saved.");
-                messageWindow.ShowDialog(WindowLocator.MainWindow);
+                await messageWindow.ShowDialog(WindowLocator.MainWindow);
 
             });
 
             ScanOutputCommand = ReactiveCommand.Create(() =>
             {
-                if (WindowLocator.MainWindow == null)
+                if (WindowLocator.MainWindow == null || mSelectedGameDataSection == null)
                 {
                     return;
                 }
 
-                var scanOutputWindow = new ScanOutputWindow(mLoadedGameDataList, mLoadedConfig);
+                var gamesToProcess = mLoadedGameDataList;
+                if (!mSelectedGameDataSection.Name.Equals(mAllSections, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    gamesToProcess = mLoadedGameDataList.Where(s => s.Section.Equals(mSelectedGameDataSection)).ToArray();
+                }
+
+                var scanOutputWindow = new ScanOutputWindow(gamesToProcess, mLoadedConfig);
                 scanOutputWindow.ShowDialog(WindowLocator.MainWindow);
                 scanOutputWindow.Closing += (s, e) =>
                 {
@@ -477,23 +483,35 @@ namespace Repackinator.ViewModels
 
             AttachUpdateCommand = ReactiveCommand.Create(() =>
             {
-                if (WindowLocator.MainWindow == null)
+                if (WindowLocator.MainWindow == null || mSelectedGameDataSection == null)
                 {
                     return;
                 }
 
-                var attachUpdateWindow = new AttachUpdateWindow(mLoadedGameDataList, mLoadedConfig);
+                var gamesToProcess = mLoadedGameDataList;
+                if (!mSelectedGameDataSection.Name.Equals(mAllSections, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    gamesToProcess = mLoadedGameDataList.Where(s => s.Section.Equals(mSelectedGameDataSection)).ToArray();
+                }
+
+                var attachUpdateWindow = new AttachUpdateWindow(gamesToProcess, mLoadedConfig);
                 attachUpdateWindow.ShowDialog(WindowLocator.MainWindow);
             });
 
             ProcessCommand = ReactiveCommand.Create(() =>
             {
-                if (WindowLocator.MainWindow == null)
+                if (WindowLocator.MainWindow == null || mSelectedGameDataSection == null)
                 {
                     return;
                 }
 
-                var processWindow = new ProcessWindow(mLoadedGameDataList, mLoadedConfig);
+                var gamesToProcess = mLoadedGameDataList;
+                if (!mSelectedGameDataSection.Name.Equals(mAllSections, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    gamesToProcess = mLoadedGameDataList.Where(s => s.Section.Equals(mSelectedGameDataSection)).ToArray();
+                }
+
+                var processWindow = new ProcessWindow(gamesToProcess, mLoadedConfig);
                 processWindow.ShowDialog(WindowLocator.MainWindow);
                 processWindow.Closing += (s, e) =>
                 {

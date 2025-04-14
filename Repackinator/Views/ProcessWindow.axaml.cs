@@ -22,9 +22,9 @@ public partial class ProcessWindow : Window
         var logViewModel = new ProcessViewModel(this, gameDataArray, config);
         DataContext = logViewModel;
 
-        Opened += (_, _) =>
+        Opened += async (_, _) =>
         {
-            GameDataList = logViewModel.Start();
+            GameDataList = await logViewModel.StartAsync();
         };
     }
 }

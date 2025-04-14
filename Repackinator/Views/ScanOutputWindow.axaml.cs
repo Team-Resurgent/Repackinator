@@ -22,9 +22,9 @@ public partial class ScanOutputWindow : Window
         var logViewModel = new ScanOutputViewModel(this, gameDataArray, config);
         DataContext = logViewModel;
 
-        Opened += (_, _) =>
+        Opened += async (_, _) =>
         {
-            GameDataList = logViewModel.Start();
+            GameDataList = await logViewModel.StartAsync();
         };
     }
 }

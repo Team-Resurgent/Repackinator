@@ -148,21 +148,32 @@ namespace Repackinator.ViewModels
             mTimer.Start();
         }
 
-        public void Start()
+        public async Task StartAsync()
         {
-            var logger = new Action<LogMessage>((logMessage) =>
-            {
-                Log.Add(logMessage);
-            });
+            await Task.Run(() => {
 
-            var progress = new Action<ProgressInfo>((progress) =>
-            {
-                Progress1Text = progress.Progress1Text;
-                Progress1 = progress.Progress1;
-            });
+                var logger = new Action<LogMessage>((logMessage) =>
+                {
+                    Dispatcher.UIThread.Invoke(() =>
+                    {
+                        Log.Add(logMessage);
+                    });
+                });
 
-            var attachUpdater = new AttachUpdater();
-            attachUpdater.StartAttachUpdating(GameDataList, Config, progress, logger, _stopwatch, _cancellationTokenSource.Token);
+                var progress = new Action<ProgressInfo>((progress) =>
+                {
+                    Dispatcher.UIThread.Invoke(() =>
+                    {
+                        Progress1Text = progress.Progress1Text;
+                        Progress1 = progress.Progress1;
+                        Progress2Text = progress.Progress2Text;
+                        Progress2 = progress.Progress2;
+                    });
+                });
+
+                var attachUpdater = new AttachUpdater();
+                attachUpdater.StartAttachUpdating(GameDataList, Config, progress, logger, _stopwatch, _cancellationTokenSource.Token);
+            });
         }
 
     }

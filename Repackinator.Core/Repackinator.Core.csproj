@@ -7,6 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\attach.xbe" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\attach.xbe" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Repackinator.Localization\Repackinator.Localization.csproj" />
     <ProjectReference Include="..\Resurgent.UtilityBelt.Library\Resurgent.UtilityBelt.Library.csproj" />
   </ItemGroup>

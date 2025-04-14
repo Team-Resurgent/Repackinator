@@ -20,9 +20,9 @@ public partial class AttachUpdateWindow : Window
         var logViewModel = new AttachUpdateViewModel(this, gameDataArray, config);
         DataContext = logViewModel;
 
-        Opened += (_, _) =>
+        Opened += async (_, _) =>
         {
-            logViewModel.Start();
+            await logViewModel.StartAsync();
         };
     }
 }

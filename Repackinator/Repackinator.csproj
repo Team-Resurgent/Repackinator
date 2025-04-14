@@ -26,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <AvaloniaResource Remove="Assets\attach.xbe" />
     <AvaloniaResource Remove="Assets\Stuart Wilson - Not Another Comic Bakery Remix.mp3" />
   </ItemGroup>
 
@@ -46,7 +47,6 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Assets\Stuart Wilson - Not Another Comic Bakery Remix.mp3" />
-    <EmbeddedResource Include="Assets\attach.xbe" />
   </ItemGroup>
 
   <ItemGroup>

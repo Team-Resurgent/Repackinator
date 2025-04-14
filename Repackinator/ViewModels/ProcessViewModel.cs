@@ -148,24 +148,34 @@ namespace Repackinator.ViewModels
             mTimer.Start();
         }
 
-        public GameData[]? Start()
+        public async Task<GameData[]?> StartAsync()
         {
-            var logger = new Action<LogMessage>((logMessage) =>
+            return await Task.Run(() =>
             {
-                Log.Add(logMessage);
-            });
 
-            var progress = new Action<ProgressInfo>((progress) =>
-            {
-                Progress1Text = progress.Progress1Text;
-                Progress1 = progress.Progress1;
-                Progress2Text = progress.Progress2Text;
-                Progress2 = progress.Progress2;
-            });
+                var logger = new Action<LogMessage>((logMessage) =>
+                {
+                    Dispatcher.UIThread.Invoke(() =>
+                    {
+                        Log.Add(logMessage);
+                    });
+                });
 
-            var repacker = new Repacker();
-            repacker.StartRepacking(GameDataList, Config, progress, logger, _stopwatch, _cancellationTokenSource.Token);
-            return GameDataList;
+                var progress = new Action<ProgressInfo>((progress) =>
+                {
+                    Dispatcher.UIThread.Invoke(() =>
+                    {
+                        Progress1Text = progress.Progress1Text;
+                        Progress1 = progress.Progress1;
+                        Progress2Text = progress.Progress2Text;
+                        Progress2 = progress.Progress2;
+                    });
+                });
+
+                var repacker = new Repacker();
+                repacker.StartRepacking(GameDataList, Config, progress, logger, _stopwatch, _cancellationTokenSource.Token);
+                return GameDataList;
+            });
         }
 
     }
