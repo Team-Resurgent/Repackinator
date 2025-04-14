@@ -24,6 +24,8 @@ using DynamicData.Kernel;
 using Avalonia.Controls.Shapes;
 using System.Text;
 using System.IO;
+using System.Threading.Tasks;
+using Avalonia.Threading;
 
 namespace Repackinator.ViewModels
 {
@@ -253,7 +255,7 @@ namespace Repackinator.ViewModels
             return false;
         }
 
-        private void SelectPath(string arg)
+        private async Task SelectPath(string arg)
         {
             if (WindowLocator.MainWindow == null)
             {
@@ -264,8 +266,8 @@ namespace Repackinator.ViewModels
                 Title = $"Select ${arg} Folder",
                 AllowMultiple = false
             };
-
-            var result = WindowLocator.MainWindow.StorageProvider.OpenFolderPickerAsync(options).Result;
+              
+            var result = await WindowLocator.MainWindow.StorageProvider.OpenFolderPickerAsync(options);
             if (result.Count > 0)
             {
                 var path = result[0].Path.LocalPath;
@@ -359,7 +361,10 @@ namespace Repackinator.ViewModels
                 OnSearchChanged();
             });
 
-            SelectPathCommand = ReactiveCommand.Create<string>(SelectPath);
+            SelectPathCommand = ReactiveCommand.Create<string>(async (s) => 
+            {
+                await SelectPath(s);
+            });
 
             ShowAboutCommand = ReactiveCommand.Create(() =>
             {
@@ -384,7 +389,7 @@ namespace Repackinator.ViewModels
                 messageWindow.ShowDialog(WindowLocator.MainWindow);
             });
 
-            ExportSelectedCommand = ReactiveCommand.Create(() =>
+            ExportSelectedCommand = ReactiveCommand.Create(async () =>
             {
                 if (WindowLocator.MainWindow == null || WindowLocator.MainWindow is not MainWindow mainWindow)
                 {
@@ -411,7 +416,7 @@ namespace Repackinator.ViewModels
                     FileTypeChoices = [FilePickerFileTypes.TextPlain]
                 };
                 
-                var result = WindowLocator.MainWindow.StorageProvider.SaveFilePickerAsync(options).Result;
+                var result = await WindowLocator.MainWindow.StorageProvider.SaveFilePickerAsync(options);
                 if (result == null)
                 {
                     return;
