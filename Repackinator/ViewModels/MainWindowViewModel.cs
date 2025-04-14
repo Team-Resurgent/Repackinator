@@ -460,7 +460,7 @@ namespace Repackinator.ViewModels
                 var gamesToProcess = mLoadedGameDataList;
                 if (!mSelectedGameDataSection.Name.Equals(mAllSections, StringComparison.CurrentCultureIgnoreCase))
                 {
-                    gamesToProcess = mLoadedGameDataList.Where(s => s.Section.Equals(mSelectedGameDataSection)).ToArray();
+                    gamesToProcess = mLoadedGameDataList.Where(s => s.Section.Equals(mSelectedGameDataSection.Name)).ToArray();
                 }
 
                 var scanOutputWindow = new ScanOutputWindow(gamesToProcess, mLoadedConfig);
@@ -491,7 +491,7 @@ namespace Repackinator.ViewModels
                 var gamesToProcess = mLoadedGameDataList;
                 if (!mSelectedGameDataSection.Name.Equals(mAllSections, StringComparison.CurrentCultureIgnoreCase))
                 {
-                    gamesToProcess = mLoadedGameDataList.Where(s => s.Section.Equals(mSelectedGameDataSection)).ToArray();
+                    gamesToProcess = mLoadedGameDataList.Where(s => s.Section.Equals(mSelectedGameDataSection.Name)).ToArray();
                 }
 
                 var attachUpdateWindow = new AttachUpdateWindow(gamesToProcess, mLoadedConfig);
@@ -508,7 +508,7 @@ namespace Repackinator.ViewModels
                 var gamesToProcess = mLoadedGameDataList;
                 if (!mSelectedGameDataSection.Name.Equals(mAllSections, StringComparison.CurrentCultureIgnoreCase))
                 {
-                    gamesToProcess = mLoadedGameDataList.Where(s => s.Section.Equals(mSelectedGameDataSection)).ToArray();
+                    gamesToProcess = mLoadedGameDataList.Where(s => s.Section.Equals(mSelectedGameDataSection.Name)).ToArray();
                 }
 
                 var processWindow = new ProcessWindow(gamesToProcess, mLoadedConfig);
