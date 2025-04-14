@@ -17,18 +17,21 @@ jobs:
 
     strategy:
       matrix:
-        arch: [x64]
         os_flavor: [win-x64, linux-x64, osx-x64, osx-arm64]
         project: [Repackinator]
         project_lowercase: [repackinator]
         include:
           - os_flavor: win-x64
+            arch: x64
             archive_ext: zip
           - os_flavor: linux-x64
+            arch: x64
             archive_ext: tar
           - os_flavor: osx-x64
+            arch: x64
             archive_ext: tar
           - os_flavor: osx-arm64
+            arch: arm64
             archive_ext: tar
 
     steps:
