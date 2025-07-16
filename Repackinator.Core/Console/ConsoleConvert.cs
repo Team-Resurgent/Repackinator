@@ -26,7 +26,7 @@ namespace Repackinator.Core.Console
             return new OptionSet {
                 { "i|input=", "Input file", i => Input = i },
                 { "s|scrub=", "Scrub mode (None *default*, Scrub, TrimmedScrub)", s => ScrubMode = s },
-                { "c|compress=", "Compress (None *default*, CCI, CSO)", c => CompressType = c },
+                { "c|compress=", "Compress (None *default*, CCI)", c => CompressType = c },
                 { "n|nosplit", "No Split of output file", n => NoSplit = n != null },
                 { "h|help", "show help", h => ShowHelp = h != null },
                 { "w|wait", "Wait on exit", w => Wait = w != null },
@@ -105,10 +105,6 @@ namespace Repackinator.Core.Console
                 {
                     compressValue = CompressOptionType.CCI;
                 }
-                else if (string.Equals(CompressType, "CSO", StringComparison.CurrentCultureIgnoreCase))
-                {
-                    compressValue = CompressOptionType.CSO;
-                }
                 else
                 {
                     throw new OptionException("compress is not valid.", "compress");
@@ -140,20 +136,7 @@ namespace Repackinator.Core.Console
                                 previousProgress = amount;
                             }
                         }, default);
-                    }
-                    if (compressValue == CompressOptionType.CSO)
-                    {
-                        XisoUtility.CreateCSO(imageInput, outputPath, outputNameWithoutExtension, ".cso", scrub, trimmedScrub, (s, p) =>
-                        {
-                            var amount = (float)Math.Round(p * 100);
-                            if (!Quiet && amount != previousProgress)
-                            {
-                                System.Console.Write($"Stage {s + 1} of 3, Progress {amount}%");
-                                System.Console.CursorLeft = 0;
-                                previousProgress = amount;
-                            }
-                        }, default);
-                    }
+                    } 
                     else
                     {
                         XisoUtility.Split(imageInput, outputPath, outputNameWithoutExtension, ".iso", scrub, trimmedScrub, NoSplit, (s, p) =>

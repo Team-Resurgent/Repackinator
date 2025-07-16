@@ -356,14 +356,6 @@ namespace Repackinator.Core.Actions
                                     return -1;
                                 }
                             }
-                            else if (compressType == CompressOptionType.CSO)
-                            {
-                                if (!XisoUtility.CreateCSO(isoInput, processOutput, isoFileName, ".cso", scrub, trimmedScrub, repackProgress, cancellationToken))
-                                {
-                                    Log(LogMessageLevel.Error, $"Unable process file 'Repackinator.temp'.");
-                                    return -1;
-                                }
-                            }
                         }
                     }
                     else
@@ -686,14 +678,6 @@ namespace Repackinator.Core.Actions
                         if (compressType == CompressOptionType.CCI)
                         {
                             if (!XisoUtility.CreateCCI(cciInput, processOutput, isoFileName, ".cci", scrub, trimmedScrub, repackProgress, cancellationToken))
-                            {
-                                Log(LogMessageLevel.Error, $"Unable process file '{inputFile}'.");
-                                return -1;
-                            }
-                        }
-                        else if (compressType == CompressOptionType.CSO)
-                        {
-                            if (!XisoUtility.CreateCSO(cciInput, processOutput, isoFileName, ".cso", scrub, trimmedScrub, repackProgress, cancellationToken))
                             {
                                 Log(LogMessageLevel.Error, $"Unable process file '{inputFile}'.");
                                 return -1;

@@ -30,7 +30,7 @@ namespace Repackinator.Core.Console
                 { "g|grouping=", "Grouping (None *default*, Region, Letter, RegionLetter, LetterRegion)", g => Grouping = g.ToUpper() },
                 { "u|upperCase", "Upper Case", u => UpperCase = u != null },
                 { "r|recurse", "Recurse (Traverse Sub Dirs)", r => Recurse = r != null },
-                { "c|compress=", "Compress (None *default*, CCi, CSO)", c => CompressType = c.ToUpper() },
+                { "c|compress=", "Compress (None *default*, CCI)", c => CompressType = c.ToUpper() },
                 { "n|nosplit", "No Split of output file", n => NoSplit = n != null },
                 { "t|trimmedScrub", "Trimmed Scrub", t => TrimmedScrub = t != null },
                 { "l|log=", "log file", l => Log = l },
@@ -112,10 +112,6 @@ namespace Repackinator.Core.Console
                 else if (string.Equals(CompressType, "CCI"))
                 {
                     compressValue = CompressOptionType.CCI;
-                }
-                else if (string.Equals(CompressType, "CSO"))
-                {
-                    compressValue = CompressOptionType.CSO;
                 }
                 else
                 {

@@ -8,6 +8,6 @@ namespace Repackinator.Core
 {
     public static class Version
     {
-        public static string Value { get; } = "1.6.0";
+        public static string Value { get; } = "v2.0.0";
     }
 }

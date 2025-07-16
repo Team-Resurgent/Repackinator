@@ -27,7 +27,7 @@ namespace Repackinator.Core.Shell
 
             using var key = Registry.ClassesRoot.CreateSubKey($"*\\shell\\Repackinator");
 
-            key.SetValue("AppliseTo", ".iso OR .cci OR .cso");
+            key.SetValue("AppliseTo", ".iso OR .cci");
             key.SetValue("MUIVerb", "Repackinator");
             key.SetValue("SubCommands", string.Empty);
 
@@ -38,10 +38,6 @@ namespace Repackinator.Core.Shell
             RegisterSubMenu(key, "04ConvertToCCI", "Convert To CCI", $"\"{exePath}\" -i=\"%L\" -a=convert -c=CCI -w");
             RegisterSubMenu(key, "05ConvertToCCIScrub", "Convert To CCI (Scrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=Scrub -c=CCI -w");
             RegisterSubMenu(key, "06ConvertToCCITrimmedScrub", "Convert To CCI (TrimmedScrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=TrimmedScrub -c=CCI -w");
-
-            RegisterSubMenu(key, "07ConvertToCSO", "Convert To CSO", $"\"{exePath}\" -i=\"%L\" -a=convert -c=CSO -w");
-            RegisterSubMenu(key, "08ConvertToCSOScrub", "Convert To CSO (Scrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=Scrub -c=CSO -w");
-            RegisterSubMenu(key, "09ConvertToCSOTrimmedScrub", "Convert To CSO (TrimmedScrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=TrimmedScrub -c=CSO -w");
 
             //
 

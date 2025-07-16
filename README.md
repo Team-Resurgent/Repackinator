@@ -17,11 +17,9 @@ Repackinator was designed to be a modern all-in-one ISO management tool for the 
 It provides you the ability to convert your OG Xbox ISO dumps into full working split ISO images, as well as optionally replacing padding for even greater compression. Repackinator can also create reduced size ISO images by trimming the unused space, if desired. Additionally, the ability to create playable compressed ISO images was introduced to dovetail the newly released CCI (Cerbios Compressed Image) compression method; this after being written from scratch, in collaboration with Team Cerbios.
 
 Programmed for the very specific task of compressing original Xbox ISO structures, all while removing unused and or wasted space, Cerbios Compressed Images are the gold standard of Xbox ISO compression. The smallest file sizes all while maintaining maximum playability is the name of the game.
-
-StellarOS's CSO format is now fully supported.
 </div>
 
-                        [ Program ..................................... Repackinator V1.6.0 ]
+                        [ Program ..................................... Repackinator V1.5.2 ]
                         [ Type ................................................ Iso Manager ]
                         [ Patreon ....................https://www.patreon.com/teamresurgent ]
 
@@ -80,7 +78,7 @@ Per title:
 Options:
 * **Grouping Selection**: creates grouped folders in the output directory. *Default = no grouping*
 * **Use Uppercase**: output file/folder names with all *UPPERCASE* characters.
-* **Compress**: apply CCI/CSO compression to the output. *CCI is currently only supported by Cerbios, CSO only by StellarOS*
+* **Compress**: apply CCI compression to the output. *CCI is currently only supported by Cerbios*
 * **Trim Scrub**: remove all unused data at the end of data partition. *Similar to XISO*
 * **Traverse Input Subdir's**: look for files to process inside any additional directories within your selected input folder.
 * **Do not split ISO**: no spliting of ISO output. *≥4GiB titles will not fit FATX size limit*
@@ -105,7 +103,7 @@ Actions:
  	                                   RegionLetter, LetterRegion)
   -u, --upperCase            Upper Case
   -r, --recurse              Recurse (Traverse Sub Dirs)
-  -c, --compress=VALUE       Compress (None *default*, CCi, CSO)
+  -c, --compress=VALUE       Compress (None *default*, CCI)
   -t, --trimmedScrub         Trimmed Scrub
   -l, --log=VALUE            log file
   -h, --help                 show help
@@ -123,7 +121,6 @@ After Repackinator has been ran as admin the first time, the context menu will p
 
 * .ISO files can be split, as well as .CCI/.CSO files can be decompressed using the **Convert To ISO** functions.
 * .ISO/.CSO files can be compressed to various types of .CCI using the **Convert To CCI** functions.
-* .ISO/.CCI files can be compressed to various types of .CSO using the **Convert To CSO** functions.
 * Compatible files can be cryptographically compared by selecting **Compare Set First** on initial file, then **Compare First With** on the second file.
 * **Info** will print the sector data.
 * **Extract** will create a HDD ready file from *any* supported input type.

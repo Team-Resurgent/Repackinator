@@ -40,8 +40,7 @@ namespace Repackinator.Core.Models
     public enum CompressOptionType
     {
         None,
-        CCI,
-        CSO
+        CCI
     }
 
     public class Config
