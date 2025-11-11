@@ -19,7 +19,7 @@ It provides you the ability to convert your OG Xbox ISO dumps into full working 
 Programmed for the very specific task of compressing original Xbox ISO structures, all while removing unused and or wasted space, Cerbios Compressed Images are the gold standard of Xbox ISO compression. The smallest file sizes all while maintaining maximum playability is the name of the game.
 </div>
 
-                        [ Program ..................................... Repackinator V1.5.2 ]
+                        [ Program ..................................... Repackinator V2.0.1 ]
                         [ Type ................................................ Iso Manager ]
                         [ Patreon ....................https://www.patreon.com/teamresurgent ]
 
@@ -38,6 +38,9 @@ Programmed for the very specific task of compressing original Xbox ISO structure
 ## Prerequisites
   * [32-bit (x86) Visual C++ 2022 Redistributable](https://aka.ms/vs/17/release/vc_redist.x86.exe)
   * [64-bit (x64) Visual C++ 2022 Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe)
+  
+  * [32-bit (x64) .Net 8.0 Runtime](https://builds.dotnet.microsoft.com/dotnet/Runtime/8.0.21/dotnet-runtime-8.0.21-win-x86.exe)
+  * [64-bit (x64) .Net 8.0 Runtime](https://builds.dotnet.microsoft.com/dotnet/Runtime/8.0.21/dotnet-runtime-8.0.21-win-x64.exe)
 
 ## Core Features & Functionality
 Repackinator will extract Certs, Title ID & Title Image (.tbn) from the XBE located inside the ISO Dump. It will then generate a new `default.xbe`, which will be used to load the ISO on ISO Enabled softmods and BIOSs, such as Cerbios (Native ISO Support), iND-BiOS (Patched), EvoX M8+ (Patched).
@@ -120,7 +123,7 @@ After Repackinator has been ran as admin the first time, the context menu will p
 </div>
 
 * .ISO files can be split, as well as .CCI/.CSO files can be decompressed using the **Convert To ISO** functions.
-* .ISO/.CSO files can be compressed to various types of .CCI using the **Convert To CCI** functions.
+* .ISO files can be compressed to various types of .CCI using the **Convert To CCI** functions.
 * Compatible files can be cryptographically compared by selecting **Compare Set First** on initial file, then **Compare First With** on the second file.
 * **Info** will print the sector data.
 * **Extract** will create a HDD ready file from *any* supported input type.
