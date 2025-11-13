@@ -40,15 +40,23 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
+    
     - name: Publish
       run: dotnet publish ./${{ matrix.project }}/${{ matrix.project }}.csproj -p:Platform=${{ matrix.arch }} -r ${{ matrix.os_flavor }} -c Release -p:SelfContained=true -p:PublishSingleFile=true -p:PublishReadyToRun=true -p:TrimUnusedDependencies=false -p:DebugType=None -p:DebugSymbols=false -p:AvaloniaUseCompiledBindingsByDefault=true --output ${{ github.workspace }}/artifacts/${{ matrix.project }}/${{ matrix.os_flavor }}-${{ matrix.arch }} -maxcpucount:1
+
+    - name: Check publish output
+      run: ls -laR ${{ github.workspace }}/artifacts/${{ matrix.project }}/
+
     - name: Chmod (Unix)
       if: ${{ matrix.os_flavor == 'linux-x64' || matrix.os_flavor == 'osx-x64' || matrix.os_flavor == 'osx-arm64'}}
-      run: chmod +x ${{ github.workspace }}/${{ matrix.project }}/bin/${{ matrix.arch }}/Release/net8.0/${{ matrix.os_flavor }}/publish/${{ matrix.project_lowercase }}
+      run: chmod +x ${{ github.workspace }}/artifacts/${{ matrix.project }}/${{ matrix.os_flavor }}-${{ matrix.arch }}/${{ matrix.project_lowercase }}
+    
     - name: Compress binaries
-      run: 7z a ${{ github.workspace }}/${{ matrix.project }}-${{ matrix.os_flavor }}.${{ matrix.archive_ext }} ${{ github.workspace }}/${{ matrix.project }}/bin/${{ matrix.arch }}/Release/net8.0/${{ matrix.os_flavor }}/publish/*
+      run: 7z a ${{ github.workspace }}/${{ matrix.project }}-${{ matrix.os_flavor }}.${{ matrix.archive_ext }} ${{ github.workspace }}/artifacts/${{ matrix.project }}/${{ matrix.os_flavor }}-${{ matrix.arch }}/*
+    
     - name: List directories and files
       run: find .
+      
     - name: Upload Build Artifact
       uses: actions/upload-artifact@v4
       with:
