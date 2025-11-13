@@ -33,14 +33,10 @@ Programmed for the very specific task of compressing original Xbox ISO structure
 * OS: Windows 7+ x64, x86-64 Linux, or MacOS (verified on Big Sur, should run from High Sierra onwards, please report any findings). 32-bit is not supported.
     * Repackinator can be ran in a virtual machine with GPU passthrough. (Virtual GPU must be disabled)
 * RAM: 8GiB of RAM for proper operation.
-* A GPU ***capable of running OpenGL 3.3 or higher!***
 
 ## Prerequisites
   * [32-bit (x86) Visual C++ 2022 Redistributable](https://aka.ms/vs/17/release/vc_redist.x86.exe)
   * [64-bit (x64) Visual C++ 2022 Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe)
-  
-  * [32-bit (x64) .Net 8.0 Runtime](https://builds.dotnet.microsoft.com/dotnet/Runtime/8.0.21/dotnet-runtime-8.0.21-win-x86.exe)
-  * [64-bit (x64) .Net 8.0 Runtime](https://builds.dotnet.microsoft.com/dotnet/Runtime/8.0.21/dotnet-runtime-8.0.21-win-x64.exe)
 
 ## Core Features & Functionality
 Repackinator will extract Certs, Title ID & Title Image (.tbn) from the XBE located inside the ISO Dump. It will then generate a new `default.xbe`, which will be used to load the ISO on ISO Enabled softmods and BIOSs, such as Cerbios (Native ISO Support), iND-BiOS (Patched), EvoX M8+ (Patched).
