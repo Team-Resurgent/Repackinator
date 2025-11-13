@@ -306,7 +306,10 @@ namespace Repackinator.ViewModels
                 {
                     return;
                 }
-                WindowLocator.MainWindow.Close();
+                Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    WindowLocator.MainWindow.Close();
+                });
             });
 
             ProcessOptionCommand = ReactiveCommand.Create<string>((s) =>
