@@ -759,7 +759,7 @@ namespace Repackinator.Core.Actions
             {
                 ChunkCount = 8,
                 ParallelDownload = true,
-                MaxTryAgainOnFailover = 5,
+                MaxTryAgainOnFailure = 5,
                 ReserveStorageSpaceBeforeStartingDownload = true
             };
 
