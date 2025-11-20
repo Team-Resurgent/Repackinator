@@ -161,16 +161,23 @@ namespace Repackinator.Core.Console
                     Directory.CreateDirectory(output);
                 }
 
-                var log = Log;
-                if (!string.IsNullOrEmpty(log))
-                {
-                    log = Path.GetFullPath(log);
-                }
-
+                string log;
                 FileStream? logStream = null;
-                if (!string.IsNullOrEmpty(log))
+                if (!string.IsNullOrEmpty(Log))
                 {
-                    logStream = File.OpenWrite(log);
+                    try
+                    {
+                        log = Path.GetFullPath(Log);
+                        if (!Directory.Exists(log))
+                        {
+                            Directory.CreateDirectory(log);
+                        }
+                        logStream = File.OpenWrite(log);
+                    }
+                    catch
+                    {
+                        throw new OptionException("log is not a valid filepath.", "log");
+                    }
                 }
 
                 var logger = new Action<LogMessage>((logMessage) =>
@@ -178,12 +185,7 @@ namespace Repackinator.Core.Console
                     var formattedTime = logMessage.Time.ToString("HH:mm:ss");
                     var message = $"{formattedTime} {logMessage.Level} - {logMessage.Message}";
                     System.Console.WriteLine(message);
-                    var bytes = Encoding.UTF8.GetBytes(message);
-                    if (logStream == null)
-                    {
-                        return;
-                    }
-                    logStream.Write(bytes);
+                    logStream?.Write(Encoding.UTF8.GetBytes(message));
                 });
 
                 var config = new Config
