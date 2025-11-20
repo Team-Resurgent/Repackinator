@@ -352,7 +352,7 @@ namespace Repackinator.Core.Actions
                             {
                                 if (!XisoUtility.CreateCCI(isoInput, processOutput, isoFileName, ".cci", scrub, trimmedScrub, repackProgress, cancellationToken))
                                 {
-                                    Log(LogMessageLevel.Error, $"Unable process file 'Repackinator.temp'.");
+                                    Log(LogMessageLevel.Error, $"Unable to process file 'Repackinator.temp'.");
                                     return -1;
                                 }
                             }
@@ -388,7 +388,7 @@ namespace Repackinator.Core.Actions
                         {
                             if (!XisoUtility.Split(isoInput, processOutput, isoFileName, ".iso", scrub, trimmedScrub, noSplit, repackProgress, cancellationToken))
                             {
-                                Log(LogMessageLevel.Error, $"Unable process file 'Repackinator.temp'.");
+                                Log(LogMessageLevel.Error, $"Unable to process file 'Repackinator.temp'.");
                                 return -1;
                             }
                         }
@@ -679,7 +679,7 @@ namespace Repackinator.Core.Actions
                         {
                             if (!XisoUtility.CreateCCI(cciInput, processOutput, isoFileName, ".cci", scrub, trimmedScrub, repackProgress, cancellationToken))
                             {
-                                Log(LogMessageLevel.Error, $"Unable process file '{inputFile}'.");
+                                Log(LogMessageLevel.Error, $"Unable to process file '{inputFile}'.");
                                 return -1;
                             }
                         }
@@ -715,7 +715,7 @@ namespace Repackinator.Core.Actions
                     {
                         if (!XisoUtility.Split(isoInput, processOutput, isoFileName, ".iso", scrub, trimmedScrub, noSplit, repackProgress, cancellationToken))
                         {
-                            Log(LogMessageLevel.Error, $"Unable process file '{inputFile}'.");
+                            Log(LogMessageLevel.Error, $"Unable to process file '{inputFile}'.");
                             return -1;
                         }
                     }

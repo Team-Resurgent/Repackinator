@@ -82,7 +82,7 @@ namespace Repackinator.Core.Console
                 
                 if (string.IsNullOrEmpty(Unpack))
                 {
-                    throw new OptionException("unpack not specified.", "unpack");
+                    Unpack = "";
                 }
 
                 var groupingValue = GroupingOptionType.None;
