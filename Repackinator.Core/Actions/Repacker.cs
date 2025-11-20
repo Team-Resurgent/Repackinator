@@ -78,9 +78,16 @@ namespace Repackinator.Core.Actions
                 return -1;
             }
 
+            string unpackPath;
+            if (string.IsNullOrEmpty(tempPath))
+            {
+                unpackPath = Path.Combine(outputPath, "Repackinator-Temp");
+            }
+            else
+            {
+                unpackPath = Path.Combine(tempPath, "Repackinator-Temp");
+            }
 
-            var unpackPath = Path.Combine(outputPath, "Repackinator-Temp");
-            if (!string.IsNullOrEmpty(tempPath)) unpackPath = Path.Combine(tempPath, "Repackinator-Temp");
             var processOutput = string.Empty;
             var deleteProcessOutput = false;
 
@@ -352,7 +359,7 @@ namespace Repackinator.Core.Actions
                             {
                                 if (!XisoUtility.CreateCCI(isoInput, processOutput, isoFileName, ".cci", scrub, trimmedScrub, repackProgress, cancellationToken))
                                 {
-                                    Log(LogMessageLevel.Error, $"Unable process file 'Repackinator.temp'.");
+                                    Log(LogMessageLevel.Error, $"Unable to process file 'Repackinator.temp'.");
                                     return -1;
                                 }
                             }
@@ -388,7 +395,7 @@ namespace Repackinator.Core.Actions
                         {
                             if (!XisoUtility.Split(isoInput, processOutput, isoFileName, ".iso", scrub, trimmedScrub, noSplit, repackProgress, cancellationToken))
                             {
-                                Log(LogMessageLevel.Error, $"Unable process file 'Repackinator.temp'.");
+                                Log(LogMessageLevel.Error, $"Unable to process file 'Repackinator.temp'.");
                                 return -1;
                             }
                         }
@@ -679,7 +686,7 @@ namespace Repackinator.Core.Actions
                         {
                             if (!XisoUtility.CreateCCI(cciInput, processOutput, isoFileName, ".cci", scrub, trimmedScrub, repackProgress, cancellationToken))
                             {
-                                Log(LogMessageLevel.Error, $"Unable process file '{inputFile}'.");
+                                Log(LogMessageLevel.Error, $"Unable to process file '{inputFile}'.");
                                 return -1;
                             }
                         }
@@ -715,7 +722,7 @@ namespace Repackinator.Core.Actions
                     {
                         if (!XisoUtility.Split(isoInput, processOutput, isoFileName, ".iso", scrub, trimmedScrub, noSplit, repackProgress, cancellationToken))
                         {
-                            Log(LogMessageLevel.Error, $"Unable process file '{inputFile}'.");
+                            Log(LogMessageLevel.Error, $"Unable to process file '{inputFile}'.");
                             return -1;
                         }
                     }
@@ -796,19 +803,19 @@ namespace Repackinator.Core.Actions
                     return;
                 }
 
-                if (Directory.Exists(config.InputPath) == false)
+                if (!Directory.Exists(config.InputPath))
                 {
                     Log(LogMessageLevel.Error, "Input path is invalid.");
                     return;
                 }
 
-                if (Directory.Exists(config.OutputPath) == false)
+                if (!Directory.Exists(config.OutputPath))
                 {
                     Log(LogMessageLevel.Error, "Output path is invalid.");
                     return;
                 }
 
-                if (Directory.Exists(config.UnpackPath) == false)
+                if (!Directory.Exists(config.UnpackPath) && !string.IsNullOrEmpty(config.UnpackPath))
                 {
                     Log(LogMessageLevel.Error, "Unpack path is invalid.");
                     return;
@@ -818,7 +825,7 @@ namespace Repackinator.Core.Actions
                 string.Equals(config.InputPath, config.UnpackPath, StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(config.OutputPath, config.UnpackPath, StringComparison.OrdinalIgnoreCase))
                 {
-                    Log(LogMessageLevel.Error, "Input, Output & Unpack path must be different.");
+                    Log(LogMessageLevel.Error, "Input, Output & Unpack paths must be different.");
                     return;
                 }
 

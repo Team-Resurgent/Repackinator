@@ -98,6 +98,7 @@ Actions:
 ```
   -i, --input=VALUE          Input folder
   -o, --output=VALUE         Output folder
+  -p, --unpack=VALUE         Unpack folder
   -g, --grouping=VALUE       Grouping (None *default*, Region, Letter,
  	                                   RegionLetter, LetterRegion)
   -u, --upperCase            Upper Case

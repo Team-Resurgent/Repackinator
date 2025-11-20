@@ -12,6 +12,7 @@ namespace Repackinator.Core.Console
         public const string Action = "Repack";
         public static string Input { get; set; } = string.Empty;
         public static string Output { get; set; } = string.Empty;
+        public static string Unpack { get; set; } = string.Empty;
         public static string Grouping { get; set; } = "NONE";
         public static bool UpperCase { get; set; } = false;
         public static bool Recurse { get; set; } = false;
@@ -27,6 +28,7 @@ namespace Repackinator.Core.Console
             return new OptionSet {
                 { "i|input=", "Input folder", i => Input = i },
                 { "o|output=", "Output folder", o => Output = o },
+                { "p|unpack=", "Unpack folder", p => Unpack = p},
                 { "g|grouping=", "Grouping (None *default*, Region, Letter, RegionLetter, LetterRegion)", g => Grouping = g.ToUpper() },
                 { "u|upperCase", "Upper Case", u => UpperCase = u != null },
                 { "r|recurse", "Recurse (Traverse Sub Dirs)", r => Recurse = r != null },
@@ -67,15 +69,34 @@ namespace Repackinator.Core.Console
                     throw new OptionException("input not specified.", "input");
                 }
 
-                var input = Path.GetFullPath(Input);
-                if (!Directory.Exists(input))
+                string input;
+                try
+                {
+                    input = Path.GetFullPath(Input);
+                }
+                catch (ArgumentException)
                 {
                     throw new OptionException("input is not a valid directory.", "input");
+                }
+
+                if (!Directory.Exists(input))
+                {
+                    throw new OptionException("input directory does not exist.", "input");
                 }
 
                 if (string.IsNullOrEmpty(Output))
                 {
                     throw new OptionException("output not specified.", "output");
+                }
+
+                string output;
+                try
+                {
+                    output = Path.GetFullPath(Output);
+                }
+                catch (ArgumentException)
+                {
+                    throw new OptionException("output is not a valid directory.", "output");
                 }
 
                 var groupingValue = GroupingOptionType.None;
@@ -118,7 +139,23 @@ namespace Repackinator.Core.Console
                     throw new OptionException("compress is not valid.", "compress");
                 }
 
-                var output = Path.GetFullPath(Output);
+                string unpack;
+                if (!string.IsNullOrEmpty(Unpack))
+                {
+                    try
+                    {
+                        unpack = Path.GetFullPath(Unpack);
+                        if (!Directory.Exists(unpack))
+                        {
+                            Directory.CreateDirectory(unpack);
+                        }
+                    }
+                    catch (ArgumentException)
+                    {
+                        throw new OptionException("unpack is not a valid directory.", "unpack");
+                    }
+                }
+
                 if (!Directory.Exists(output))
                 {
                     Directory.CreateDirectory(output);
@@ -153,6 +190,7 @@ namespace Repackinator.Core.Console
                 {
                     InputPath = Input,
                     OutputPath = Output,
+                    UnpackPath = Unpack,
                     GroupingOption = groupingValue,
                     RecurseInput = Recurse,
                     Uppercase = UpperCase,
@@ -168,10 +206,7 @@ namespace Repackinator.Core.Console
                 var repacker = new Repacker();
                 repacker.StartRepacking(gameData, config, null, logger, new Stopwatch(), default);
 
-                if (logStream != null)
-                {
-                    logStream.Dispose();
-                }
+                logStream?.Dispose();
 
                 System.Console.WriteLine();
                 System.Console.WriteLine("Convert completed.");
