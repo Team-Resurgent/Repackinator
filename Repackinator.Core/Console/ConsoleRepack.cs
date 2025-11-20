@@ -69,20 +69,34 @@ namespace Repackinator.Core.Console
                     throw new OptionException("input not specified.", "input");
                 }
 
-                var input = Path.GetFullPath(Input);
-                if (!Directory.Exists(input))
+                string input;
+                try
+                {
+                    input = Path.GetFullPath(Input);
+                }
+                catch (ArgumentException)
                 {
                     throw new OptionException("input is not a valid directory.", "input");
+                }
+
+                if (!Directory.Exists(input))
+                {
+                    throw new OptionException("input directory does not exist.", "input");
                 }
 
                 if (string.IsNullOrEmpty(Output))
                 {
                     throw new OptionException("output not specified.", "output");
                 }
-                
-                if (string.IsNullOrEmpty(Unpack))
+
+                string output;
+                try
                 {
-                    Unpack = "";
+                    output = Path.GetFullPath(Output);
+                }
+                catch (ArgumentException)
+                {
+                    throw new OptionException("output is not a valid directory.", "output");
                 }
 
                 var groupingValue = GroupingOptionType.None;
@@ -125,16 +139,26 @@ namespace Repackinator.Core.Console
                     throw new OptionException("compress is not valid.", "compress");
                 }
 
-                var output = Path.GetFullPath(Output);
+                string unpack;
+                if (!string.IsNullOrEmpty(Unpack))
+                {
+                    try
+                    {
+                        unpack = Path.GetFullPath(Unpack);
+                        if (!Directory.Exists(unpack))
+                        {
+                            Directory.CreateDirectory(unpack);
+                        }
+                    }
+                    catch (ArgumentException)
+                    {
+                        throw new OptionException("unpack is not a valid directory.", "unpack");
+                    }
+                }
+
                 if (!Directory.Exists(output))
                 {
                     Directory.CreateDirectory(output);
-                }
-
-                var unpack = Path.GetFullPath(Unpack);
-                if (!Directory.Exists(unpack))
-                {
-                    Directory.CreateDirectory(unpack);
                 }
 
                 var log = Log;
@@ -182,10 +206,7 @@ namespace Repackinator.Core.Console
                 var repacker = new Repacker();
                 repacker.StartRepacking(gameData, config, null, logger, new Stopwatch(), default);
 
-                if (logStream != null)
-                {
-                    logStream.Dispose();
-                }
+                logStream?.Dispose();
 
                 System.Console.WriteLine();
                 System.Console.WriteLine("Convert completed.");
