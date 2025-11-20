@@ -131,6 +131,12 @@ namespace Repackinator.Core.Console
                     Directory.CreateDirectory(output);
                 }
 
+                var unpack = Path.GetFullPath(Unpack);
+                if (!Directory.Exists(unpack))
+                {
+                    Directory.CreateDirectory(unpack);
+                }
+
                 var log = Log;
                 if (!string.IsNullOrEmpty(log))
                 {
