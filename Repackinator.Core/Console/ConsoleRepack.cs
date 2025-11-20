@@ -12,6 +12,7 @@ namespace Repackinator.Core.Console
         public const string Action = "Repack";
         public static string Input { get; set; } = string.Empty;
         public static string Output { get; set; } = string.Empty;
+        public static string Unpack { get; set; } = string.Empty;
         public static string Grouping { get; set; } = "NONE";
         public static bool UpperCase { get; set; } = false;
         public static bool Recurse { get; set; } = false;
@@ -27,6 +28,7 @@ namespace Repackinator.Core.Console
             return new OptionSet {
                 { "i|input=", "Input folder", i => Input = i },
                 { "o|output=", "Output folder", o => Output = o },
+                { "p|unpack=", "Unpack folder", p => Unpack = p},
                 { "g|grouping=", "Grouping (None *default*, Region, Letter, RegionLetter, LetterRegion)", g => Grouping = g.ToUpper() },
                 { "u|upperCase", "Upper Case", u => UpperCase = u != null },
                 { "r|recurse", "Recurse (Traverse Sub Dirs)", r => Recurse = r != null },
@@ -76,6 +78,11 @@ namespace Repackinator.Core.Console
                 if (string.IsNullOrEmpty(Output))
                 {
                     throw new OptionException("output not specified.", "output");
+                }
+                
+                if (string.IsNullOrEmpty(Unpack))
+                {
+                    throw new OptionException("unpack not specified.", "unpack");
                 }
 
                 var groupingValue = GroupingOptionType.None;
@@ -153,6 +160,7 @@ namespace Repackinator.Core.Console
                 {
                     InputPath = Input,
                     OutputPath = Output,
+                    UnpackPath = Unpack,
                     GroupingOption = groupingValue,
                     RecurseInput = Recurse,
                     Uppercase = UpperCase,
