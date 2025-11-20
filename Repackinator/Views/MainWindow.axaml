@@ -188,7 +188,7 @@
                 <TextBox HorizontalAlignment="Left" Width="300" Text="{Binding OutputFolder}" />
                 <Button HorizontalAlignment="Left" Content="..." Command="{Binding SelectPathCommand}" CommandParameter="Output" />
               </StackPanel>
-              <Label Grid.Row="8" Grid.Column="0" VerticalAlignment="Center" Content="Unpack Folder" />
+              <Label Grid.Row="8" Grid.Column="0" VerticalAlignment="Center" Content="Unpack Folder (optional)" />
               <StackPanel Grid.Row="8" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Spacing="10">
                 <TextBox HorizontalAlignment="Left" Width="300" Text="{Binding UnpackFolder}" />
                 <Button HorizontalAlignment="Left" Content="..." Command="{Binding SelectPathCommand}" CommandParameter="Unpack" />
