@@ -83,6 +83,7 @@ Options:
 * **Do not split ISO**: no spliting of ISO output. *≥4GiB titles will not fit FATX size limit*
 * **Input Folder**: (Path to your Redump .ZIP/.7Z/.RAR/.CCI/.CSO or .ISO Files) ***SHOULD NOT INCLUDE REPACKINATOR'S ROOT, ANY SYSTEM FILES, OR BE A CHILD OF 'OUTPUT'***
 * **Output Folder**: (Path to where you want to save your processed games)
+* **Unpack Folder**: (Optional path to where to temporarily extract .ZIP/.7Z/.RAR archives)
 
 Actions:
 * **Save Game Data**: save changes to title information in database.
@@ -98,7 +99,7 @@ Actions:
 ```
   -i, --input=VALUE          Input folder
   -o, --output=VALUE         Output folder
-  -p, --unpack=VALUE         Unpack folder
+  -p, --unpack=VALUE         Unpack folder (optional)
   -g, --grouping=VALUE       Grouping (None *default*, Region, Letter,
  	                                   RegionLetter, LetterRegion)
   -u, --upperCase            Upper Case
