@@ -69,7 +69,7 @@ Also included, is the ability to easily update legacy Attacher (default.xbe) cre
 ## GUI Functionality
 <div align="center">
 
-![GUI](https://github.com/Team-Resurgent/Repackinator/blob/main/readmeStuff/gui.png?raw=true)</div>
+![GUI](readmeStuff/gui.png?raw=true)</div>
 Per title:
 * **Process**: must be selected for titles you desire to be processed. *Deselects after title have been processed*
 * **Scrub**: replace the padding with zeros, for greater compression.
@@ -115,7 +115,7 @@ Actions:
 
 After Repackinator has been ran as admin the first time, the context menu will populate.
 
-![contextMenu](https://github.com/Team-Resurgent/Repackinator/blob/main/readmeStuff/contextMenu.png?raw=true)
+![contextMenu](readmeStuff/contextMenu.png?raw=true)
 
 ***CONTEXT MENU OPTIONS WILL NOT CREATE `default.xbe` OR `default.tbn` FILES!***
 </div>
