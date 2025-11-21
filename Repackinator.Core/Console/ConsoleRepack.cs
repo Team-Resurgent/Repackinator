@@ -168,13 +168,14 @@ namespace Repackinator.Core.Console
                     try
                     {
                         log = Path.GetFullPath(Log);
-                        if (!Directory.Exists(log))
+                        string? dir = Path.GetDirectoryName(log);
+                        if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
                         {
-                            Directory.CreateDirectory(log);
+                            Directory.CreateDirectory(dir);
                         }
                         logStream = File.OpenWrite(log);
                     }
-                    catch
+                    catch (ArgumentException)
                     {
                         throw new OptionException("log is not a valid filepath.", "log");
                     }
