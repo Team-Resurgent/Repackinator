@@ -32,11 +32,11 @@ jobs:
           - os_flavor: osx-x64
             arch: x64
             archive_ext: tar
-            runner: macos-latest
+            runner: ubuntu-latest
           - os_flavor: osx-arm64
             arch: arm64
             archive_ext: tar
-            runner: macos-latest
+            runner: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
