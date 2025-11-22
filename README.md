@@ -69,7 +69,7 @@ Also included, is the ability to easily update legacy Attacher (default.xbe) cre
 ## GUI Functionality
 <div align="center">
 
-![GUI](https://github.com/Team-Resurgent/Repackinator/blob/main/readmeStuff/gui.png?raw=true)</div>
+![GUI](readmeStuff/gui.png?raw=true)</div>
 Per title:
 * **Process**: must be selected for titles you desire to be processed. *Deselects after title have been processed*
 * **Scrub**: replace the padding with zeros, for greater compression.
@@ -83,6 +83,7 @@ Options:
 * **Do not split ISO**: no spliting of ISO output. *≥4GiB titles will not fit FATX size limit*
 * **Input Folder**: (Path to your Redump .ZIP/.7Z/.RAR/.CCI/.CSO or .ISO Files) ***SHOULD NOT INCLUDE REPACKINATOR'S ROOT, ANY SYSTEM FILES, OR BE A CHILD OF 'OUTPUT'***
 * **Output Folder**: (Path to where you want to save your processed games)
+* **Unpack Folder**: (Optional path to where to temporarily extract .ZIP/.7Z/.RAR archives)
 
 Actions:
 * **Save Game Data**: save changes to title information in database.
@@ -98,7 +99,7 @@ Actions:
 ```
   -i, --input=VALUE          Input folder
   -o, --output=VALUE         Output folder
-  -p, --unpack=VALUE         Unpack folder
+  -p, --unpack=VALUE         Unpack folder (optional)
   -g, --grouping=VALUE       Grouping (None *default*, Region, Letter,
  	                                   RegionLetter, LetterRegion)
   -u, --upperCase            Upper Case
@@ -114,7 +115,7 @@ Actions:
 
 After Repackinator has been ran as admin the first time, the context menu will populate.
 
-![contextMenu](https://github.com/Team-Resurgent/Repackinator/blob/main/readmeStuff/contextMenu.png?raw=true)
+![contextMenu](readmeStuff/contextMenu.png?raw=true)
 
 ***CONTEXT MENU OPTIONS WILL NOT CREATE `default.xbe` OR `default.tbn` FILES!***
 </div>

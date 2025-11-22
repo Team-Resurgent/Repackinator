@@ -28,7 +28,7 @@ namespace Repackinator.Core.Console
             return new OptionSet {
                 { "i|input=", "Input folder", i => Input = i },
                 { "o|output=", "Output folder", o => Output = o },
-                { "p|unpack=", "Unpack folder", p => Unpack = p},
+                { "p|unpack=", "Unpack folder (optional)", p => Unpack = p},
                 { "g|grouping=", "Grouping (None *default*, Region, Letter, RegionLetter, LetterRegion)", g => Grouping = g.ToUpper() },
                 { "u|upperCase", "Upper Case", u => UpperCase = u != null },
                 { "r|recurse", "Recurse (Traverse Sub Dirs)", r => Recurse = r != null },
