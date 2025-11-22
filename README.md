@@ -77,7 +77,7 @@ Options:
 * **Grouping Selection**: creates grouped folders in the output directory. *Default = no grouping*
 * **Use Uppercase**: output file/folder names with all *UPPERCASE* characters.
 * **Compress**: apply CCI compression to the output. *CCI is currently only supported by Cerbios*
-* **Scrub**: replace padding with zeros, for greater compression. 
+* **Scrub**: replace padding with zeros for greater compression. 
 * **TrimScrub**: scrub & trim the padding at the end of the data partition. *Similar to XISO*
 * **Traverse Input Subdir's**: look for files to process inside any additional directories within your selected input folder.
 * **Do not split ISO**: no spliting of ISO output. *≥4GiB titles will not fit FATX size limit*
