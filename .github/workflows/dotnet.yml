@@ -49,8 +49,13 @@ jobs:
       run: dotnet publish ./${{ matrix.project }}/${{ matrix.project }}.csproj -p:Platform=${{ matrix.arch }} -r ${{ matrix.os_flavor }} -c Release -p:SelfContained=true -p:PublishSingleFile=true -p:PublishReadyToRun=true -p:TrimUnusedDependencies=false -p:DebugType=None -p:DebugSymbols=false -p:AvaloniaUseCompiledBindingsByDefault=true --output ${{ github.workspace }}/artifacts/${{ matrix.project }}/${{ matrix.os_flavor }}-${{ matrix.arch }} -maxcpucount:1
 
     - name: Check publish output
+      if: ${{ matrix.os_flavor == 'win-x64'}}
+      run: Get-ChildItem -Recurse ${{ github.workspace }}/artifacts/${{ matrix.project }}/
+    
+    - name: Check publish output
+      if: ${{ matrix.os_flavor == 'linux-x64' || matrix.os_flavor == 'osx-x64' || matrix.os_flavor == 'osx-arm64'}}
       run: ls -laR ${{ github.workspace }}/artifacts/${{ matrix.project }}/
-
+      
     - name: Chmod (Unix)
       if: ${{ matrix.os_flavor == 'linux-x64' || matrix.os_flavor == 'osx-x64' || matrix.os_flavor == 'osx-arm64'}}
       run: chmod +x ${{ github.workspace }}/artifacts/${{ matrix.project }}/${{ matrix.os_flavor }}-${{ matrix.arch }}/${{ matrix.project_lowercase }}
