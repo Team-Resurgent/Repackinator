@@ -33,11 +33,11 @@ namespace Repackinator.Core.Shell
 
             RegisterSubMenu(key, "01ConvertToISO", "Convert To ISO", $"\"{exePath}\" -i=\"%L\" -a=convert -w");
             RegisterSubMenu(key, "02ConvertToISOScrub", "Convert To ISO (Scrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=Scrub -w");
-            RegisterSubMenu(key, "03ConvertToIsoTrimmedScrub", "Convert To ISO (TrimmedScrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=TrimmedScrub -w");
+            RegisterSubMenu(key, "03ConvertToISOTrimScrub", "Convert To ISO (TrimScrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=TrimScrub -w");
 
             RegisterSubMenu(key, "04ConvertToCCI", "Convert To CCI", $"\"{exePath}\" -i=\"%L\" -a=convert -c=CCI -w");
             RegisterSubMenu(key, "05ConvertToCCIScrub", "Convert To CCI (Scrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=Scrub -c=CCI -w");
-            RegisterSubMenu(key, "06ConvertToCCITrimmedScrub", "Convert To CCI (TrimmedScrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=TrimmedScrub -c=CCI -w");
+            RegisterSubMenu(key, "06ConvertToCCITrimScrub", "Convert To CCI (TrimScrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=TrimScrub -c=CCI -w");
 
             //
 
