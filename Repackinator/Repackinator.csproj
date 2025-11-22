@@ -82,11 +82,4 @@
       <DependentUpon>MessageWindow.axaml</DependentUpon>
     </Compile>
   </ItemGroup>
-  
-  <ItemGroup>
-    <PackageReference Include="NSubsys" Version="1.0.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
 </Project>
