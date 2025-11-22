@@ -44,9 +44,6 @@ namespace Repackinator.Core.Models
         [JsonPropertyName("Process")]
         public string Process { get; set; }
 
-        [JsonPropertyName("Scrub")]
-        public string Scrub { get; set; }
-
         [JsonPropertyName("Category")]
         public string Category { get; set; }
 
