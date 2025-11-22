@@ -141,7 +141,7 @@ After Repackinator has been ran as admin the first time, the context menu will p
 
 ![GitHub contributors](https://img.shields.io/github/contributors/Team-Resurgent/Repackinator?style=flat-square)
 ![GitHub repo file count](https://img.shields.io/github/directory-file-count/Team-Resurgent/Repackinator?style=flat-square)
-<!--![Lines of code](https://img.shields.io/lines/github/Team-Resurgent/Repackinator?style=flat-square)-->![Lines of code](https://sloc.xyz/github/Team-Resurgent/Repackinator?category=code&lower=true)
+![Lines of code](https://img.shields.io/lines/github/Team-Resurgent/Repackinator?style=flat-square)
 ![GitHub repo size](https://img.shields.io/github/repo-size/Team-Resurgent/Repackinator?style=flat-square)
 ![GitHub all releases](https://img.shields.io/github/downloads/Team-Resurgent/Repackinator/total?style=flat-square)
 
