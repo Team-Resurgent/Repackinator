@@ -19,7 +19,7 @@ namespace Repackinator.Core.Console
         public static bool NoSplit { get; set; } = false;
         public static string Log { get; set; } = string.Empty;
         public static string CompressType { get; set; } = "NONE";
-        public static bool TrimmedScrub { get; set; } = false;
+        public static string ScrubType { get; set; } = "NONE";
         public static bool ShowHelp { get; set; } = false;
         public static bool Wait { get; set; } = false;
 
@@ -33,8 +33,8 @@ namespace Repackinator.Core.Console
                 { "u|upperCase", "Upper Case", u => UpperCase = u != null },
                 { "r|recurse", "Recurse (Traverse Sub Dirs)", r => Recurse = r != null },
                 { "c|compress=", "Compress (None *default*, CCI)", c => CompressType = c.ToUpper() },
+                { "s|scrub=", "Scrub (None *default*, Scrub, TrimScrub)", s => ScrubType = s.ToUpper() },
                 { "n|nosplit", "No Split of output file", n => NoSplit = n != null },
-                { "t|trimmedScrub", "Trimmed Scrub", t => TrimmedScrub = t != null },
                 { "l|log=", "log file", l => Log = l },
                 { "h|help", "show help", h => ShowHelp = h != null },
                 { "w|wait", "Wait on exit", w => Wait = w != null }
@@ -139,6 +139,20 @@ namespace Repackinator.Core.Console
                     throw new OptionException("compress is not valid.", "compress");
                 }
 
+                var scrubValue = ScrubOptionType.None;
+                if (string.Equals(ScrubType, "NONE"))
+                {
+                    scrubValue = ScrubOptionType.None;
+                }
+                else if (string.Equals(ScrubType, "SCRUB"))
+                {
+                    scrubValue = ScrubOptionType.Scrub;
+                }
+                else if (string.Equals(ScrubType, "TRIMSCRUB"))
+                {
+                    scrubValue = ScrubOptionType.TrimScrub;
+                }
+
                 string unpack;
                 if (!string.IsNullOrEmpty(Unpack))
                 {
@@ -199,7 +213,7 @@ namespace Repackinator.Core.Console
                     Uppercase = UpperCase,
                     CompressOption = compressValue,
                     NoSplit = NoSplit,
-                    TrimmedScrub = TrimmedScrub,
+                    ScrubOption = scrubValue,
                 };
 
                 var gameData = GameDataHelper.LoadGameData();

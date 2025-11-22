@@ -19,7 +19,7 @@ It provides you the ability to convert your OG Xbox ISO dumps into full working 
 Programmed for the very specific task of compressing original Xbox ISO structures, all while removing unused and or wasted space, Cerbios Compressed Images are the gold standard of Xbox ISO compression. The smallest file sizes all while maintaining maximum playability is the name of the game.
 </div>
 
-                        [ Program ..................................... Repackinator V2.0.1 ]
+                        [ Program ..................................... Repackinator V2.0.4 ]
                         [ Type ................................................ Iso Manager ]
                         [ Patreon ....................https://www.patreon.com/teamresurgent ]
 
@@ -72,16 +72,16 @@ Also included, is the ability to easily update legacy Attacher (default.xbe) cre
 ![GUI](readmeStuff/gui.png?raw=true)</div>
 Per title:
 * **Process**: must be selected for titles you desire to be processed. *Deselects after title have been processed*
-* **Scrub**: replace the padding with zeros, for greater compression.
 
 Options:
 * **Grouping Selection**: creates grouped folders in the output directory. *Default = no grouping*
 * **Use Uppercase**: output file/folder names with all *UPPERCASE* characters.
 * **Compress**: apply CCI compression to the output. *CCI is currently only supported by Cerbios*
-* **Trim Scrub**: remove all unused data at the end of data partition. *Similar to XISO*
+* **Scrub**: replace padding with zeros for greater compression. 
+* **TrimScrub**: scrub & trim the padding at the end of the data partition. *Similar to XISO*
 * **Traverse Input Subdir's**: look for files to process inside any additional directories within your selected input folder.
 * **Do not split ISO**: no spliting of ISO output. *≥4GiB titles will not fit FATX size limit*
-* **Input Folder**: (Path to your Redump .ZIP/.7Z/.RAR/.CCI/.CSO or .ISO Files) ***SHOULD NOT INCLUDE REPACKINATOR'S ROOT, ANY SYSTEM FILES, OR BE A CHILD OF 'OUTPUT'***
+* **Input Folder**: (Path to your Redump .ZIP/.7Z/.RAR/.CCI or .ISO Files) ***SHOULD NOT INCLUDE REPACKINATOR'S ROOT, ANY SYSTEM FILES, OR BE A CHILD OF 'OUTPUT'***
 * **Output Folder**: (Path to where you want to save your processed games)
 * **Unpack Folder**: (Optional path to where to temporarily extract .ZIP/.7Z/.RAR archives)
 
@@ -105,7 +105,7 @@ Actions:
   -u, --upperCase            Upper Case
   -r, --recurse              Recurse (Traverse Sub Dirs)
   -c, --compress=VALUE       Compress (None *default*, CCI)
-  -t, --trimmedScrub         Trimmed Scrub
+  -s, --scrub=VALUE          Scrub (None *default*, Scrub, TrimScrub)
   -l, --log=VALUE            log file
   -h, --help                 show help
   -w, --wait                 Wait on exit
@@ -141,7 +141,7 @@ After Repackinator has been ran as admin the first time, the context menu will p
 
 ![GitHub contributors](https://img.shields.io/github/contributors/Team-Resurgent/Repackinator?style=flat-square)
 ![GitHub repo file count](https://img.shields.io/github/directory-file-count/Team-Resurgent/Repackinator?style=flat-square)
-![Lines of code](https://img.shields.io/tokei/lines/github/Team-Resurgent/Repackinator?style=flat-square)
+<!--![Lines of code](https://img.shields.io/lines/github/Team-Resurgent/Repackinator?style=flat-square)-->![Lines of code](https://sloc.xyz/github/Team-Resurgent/Repackinator?category=code&lower=true)
 ![GitHub repo size](https://img.shields.io/github/repo-size/Team-Resurgent/Repackinator?style=flat-square)
 ![GitHub all releases](https://img.shields.io/github/downloads/Team-Resurgent/Repackinator/total?style=flat-square)
 

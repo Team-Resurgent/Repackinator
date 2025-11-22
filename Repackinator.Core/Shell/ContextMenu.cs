@@ -1,5 +1,7 @@
 ﻿using Microsoft.Win32;
 using Repackinator.Core.Helpers;
+using Repackinator.Core;
+using System.Runtime.InteropServices.Marshalling;
 
 namespace Repackinator.Core.Shell
 {
@@ -23,23 +25,33 @@ namespace Repackinator.Core.Shell
             {
                 return false;
             }
-            var exePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"{AppDomain.CurrentDomain.FriendlyName}.exe");
 
+            using var tempKey = Registry.ClassesRoot.OpenSubKey($"*\\shell\\Repackinator");
+            if ((string?)tempKey?.GetValue("Version") != Version.Value)
+            {
+                tempKey?.Close();
+                UnregisterContext();
+            }
+            else
+            {
+                tempKey?.Close();
+            }
+
+            var exePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"{AppDomain.CurrentDomain.FriendlyName}.exe");
             using var key = Registry.ClassesRoot.CreateSubKey($"*\\shell\\Repackinator");
 
-            key.SetValue("AppliseTo", ".iso OR .cci");
+            key.SetValue("AppliesTo", ".iso OR .cci OR .zip OR .rar OR .7z");
             key.SetValue("MUIVerb", "Repackinator");
             key.SetValue("SubCommands", string.Empty);
+            key.SetValue("Version", Version.Value);
 
             RegisterSubMenu(key, "01ConvertToISO", "Convert To ISO", $"\"{exePath}\" -i=\"%L\" -a=convert -w");
             RegisterSubMenu(key, "02ConvertToISOScrub", "Convert To ISO (Scrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=Scrub -w");
-            RegisterSubMenu(key, "03ConvertToIsoTrimmedScrub", "Convert To ISO (TrimmedScrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=TrimmedScrub -w");
+            RegisterSubMenu(key, "03ConvertToISOTrimScrub", "Convert To ISO (TrimScrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=TrimScrub -w");
 
             RegisterSubMenu(key, "04ConvertToCCI", "Convert To CCI", $"\"{exePath}\" -i=\"%L\" -a=convert -c=CCI -w");
             RegisterSubMenu(key, "05ConvertToCCIScrub", "Convert To CCI (Scrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=Scrub -c=CCI -w");
-            RegisterSubMenu(key, "06ConvertToCCITrimmedScrub", "Convert To CCI (TrimmedScrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=TrimmedScrub -c=CCI -w");
-
-            //
+            RegisterSubMenu(key, "06ConvertToCCITrimScrub", "Convert To CCI (TrimScrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=TrimScrub -c=CCI -w");
 
             RegisterSubMenu(key, "10CompareSetFirst", "Compare Set First", $"\"{exePath}\" -f=\"%L\" -a=compare");
             RegisterSubMenu(key, "11CompareFirstWith", "Compare First With", $"\"{exePath}\" -s=\"%L\" -a=compare -c -w");
@@ -56,7 +68,7 @@ namespace Repackinator.Core.Shell
             {
                 return false;
             }
-            Registry.ClassesRoot.DeleteSubKeyTree("*\\shell\\Repackinator");
+            Registry.ClassesRoot.DeleteSubKeyTree("*\\shell\\Repackinator", false);
             return true;
         }
     }

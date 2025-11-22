@@ -38,7 +38,6 @@ namespace Repackinator.ViewModels
 
         public ICommand CloseCommand { get; }
         public ICommand ProcessOptionCommand { get; }
-        public ICommand ScrubOptionCommand { get; }
         public ICommand SelectPathCommand { get; }
         public ICommand ShowAboutCommand { get; }
         public ICommand SaveChangesCommand { get; }
@@ -130,12 +129,13 @@ namespace Repackinator.ViewModels
             get => mSelectedCompressOption;
             set => this.RaiseAndSetIfChanged(ref mSelectedCompressOption, value);
         }
+        public ObservableCollection<ScrubOption> ScrubOptionList { get; set; }
 
-        private bool mTrimScrub = false;
-        public bool TrimScrub
+        private ScrubOption mSelectedScrubOption;
+        public ScrubOption SelectedScrubOption
         {
-            get => mTrimScrub;
-            set => this.RaiseAndSetIfChanged(ref mTrimScrub, value);
+            get => mSelectedScrubOption;
+            set => this.RaiseAndSetIfChanged(ref mSelectedScrubOption, value);
         }
 
         private bool mTraverseInputSubdirs = false;
@@ -180,7 +180,7 @@ namespace Repackinator.ViewModels
             mLoadedConfig.GroupingOption = mSelectedGroupingOption.Type;
             mLoadedConfig.Uppercase = mUseUppercase;
             mLoadedConfig.CompressOption = mSelectedCompressOption.Type;
-            mLoadedConfig.TrimmedScrub = mTrimScrub;
+            mLoadedConfig.ScrubOption = mSelectedScrubOption.Type;
             mLoadedConfig.RecurseInput = mTraverseInputSubdirs;
             mLoadedConfig.NoSplit = mDoNotSplitISO;
             mLoadedConfig.InputPath = mInputFolder;
@@ -211,10 +211,6 @@ namespace Repackinator.ViewModels
             if (mSelectedGameDataFilter.Type == GameDataFilterType.Process)
             {
                 return !gameData.Process.Contains(mSearchForFilter, StringComparison.CurrentCultureIgnoreCase);
-            }
-            else if (mSelectedGameDataFilter.Type == GameDataFilterType.Scrub)
-            {
-                return !gameData.Scrub.Contains(mSearchForFilter, StringComparison.CurrentCultureIgnoreCase);
             }
             else if (mSelectedGameDataFilter.Type == GameDataFilterType.TitleID)
             {
@@ -333,32 +329,6 @@ namespace Repackinator.ViewModels
                     else if (s.Equals("Invert"))
                     {
                         mLoadedGameDataList[destIndex].Process = mLoadedGameDataList[destIndex].Process == "Y" ? "N" : "Y";
-                    }
-                }
-                OnSearchChanged();
-            });
-
-            ScrubOptionCommand = ReactiveCommand.Create<string>((s) =>
-            {
-                if (mFilteredGameDataList == null)
-                {
-                    return;
-                }
-                for (int i = 0; i < mFilteredGameDataList.Count; i++)
-                {
-                    GameData gameDataSource = mFilteredGameDataList[i];
-                    var destIndex = Array.FindIndex(mLoadedGameDataList, x => x.Index == gameDataSource.Index);
-                    if (s.Equals("Enable"))
-                    {
-                        mLoadedGameDataList[destIndex].Scrub = "Y";
-                    }
-                    else if (s.Equals("Disable"))
-                    {
-                        mLoadedGameDataList[destIndex].Scrub = "N";
-                    }
-                    else if (s.Equals("Invert"))
-                    {
-                        mLoadedGameDataList[destIndex].Scrub = mLoadedGameDataList[destIndex].Scrub == "Y" ? "N" : "Y";
                     }
                 }
                 OnSearchChanged();
@@ -559,7 +529,11 @@ namespace Repackinator.ViewModels
             var defaultCompressOption = compressOptions.Where(s => s.Type == mLoadedConfig.CompressOption).FirstOrDefault() ?? new CompressOption(CompressOptionType.None);
             mSelectedCompressOption = defaultCompressOption;
 
-            mTrimScrub = mLoadedConfig.TrimmedScrub;
+            var scrubOptions = Enum.GetValues(typeof(ScrubOptionType)).Cast<ScrubOptionType>().Select(e => new ScrubOption(e)).ToList();
+            ScrubOptionList = new ObservableCollection<ScrubOption>(scrubOptions);
+            var defaultScrubOption = scrubOptions.Where(s => s.Type == mLoadedConfig.ScrubOption).FirstOrDefault() ?? new ScrubOption(ScrubOptionType.None);
+            mSelectedScrubOption = defaultScrubOption;
+
             mTraverseInputSubdirs = mLoadedConfig.RecurseInput;
             mDoNotSplitISO = mLoadedConfig.NoSplit;
             mInputFolder = mLoadedConfig.InputPath;
@@ -586,7 +560,7 @@ namespace Repackinator.ViewModels
                 this.WhenAnyValue(x => x.SelectedGroupingOption).Select(v => (object)v),
                 this.WhenAnyValue(x => x.UseUppercase).Select(v => (object)v),
                 this.WhenAnyValue(x => x.SelectedCompressOption).Select(v => (object)v),
-                this.WhenAnyValue(x => x.TrimScrub).Select(v => (object)v),
+                this.WhenAnyValue(x => x.SelectedScrubOption).Select(v => (object)v),
                 this.WhenAnyValue(x => x.TraverseInputSubdirs).Select(v => (object)v),
                 this.WhenAnyValue(x => x.DoNotSplitISO).Select(v => (object)v),
                 this.WhenAnyValue(x => x.InputFolder).Select(v => (object)v),

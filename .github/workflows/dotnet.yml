@@ -13,7 +13,7 @@ permissions:
 jobs:
   build:
 
-    runs-on: ${{ matrix.runner }}
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
@@ -24,19 +24,15 @@ jobs:
           - os_flavor: win-x64
             arch: x64
             archive_ext: zip
-            runner: windows-latest
           - os_flavor: linux-x64
             arch: x64
             archive_ext: tar
-            runner: ubuntu-latest
           - os_flavor: osx-x64
             arch: x64
             archive_ext: tar
-            runner: ubuntu-latest
           - os_flavor: osx-arm64
             arch: arm64
             archive_ext: tar
-            runner: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
@@ -48,14 +44,9 @@ jobs:
     - name: Publish
       run: dotnet publish ./${{ matrix.project }}/${{ matrix.project }}.csproj -p:Platform=${{ matrix.arch }} -r ${{ matrix.os_flavor }} -c Release -p:SelfContained=true -p:PublishSingleFile=true -p:PublishReadyToRun=true -p:TrimUnusedDependencies=false -p:DebugType=None -p:DebugSymbols=false -p:AvaloniaUseCompiledBindingsByDefault=true --output ${{ github.workspace }}/artifacts/${{ matrix.project }}/${{ matrix.os_flavor }}-${{ matrix.arch }} -maxcpucount:1
 
-    - name: Check publish output (Windows)
-      if: ${{ matrix.os_flavor == 'win-x64'}}
-      run: Get-ChildItem -Recurse ${{ github.workspace }}/artifacts/${{ matrix.project }}/
-    
-    - name: Check publish output (Unix)
-      if: ${{ matrix.os_flavor == 'linux-x64' || matrix.os_flavor == 'osx-x64' || matrix.os_flavor == 'osx-arm64'}}
+    - name: Check publish output
       run: ls -laR ${{ github.workspace }}/artifacts/${{ matrix.project }}/
-      
+
     - name: Chmod (Unix)
       if: ${{ matrix.os_flavor == 'linux-x64' || matrix.os_flavor == 'osx-x64' || matrix.os_flavor == 'osx-arm64'}}
       run: chmod +x ${{ github.workspace }}/artifacts/${{ matrix.project }}/${{ matrix.os_flavor }}-${{ matrix.arch }}/${{ matrix.project_lowercase }}
@@ -63,12 +54,7 @@ jobs:
     - name: Compress binaries
       run: 7z a ${{ github.workspace }}/${{ matrix.project }}-${{ matrix.os_flavor }}.${{ matrix.archive_ext }} ${{ github.workspace }}/artifacts/${{ matrix.project }}/${{ matrix.os_flavor }}-${{ matrix.arch }}/*
     
-    - name: List directories and files (Windows)
-      if: ${{ matrix.os_flavor == 'win-x64'}}
-      run: Get-ChildItem -Recurse .
-    
-    - name: List directories and files (Unix)
-      if: ${{ matrix.os_flavor == 'linux-x64' || matrix.os_flavor == 'osx-x64' || matrix.os_flavor == 'osx-arm64'}}
+    - name: List directories and files
       run: find .
       
     - name: Upload Build Artifact

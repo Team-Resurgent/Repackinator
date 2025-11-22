@@ -19,14 +19,14 @@ namespace Repackinator.Core.Console
 
         private static string ScrubModeNone = "None";
         private static string ScrubModeScrub = "Scrub";
-        private static string ScrubModeTrimmedScrub = "TrimmedScrub";
+        private static string ScrubModeTrimScrub = "TrimScrub";
 
         public static OptionSet GetOptions()
         {
             return new OptionSet {
                 { "i|input=", "Input file", i => Input = i },
-                { "s|scrub=", "Scrub mode (None *default*, Scrub, TrimmedScrub)", s => ScrubMode = s },
                 { "c|compress=", "Compress (None *default*, CCI)", c => CompressType = c },
+                { "s|scrub=", "Scrub (None *default*, Scrub, TrimScrub)", s => ScrubMode = s },
                 { "n|nosplit", "No Split of output file", n => NoSplit = n != null },
                 { "h|help", "show help", h => ShowHelp = h != null },
                 { "w|wait", "Wait on exit", w => Wait = w != null },
@@ -85,11 +85,11 @@ namespace Repackinator.Core.Console
                     scrub = true;
                     outputSuffix = "-Scrub";
                 }
-                else if (string.Equals(ScrubMode, ScrubModeTrimmedScrub, StringComparison.CurrentCultureIgnoreCase))
+                else if (string.Equals(ScrubMode, ScrubModeTrimScrub, StringComparison.CurrentCultureIgnoreCase))
                 {
                     scrub = true;
                     trimmedScrub = true;
-                    outputSuffix = "-TrimmedScrub";
+                    outputSuffix = "-TrimScrub";
                 }
                 else if (!string.Equals(ScrubMode, ScrubModeNone, StringComparison.CurrentCultureIgnoreCase))
                 {

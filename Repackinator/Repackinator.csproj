@@ -12,9 +12,6 @@
     <PublishReadyToRun>true</PublishReadyToRun>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(OS)'=='Windows_NT'">
-    <OutputType>WinExe</OutputType>
-  </PropertyGroup>
 
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />

@@ -43,6 +43,13 @@ namespace Repackinator.Core.Models
         CCI
     }
 
+    public enum ScrubOptionType
+    {
+        None,
+        Scrub,
+        TrimScrub
+    }
+
     public class Config
     {
         public string Section { get; set; }
@@ -62,7 +69,7 @@ namespace Repackinator.Core.Models
 
         public CompressOptionType CompressOption { get; set; }
 
-        public bool TrimmedScrub { get; set; }
+        public ScrubOptionType ScrubOption { get; set; }
 
         public bool RecurseInput { get; set; }
 
@@ -81,11 +88,10 @@ namespace Repackinator.Core.Models
             LeechType = 0;
             CompareFirst = string.Empty;
             CompareSecond = string.Empty;
-
             GroupingOption = GroupingOptionType.None;
             Uppercase = false;
             CompressOption = CompressOptionType.None;
-            TrimmedScrub = false;
+            ScrubOption = ScrubOptionType.Scrub;
             RecurseInput = false;
             NoSplit = false;
             InputPath = string.Empty;
