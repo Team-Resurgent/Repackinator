@@ -13,7 +13,7 @@ permissions:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner }}
 
     strategy:
       matrix:
@@ -24,15 +24,19 @@ jobs:
           - os_flavor: win-x64
             arch: x64
             archive_ext: zip
+            runner: windows-latest
           - os_flavor: linux-x64
             arch: x64
             archive_ext: tar
+            runner: ubuntu-latest
           - os_flavor: osx-x64
             arch: x64
             archive_ext: tar
+            runner: macos-latest
           - os_flavor: osx-arm64
             arch: arm64
             archive_ext: tar
+            runner: macos-latest
 
     steps:
     - uses: actions/checkout@v4
