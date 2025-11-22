@@ -33,7 +33,7 @@ namespace Repackinator.Core.Console
                 { "u|upperCase", "Upper Case", u => UpperCase = u != null },
                 { "r|recurse", "Recurse (Traverse Sub Dirs)", r => Recurse = r != null },
                 { "c|compress=", "Compress (None *default*, CCI)", c => CompressType = c.ToUpper() },
-                { "s|scrub", "Scrub (None *default*, Scrub, TrimScrub)", s => ScrubType = s.ToUpper() },
+                { "s|scrub=", "Scrub (None *default*, Scrub, TrimScrub)", s => ScrubType = s.ToUpper() },
                 { "n|nosplit", "No Split of output file", n => NoSplit = n != null },
                 { "l|log=", "log file", l => Log = l },
                 { "h|help", "show help", h => ShowHelp = h != null },
