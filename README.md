@@ -120,8 +120,8 @@ After Repackinator has been ran as admin the first time, the context menu will p
 ***CONTEXT MENU OPTIONS WILL NOT CREATE `default.xbe` OR `default.tbn` FILES!***
 </div>
 
-* .ISO files can be split, as well as .CCI files can be decompressed using the **Convert To ISO** functions.
-* .ISO files can be compressed to various types of .CCI using the **Convert To CCI** functions.
+* .ISO files can be split, as well as .CCI files can be decompressed using the **Convert to ISO** functions.
+* .ISO files can be compressed to various types of .CCI using the **Convert to CCI** functions.
 * Compatible files can be cryptographically compared by selecting **Compare Set First** on initial file, then **Compare First With** on the second file.
 * **Info** will print the sector data.
 * **Extract** will create a HDD ready file from *any* supported input type.
