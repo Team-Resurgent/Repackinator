@@ -40,18 +40,18 @@ namespace Repackinator.Core.Shell
             var exePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"{AppDomain.CurrentDomain.FriendlyName}.exe");
             using var key = Registry.ClassesRoot.CreateSubKey($"*\\shell\\Repackinator");
 
-            key.SetValue("AppliesTo", ".iso OR .cci OR .zip OR .rar OR .7z");
+            key.SetValue("AppliesTo", ".iso OR .cci");
             key.SetValue("MUIVerb", "Repackinator");
             key.SetValue("SubCommands", string.Empty);
             key.SetValue("Version", Version.Value);
 
-            RegisterSubMenu(key, "01ConvertToISO", "Convert To ISO", $"\"{exePath}\" -i=\"%L\" -a=convert -w");
-            RegisterSubMenu(key, "02ConvertToISOScrub", "Convert To ISO (Scrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=Scrub -w");
-            RegisterSubMenu(key, "03ConvertToISOTrimScrub", "Convert To ISO (TrimScrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=TrimScrub -w");
+            RegisterSubMenu(key, "01ConvertToISO", "Convert to ISO", $"\"{exePath}\" -i=\"%L\" -a=convert -w");
+            RegisterSubMenu(key, "02ConvertToISOScrub", "Convert to ISO (Scrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=Scrub -w");
+            RegisterSubMenu(key, "03ConvertToISOTrimScrub", "Convert to ISO (TrimScrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=TrimScrub -w");
 
-            RegisterSubMenu(key, "04ConvertToCCI", "Convert To CCI", $"\"{exePath}\" -i=\"%L\" -a=convert -c=CCI -w");
-            RegisterSubMenu(key, "05ConvertToCCIScrub", "Convert To CCI (Scrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=Scrub -c=CCI -w");
-            RegisterSubMenu(key, "06ConvertToCCITrimScrub", "Convert To CCI (TrimScrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=TrimScrub -c=CCI -w");
+            RegisterSubMenu(key, "04ConvertToCCI", "Convert to CCI", $"\"{exePath}\" -i=\"%L\" -a=convert -c=CCI -w");
+            RegisterSubMenu(key, "05ConvertToCCIScrub", "Convert to CCI (Scrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=Scrub -c=CCI -w");
+            RegisterSubMenu(key, "06ConvertToCCITrimScrub", "Convert to CCI (TrimScrub)", $"\"{exePath}\" -i=\"%L\" -a=convert -s=TrimScrub -c=CCI -w");
 
             RegisterSubMenu(key, "10CompareSetFirst", "Compare Set First", $"\"{exePath}\" -f=\"%L\" -a=compare");
             RegisterSubMenu(key, "11CompareFirstWith", "Compare First With", $"\"{exePath}\" -s=\"%L\" -a=compare -c -w");
