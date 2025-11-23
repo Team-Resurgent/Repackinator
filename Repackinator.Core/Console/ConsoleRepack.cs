@@ -14,12 +14,13 @@ namespace Repackinator.Core.Console
         public static string Output { get; set; } = string.Empty;
         public static string Unpack { get; set; } = string.Empty;
         public static string Grouping { get; set; } = "NONE";
-        public static bool UpperCase { get; set; } = false;
+        public static bool Uppercase { get; set; } = false;
         public static bool Recurse { get; set; } = false;
         public static bool NoSplit { get; set; } = false;
         public static string Log { get; set; } = string.Empty;
-        public static string CompressType { get; set; } = "NONE";
-        public static string ScrubType { get; set; } = "NONE";
+        public static bool Compress { get; set; } = false;
+        public static bool Scrub { get; set; } = false;
+        public static bool TrimScrub { get; set; } = false; 
         public static bool ShowHelp { get; set; } = false;
         public static bool Wait { get; set; } = false;
 
@@ -30,10 +31,11 @@ namespace Repackinator.Core.Console
                 { "o|output=", "Output folder", o => Output = o },
                 { "p|unpack=", "Unpack folder (optional)", p => Unpack = p},
                 { "g|grouping=", "Grouping (None *default*, Region, Letter, RegionLetter, LetterRegion)", g => Grouping = g.ToUpper() },
-                { "u|upperCase", "Upper Case", u => UpperCase = u != null },
-                { "r|recurse", "Recurse (Traverse Sub Dirs)", r => Recurse = r != null },
-                { "c|compress=", "Compress (None *default*, CCI)", c => CompressType = c.ToUpper() },
-                { "s|scrub=", "Scrub (None *default*, Scrub, TrimScrub)", s => ScrubType = s.ToUpper() },
+                { "u|uppercase", "Uppercase", u => Uppercase = u != null },
+                { "r|recurse", "Recurse (Traverse Subdirs)", r => Recurse = r != null },
+                { "c|compress", "Compress (CCI)", c => Compress = c != null },
+                { "s|scrub", "Scrub", s => Scrub = s != null },
+                { "t|trimscrub", "TrimScrub", t => TrimScrub = t != null },
                 { "n|nosplit", "No Split of output file", n => NoSplit = n != null },
                 { "l|log=", "log file", l => Log = l },
                 { "h|help", "show help", h => ShowHelp = h != null },
@@ -126,31 +128,19 @@ namespace Repackinator.Core.Console
                 }
 
                 var compressValue = CompressOptionType.None;
-                if (string.Equals(CompressType, "NONE"))
-                {
-                    compressValue = CompressOptionType.None;
-                }
-                else if (string.Equals(CompressType, "CCI"))
+                if (Compress)
                 {
                     compressValue = CompressOptionType.CCI;
                 }
-                else
-                {
-                    throw new OptionException("compress is not valid.", "compress");
-                }
 
                 var scrubValue = ScrubOptionType.None;
-                if (string.Equals(ScrubType, "NONE"))
-                {
-                    scrubValue = ScrubOptionType.None;
-                }
-                else if (string.Equals(ScrubType, "SCRUB"))
-                {
-                    scrubValue = ScrubOptionType.Scrub;
-                }
-                else if (string.Equals(ScrubType, "TRIMSCRUB"))
+                if (TrimScrub)
                 {
                     scrubValue = ScrubOptionType.TrimScrub;
+                }
+                else if (Scrub)
+                {
+                    scrubValue = ScrubOptionType.Scrub;
                 }
 
                 string unpack;
@@ -210,7 +200,7 @@ namespace Repackinator.Core.Console
                     UnpackPath = Unpack,
                     GroupingOption = groupingValue,
                     RecurseInput = Recurse,
-                    Uppercase = UpperCase,
+                    Uppercase = Uppercase,
                     CompressOption = compressValue,
                     NoSplit = NoSplit,
                     ScrubOption = scrubValue,

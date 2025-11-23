@@ -102,10 +102,11 @@ Actions:
   -p, --unpack=VALUE         Unpack folder (optional)
   -g, --grouping=VALUE       Grouping (None *default*, Region, Letter,
  	                                   RegionLetter, LetterRegion)
-  -u, --upperCase            Upper Case
+  -u, --uppercase            Uppercase
   -r, --recurse              Recurse (Traverse Sub Dirs)
-  -c, --compress=VALUE       Compress (None *default*, CCI)
-  -s, --scrub=VALUE          Scrub (None *default*, Scrub, TrimScrub)
+  -c, --compress             Compress (CCI)
+  -s, --scrub                Scrub
+  -t, --trimscrub            TrimScrub
   -l, --log=VALUE            log file
   -h, --help                 show help
   -w, --wait                 Wait on exit

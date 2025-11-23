@@ -10,8 +10,9 @@ namespace Repackinator.Core.Console
     {
         public const string Action = "Convert";
         public static string Input { get; set; } = string.Empty;
-        public static string ScrubMode { get; set; } = "NONE";
-        public static string CompressType { get; set; } = "NONE";
+        public static bool Scrub { get; set; } = false;
+        public static bool TrimScrub { get; set; } = false;
+        public static bool Compress { get; set; } = false;
         public static bool NoSplit { get; set; } = false;
         public static bool ShowHelp { get; set; } = false;
         public static bool Wait { get; set; } = false;
@@ -25,8 +26,9 @@ namespace Repackinator.Core.Console
         {
             return new OptionSet {
                 { "i|input=", "Input file", i => Input = i },
-                { "c|compress=", "Compress (None *default*, CCI)", c => CompressType = c },
-                { "s|scrub=", "Scrub (None *default*, Scrub, TrimScrub)", s => ScrubMode = s },
+                { "c|compress", "Compress (CCI)", c => Compress = c != null },
+                { "s|scrub", "Scrub", s => Scrub = s != null },
+                { "t|trim", "TrimScrub", t => TrimScrub = t != null },
                 { "n|nosplit", "No Split of output file", n => NoSplit = n != null },
                 { "h|help", "show help", h => ShowHelp = h != null },
                 { "w|wait", "Wait on exit", w => Wait = w != null },
@@ -63,7 +65,6 @@ namespace Repackinator.Core.Console
                     throw new OptionException("Input is not a valid file.", "input");
                 }
 
-                var outputSuffix = string.Empty;
                 var outputPath = Path.GetDirectoryName(input);
                 if (outputPath == null)
                 {
@@ -77,39 +78,6 @@ namespace Repackinator.Core.Console
                     outputNameWithoutExtension = Path.GetFileNameWithoutExtension(outputNameWithoutExtension);
                 }
 
-                bool scrub = false;
-                bool trimmedScrub = false;
-
-                if (string.Equals(ScrubMode, ScrubModeScrub, StringComparison.CurrentCultureIgnoreCase))
-                {
-                    scrub = true;
-                    outputSuffix = "-Scrub";
-                }
-                else if (string.Equals(ScrubMode, ScrubModeTrimScrub, StringComparison.CurrentCultureIgnoreCase))
-                {
-                    scrub = true;
-                    trimmedScrub = true;
-                    outputSuffix = "-TrimScrub";
-                }
-                else if (!string.Equals(ScrubMode, ScrubModeNone, StringComparison.CurrentCultureIgnoreCase))
-                {
-                    throw new OptionException("Scrub mode is not valid.", "scrub");
-                }
-
-                var compressValue = CompressOptionType.None;
-                if (string.Equals(CompressType, "NONE", StringComparison.CurrentCultureIgnoreCase))
-                {
-                    compressValue = CompressOptionType.None;
-                }
-                else if (string.Equals(CompressType, "CCI", StringComparison.CurrentCultureIgnoreCase))
-                {
-                    compressValue = CompressOptionType.CCI;
-                }
-                else
-                {
-                    throw new OptionException("compress is not valid.", "compress");
-                }
-
                 System.Console.WriteLine("Converting:");
                 var imageInput = ImageImputHelper.GetImageInput(input);
                 foreach (var inputPart in imageInput.Parts)
@@ -117,21 +85,32 @@ namespace Repackinator.Core.Console
                     System.Console.WriteLine(Path.GetFileName(inputPart));
                 }
 
-                outputPath = Path.Combine(outputPath, $"Converted{outputSuffix}");
+                outputPath = Path.Combine(outputPath, $"Converted");
                 Directory.CreateDirectory(outputPath);
 
                 var previousProgress = -1.0f;
 
                 if (outputPath != null)
                 {
-                    if (compressValue == CompressOptionType.CCI)
+                    if (Compress)
                     {
-                        XisoUtility.CreateCCI(imageInput, outputPath, outputNameWithoutExtension, ".cci", scrub, trimmedScrub, (s, p) =>
+                        XisoUtility.CreateCCI(imageInput, outputPath, outputNameWithoutExtension, ".cci", (Scrub || TrimScrub), TrimScrub, (s, p) =>
                         {
                             var amount = (float)Math.Round(p * 100);
                             if (!Quiet && amount != previousProgress)
                             {
-                                System.Console.Write($"Stage {s + 1} of 3, Progress {amount}%");
+                                if (amount < 10)
+                                {
+                                    System.Console.Write($"Stage {s + 1} of 3, Progress   {amount}%");
+                                }
+                                else if (amount < 100)
+                                {
+                                    System.Console.Write($"Stage {s + 1} of 3, Progress  {amount}%");
+                                }
+                                else
+                                {
+                                    System.Console.Write($"Stage {s + 1} of 3, Progress {amount}%");
+                                }
                                 System.Console.CursorLeft = 0;
                                 previousProgress = amount;
                             }
@@ -139,13 +118,24 @@ namespace Repackinator.Core.Console
                     } 
                     else
                     {
-                        XisoUtility.Split(imageInput, outputPath, outputNameWithoutExtension, ".iso", scrub, trimmedScrub, NoSplit, (s, p) =>
+                        XisoUtility.Split(imageInput, outputPath, outputNameWithoutExtension, ".iso", (Scrub || TrimScrub), TrimScrub, NoSplit, (s, p) =>
                         {
                             var amount = (float)Math.Round(p * 100);
                             if (!Quiet && amount != previousProgress)
                             {
-                                System.Console.Write($"Stage {s + 1} of 3, Progress {amount}%");
-                                System.Console.CursorLeft = 0;
+                                if (amount < 10)
+                                {
+                                    System.Console.Write($"Stage {s + 1} of 3, Progress   {amount}%");
+                                }
+                                else if (amount < 100)
+                                {
+                                    System.Console.Write($"Stage {s + 1} of 3, Progress  {amount}%");
+                                }
+                                else
+                                {
+                                    System.Console.Write($"Stage {s + 1} of 3, Progress {amount}%");
+                                }
+                                    System.Console.CursorLeft = 0;
                                 previousProgress = amount;
                             }
                         }, default);
@@ -155,7 +145,7 @@ namespace Repackinator.Core.Console
                 if (!Quiet)
                 {
                     System.Console.WriteLine();
-                    System.Console.WriteLine("Convert completed.");
+                    System.Console.WriteLine("Conversion completed.");
                 }
             }
             catch (OptionException e)

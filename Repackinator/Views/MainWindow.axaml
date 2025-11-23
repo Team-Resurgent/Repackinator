@@ -170,7 +170,7 @@
                   </DataTemplate>
                 </ComboBox.ItemTemplate>
               </ComboBox>
-              <Label Grid.Row="4" Grid.Column="0" VerticalAlignment="Center" Content="Traverse Input Subdir's" />
+              <Label Grid.Row="4" Grid.Column="0" VerticalAlignment="Center" Content="Traverse Input Subdirs" />
               <ToggleSwitch Grid.Row="4" Grid.Column="1" VerticalAlignment="Center" IsChecked="{Binding TraverseInputSubdirs}" OffContent="" OnContent="" />
               <Label Grid.Row="5" Grid.Column="0" VerticalAlignment="Center" Content="Do Not Split ISO" />
               <ToggleSwitch Grid.Row="5" Grid.Column="1" VerticalAlignment="Center" IsChecked="{Binding DoNotSplitISO}" OffContent="" OnContent="" />
