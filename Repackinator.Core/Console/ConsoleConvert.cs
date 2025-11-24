@@ -18,10 +18,6 @@ namespace Repackinator.Core.Console
         public static bool Wait { get; set; } = false;
         public static bool Quiet { get; set; } = false;
 
-        private static string ScrubModeNone = "None";
-        private static string ScrubModeScrub = "Scrub";
-        private static string ScrubModeTrimScrub = "TrimScrub";
-
         public static OptionSet GetOptions()
         {
             return new OptionSet {
@@ -135,7 +131,7 @@ namespace Repackinator.Core.Console
                                 {
                                     System.Console.Write($"Stage {s + 1} of 3, Progress {amount}%");
                                 }
-                                    System.Console.CursorLeft = 0;
+                                System.Console.CursorLeft = 0;
                                 previousProgress = amount;
                             }
                         }, default);
