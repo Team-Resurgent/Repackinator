@@ -5,7 +5,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyName>repackinator</AssemblyName>
+    <AssemblyName>repackinator.shell</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

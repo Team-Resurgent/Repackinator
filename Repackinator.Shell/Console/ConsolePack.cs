@@ -215,7 +215,7 @@ namespace Repackinator.Shell.Console
             }
             catch (OptionException e)
             {
-                ConsoleUtil.ShowOptionException(e);
+                ConsoleUtil.ShowOptionException(e, Action, version);
                 Environment.ExitCode = 1;
             }
             catch (Exception e)

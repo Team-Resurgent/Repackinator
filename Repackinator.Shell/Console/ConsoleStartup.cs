@@ -42,24 +42,52 @@ namespace Repackinator.Shell.Console
             try
             {
                 options.Parse(args);
-                if (ShowHelp && args.Length == 1)
+                if (ShowHelp && string.IsNullOrEmpty(Action))
                 {
-                    ConsoleUtil.ShowHelpHeader(version, options);
+                    // Show concise main help with action summaries
+                    var actionDescriptions = new Dictionary<string, string>
+                    {
+                        { "Pack", "Pack a folder into ISO or CCI format" },
+                        { "Repack", "Repackinate a collection of Xbox disk images" },
+                        { "Convert", "Convert one Xbox disk image format to another" },
+                        { "Extract", "Extract files from Xbox disk image" },
+                        { "Compare", "Compare two Xbox disk images" },
+                        { "Info", "Show Xbox disk data sector information" },
+                        { "Checksum", "Calculate checksum of Xbox disk image sectors" }
+                    };
 
                     if (OperatingSystem.IsWindows())
                     {
-                        ConsoleRegister.ShowOptionDescription();
-                        ConsoleUnregister.ShowOptionDescription();
+                        actionDescriptions.Add("Register", "Register context menu (Windows, requires admin)");
+                        actionDescriptions.Add("Unregister", "Unregister context menu (Windows, requires admin)");
                     }
 
-                    ConsoleConvert.ShowOptionDescription();
-                    ConsoleCompare.ShowOptionDescription();
-                    ConsoleInfo.ShowOptionDescription();
-                    ConsoleChecksum.ShowOptionDescription();
-                    ConsoleExtract.ShowOptionDescription();
-                    ConsoleRepack.ShowOptionDescription();
-                    ConsolePack.ShowOptionDescription();
+                    ConsoleUtil.ShowHelpHeader(version, options, actionDescriptions);
+                    ConsoleUtil.ProcessWait(Wait);
+                    return;
+                }
 
+                if (string.IsNullOrEmpty(Action))
+                {
+                    // Show main help when no action is specified
+                    var actionDescriptions = new Dictionary<string, string>
+                    {
+                        { "Pack", "Pack a folder into ISO or CCI format" },
+                        { "Repack", "Repackinate a collection of Xbox disk images" },
+                        { "Convert", "Convert one Xbox disk image format to another" },
+                        { "Extract", "Extract files from Xbox disk image" },
+                        { "Compare", "Compare two Xbox disk images" },
+                        { "Info", "Show Xbox disk data sector information" },
+                        { "Checksum", "Calculate checksum of Xbox disk image sectors" }
+                    };
+
+                    if (OperatingSystem.IsWindows())
+                    {
+                        actionDescriptions.Add("Register", "Register context menu (Windows, requires admin)");
+                        actionDescriptions.Add("Unregister", "Unregister context menu (Windows, requires admin)");
+                    }
+
+                    ConsoleUtil.ShowHelpHeader(version, options, actionDescriptions);
                     ConsoleUtil.ProcessWait(Wait);
                     return;
                 }
@@ -70,12 +98,12 @@ namespace Repackinator.Shell.Console
                 }
                 else
                 {
-                    throw new OptionException("Action is not valid.", "action");
+                    throw new OptionException($"Action '{Action}' is not valid. Use -h to see available actions.", "action");
                 }
             }
             catch (OptionException e)
             {
-                ConsoleUtil.ShowOptionException(e);
+                ConsoleUtil.ShowOptionException(e, Action, version);
             }
 
             ConsoleUtil.ProcessWait(Wait);
