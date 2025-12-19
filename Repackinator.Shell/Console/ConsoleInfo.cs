@@ -1,14 +1,14 @@
-﻿using Mono.Options;
+using Mono.Options;
 using Repackinator.Core.Helpers;
 using XboxToolkit;
 using XboxToolkit.Interface;
 using Repackinator.Core.Models;
 
-namespace Repackinator.Core.Console
+namespace Repackinator.Shell.Console
 {
-    public static class ConsoleChecksum
+    public static class ConsoleInfo
     {
-        public const string Action = "Checksum";
+        public const string Action = "Info";
         public static string Input { get; set; } = string.Empty;
         public static bool ShowHelp { get; set; } = false;
         public static bool Wait { get; set; } = false;
@@ -25,9 +25,9 @@ namespace Repackinator.Core.Console
         public static void ShowOptionDescription()
         {
             System.Console.WriteLine();
-            System.Console.WriteLine("Checksum Action...");
+            System.Console.WriteLine("Info Action...");
             System.Console.WriteLine();
-            System.Console.WriteLine("This action is used to checksum xbox disk image sectors after any decompression if applicable.");
+            System.Console.WriteLine("This action is used to show xbox disk data sector information.");
             System.Console.WriteLine();
             GetOptions().WriteOptionDescriptions(System.Console.Out);
         }
@@ -52,14 +52,15 @@ namespace Repackinator.Core.Console
                     throw new OptionException("Input is not a valid file.", "input");
                 }
 
-                System.Console.WriteLine("Calculating Checksum From:");
+                System.Console.WriteLine("Getting Info From:");
                 var slices = ContainerUtility.GetSlicesFromFile(Input);
                 foreach (var slice in slices)
                 {
                     System.Console.WriteLine(Path.GetFileName(slice));
                 }
 
-                System.Console.WriteLine("Calculating Checksums...");
+                System.Console.WriteLine("Processing...");
+                System.Console.WriteLine($"Type,Filename,Size,StartSector,EndSector,InSlices");
                 
                 if (!ContainerUtility.TryAutoDetectContainerType(Input, out var containerReader) || containerReader == null)
                 {
@@ -73,18 +74,13 @@ namespace Repackinator.Core.Console
                     }
                     try
                     {
-                        var previousProgress = -1.0f;
-                        var result = ContainerUtility.GetChecksumFromContainer(containerReader, p =>
+                        ContainerUtility.GetFileInfoFromContainer(containerReader, f =>
                         {
-                            var amount = (float)Math.Round(p * 100);
-                            if (amount != previousProgress)
-                            {
-                                System.Console.Write($"Progress {amount}%");
-                                System.Console.CursorLeft = 0;
-                                previousProgress = amount;
-                            }
-                        }, default);
-                        System.Console.WriteLine($"SHA256 = {result}");
+                            var type = f.IsFile ? "F" : "D";
+                            var startSector = f.StartSector > 0 ? f.StartSector.ToString() : "N/A";
+                            var endSector = f.EndSector > 0 ? f.EndSector.ToString() : "N/A";
+                            System.Console.WriteLine($"{type},{f.Filename},{f.Size},{startSector},{endSector},{f.InSlices}");
+                        }, null, default);
                     }
                     finally
                     {
@@ -93,12 +89,15 @@ namespace Repackinator.Core.Console
                 }
 
                 System.Console.WriteLine();
-                System.Console.WriteLine("Checksum completed.");
+                System.Console.WriteLine("Info completed.");
             }
             catch (OptionException e)
             {
                 ConsoleUtil.ShowOptionException(e);
             }
+
+            ConsoleUtil.ProcessWait(Wait);
         }
     }
 }
+

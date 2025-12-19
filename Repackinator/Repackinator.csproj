@@ -71,7 +71,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Repackinator.Core\Repackinator.Core.csproj" />
-    <ProjectReference Include="..\Repackinator.Localization\Repackinator.Localization.csproj" />
   </ItemGroup>
 
   <ItemGroup>

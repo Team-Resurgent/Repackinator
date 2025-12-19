@@ -1,7 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.OpenGL;
 using Avalonia.ReactiveUI;
-using Repackinator.Core.Console;
 using Repackinator.Core.Shell;
 using System;
 using System.Globalization;
@@ -18,14 +17,7 @@ namespace Repackinator
         public static void Main(string[] args)
         {
             ContextMenu.RegisterContext();
-            if (args.Length > 0)
-            {
-                ConsoleStartup.Process(Repackinator.Core.Version.Value, args);
-            }
-            else
-            {
-                BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
-            }
+            BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
         }
 
         // Avalonia configuration, don't remove; also used by visual designer.

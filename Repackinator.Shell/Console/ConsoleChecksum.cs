@@ -1,14 +1,14 @@
-﻿using Mono.Options;
+using Mono.Options;
+using Repackinator.Core.Helpers;
 using XboxToolkit;
 using XboxToolkit.Interface;
 using Repackinator.Core.Models;
-using Repackinator.Core.Helpers;
 
-namespace Repackinator.Core.Console
+namespace Repackinator.Shell.Console
 {
-    public static class ConsoleExtract
+    public static class ConsoleChecksum
     {
-        public const string Action = "Extract";
+        public const string Action = "Checksum";
         public static string Input { get; set; } = string.Empty;
         public static bool ShowHelp { get; set; } = false;
         public static bool Wait { get; set; } = false;
@@ -25,9 +25,9 @@ namespace Repackinator.Core.Console
         public static void ShowOptionDescription()
         {
             System.Console.WriteLine();
-            System.Console.WriteLine("Extract Action...");
+            System.Console.WriteLine("Checksum Action...");
             System.Console.WriteLine();
-            System.Console.WriteLine("This action is used to extract files from xbox disk image.");
+            System.Console.WriteLine("This action is used to checksum xbox disk image sectors after any decompression if applicable.");
             System.Console.WriteLine();
             GetOptions().WriteOptionDescriptions(System.Console.Out);
         }
@@ -52,29 +52,15 @@ namespace Repackinator.Core.Console
                     throw new OptionException("Input is not a valid file.", "input");
                 }
 
-                System.Console.WriteLine("Extracting From:");
+                System.Console.WriteLine("Calculating Checksum From:");
                 var slices = ContainerUtility.GetSlicesFromFile(Input);
                 foreach (var slice in slices)
                 {
                     System.Console.WriteLine(Path.GetFileName(slice));
                 }
 
-                System.Console.WriteLine("Extracting...");
-
-                var outputPath = Path.GetDirectoryName(Input);
-                if (outputPath == null)
-                {
-                    throw new IOException("Unable to get directory name from input.");
-                }
-                var baseName = Path.GetFileNameWithoutExtension(Input);
-                var subExtension = Path.GetExtension(baseName);
-                if (subExtension.Equals(".1") || subExtension.Equals(".2"))
-                {
-                    baseName = Path.GetFileNameWithoutExtension(baseName);
-                }
-                outputPath = Path.Combine(outputPath, baseName);
-                Directory.CreateDirectory(outputPath);
-
+                System.Console.WriteLine("Calculating Checksums...");
+                
                 if (!ContainerUtility.TryAutoDetectContainerType(Input, out var containerReader) || containerReader == null)
                 {
                     throw new Exception("Unable to detect container type.");
@@ -88,7 +74,7 @@ namespace Repackinator.Core.Console
                     try
                     {
                         var previousProgress = -1.0f;
-                        var progress = new Action<float>((p) =>
+                        var result = ContainerUtility.GetChecksumFromContainer(containerReader, p =>
                         {
                             var amount = (float)Math.Round(p * 100);
                             if (amount != previousProgress)
@@ -97,12 +83,8 @@ namespace Repackinator.Core.Console
                                 System.Console.CursorLeft = 0;
                                 previousProgress = amount;
                             }
-                        });
-                        
-                        if (!ContainerUtility.ExtractFilesFromContainer(containerReader, outputPath))
-                        {
-                            throw new Exception("Unable to extract files.");
-                        }
+                        }, default);
+                        System.Console.WriteLine($"SHA256 = {result}");
                     }
                     finally
                     {
@@ -111,7 +93,7 @@ namespace Repackinator.Core.Console
                 }
 
                 System.Console.WriteLine();
-                System.Console.WriteLine("Extract completed.");
+                System.Console.WriteLine("Checksum completed.");
             }
             catch (OptionException e)
             {
@@ -120,3 +102,4 @@ namespace Repackinator.Core.Console
         }
     }
 }
+

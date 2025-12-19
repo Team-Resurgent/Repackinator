@@ -1,14 +1,14 @@
-﻿using Mono.Options;
-using Repackinator.Core.Helpers;
+using Mono.Options;
 using XboxToolkit;
 using XboxToolkit.Interface;
 using Repackinator.Core.Models;
+using Repackinator.Core.Helpers;
 
-namespace Repackinator.Core.Console
+namespace Repackinator.Shell.Console
 {
-    public static class ConsoleInfo
+    public static class ConsoleExtract
     {
-        public const string Action = "Info";
+        public const string Action = "Extract";
         public static string Input { get; set; } = string.Empty;
         public static bool ShowHelp { get; set; } = false;
         public static bool Wait { get; set; } = false;
@@ -25,9 +25,9 @@ namespace Repackinator.Core.Console
         public static void ShowOptionDescription()
         {
             System.Console.WriteLine();
-            System.Console.WriteLine("Info Action...");
+            System.Console.WriteLine("Extract Action...");
             System.Console.WriteLine();
-            System.Console.WriteLine("This action is used to show xbox disk data sector information.");
+            System.Console.WriteLine("This action is used to extract files from xbox disk image.");
             System.Console.WriteLine();
             GetOptions().WriteOptionDescriptions(System.Console.Out);
         }
@@ -52,16 +52,29 @@ namespace Repackinator.Core.Console
                     throw new OptionException("Input is not a valid file.", "input");
                 }
 
-                System.Console.WriteLine("Getting Info From:");
+                System.Console.WriteLine("Extracting From:");
                 var slices = ContainerUtility.GetSlicesFromFile(Input);
                 foreach (var slice in slices)
                 {
                     System.Console.WriteLine(Path.GetFileName(slice));
                 }
 
-                System.Console.WriteLine("Processing...");
-                System.Console.WriteLine($"Type,Filename,Size,StartSector,EndSector,InSlices");
-                
+                System.Console.WriteLine("Extracting...");
+
+                var outputPath = Path.GetDirectoryName(Input);
+                if (outputPath == null)
+                {
+                    throw new IOException("Unable to get directory name from input.");
+                }
+                var baseName = Path.GetFileNameWithoutExtension(Input);
+                var subExtension = Path.GetExtension(baseName);
+                if (subExtension.Equals(".1") || subExtension.Equals(".2"))
+                {
+                    baseName = Path.GetFileNameWithoutExtension(baseName);
+                }
+                outputPath = Path.Combine(outputPath, baseName);
+                Directory.CreateDirectory(outputPath);
+
                 if (!ContainerUtility.TryAutoDetectContainerType(Input, out var containerReader) || containerReader == null)
                 {
                     throw new Exception("Unable to detect container type.");
@@ -74,13 +87,22 @@ namespace Repackinator.Core.Console
                     }
                     try
                     {
-                        ContainerUtility.GetFileInfoFromContainer(containerReader, f =>
+                        var previousProgress = -1.0f;
+                        var progress = new Action<float>((p) =>
                         {
-                            var type = f.IsFile ? "F" : "D";
-                            var startSector = f.StartSector > 0 ? f.StartSector.ToString() : "N/A";
-                            var endSector = f.EndSector > 0 ? f.EndSector.ToString() : "N/A";
-                            System.Console.WriteLine($"{type},{f.Filename},{f.Size},{startSector},{endSector},{f.InSlices}");
-                        }, null, default);
+                            var amount = (float)Math.Round(p * 100);
+                            if (amount != previousProgress)
+                            {
+                                System.Console.Write($"Progress {amount}%");
+                                System.Console.CursorLeft = 0;
+                                previousProgress = amount;
+                            }
+                        });
+                        
+                        if (!ContainerUtility.ExtractFilesFromContainer(containerReader, outputPath))
+                        {
+                            throw new Exception("Unable to extract files.");
+                        }
                     }
                     finally
                     {
@@ -89,14 +111,13 @@ namespace Repackinator.Core.Console
                 }
 
                 System.Console.WriteLine();
-                System.Console.WriteLine("Info completed.");
+                System.Console.WriteLine("Extract completed.");
             }
             catch (OptionException e)
             {
                 ConsoleUtil.ShowOptionException(e);
             }
-
-            ConsoleUtil.ProcessWait(Wait);
         }
     }
 }
+

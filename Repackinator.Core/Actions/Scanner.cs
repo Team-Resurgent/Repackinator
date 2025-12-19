@@ -1,7 +1,6 @@
 ﻿using XboxToolkit;
 using XboxToolkit.Interface;
 using XboxToolkit.Models.Xbe;
-using Repackinator.Localization.Language;
 using System.Diagnostics;
 using Repackinator.Core.Models;
 using Repackinator.Core.Logging;
@@ -194,7 +193,7 @@ namespace Repackinator.Core.Actions
                 }
 
                 CurrentProgress.Progress1 = 0;
-                CurrentProgress.Progress1Text = UserLocale.scandialog_progress_searching_directories;
+                CurrentProgress.Progress1Text = "Scanning Directories";
                 CurrentProgress.Progress2 = 0;
                 CurrentProgress.Progress2Text = string.Empty;
                 SendProgress();

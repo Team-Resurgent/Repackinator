@@ -1,7 +1,8 @@
-﻿using Mono.Options;
+using Mono.Options;
 using Repackinator.Core.Shell;
+using Repackinator.Core.Helpers;
 
-namespace Repackinator.Core.Console
+namespace Repackinator.Shell.Console
 {
     public static class ConsoleRegister
     {
@@ -40,6 +41,23 @@ namespace Repackinator.Core.Console
                     return;
                 }
 
+                if (!OperatingSystem.IsWindows())
+                {
+                    System.Console.WriteLine("Register action is only available on Windows.");
+                    Environment.ExitCode = 1;
+                    ConsoleUtil.ProcessWait(Wait);
+                    return;
+                }
+
+                if (!Utility.IsAdmin())
+                {
+                    System.Console.WriteLine("Error: This action requires administrator privileges.");
+                    System.Console.WriteLine("Please run this command as administrator (right-click and select 'Run as administrator').");
+                    Environment.ExitCode = 1;
+                    ConsoleUtil.ProcessWait(Wait);
+                    return;
+                }
+
                 var result = ContextMenu.RegisterContext();
                 if (result)
                 {
@@ -47,13 +65,18 @@ namespace Repackinator.Core.Console
                 }
                 else
                 {
-                    System.Console.WriteLine("Failed to add context menu (need to run as admin).");
+                    System.Console.WriteLine("Failed to add context menu.");
+                    Environment.ExitCode = 1;
                 }
             }
             catch (OptionException e)
             {
                 ConsoleUtil.ShowOptionException(e);
+                Environment.ExitCode = 1;
             }
+
+            ConsoleUtil.ProcessWait(Wait);
         }
     }
 }
+

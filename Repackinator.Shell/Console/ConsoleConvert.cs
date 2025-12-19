@@ -1,10 +1,10 @@
-﻿using Mono.Options;
+using Mono.Options;
 using Repackinator.Core.Helpers;
 using XboxToolkit;
 using XboxToolkit.Interface;
 using Repackinator.Core.Models;
 
-namespace Repackinator.Core.Console
+namespace Repackinator.Shell.Console
 {
     public static class ConsoleConvert
     {
@@ -187,3 +187,4 @@ namespace Repackinator.Core.Console
 
     }
 }
+

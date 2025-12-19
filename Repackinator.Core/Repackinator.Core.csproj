@@ -14,15 +14,11 @@
     <EmbeddedResource Include="Resources\attach.xbe" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Repackinator.Localization\Repackinator.Localization.csproj" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Downloader" Version="4.0.3" />
     <PackageReference Include="ManagedBass.FftSignalProvider" Version="1.0.1" />
     <PackageReference Include="Microsoft.DotNet.PlatformAbstractions" Version="3.1.6" />
-    <PackageReference Include="Mono.Options" Version="6.12.0.148" />
     <PackageReference Include="SharpCompress" Version="0.41.0" />
     <PackageReference Include="XboxToolkit" Version="1.3.0" />
   </ItemGroup>

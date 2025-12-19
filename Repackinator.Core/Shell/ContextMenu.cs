@@ -20,6 +20,9 @@ namespace Repackinator.Core.Shell
         {
             if (OperatingSystem.IsWindows() && Utility.IsAdmin())
             {
+                var exePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"{AppDomain.CurrentDomain.FriendlyName}.exe");
+
+                // Register context menu for files (*)
                 using var tempKey = Registry.ClassesRoot.OpenSubKey($"*\\shell\\Repackinator");
                 if ((string?)tempKey?.GetValue("Version") != Version.Value)
                 {
@@ -31,7 +34,6 @@ namespace Repackinator.Core.Shell
                     tempKey?.Close();
                 }
 
-                var exePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"{AppDomain.CurrentDomain.FriendlyName}.exe");
                 using var key = Registry.ClassesRoot.CreateSubKey($"*\\shell\\Repackinator");
 
                 key.SetValue("AppliesTo", ".iso OR .cci");
@@ -53,6 +55,30 @@ namespace Repackinator.Core.Shell
                 RegisterSubMenu(key, "13ChecksumSectorData", "Checksum Sector Data (SHA256)", $"\"{exePath}\" -a=checksum -i \"%L\" -w");
                 RegisterSubMenu(key, "14Extract", "Extract", $"\"{exePath}\" -a=extract -i \"%L\" -w");
 
+                // Register context menu for folders (Directory)
+                using var tempDirKey = Registry.ClassesRoot.OpenSubKey($"Directory\\shell\\Repackinator");
+                if ((string?)tempDirKey?.GetValue("Version") != Version.Value)
+                {
+                    tempDirKey?.Close();
+                    UnregisterFolderContext();
+                }
+                else
+                {
+                    tempDirKey?.Close();
+                }
+
+                using var dirKey = Registry.ClassesRoot.CreateSubKey($"Directory\\shell\\Repackinator");
+
+                dirKey.SetValue("MUIVerb", "Repackinator");
+                dirKey.SetValue("SubCommands", string.Empty);
+                dirKey.SetValue("Version", Version.Value);
+
+                // Pack To ISO - output will be in parent directory with folder name
+                RegisterSubMenu(dirKey, "01PackToISO", "Pack To ISO", $"\"{exePath}\" -a=pack -i \"%1\" -o \"%1.iso\" -w");
+                
+                // Pack To CCI - output will be in parent directory with folder name
+                RegisterSubMenu(dirKey, "02PackToCCI", "Pack To CCI", $"\"{exePath}\" -a=pack -i \"%1\" -o \"%1.cci\" -c -w");
+
                 return true;
             }
 
@@ -64,6 +90,18 @@ namespace Repackinator.Core.Shell
             if (OperatingSystem.IsWindows() && Utility.IsAdmin())
             {
                 Registry.ClassesRoot.DeleteSubKeyTree("*\\shell\\Repackinator", false);
+                UnregisterFolderContext();
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool UnregisterFolderContext()
+        {
+            if (OperatingSystem.IsWindows() && Utility.IsAdmin())
+            {
+                Registry.ClassesRoot.DeleteSubKeyTree("Directory\\shell\\Repackinator", false);
                 return true;
             }
 

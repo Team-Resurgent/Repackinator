@@ -1,6 +1,4 @@
-﻿using Repackinator.Localization.Language;
-
-namespace Repackinator.Core.Logging
+﻿namespace Repackinator.Core.Logging
 {
     public enum LogMessageLevel
     {
@@ -18,7 +16,18 @@ namespace Repackinator.Core.Logging
     {
         public DateTime Time { get; set; }
 
-        public string LogLevel => UserLocale.ResourceManager.GetString($"logger.level.{Level.ToString().ToLower()}") ?? $"{UserLocale.logger_level_unknown}({Level.ToString()})";
+        public string LogLevel => Level switch
+        {
+            LogMessageLevel.None => "None",
+            LogMessageLevel.Info => "Info",
+            LogMessageLevel.Completed => "Completed",
+            LogMessageLevel.Skipped => "Skipped",
+            LogMessageLevel.Warning => "Warning",
+            LogMessageLevel.NotFound => "NotFound",
+            LogMessageLevel.Error => "Error",
+            LogMessageLevel.Done => "Done",
+            _ => $"UNKNOWN({Level.ToString()})"
+        };
 
         public LogMessageLevel Level { get; set; }
 

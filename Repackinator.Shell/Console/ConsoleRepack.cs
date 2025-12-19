@@ -1,11 +1,11 @@
-﻿using Mono.Options;
+using Mono.Options;
 using System.Text;
 using Repackinator.Core.Actions;
 using System.Diagnostics;
 using Repackinator.Core.Models;
 using Repackinator.Core.Logging;
 
-namespace Repackinator.Core.Console
+namespace Repackinator.Shell.Console
 {
     public static class ConsoleRepack
     {
@@ -225,3 +225,4 @@ namespace Repackinator.Core.Console
         }
     }
 }
+

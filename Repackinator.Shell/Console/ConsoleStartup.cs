@@ -1,6 +1,6 @@
-﻿using Mono.Options;
+using Mono.Options;
 
-namespace Repackinator.Core.Console
+namespace Repackinator.Shell.Console
 {
     public static class ConsoleStartup
     {
@@ -8,17 +8,28 @@ namespace Repackinator.Core.Console
         public static bool ShowHelp { get; set; } = false;
         public static bool Wait { get; set; } = false;
 
-        private static Dictionary<string, Action<string, string[]>> ActionsRegister = new Dictionary<string, Action<string, string[]>>(StringComparer.CurrentCultureIgnoreCase)
+        private static Dictionary<string, Action<string, string[]>> ActionsRegister = BuildActionsRegister();
+
+        private static Dictionary<string, Action<string, string[]>> BuildActionsRegister()
         {
-            { ConsoleRegister.Action, ConsoleRegister.Process, OperatingSystem.IsWindows() }, // Conditional on windows entry
-            { ConsoleUnregister.Action, ConsoleUnregister.Process, OperatingSystem.IsWindows() }, // Conditional on windows entry
-            { ConsoleConvert.Action, ConsoleConvert.Process },
-            { ConsoleCompare.Action, ConsoleCompare.Process },
-            { ConsoleInfo.Action, ConsoleInfo.Process },
-            { ConsoleChecksum.Action, ConsoleChecksum.Process },
-            { ConsoleExtract.Action, ConsoleExtract.Process },
-            { ConsoleRepack.Action, ConsoleRepack.Process },
-        };
+            var dict = new Dictionary<string, Action<string, string[]>>(StringComparer.CurrentCultureIgnoreCase);
+            
+            if (OperatingSystem.IsWindows())
+            {
+                dict.Add(ConsoleRegister.Action, ConsoleRegister.Process);
+                dict.Add(ConsoleUnregister.Action, ConsoleUnregister.Process);
+            }
+            
+            dict.Add(ConsoleConvert.Action, ConsoleConvert.Process);
+            dict.Add(ConsoleCompare.Action, ConsoleCompare.Process);
+            dict.Add(ConsoleInfo.Action, ConsoleInfo.Process);
+            dict.Add(ConsoleChecksum.Action, ConsoleChecksum.Process);
+            dict.Add(ConsoleExtract.Action, ConsoleExtract.Process);
+            dict.Add(ConsoleRepack.Action, ConsoleRepack.Process);
+            dict.Add(ConsolePack.Action, ConsolePack.Process);
+            
+            return dict;
+        }
 
         public static void Process(string version, string[] args)
         {
@@ -47,6 +58,7 @@ namespace Repackinator.Core.Console
                     ConsoleChecksum.ShowOptionDescription();
                     ConsoleExtract.ShowOptionDescription();
                     ConsoleRepack.ShowOptionDescription();
+                    ConsolePack.ShowOptionDescription();
 
                     ConsoleUtil.ProcessWait(Wait);
                     return;
@@ -68,15 +80,6 @@ namespace Repackinator.Core.Console
 
             ConsoleUtil.ProcessWait(Wait);
         }
-
-        // Custom extension to dictionary to allow for conditional entries
-        public static void Add(this Dictionary<string, Action<string, string[]>> dict, string key, Action<string, string[]> value, bool condition)
-        {
-            if (condition)
-            {
-                dict.Add(key, value);
-            }
-        }
-
     }
 }
+
