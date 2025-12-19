@@ -27,6 +27,7 @@ namespace Repackinator.Shell.Console
             dict.Add(ConsoleExtract.Action, ConsoleExtract.Process);
             dict.Add(ConsoleRepack.Action, ConsoleRepack.Process);
             dict.Add(ConsolePack.Action, ConsolePack.Process);
+            dict.Add(ConsoleXbeInfo.Action, ConsoleXbeInfo.Process);
             
             return dict;
         }
@@ -53,7 +54,8 @@ namespace Repackinator.Shell.Console
                         { "Extract", "Extract files from Xbox disk image" },
                         { "Compare", "Compare two Xbox disk images" },
                         { "Info", "Show Xbox disk data sector information" },
-                        { "Checksum", "Calculate checksum of Xbox disk image sectors" }
+                        { "Checksum", "Calculate checksum of Xbox disk image sectors" },
+                        { "XbeInfo", "Extract XBE certificate information from disk image" }
                     };
 
                     if (OperatingSystem.IsWindows())
@@ -78,7 +80,8 @@ namespace Repackinator.Shell.Console
                         { "Extract", "Extract files from Xbox disk image" },
                         { "Compare", "Compare two Xbox disk images" },
                         { "Info", "Show Xbox disk data sector information" },
-                        { "Checksum", "Calculate checksum of Xbox disk image sectors" }
+                        { "Checksum", "Calculate checksum of Xbox disk image sectors" },
+                        { "XbeInfo", "Extract XBE certificate information from disk image" }
                     };
 
                     if (OperatingSystem.IsWindows())

@@ -10,15 +10,19 @@ namespace Repackinator.Shell.Console
     {
         public const string Action = "Extract";
         public static string Input { get; set; } = string.Empty;
+        public static string Output { get; set; } = string.Empty;
         public static bool ShowHelp { get; set; } = false;
         public static bool Wait { get; set; } = false;
+        public static bool Quiet { get; set; } = false;
 
         public static OptionSet GetOptions()
         {
             return new OptionSet {
                 { "i|input=", "Input file", i => Input = i },
+                { "o|output=", "Output directory (optional, defaults to folder with input name)", o => Output = o },
                 { "h|help", "show help", h => ShowHelp = h != null },
-                { "w|wait", "Wait on exit", w => Wait = w != null }
+                { "w|wait", "Wait on exit", w => Wait = w != null },
+                { "q|quiet", "Suppress status output", q => Quiet = q != null }
             };
         }
 
@@ -52,28 +56,41 @@ namespace Repackinator.Shell.Console
                     throw new OptionException("Input is not a valid file.", "input");
                 }
 
-                System.Console.WriteLine("Extracting From:");
-                var slices = ContainerUtility.GetSlicesFromFile(Input);
-                foreach (var slice in slices)
+                string outputPath;
+                if (!string.IsNullOrEmpty(Output))
                 {
-                    System.Console.WriteLine(Path.GetFileName(slice));
+                    outputPath = Path.GetFullPath(Output);
+                    Directory.CreateDirectory(outputPath);
+                }
+                else
+                {
+                    // Default behavior: use folder with input name
+                    var inputDir = Path.GetDirectoryName(Input);
+                    if (inputDir == null)
+                    {
+                        throw new IOException("Unable to get directory name from input.");
+                    }
+                    var baseName = Path.GetFileNameWithoutExtension(Input);
+                    var subExtension = Path.GetExtension(baseName);
+                    if (subExtension.Equals(".1") || subExtension.Equals(".2"))
+                    {
+                        baseName = Path.GetFileNameWithoutExtension(baseName);
+                    }
+                    outputPath = Path.Combine(inputDir, baseName);
+                    Directory.CreateDirectory(outputPath);
                 }
 
-                System.Console.WriteLine("Extracting...");
-
-                var outputPath = Path.GetDirectoryName(Input);
-                if (outputPath == null)
+                if (!Quiet)
                 {
-                    throw new IOException("Unable to get directory name from input.");
+                    System.Console.WriteLine("Extracting From:");
+                    var slices = ContainerUtility.GetSlicesFromFile(Input);
+                    foreach (var slice in slices)
+                    {
+                        System.Console.WriteLine(Path.GetFileName(slice));
+                    }
+                    System.Console.WriteLine($"To: {outputPath}");
+                    System.Console.WriteLine("Extracting...");
                 }
-                var baseName = Path.GetFileNameWithoutExtension(Input);
-                var subExtension = Path.GetExtension(baseName);
-                if (subExtension.Equals(".1") || subExtension.Equals(".2"))
-                {
-                    baseName = Path.GetFileNameWithoutExtension(baseName);
-                }
-                outputPath = Path.Combine(outputPath, baseName);
-                Directory.CreateDirectory(outputPath);
 
                 if (!ContainerUtility.TryAutoDetectContainerType(Input, out var containerReader) || containerReader == null)
                 {
@@ -91,7 +108,7 @@ namespace Repackinator.Shell.Console
                         var progress = new Action<float>((p) =>
                         {
                             var amount = (float)Math.Round(p * 100);
-                            if (amount != previousProgress)
+                            if (!Quiet && amount != previousProgress)
                             {
                                 System.Console.Write($"Progress {amount}%");
                                 System.Console.CursorLeft = 0;
@@ -110,8 +127,11 @@ namespace Repackinator.Shell.Console
                     }
                 }
 
-                System.Console.WriteLine();
-                System.Console.WriteLine("Extract completed.");
+                if (!Quiet)
+                {
+                    System.Console.WriteLine();
+                    System.Console.WriteLine("Extract completed.");
+                }
             }
             catch (OptionException e)
             {

@@ -29,7 +29,7 @@ namespace Repackinator.Shell.Console
             return new OptionSet {
                 { "i|input=", "Input folder", i => Input = i },
                 { "o|output=", "Output folder", o => Output = o },
-                { "p|unpack=", "Unpack folder (optional)", p => Unpack = p},
+                { "p|unpack=", "Unpack folder for temporary extraction (optional)", p => Unpack = p},
                 { "g|grouping=", "Grouping (None *default*, Region, Letter, RegionLetter, LetterRegion)", g => Grouping = g.ToUpper() },
                 { "u|uppercase", "Uppercase", u => Uppercase = u != null },
                 { "r|recurse", "Recurse (Traverse Subdirs)", r => Recurse = r != null },

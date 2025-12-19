@@ -98,6 +98,10 @@ namespace Repackinator.Shell.Console
                     options = ConsoleChecksum.GetOptions();
                     actionName = ConsoleChecksum.Action;
                     break;
+                case "xbeinfo":
+                    options = ConsoleXbeInfo.GetOptions();
+                    actionName = ConsoleXbeInfo.Action;
+                    break;
                 case "register":
                     if (OperatingSystem.IsWindows())
                     {

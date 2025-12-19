@@ -1,14 +1,14 @@
 using Mono.Options;
-using Repackinator.Core.Helpers;
 using XboxToolkit;
 using XboxToolkit.Interface;
-using Repackinator.Core.Models;
+using XboxToolkit.Models.Xbe;
+using XboxToolkit.Internal;
 
 namespace Repackinator.Shell.Console
 {
-    public static class ConsoleInfo
+    public static class ConsoleXbeInfo
     {
-        public const string Action = "Info";
+        public const string Action = "XbeInfo";
         public static string Input { get; set; } = string.Empty;
         public static string Output { get; set; } = string.Empty;
         public static bool ShowHelp { get; set; } = false;
@@ -18,7 +18,7 @@ namespace Repackinator.Shell.Console
         public static OptionSet GetOptions()
         {
             return new OptionSet {
-                { "i|input=", "Input file", i => Input = i },
+                { "i|input=", "Input file (ISO or CCI)", i => Input = i },
                 { "o|output=", "Output file (optional, defaults to console)", o => Output = o },
                 { "h|help", "show help", h => ShowHelp = h != null },
                 { "w|wait", "Wait on exit", w => Wait = w != null },
@@ -29,17 +29,15 @@ namespace Repackinator.Shell.Console
         public static void ShowOptionDescription()
         {
             System.Console.WriteLine();
-            System.Console.WriteLine("Info Action...");
+            System.Console.WriteLine("XbeInfo Action...");
             System.Console.WriteLine();
-            System.Console.WriteLine("This action is used to show xbox disk data sector information.");
+            System.Console.WriteLine("This action extracts XBE certificate information from Xbox disk images.");
             System.Console.WriteLine();
             GetOptions().WriteOptionDescriptions(System.Console.Out);
         }
 
         public static void Process(string version, string[] args)
         {
-            var config = Config.LoadConfig();
-
             try
             {
                 var options = GetOptions();
@@ -72,25 +70,15 @@ namespace Repackinator.Shell.Console
                 {
                     if (!Quiet)
                     {
-                        System.Console.WriteLine("Getting Info From:");
+                        System.Console.WriteLine("Extracting XBE Info From:");
                         var slices = ContainerUtility.GetSlicesFromFile(Input);
                         foreach (var slice in slices)
                         {
                             System.Console.WriteLine(Path.GetFileName(slice));
                         }
-                        System.Console.WriteLine("Processing...");
+                        System.Console.WriteLine();
                     }
 
-                    var headerLine = $"Type,Filename,Size,StartSector,EndSector,InSlices";
-                    if (outputWriter != null)
-                    {
-                        outputWriter.WriteLine(headerLine);
-                    }
-                    else
-                    {
-                        System.Console.WriteLine(headerLine);
-                    }
-                    
                     if (!ContainerUtility.TryAutoDetectContainerType(Input, out var containerReader) || containerReader == null)
                     {
                         throw new Exception("Unable to detect container type.");
@@ -103,12 +91,23 @@ namespace Repackinator.Shell.Console
                         }
                         try
                         {
-                            ContainerUtility.GetFileInfoFromContainer(containerReader, f =>
+                            if (!containerReader.TryGetDefault(out var xbeData, out var containerType))
                             {
-                                var type = f.IsFile ? "F" : "D";
-                                var startSector = f.StartSector > 0 ? f.StartSector.ToString() : "N/A";
-                                var endSector = f.EndSector > 0 ? f.EndSector.ToString() : "N/A";
-                                var line = $"{type},{f.Filename},{f.Size},{startSector},{endSector},{f.InSlices}";
+                                throw new Exception("Unable to extract XBE from container.");
+                            }
+
+                            if (containerType != ContainerType.XboxOriginal)
+                            {
+                                throw new Exception("Input is not an Xbox Original disk image.");
+                            }
+
+                            if (!XbeUtility.TryGetXbeCert(xbeData, out var cert) || cert == null)
+                            {
+                                throw new Exception("Unable to extract XBE certificate.");
+                            }
+
+                            Action<string> writeLine = (line) =>
+                            {
                                 if (outputWriter != null)
                                 {
                                     outputWriter.WriteLine(line);
@@ -117,22 +116,34 @@ namespace Repackinator.Shell.Console
                                 {
                                     System.Console.WriteLine(line);
                                 }
-                            }, null, default);
+                            };
+
+                            writeLine("XBE Certificate Information:");
+                            writeLine("============================");
+                            var certInstance = new XbeCertificate();
+                            writeLine($"Title ID: {cert.Title_ID:X08}");
+                            writeLine($"Title Name: {UnicodeHelper.GetUnicodeString(cert.Title_Name)}");
+                            writeLine($"Game Region: {XbeCertificate.GameRegionToString(cert.Game_Region)}");
+                            writeLine($"Version: {cert.Version:X08}");
+                            writeLine($"Allowed Media: {certInstance.AllowedMediaToString(cert.Allowed_Media)}");
+                            writeLine($"Game Ratings: {cert.Game_Ratings:X08}");
+                            writeLine($"Disk Number: {cert.Disk_Number}");
+                            writeLine($"Time Date: {cert.Time_Date:X08}");
+                            
+                            if (!Quiet && outputWriter == null)
+                            {
+                                System.Console.WriteLine();
+                                System.Console.WriteLine("XbeInfo completed.");
+                            }
+                            else if (outputWriter != null && !Quiet)
+                            {
+                                System.Console.WriteLine($"XBE info saved to: {Output}");
+                            }
                         }
                         finally
                         {
                             containerReader.Dismount();
                         }
-                    }
-
-                    if (!Quiet)
-                    {
-                        System.Console.WriteLine();
-                        if (outputWriter != null)
-                        {
-                            System.Console.WriteLine($"Info saved to: {Output}");
-                        }
-                        System.Console.WriteLine("Info completed.");
                     }
                 }
                 finally
@@ -143,6 +154,15 @@ namespace Repackinator.Shell.Console
             catch (OptionException e)
             {
                 ConsoleUtil.ShowOptionException(e, Action, version);
+                Environment.ExitCode = 1;
+            }
+            catch (Exception e)
+            {
+                if (!Quiet)
+                {
+                    System.Console.WriteLine($"Error: {e.Message}");
+                }
+                Environment.ExitCode = 1;
             }
 
             ConsoleUtil.ProcessWait(Wait);

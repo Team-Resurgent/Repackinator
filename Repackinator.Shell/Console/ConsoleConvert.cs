@@ -10,6 +10,7 @@ namespace Repackinator.Shell.Console
     {
         public const string Action = "Convert";
         public static string Input { get; set; } = string.Empty;
+        public static string Output { get; set; } = string.Empty;
         public static bool Scrub { get; set; } = false;
         public static bool TrimScrub { get; set; } = false;
         public static bool Compress { get; set; } = false;
@@ -22,6 +23,7 @@ namespace Repackinator.Shell.Console
         {
             return new OptionSet {
                 { "i|input=", "Input file", i => Input = i },
+                { "o|output=", "Output file or directory (optional, defaults to 'Converted' subfolder)", o => Output = o },
                 { "c|compress", "Compress (CCI)", c => Compress = c != null },
                 { "s|scrub", "Scrub", s => Scrub = s != null },
                 { "t|trim", "TrimScrub", t => TrimScrub = t != null },
@@ -61,12 +63,6 @@ namespace Repackinator.Shell.Console
                     throw new OptionException("Input is not a valid file.", "input");
                 }
 
-                var outputPath = Path.GetDirectoryName(input);
-                if (outputPath == null)
-                {
-                    throw new OptionException("Unable to get directory from input.", "input");
-                }
-
                 var outputNameWithoutExtension = Path.GetFileNameWithoutExtension(input);
                 var subExtension = Path.GetExtension(outputNameWithoutExtension);
                 if (subExtension.Equals(".1") || subExtension.Equals(".2"))
@@ -74,15 +70,65 @@ namespace Repackinator.Shell.Console
                     outputNameWithoutExtension = Path.GetFileNameWithoutExtension(outputNameWithoutExtension);
                 }
 
-                System.Console.WriteLine("Converting:");
-                var slices = ContainerUtility.GetSlicesFromFile(input);
-                foreach (var slice in slices)
+                string outputPath;
+                string outputFile;
+
+                if (!string.IsNullOrEmpty(Output))
                 {
-                    System.Console.WriteLine(Path.GetFileName(slice));
+                    var outputFullPath = Path.GetFullPath(Output);
+                    if (Directory.Exists(outputFullPath) || outputFullPath.EndsWith(Path.DirectorySeparatorChar) || outputFullPath.EndsWith(Path.AltDirectorySeparatorChar))
+                    {
+                        // Output is a directory
+                        outputPath = outputFullPath;
+                        Directory.CreateDirectory(outputPath);
+                        var extension = Compress ? ".cci" : ".iso";
+                        outputFile = Path.Combine(outputPath, $"{outputNameWithoutExtension}{extension}");
+                    }
+                    else
+                    {
+                        // Output is a file path
+                        outputPath = Path.GetDirectoryName(outputFullPath) ?? Path.GetDirectoryName(input) ?? "";
+                        if (!string.IsNullOrEmpty(outputPath) && !Directory.Exists(outputPath))
+                        {
+                            Directory.CreateDirectory(outputPath);
+                        }
+                        outputFile = outputFullPath;
+                        // Ensure correct extension
+                        if (Compress && !outputFile.EndsWith(".cci", StringComparison.OrdinalIgnoreCase))
+                        {
+                            outputFile = Path.ChangeExtension(outputFile, ".cci");
+                        }
+                        else if (!Compress && !outputFile.EndsWith(".iso", StringComparison.OrdinalIgnoreCase))
+                        {
+                            outputFile = Path.ChangeExtension(outputFile, ".iso");
+                        }
+                    }
+                }
+                else
+                {
+                    // Default behavior: use Converted subfolder
+                    outputPath = Path.GetDirectoryName(input);
+                    if (outputPath == null)
+                    {
+                        throw new OptionException("Unable to get directory from input.", "input");
+                    }
+                    outputPath = Path.Combine(outputPath, $"Converted");
+                    Directory.CreateDirectory(outputPath);
+                    var extension = Compress ? ".cci" : ".iso";
+                    outputFile = Path.Combine(outputPath, $"{outputNameWithoutExtension}{extension}");
                 }
 
-                outputPath = Path.Combine(outputPath, $"Converted");
-                Directory.CreateDirectory(outputPath);
+                if (!Quiet)
+                {
+                    System.Console.WriteLine("Converting:");
+                    var slices = ContainerUtility.GetSlicesFromFile(input);
+                    foreach (var slice in slices)
+                    {
+                        System.Console.WriteLine(Path.GetFileName(slice));
+                    }
+                    System.Console.WriteLine($"To: {outputFile}");
+                    System.Console.WriteLine();
+                }
 
                 var previousProgress = -1.0f;
 
@@ -106,7 +152,6 @@ namespace Repackinator.Shell.Console
                             
                             if (Compress)
                             {
-                                var outputFile = Path.Combine(outputPath, $"{outputNameWithoutExtension}.cci");
                                 var progress = new Action<float>((p) =>
                                 {
                                     var amount = (float)Math.Round(p * 100);
@@ -136,7 +181,6 @@ namespace Repackinator.Shell.Console
                             } 
                             else
                             {
-                                var outputFile = Path.Combine(outputPath, $"{outputNameWithoutExtension}.iso");
                                 var splitPoint = NoSplit ? 0L : 4L * 1024 * 1024 * 1024; // 4GB
                                 var progress = new Action<float>((p) =>
                                 {
