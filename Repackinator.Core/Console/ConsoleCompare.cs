@@ -1,7 +1,7 @@
 ﻿using Mono.Options;
 using Repackinator.Core.Helpers;
-using Resurgent.UtilityBelt.Library.Utilities.ImageInput;
-using Resurgent.UtilityBelt.Library.Utilities;
+using XboxToolkit;
+using XboxToolkit.Interface;
 using Repackinator.Core.Models;
 
 namespace Repackinator.Core.Console
@@ -88,37 +88,66 @@ namespace Repackinator.Core.Console
                     }
 
                     System.Console.WriteLine("Comparing:");
-                    var firstInput = ImageImputHelper.GetImageInput(config.CompareFirst);
-                    foreach (var firstPart in firstInput.Parts)
+                    var firstSlices = ContainerUtility.GetSlicesFromFile(config.CompareFirst);
+                    foreach (var slice in firstSlices)
                     {
-                        System.Console.WriteLine(Path.GetFileName(firstPart));
+                        System.Console.WriteLine(Path.GetFileName(slice));
                     }
 
                     System.Console.WriteLine("Against:");
-                    var secondInput = ImageImputHelper.GetImageInput(config.CompareSecond);
-                    foreach (var secondPart in secondInput.Parts)
+                    var secondSlices = ContainerUtility.GetSlicesFromFile(config.CompareSecond);
+                    foreach (var slice in secondSlices)
                     {
-                        System.Console.WriteLine(Path.GetFileName(secondPart));
+                        System.Console.WriteLine(Path.GetFileName(slice));
                     }
 
                     System.Console.WriteLine();
 
-                    var previousProgress = -1.0f;
-
-                    System.Console.WriteLine("Processing...");
-                    XisoUtility.CompareXISO(firstInput, secondInput, s =>
+                    if (!ContainerUtility.TryAutoDetectContainerType(config.CompareFirst, out var containerReader1) || containerReader1 == null)
                     {
-                        System.Console.WriteLine(s);
-                    }, p =>
+                        throw new Exception("Unable to detect container type for first file.");
+                    }
+                    if (!ContainerUtility.TryAutoDetectContainerType(config.CompareSecond, out var containerReader2) || containerReader2 == null)
                     {
-                        var amount = (float)Math.Round(p * 100);
-                        if (amount != previousProgress)
+                        containerReader1.Dispose();
+                        throw new Exception("Unable to detect container type for second file.");
+                    }
+                    
+                    using (containerReader1)
+                    using (containerReader2)
+                    {
+                        if (!containerReader1.TryMount())
                         {
-                            System.Console.Write($"Progress {amount}%");
-                            System.Console.CursorLeft = 0;
-                            previousProgress = amount;
+                            throw new Exception("Unable to mount first container.");
                         }
-                    });
+                        if (!containerReader2.TryMount())
+                        {
+                            containerReader1.Dismount();
+                            throw new Exception("Unable to mount second container.");
+                        }
+                        try
+                        {
+                            var previousProgress = -1.0f;
+                            ContainerUtility.CompareContainers(containerReader1, containerReader2, s =>
+                            {
+                                System.Console.WriteLine(s);
+                            }, p =>
+                            {
+                                var amount = (float)Math.Round(p * 100);
+                                if (amount != previousProgress)
+                                {
+                                    System.Console.Write($"Progress {amount}%");
+                                    System.Console.CursorLeft = 0;
+                                    previousProgress = amount;
+                                }
+                            });
+                        }
+                        finally
+                        {
+                            containerReader1.Dismount();
+                            containerReader2.Dismount();
+                        }
+                    }
 
                     System.Console.WriteLine();
                     System.Console.WriteLine("Compare completed.");

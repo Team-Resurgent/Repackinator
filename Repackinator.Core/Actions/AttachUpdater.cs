@@ -1,8 +1,8 @@
 ﻿using Repackinator.Core.Helpers;
 using Repackinator.Core.Logging;
 using Repackinator.Core.Models;
-using Resurgent.UtilityBelt.Library.Utilities;
-using Resurgent.UtilityBelt.Library.Utilities.XbeModels;
+using XboxToolkit;
+using XboxToolkit.Models.Xbe;
 using System.Diagnostics;
 
 namespace Repackinator.Core.Actions
@@ -60,8 +60,7 @@ namespace Repackinator.Core.Actions
                 var titleId = cert.Title_Id.ToString("X8");
                 var region = XbeCertificate.GameRegionToString(cert.Game_Region);
                 var version = cert.Version.ToString("X8");
-
-                var titleName = StringHelper.GetUnicodeString(cert.Title_Name);
+                var titleName = UnicodeHelper.GetUtf8String(cert.Title_Name);
 
                 //GameData? gameData = null;
                 if (gameDatas != null)

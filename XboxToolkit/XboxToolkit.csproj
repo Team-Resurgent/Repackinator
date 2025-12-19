@@ -1,0 +1,61 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<LangVersion>11.0</LangVersion>
+        <Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<Description>A comprehensive .NET library for working with Xbox 360 and Xbox Original game containers, executables, and metadata. Supports reading ISO, CCI, and GOD containers, extracting XEX/XBE metadata, decrypting/decompressing XEX files, creating ISO files from folders, and fetching marketplace metadata. Includes image processing: XPR/DDS texture conversion, XBE image extraction/replacement, and BIOS logo encoding/decoding. Requires .NET 6.0+. Includes cross-platform native libraries for Windows, Linux, and macOS.</Description>
+		<AssemblyVersion>1.3.0</AssemblyVersion>
+		<Authors>EqUiNoX</Authors>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<AssemblyName>XboxToolkit</AssemblyName>
+		<PackageId>XboxToolkit</PackageId>
+		<PackagePrereleaseIdentifier></PackagePrereleaseIdentifier>
+		<PackageVersion>$(AssemblyVersion)$(PackagePrereleaseIdentifier)</PackageVersion>
+		<PackageTags>Xbox;Xbox360;Xbox-Original;ISO;CCI;GOD;XEX;XBE;XPR;DDS;Game-Container;Xbox-Toolkit;Xbox360-Toolkit;Container-Reader;Xex-Extractor;Texture-Converter;Image-Processing;BIOS-Logo</PackageTags>
+		<PackageProjectUrl>https://github.com/Team-Resurgent/XboxToolkit</PackageProjectUrl>
+		<RootNamespace>XboxToolkit</RootNamespace>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Title>XboxToolkit</Title>
+		<Copyright>Team Resurgent</Copyright>
+		<PackageReadmeFile>Readme.md</PackageReadmeFile>
+		<UserSecretsId>1bc5a42d-53e1-4b27-9f03-fec2cceadbd5</UserSecretsId>
+		<AssemblyTitle>XboxToolkit</AssemblyTitle>
+		<RepositoryUrl>https://github.com/Team-Resurgent/XboxToolkit</RepositoryUrl>
+		<FileVersion>1.3.0</FileVersion>
+		<PackageLicenseExpression> GPL-3.0-only</PackageLicenseExpression>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Content Include="$(SolutionDir)native\win-x64\libXexUnpack.dll">
+			<PackagePath>runtimes/win-x64/native/libXexUnpack.dll</PackagePath>
+			<Pack>true</Pack>
+		</Content>
+		<Content Include="$(SolutionDir)native\linux-x64\libXexUnpack.so">
+			<PackagePath>runtimes/linux-x64/native/libXexUnpack.so</PackagePath>
+			<Pack>true</Pack>
+		</Content>
+		<Content Include="$(SolutionDir)native\osx\libXexUnpack.dylib">
+			<PackagePath>runtimes/osx/native/libXexUnpack.dylib</PackagePath>
+			<Pack>true</Pack>
+		</Content>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="..\Readme.md">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="K4os.Compression.LZ4" Version="1.3.8" />
+	  <PackageReference Include="LibDeflate.NET" Version="1.19.0" />
+	  <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
+	</ItemGroup>
+
+</Project>

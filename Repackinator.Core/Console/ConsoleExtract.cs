@@ -1,6 +1,6 @@
 ﻿using Mono.Options;
-using Resurgent.UtilityBelt.Library.Utilities.ImageInput;
-using Resurgent.UtilityBelt.Library.Utilities;
+using XboxToolkit;
+using XboxToolkit.Interface;
 using Repackinator.Core.Models;
 using Repackinator.Core.Helpers;
 
@@ -52,11 +52,11 @@ namespace Repackinator.Core.Console
                     throw new OptionException("Input is not a valid file.", "input");
                 }
 
-                System.Console.WriteLine("Calculating Checksum From:");
-                var imageInput = ImageImputHelper.GetImageInput(Input);
-                foreach (var inputPart in imageInput.Parts)
+                System.Console.WriteLine("Extracting From:");
+                var slices = ContainerUtility.GetSlicesFromFile(Input);
+                foreach (var slice in slices)
                 {
-                    System.Console.WriteLine(Path.GetFileName(inputPart));
+                    System.Console.WriteLine(Path.GetFileName(slice));
                 }
 
                 System.Console.WriteLine("Extracting...");
@@ -66,49 +66,49 @@ namespace Repackinator.Core.Console
                 {
                     throw new IOException("Unable to get directory name from input.");
                 }
-                outputPath = Path.Combine(outputPath, Utility.GetNameFromSlice(Input));
+                var baseName = Path.GetFileNameWithoutExtension(Input);
+                var subExtension = Path.GetExtension(baseName);
+                if (subExtension.Equals(".1") || subExtension.Equals(".2"))
+                {
+                    baseName = Path.GetFileNameWithoutExtension(baseName);
+                }
+                outputPath = Path.Combine(outputPath, baseName);
                 Directory.CreateDirectory(outputPath);
 
-                var previousProgress = -1.0f;
-                XisoUtility.GetFileInfoFromXiso(imageInput, f =>
+                if (!ContainerUtility.TryAutoDetectContainerType(Input, out var containerReader) || containerReader == null)
                 {
-
-                    if (!f.IsFile)
+                    throw new Exception("Unable to detect container type.");
+                }
+                using (containerReader)
+                {
+                    if (!containerReader.TryMount())
                     {
-                        return;
+                        throw new Exception("Unable to mount container.");
                     }
-
-                    var sector = f.StartSector;
-                    var size = f.Size;
-                    var result = new byte[size];
-                    var processed = 0U;
-                    if (size > 0)
+                    try
                     {
-                        while (processed < size)
+                        var previousProgress = -1.0f;
+                        var progress = new Action<float>((p) =>
                         {
-                            var buffer = imageInput.ReadSectors(sector, 1);
-                            var bytesToCopy = (uint)Math.Min(size - processed, 2048);
-                            Array.Copy(buffer, 0, result, processed, bytesToCopy);
-                            sector++;
-                            processed += bytesToCopy;
+                            var amount = (float)Math.Round(p * 100);
+                            if (amount != previousProgress)
+                            {
+                                System.Console.Write($"Progress {amount}%");
+                                System.Console.CursorLeft = 0;
+                                previousProgress = amount;
+                            }
+                        });
+                        
+                        if (!ContainerUtility.ExtractFilesFromContainer(containerReader, outputPath))
+                        {
+                            throw new Exception("Unable to extract files.");
                         }
                     }
-                    var destPath = Path.Combine(outputPath, f.Path);
-                    Directory.CreateDirectory(destPath);
-                    var fileName = Path.Combine(destPath, f.Filename);
-                    File.WriteAllBytes(fileName, result);
-
-                },
-                p =>
-                {
-                    var amount = (float)Math.Round(p * 100);
-                    if (amount != previousProgress)
+                    finally
                     {
-                        System.Console.Write($"Progress {amount}%");
-                        System.Console.CursorLeft = 0;
-                        previousProgress = amount;
+                        containerReader.Dismount();
                     }
-                }, default);
+                }
 
                 System.Console.WriteLine();
                 System.Console.WriteLine("Extract completed.");

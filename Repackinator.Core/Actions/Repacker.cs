@@ -4,9 +4,10 @@ using Repackinator.Core.Helpers;
 using Repackinator.Core.Logging;
 using Repackinator.Core.Models;
 using Repackinator.Core.Streams;
-using Resurgent.UtilityBelt.Library.Utilities;
-using Resurgent.UtilityBelt.Library.Utilities.ImageInput;
-using Resurgent.UtilityBelt.Library.Utilities.XbeModels;
+using XboxToolkit;
+using XboxToolkit.Interface;
+using XboxToolkit.Models.Xbe;
+using XboxToolkit.Internal;
 using SharpCompress.Archives;
 using System.Diagnostics;
 using System.Text;
@@ -206,23 +207,36 @@ namespace Repackinator.Core.Actions
                 }
 
                 var xbeData = Array.Empty<byte>();
-                using (var xisoInput = new XisoInput(new string[] { Path.Combine(unpackPath, @"Repackinator.1.temp"), Path.Combine(unpackPath, @"Repackinator.2.temp") }))
+                var tempIsoPath = Path.Combine(unpackPath, @"Repackinator.1.temp");
+                using (var containerReader = new ISOContainerReader(tempIsoPath))
                 {
-                    if (!XisoUtility.TryGetDefaultXbeFromXiso(xisoInput, ref xbeData))
+                    if (!containerReader.TryMount())
                     {
-                        Log(LogMessageLevel.Error, $"Unable to extract default.xbe.");
+                        Log(LogMessageLevel.Error, $"Unable to mount container.");
                         return -1;
+                    }
+                    try
+                    {
+                        if (!containerReader.TryGetDefault(out xbeData, out _))
+                        {
+                            Log(LogMessageLevel.Error, $"Unable to extract default.xbe.");
+                            return -1;
+                        }
+                    }
+                    finally
+                    {
+                        containerReader.Dismount();
                     }
                 }
 
-                if (!XbeUtility.TryGetXbeCert(xbeData, out var cert) || cert == null)
+                if (!XboxToolkit.XbeUtility.TryGetXbeCert(xbeData, out var cert) || cert == null)
                 {
                     Log(LogMessageLevel.Error, $"Unable to get data from default.xbe.");
                     return -1;
                 }
 
                 var titleId = cert.Title_Id.ToString("X8");
-                var gameRegion = XbeCertificate.GameRegionToString(cert.Game_Region);
+                var gameRegion = XboxToolkit.Models.Xbe.XbeCertificate.GameRegionToString(cert.Game_Region);
                 var version = cert.Version.ToString("X8");
 
                 bool inDatasetISO = false;
@@ -363,15 +377,38 @@ namespace Repackinator.Core.Actions
                             SendProgress();
                         });
 
-                        using (var isoInput = new XisoInput(new string[] { Path.Combine(unpackPath, @"Repackinator.1.temp"), Path.Combine(unpackPath, @"Repackinator.2.temp") }))
+                        var tempIsoPath1 = Path.Combine(unpackPath, @"Repackinator.1.temp");
+                        using (var containerReader1 = new ISOContainerReader(tempIsoPath1))
                         {
-                            if (compressType == CompressOptionType.CCI)
+                            if (!containerReader1.TryMount())
                             {
-                                if (!XisoUtility.CreateCCI(isoInput, processOutput, isoFileName, ".cci", scrub, trimScrub, repackProgress, cancellationToken))
+                                Log(LogMessageLevel.Error, $"Unable to mount container.");
+                                return -1;
+                            }
+                            try
+                            {
+                                if (compressType == CompressOptionType.CCI)
                                 {
-                                    Log(LogMessageLevel.Error, $"Unable to process file 'Repackinator.temp'.");
-                                    return -1;
+                                    var outputFile = Path.Combine(processOutput, $"{isoFileName}.cci");
+                                    var processingOptions = ProcessingOptions.OneToOneCopy;
+                                    if (scrub) processingOptions |= ProcessingOptions.ScrubSectors;
+                                    if (trimScrub) processingOptions |= ProcessingOptions.TrimSectors;
+                                    
+                                    var simpleProgress = new Action<float>((progress) =>
+                                    {
+                                        repackProgress(2, progress);
+                                    });
+                                    
+                                    if (!ContainerUtility.ConvertContainerToCCI(containerReader1, processingOptions, outputFile, 0, simpleProgress))
+                                    {
+                                        Log(LogMessageLevel.Error, $"Unable to process file 'Repackinator.temp'.");
+                                        return -1;
+                                    }
                                 }
+                            }
+                            finally
+                            {
+                                containerReader1.Dismount();
                             }
                         }
                     }
@@ -401,12 +438,37 @@ namespace Repackinator.Core.Actions
                             SendProgress();
                         });
 
-                        using (var isoInput = new XisoInput(new string[] { Path.Combine(unpackPath, @"Repackinator.1.temp"), Path.Combine(unpackPath, @"Repackinator.2.temp") }))
+                        var tempIsoPath2 = Path.Combine(unpackPath, @"Repackinator.1.temp");
+                        using (var containerReader2 = new ISOContainerReader(tempIsoPath2))
                         {
-                            if (!XisoUtility.Split(isoInput, processOutput, isoFileName, ".iso", scrub, trimScrub, noSplit, repackProgress, cancellationToken))
+                            if (!containerReader2.TryMount())
                             {
-                                Log(LogMessageLevel.Error, $"Unable to process file 'Repackinator.temp'.");
+                                Log(LogMessageLevel.Error, $"Unable to mount container.");
                                 return -1;
+                            }
+                            try
+                            {
+                                var outputFile = Path.Combine(processOutput, $"{isoFileName}.iso");
+                                var processingOptions = ProcessingOptions.OneToOneCopy;
+                                if (scrub) processingOptions |= ProcessingOptions.ScrubSectors;
+                                if (trimScrub) processingOptions |= ProcessingOptions.TrimSectors;
+                                
+                                var splitPoint = noSplit ? 0L : 4L * 1024 * 1024 * 1024; // 4GB
+                                
+                                var simpleProgress = new Action<float>((progress) =>
+                                {
+                                    repackProgress(2, progress);
+                                });
+                                
+                                if (!ContainerUtility.ConvertContainerToISO(containerReader2, processingOptions, outputFile, splitPoint, simpleProgress))
+                                {
+                                    Log(LogMessageLevel.Error, $"Unable to process file 'Repackinator.temp'.");
+                                    return -1;
+                                }
+                            }
+                            finally
+                            {
+                                containerReader2.Dismount();
                             }
                         }
                     }
@@ -424,15 +486,15 @@ namespace Repackinator.Core.Actions
                 }
 
                 var attach = ResourceLoader.GetEmbeddedResourceBytes("attach.xbe");
-                if (XbeUtility.TryGetXbeImage(xbeData, XbeUtility.ImageType.TitleImage, out var xprImage))
+                if (XboxToolkit.XbeUtility.TryGetXbeImage(xbeData, XboxToolkit.XbeUtility.ImageType.TitleImage, out var xprImage))
                 {
-                    if (XprUtility.ConvertXprToJpeg(xprImage, out var jpgImage))
+                    if (XboxToolkit.XprUtility.ConvertXprToJpeg(xprImage, out var jpgImage))
                     {
                         if (jpgImage != null)
                         {
                             File.WriteAllBytes(Path.Combine(processOutput, "default.tbn"), jpgImage);
                         }
-                        if (!XbeUtility.TryReplaceXbeTitleImage(attach, jpgImage))
+                        if (!XboxToolkit.XbeUtility.TryReplaceXbeTitleImage(attach, jpgImage))
                         {
                             deleteProcessOutput = true;
                             Log(LogMessageLevel.Error, "Failed to replace image.");
@@ -451,7 +513,7 @@ namespace Repackinator.Core.Actions
                     Log(LogMessageLevel.Warning, "Failed to extract xpr as probably missing, will use default image.");
                 }
 
-                if (XbeUtility.ReplaceCertInfo(attach, xbeData, xbeTitle, out var patchedAttach) && patchedAttach != null)
+                if (XboxToolkit.XbeUtility.ReplaceCertInfo(attach, xbeData, xbeTitle, out var patchedAttach) && patchedAttach != null)
                 {
                     File.WriteAllBytes(Path.Combine(processOutput, "default.xbe"), patchedAttach);
                 }
@@ -506,23 +568,40 @@ namespace Repackinator.Core.Actions
                 processStopwatch.Start();
 
                 var xbeData = Array.Empty<byte>();
-                using (var xisoInput = ImageImputHelper.GetImageInput(inputFile))
+                if (!ContainerUtility.TryAutoDetectContainerType(inputFile, out var containerReader) || containerReader == null)
                 {
-                    if (!XisoUtility.TryGetDefaultXbeFromXiso(xisoInput, ref xbeData))
+                    Log(LogMessageLevel.Error, $"Unable to detect container type.");
+                    return -1;
+                }
+                using (containerReader)
+                {
+                    if (!containerReader.TryMount())
                     {
-                        Log(LogMessageLevel.Error, $"Unable to extract default.xbe.");
+                        Log(LogMessageLevel.Error, $"Unable to mount container.");
                         return -1;
+                    }
+                    try
+                    {
+                        if (!containerReader.TryGetDefault(out xbeData, out _))
+                        {
+                            Log(LogMessageLevel.Error, $"Unable to extract default.xbe.");
+                            return -1;
+                        }
+                    }
+                    finally
+                    {
+                        containerReader.Dismount();
                     }
                 }
 
-                if (!XbeUtility.TryGetXbeCert(xbeData, out var cert) || cert == null)
+                if (!XboxToolkit.XbeUtility.TryGetXbeCert(xbeData, out var cert) || cert == null)
                 {
                     Log(LogMessageLevel.Error, $"Unable to get data from default.xbe.");
                     return -1;
                 }
 
                 var titleId = cert.Title_Id.ToString("X8");
-                var gameRegion = XbeCertificate.GameRegionToString(cert.Game_Region);
+                var gameRegion = XboxToolkit.Models.Xbe.XbeCertificate.GameRegionToString(cert.Game_Region);
                 var version = cert.Version.ToString("X8");
 
                 bool inDatasetISO = false;
@@ -637,15 +716,15 @@ namespace Repackinator.Core.Actions
                 Directory.CreateDirectory(processOutput);
 
                 var attach = ResourceLoader.GetEmbeddedResourceBytes("attach.xbe");
-                if (XbeUtility.TryGetXbeImage(xbeData, XbeUtility.ImageType.TitleImage, out var xprImage))
+                if (XboxToolkit.XbeUtility.TryGetXbeImage(xbeData, XboxToolkit.XbeUtility.ImageType.TitleImage, out var xprImage))
                 {
-                    if (XprUtility.ConvertXprToJpeg(xprImage, out var jpgImage))
+                    if (XboxToolkit.XprUtility.ConvertXprToJpeg(xprImage, out var jpgImage))
                     {
                         if (jpgImage != null)
                         {
                             File.WriteAllBytes(Path.Combine(processOutput, "default.tbn"), jpgImage);
                         }
-                        if (!XbeUtility.TryReplaceXbeTitleImage(attach, jpgImage))
+                        if (!XboxToolkit.XbeUtility.TryReplaceXbeTitleImage(attach, jpgImage))
                         {
                             deleteProcessOutput = true;
                             Log(LogMessageLevel.Error, "Failed to replace image.");
@@ -664,7 +743,7 @@ namespace Repackinator.Core.Actions
                     Log(LogMessageLevel.Warning, "Failed to extract xpr as probably missing, will use default image.");
                 }
 
-                if (XbeUtility.ReplaceCertInfo(attach, xbeData, xbeTitle, out var patchedAttach) && patchedAttach != null)
+                if (XboxToolkit.XbeUtility.ReplaceCertInfo(attach, xbeData, xbeTitle, out var patchedAttach) && patchedAttach != null)
                 {
                     File.WriteAllBytes(Path.Combine(processOutput, "default.xbe"), patchedAttach);
                 }
@@ -701,15 +780,42 @@ namespace Repackinator.Core.Actions
                         SendProgress();
                     });
 
-                    using (var cciInput = ImageImputHelper.GetImageInput(inputFile))
+                    if (!ContainerUtility.TryAutoDetectContainerType(inputFile, out var containerReader3) || containerReader3 == null)
                     {
-                        if (compressType == CompressOptionType.CCI)
+                        Log(LogMessageLevel.Error, $"Unable to detect container type.");
+                        return -1;
+                    }
+                    using (containerReader3)
+                    {
+                        if (!containerReader3.TryMount())
                         {
-                            if (!XisoUtility.CreateCCI(cciInput, processOutput, isoFileName, ".cci", scrub, trimScrub, repackProgress, cancellationToken))
+                            Log(LogMessageLevel.Error, $"Unable to mount container.");
+                            return -1;
+                        }
+                        try
+                        {
+                            if (compressType == CompressOptionType.CCI)
                             {
-                                Log(LogMessageLevel.Error, $"Unable to process file '{inputFile}'.");
-                                return -1;
+                                var outputFile = Path.Combine(processOutput, $"{isoFileName}.cci");
+                                var processingOptions = ProcessingOptions.OneToOneCopy;
+                                if (scrub) processingOptions |= ProcessingOptions.ScrubSectors;
+                                if (trimScrub) processingOptions |= ProcessingOptions.TrimSectors;
+                                
+                                var simpleProgress = new Action<float>((progress) =>
+                                {
+                                    repackProgress(2, progress);
+                                });
+                                
+                                if (!ContainerUtility.ConvertContainerToCCI(containerReader3, processingOptions, outputFile, 0, simpleProgress))
+                                {
+                                    Log(LogMessageLevel.Error, $"Unable to process file '{inputFile}'.");
+                                    return -1;
+                                }
                             }
+                        }
+                        finally
+                        {
+                            containerReader3.Dismount();
                         }
                     }
                 }
@@ -739,12 +845,41 @@ namespace Repackinator.Core.Actions
                         SendProgress();
                     });
 
-                    using (var isoInput = ImageImputHelper.GetImageInput(inputFile))
+                    if (!ContainerUtility.TryAutoDetectContainerType(inputFile, out var containerReader4) || containerReader4 == null)
                     {
-                        if (!XisoUtility.Split(isoInput, processOutput, isoFileName, ".iso", scrub, trimScrub, noSplit, repackProgress, cancellationToken))
+                        Log(LogMessageLevel.Error, $"Unable to detect container type.");
+                        return -1;
+                    }
+                    using (containerReader4)
+                    {
+                        if (!containerReader4.TryMount())
                         {
-                            Log(LogMessageLevel.Error, $"Unable to process file '{inputFile}'.");
+                            Log(LogMessageLevel.Error, $"Unable to mount container.");
                             return -1;
+                        }
+                        try
+                        {
+                            var outputFile = Path.Combine(processOutput, $"{isoFileName}.iso");
+                            var processingOptions = ProcessingOptions.OneToOneCopy;
+                            if (scrub) processingOptions |= ProcessingOptions.ScrubSectors;
+                            if (trimScrub) processingOptions |= ProcessingOptions.TrimSectors;
+                            
+                            var splitPoint = noSplit ? 0L : 0xFF000000L;
+                            
+                            var simpleProgress = new Action<float>((progress) =>
+                            {
+                                repackProgress(2, progress);
+                            });
+                            
+                            if (!ContainerUtility.ConvertContainerToISO(containerReader4, processingOptions, outputFile, splitPoint, simpleProgress))
+                            {
+                                Log(LogMessageLevel.Error, $"Unable to process file '{inputFile}'.");
+                                return -1;
+                            }
+                        }
+                        finally
+                        {
+                            containerReader4.Dismount();
                         }
                     }
                 }

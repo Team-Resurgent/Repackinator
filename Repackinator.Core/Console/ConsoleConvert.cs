@@ -1,7 +1,7 @@
 ﻿using Mono.Options;
 using Repackinator.Core.Helpers;
-using Resurgent.UtilityBelt.Library.Utilities.ImageInput;
-using Resurgent.UtilityBelt.Library.Utilities;
+using XboxToolkit;
+using XboxToolkit.Interface;
 using Repackinator.Core.Models;
 
 namespace Repackinator.Core.Console
@@ -75,10 +75,10 @@ namespace Repackinator.Core.Console
                 }
 
                 System.Console.WriteLine("Converting:");
-                var imageInput = ImageImputHelper.GetImageInput(input);
-                foreach (var inputPart in imageInput.Parts)
+                var slices = ContainerUtility.GetSlicesFromFile(input);
+                foreach (var slice in slices)
                 {
-                    System.Console.WriteLine(Path.GetFileName(inputPart));
+                    System.Console.WriteLine(Path.GetFileName(slice));
                 }
 
                 outputPath = Path.Combine(outputPath, $"Converted");
@@ -88,53 +88,88 @@ namespace Repackinator.Core.Console
 
                 if (outputPath != null)
                 {
-                    if (Compress)
+                    if (!ContainerUtility.TryAutoDetectContainerType(input, out var containerReader) || containerReader == null)
                     {
-                        XisoUtility.CreateCCI(imageInput, outputPath, outputNameWithoutExtension, ".cci", (Scrub || TrimScrub), TrimScrub, (s, p) =>
-                        {
-                            var amount = (float)Math.Round(p * 100);
-                            if (!Quiet && amount != previousProgress)
-                            {
-                                if (amount < 10)
-                                {
-                                    System.Console.Write($"Stage {s + 1} of 3, Progress   {amount}%");
-                                }
-                                else if (amount < 100)
-                                {
-                                    System.Console.Write($"Stage {s + 1} of 3, Progress  {amount}%");
-                                }
-                                else
-                                {
-                                    System.Console.Write($"Stage {s + 1} of 3, Progress {amount}%");
-                                }
-                                System.Console.CursorLeft = 0;
-                                previousProgress = amount;
-                            }
-                        }, default);
-                    } 
-                    else
+                        throw new Exception("Unable to detect container type.");
+                    }
+                    using (containerReader)
                     {
-                        XisoUtility.Split(imageInput, outputPath, outputNameWithoutExtension, ".iso", (Scrub || TrimScrub), TrimScrub, NoSplit, (s, p) =>
+                        if (!containerReader.TryMount())
                         {
-                            var amount = (float)Math.Round(p * 100);
-                            if (!Quiet && amount != previousProgress)
+                            throw new Exception("Unable to mount container.");
+                        }
+                        try
+                        {
+                            var processingOptions = ProcessingOptions.OneToOneCopy;
+                            if (Scrub || TrimScrub) processingOptions |= ProcessingOptions.ScrubSectors;
+                            if (TrimScrub) processingOptions |= ProcessingOptions.TrimSectors;
+                            
+                            if (Compress)
                             {
-                                if (amount < 10)
+                                var outputFile = Path.Combine(outputPath, $"{outputNameWithoutExtension}.cci");
+                                var progress = new Action<float>((p) =>
                                 {
-                                    System.Console.Write($"Stage {s + 1} of 3, Progress   {amount}%");
-                                }
-                                else if (amount < 100)
+                                    var amount = (float)Math.Round(p * 100);
+                                    if (!Quiet && amount != previousProgress)
+                                    {
+                                        if (amount < 10)
+                                        {
+                                            System.Console.Write($"Progress   {amount}%");
+                                        }
+                                        else if (amount < 100)
+                                        {
+                                            System.Console.Write($"Progress  {amount}%");
+                                        }
+                                        else
+                                        {
+                                            System.Console.Write($"Progress {amount}%");
+                                        }
+                                        System.Console.CursorLeft = 0;
+                                        previousProgress = amount;
+                                    }
+                                });
+                                
+                                if (!ContainerUtility.ConvertContainerToCCI(containerReader, processingOptions, outputFile, 0, progress))
                                 {
-                                    System.Console.Write($"Stage {s + 1} of 3, Progress  {amount}%");
+                                    throw new Exception("Unable to convert to CCI.");
                                 }
-                                else
+                            } 
+                            else
+                            {
+                                var outputFile = Path.Combine(outputPath, $"{outputNameWithoutExtension}.iso");
+                                var splitPoint = NoSplit ? 0L : 4L * 1024 * 1024 * 1024; // 4GB
+                                var progress = new Action<float>((p) =>
                                 {
-                                    System.Console.Write($"Stage {s + 1} of 3, Progress {amount}%");
+                                    var amount = (float)Math.Round(p * 100);
+                                    if (!Quiet && amount != previousProgress)
+                                    {
+                                        if (amount < 10)
+                                        {
+                                            System.Console.Write($"Progress   {amount}%");
+                                        }
+                                        else if (amount < 100)
+                                        {
+                                            System.Console.Write($"Progress  {amount}%");
+                                        }
+                                        else
+                                        {
+                                            System.Console.Write($"Progress {amount}%");
+                                        }
+                                        System.Console.CursorLeft = 0;
+                                        previousProgress = amount;
+                                    }
+                                });
+                                
+                                if (!ContainerUtility.ConvertContainerToISO(containerReader, processingOptions, outputFile, splitPoint, progress))
+                                {
+                                    throw new Exception("Unable to convert to ISO.");
                                 }
-                                System.Console.CursorLeft = 0;
-                                previousProgress = amount;
                             }
-                        }, default);
+                        }
+                        finally
+                        {
+                            containerReader.Dismount();
+                        }
                     }
                 }
 

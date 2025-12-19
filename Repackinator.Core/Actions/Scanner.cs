@@ -1,8 +1,6 @@
-﻿using Resurgent.UtilityBelt.Library.Utilities;
-using Resurgent.UtilityBelt.Library.Utilities.ImageInput;
-using Resurgent.UtilityBelt.Library.Utilities.XbeModels;
-// using Resurgent.UtilityBelt.Library.Utilities.Xiso;
-// using Repackinator;
+﻿using XboxToolkit;
+using XboxToolkit.Interface;
+using XboxToolkit.Models.Xbe;
 using Repackinator.Localization.Language;
 using System.Diagnostics;
 using Repackinator.Core.Models;
@@ -83,35 +81,47 @@ namespace Repackinator.Core.Actions
                 }
 
                 var xbeData = Array.Empty<byte>();
+                ContainerReader? containerReader = null;
                 if (isoToProcess.Length > 0)
                 {
-                    using var xisoInput = new XisoInput(isoToProcess);
-                    if (!XisoUtility.TryGetDefaultXbeFromXiso(xisoInput, ref xbeData))
-                    {
-                        Log(LogMessageLevel.Error, $"Unable to extract default.xbe.");
-                        return;
-                    }
+                    containerReader = new ISOContainerReader(isoToProcess[0]);
                 }
                 else if (cciToProcess.Length > 0)
                 {
-                    using var xisoInput = new CciInput(cciToProcess);
-                    if (!XisoUtility.TryGetDefaultXbeFromXiso(xisoInput, ref xbeData))
-                    {
-                        Log(LogMessageLevel.Error, $"Unable to extract default.xbe.");
-                        return;
-                    }
+                    containerReader = new CCIContainerReader(cciToProcess[0]);
                 }
                 else if (csoToProcess.Length > 0)
                 {
-                    using var xisoInput = new CsoInput(csoToProcess);
-                    if (!XisoUtility.TryGetDefaultXbeFromXiso(xisoInput, ref xbeData))
+                    // CSO files are not directly supported by XboxToolkit, skip for now
+                    Log(LogMessageLevel.Error, $"CSO files are not supported.");
+                    return;
+                }
+
+                if (containerReader != null)
+                {
+                    try
                     {
-                        Log(LogMessageLevel.Error, $"Unable to extract default.xbe.");
-                        return;
+                        if (!containerReader.TryMount())
+                        {
+                            Log(LogMessageLevel.Error, $"Unable to mount container.");
+                            return;
+                        }
+
+                        if (!containerReader.TryGetDefault(out xbeData, out _))
+                        {
+                            Log(LogMessageLevel.Error, $"Unable to extract default.xbe.");
+                            containerReader.Dismount();
+                            return;
+                        }
+                    }
+                    finally
+                    {
+                        containerReader.Dismount();
+                        containerReader.Dispose();
                     }
                 }
 
-                if (!XbeUtility.TryGetXbeCert(xbeData, out var cert) || cert == null)
+                if (!XboxToolkit.XbeUtility.TryGetXbeCert(xbeData, out var cert) || cert == null)
                 {
                     Log(LogMessageLevel.Error, $"Unable to get data from default.xbe.");
                     return;
