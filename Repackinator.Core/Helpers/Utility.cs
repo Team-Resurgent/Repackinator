@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Reflection;
 using System.Security.Principal;
 
@@ -24,6 +25,48 @@ namespace Repackinator.Core.Helpers
                 isAdmin = false;
             }
             return isAdmin;
+        }
+
+        /// <summary>
+        /// Restarts the current process with administrator privileges.
+        /// Returns true if the process was restarted, false if elevation failed or is not needed.
+        /// </summary>
+        public static bool RestartAsAdmin(string[] args)
+        {
+            if (!OperatingSystem.IsWindows())
+            {
+                return false;
+            }
+
+            if (IsAdmin())
+            {
+                return false; // Already admin, no need to restart
+            }
+
+            try
+            {
+                var exePath = Environment.ProcessPath;
+                if (string.IsNullOrEmpty(exePath))
+                {
+                    return false;
+                }
+
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = exePath,
+                    Arguments = string.Join(" ", args.Select(arg => arg.Contains(' ') ? $"\"{arg}\"" : arg)),
+                    UseShellExecute = true,
+                    Verb = "runas" // This triggers UAC elevation
+                };
+
+                Process.Start(startInfo);
+                return true; // Successfully started elevated process
+            }
+            catch
+            {
+                // User likely cancelled UAC prompt or elevation failed
+                return false;
+            }
         }
 
         public static string GetNameFromSlice(string filename)

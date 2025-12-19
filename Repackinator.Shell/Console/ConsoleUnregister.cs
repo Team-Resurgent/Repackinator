@@ -51,11 +51,28 @@ namespace Repackinator.Shell.Console
 
                 if (!Utility.IsAdmin())
                 {
-                    System.Console.WriteLine("Error: This action requires administrator privileges.");
-                    System.Console.WriteLine("Please run this command as administrator (right-click and select 'Run as administrator').");
-                    Environment.ExitCode = 1;
-                    ConsoleUtil.ProcessWait(Wait);
-                    return;
+                    System.Console.WriteLine("This action requires administrator privileges.");
+                    System.Console.WriteLine("Attempting to elevate permissions...");
+                    
+                    // Reconstruct original arguments for elevation
+                    var elevatedArgs = new List<string> { "-a=unregister" };
+                    if (Wait)
+                    {
+                        elevatedArgs.Add("-w");
+                    }
+                    
+                    if (Utility.RestartAsAdmin(elevatedArgs.ToArray()))
+                    {
+                        // Successfully started elevated process, exit this one
+                        return;
+                    }
+                    else
+                    {
+                        System.Console.WriteLine("Error: Failed to elevate permissions. Please run this command as administrator.");
+                        Environment.ExitCode = 1;
+                        ConsoleUtil.ProcessWait(Wait);
+                        return;
+                    }
                 }
 
                 var result = ContextMenu.UnregisterContext();

@@ -20,7 +20,12 @@ namespace Repackinator.Core.Shell
         {
             if (OperatingSystem.IsWindows() && Utility.IsAdmin())
             {
-                var exePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"{AppDomain.CurrentDomain.FriendlyName}.exe");
+                // Use shell executable for command-line actions
+                var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                var shellExePath = Path.Combine(baseDir, "repackinator.shell.exe");
+                
+                // Fallback to main exe if shell doesn't exist (for backwards compatibility)
+                var exePath = File.Exists(shellExePath) ? shellExePath : Path.Combine(baseDir, $"{AppDomain.CurrentDomain.FriendlyName}.exe");
 
                 // Register context menu for files (*)
                 using var tempKey = Registry.ClassesRoot.OpenSubKey($"*\\shell\\Repackinator");
@@ -41,19 +46,25 @@ namespace Repackinator.Core.Shell
                 key.SetValue("SubCommands", string.Empty);
                 key.SetValue("Version", Version.Value);
 
+                // Convert to ISO options
                 RegisterSubMenu(key, "01ConvertToISO", "Convert to ISO", $"\"{exePath}\" -a=convert -i \"%L\" -w");
                 RegisterSubMenu(key, "02ConvertToISOScrub", "Convert to ISO (Scrub)", $"\"{exePath}\" -a=convert -i \"%L\" -s -w");
                 RegisterSubMenu(key, "03ConvertToISOTrimScrub", "Convert to ISO (TrimScrub)", $"\"{exePath}\" -a=convert -i \"%L\" -t -w");
 
+                // Convert to CCI options
                 RegisterSubMenu(key, "04ConvertToCCI", "Convert to CCI", $"\"{exePath}\" -a=convert -i \"%L\" -c -w");
                 RegisterSubMenu(key, "05ConvertToCCIScrub", "Convert to CCI (Scrub)", $"\"{exePath}\" -a=convert -i \"%L\" -s -c -w");
                 RegisterSubMenu(key, "06ConvertToCCITrimScrub", "Convert to CCI (TrimScrub)", $"\"{exePath}\" -a=convert -i \"%L\" -t -c -w");
 
-                RegisterSubMenu(key, "10CompareSetFirst", "Compare Set First", $"\"{exePath}\" -a=compare -f \"%L\"");
-                RegisterSubMenu(key, "11CompareFirstWith", "Compare First With", $"\"{exePath}\" -a=compare -s \"%L\" -c -w");
-                RegisterSubMenu(key, "12Info", "Info", $"\"{exePath}\" -a=info -i \"%L\" -w");
-                RegisterSubMenu(key, "13ChecksumSectorData", "Checksum Sector Data (SHA256)", $"\"{exePath}\" -a=checksum -i \"%L\" -w");
-                RegisterSubMenu(key, "14Extract", "Extract", $"\"{exePath}\" -a=extract -i \"%L\" -w");
+                // Information and extraction options
+                RegisterSubMenu(key, "07XbeInfo", "XBE Info", $"\"{exePath}\" -a=xbeinfo -i \"%L\" -w");
+                RegisterSubMenu(key, "08Info", "Sector Info", $"\"{exePath}\" -a=info -i \"%L\" -w");
+                RegisterSubMenu(key, "09Checksum", "Checksum (SHA256)", $"\"{exePath}\" -a=checksum -i \"%L\" -w");
+                RegisterSubMenu(key, "10Extract", "Extract Files", $"\"{exePath}\" -a=extract -i \"%L\" -w");
+
+                // Compare options
+                RegisterSubMenu(key, "11CompareSetFirst", "Compare - Set First", $"\"{exePath}\" -a=compare -f \"%L\"");
+                RegisterSubMenu(key, "12CompareFirstWith", "Compare - First With This", $"\"{exePath}\" -a=compare -s \"%L\" -c -w");
 
                 // Register context menu for folders (Directory)
                 using var tempDirKey = Registry.ClassesRoot.OpenSubKey($"Directory\\shell\\Repackinator");

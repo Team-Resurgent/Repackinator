@@ -121,7 +121,7 @@ namespace Repackinator.Shell.Console
                             writeLine("XBE Certificate Information:");
                             writeLine("============================");
                             var certInstance = new XbeCertificate();
-                            writeLine($"Title ID: {cert.Title_ID:X08}");
+                            writeLine($"Title ID: {cert.Title_Id:X08}");
                             writeLine($"Title Name: {UnicodeHelper.GetUnicodeString(cert.Title_Name)}");
                             writeLine($"Game Region: {XbeCertificate.GameRegionToString(cert.Game_Region)}");
                             writeLine($"Version: {cert.Version:X08}");
