@@ -13,7 +13,7 @@
                               Team Resurgent   
                                                                              
                                                                           
-    [ Program ..................................... Repackinator V2.0.4 ]
+    [ Program ..................................... Repackinator V2.1.0 ]
     [ Type ................................................ Iso Manager ]
     [ Platform .................................... Windows, Linux, OSX ]
     [ OS Architecture ............................................. X64 ]
@@ -35,7 +35,7 @@
 ///                                                                           ///
 ///  -----------------------------------------------------------------------  ///
 ///                                                                           ///
-///   Release: V2.0.4                                                         ///
+///   Release: V2.1.0                                                         ///
 ///  -----------------------------------------------------------------------  ///
 ///  1.  Separated GUI and CLI into distinct executables                      ///
 ///  2.  Added Pack action to pack folders to ISO/CCI format                  ///
@@ -46,40 +46,6 @@
 ///  7.  Added progress indicators to all console actions                     ///
 ///  8.  Removed Xbox360 support (Xbox Original only)                         ///
 ///  9.  Improved error handling and user feedback                            ///
-///                                                                           ///
-///  -----------------------------------------------------------------------  ///
-///                                                                           ///
-///   Release: V1.0.1                                                         ///
-///  -----------------------------------------------------------------------  ///
-///  1.  Added native support for Linux & OSX                                 ///
-///  2.  Fixed Typos in GUI                                                   ///
-///  3.  Github automation improvements                                       ///
-///  4.  Added CLI version (For those that don't like GUI's)                  ///
-///                                                                           ///
-///  -----------------------------------------------------------------------  ///
-///                                                                           ///
-///                                                                           ///
-///   Initial Release-                                                        ///
-///  -----------------------------------------------------------------------  ///
-///                                                                           ///
-///  1.  ZIP/7Z & ISO Support                                                 ///
-///  2.  Modern GUI                                                           ///
-///  3.  Current DB contains 1044 Games, The info shown has been compiled     ///
-///      by extracting Title Name, Region, Version & Title ID from the        ///
-///      Default.XBE of each game.                                            ///
-///  4.  CRC32 Info has been compiled by calculating the CRC32 of ISO and     ///
-///      comparing it to that found on Redump.org                             ///
-///  5.  Title Images extracted as Default.TBN                                ///
-///  6.  Cerbios Modern ISO Attach (Default.XBE) backwards compatible with    ///
-///      Iso Patched Bioses (IND,EVOX)                                        ///
-///  7.  Splits Iso in 2 equal parts, 3.45 GB (3,709,681,664 bytes) each      ///
-///  8.  DB contains all USA Region Games, Pal Only Exclusives & Jap Only     ///
-///      Exclusives.                                                          ///
-///  9.  Ability to edit Title Name(XBE Name), ISO & Folder Names             ///
-///  10. Ability to group generated Isos by Region, Letter, Region + Letter,  ///
-///      Letter + Region or Default(No Grouping)                              ///
-///  11. Ability to easily update Attacher(Default.XBE) with New Version      ///
-///                                                                           ///
 ///                                                                           ///
 ///  -----------------------------------------------------------------------  ///
 ///                                                                           ///

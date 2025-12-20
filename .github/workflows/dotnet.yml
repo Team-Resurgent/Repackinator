@@ -78,9 +78,9 @@ jobs:
     - name: Publish
       run: |
         if [ "${{ matrix.project }}" == "Repackinator.UI" ]; then
-          dotnet publish ./${{ matrix.project_path }}.csproj -p:Platform=${{ matrix.arch }} -r ${{ matrix.os_flavor }} -c Release -p:SelfContained=true -p:PublishSingleFile=true -p:PublishReadyToRun=true -p:TrimUnusedDependencies=false -p:DebugType=None -p:DebugSymbols=false -p:AvaloniaUseCompiledBindingsByDefault=true --output ${{ github.workspace }}/artifacts/${{ matrix.project }}/${{ matrix.os_flavor }}-${{ matrix.arch }} -maxcpucount:1
+          dotnet publish ./${{ matrix.project_path }}.csproj -p:Platform=${{ matrix.arch }} -r ${{ matrix.os_flavor }} -c Release -p:SelfContained=true -p:PublishSingleFile=true -p:PublishReadyToRun=true -p:TrimUnusedDependencies=false -p:DebugType=None -p:DebugSymbols=false -p:AvaloniaUseCompiledBindingsByDefault=true -p:IncludeNativeLibrariesForSelfExtract=true --output ${{ github.workspace }}/artifacts/${{ matrix.project }}/${{ matrix.os_flavor }}-${{ matrix.arch }} -maxcpucount:1
         else
-          dotnet publish ./${{ matrix.project_path }}.csproj -p:Platform=${{ matrix.arch }} -r ${{ matrix.os_flavor }} -c Release -p:SelfContained=true -p:PublishSingleFile=true -p:PublishReadyToRun=true -p:TrimUnusedDependencies=false -p:DebugType=None -p:DebugSymbols=false --output ${{ github.workspace }}/artifacts/${{ matrix.project }}/${{ matrix.os_flavor }}-${{ matrix.arch }} -maxcpucount:1
+          dotnet publish ./${{ matrix.project_path }}.csproj -p:Platform=${{ matrix.arch }} -r ${{ matrix.os_flavor }} -c Release -p:SelfContained=true -p:PublishSingleFile=true -p:PublishReadyToRun=true -p:TrimUnusedDependencies=false -p:DebugType=None -p:DebugSymbols=false -p:IncludeNativeLibrariesForSelfExtract=true --output ${{ github.workspace }}/artifacts/${{ matrix.project }}/${{ matrix.os_flavor }}-${{ matrix.arch }} -maxcpucount:1
         fi
 
     - name: Check publish output
