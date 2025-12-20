@@ -58,7 +58,10 @@ Current database contains 1044 games. The info shown has been compiled by extrac
 Also included, is the ability to easily update legacy Attacher (default.xbe) created by tools like DVD2Xbox with new improved Cerbios Attacher (default.xbe).
 
 ## Install Notes
-* Run Repackinator.exe first time as administrator. ***First run must be as administrator to enable context menu under Windows, CLI included.***
+* Repackinator consists of two executables:
+  * `Repackinator.exe` - GUI application for managing and processing Xbox disk images
+  * `repackinator.shell.exe` - Command-line interface for all operations
+* *Windows Only* Run `repackinator.shell.exe -a=register` as administrator to enable context menu. The application will automatically prompt for elevation if needed. Use `repackinator.shell.exe -a=unregister` to remove context menu.
 
 ## Known Issues
 * XBMC based FTP programs are known to "trim" files that get too close to the FATX limit. Repackinator is designed to be aware of this limit and will never produce a file larger than 4,290,735,312 bytes. We have had issues reported from this scenario. ***This will manifest as a black screen when trying to launch your game. If you transfer to Xbox with FTP and experience this, verify your *.1.cci or *.1.iso file size matches what is on your computer.***
@@ -93,9 +96,26 @@ Actions:
 * **Process**: start processing.
 
 ## Command Line Use
-* *Windows Only* ***Must run `Repackinator.exe -a=register` as admin to enable context menu use. Use `Repackinator.exe -a=unregister` as admin to remove context menu.***
-* Run `Repackinator.exe -a=repack -h` to view possible commands in CLI.
-* Run `Repackinator.exe -a=repack` along with the following options, based on your intended results.
+Repackinator provides a cross-platform command-line interface via `repackinator.shell.exe`. All command-line operations are performed through this executable.
+
+### Available Actions
+* `Pack` - Pack a folder into ISO or CCI format
+* `Repack` - Repackinate a collection of Xbox disk images
+* `Convert` - Convert one Xbox disk image format to another
+* `Extract` - Extract files from Xbox disk image
+* `Compare` - Compare two Xbox disk images
+* `Info` - Show Xbox disk data sector information
+* `Checksum` - Calculate checksum of Xbox disk image sectors
+* `XbeInfo` - Extract XBE certificate information from disk image
+* `Register` - Register context menu (Windows, requires admin)
+* `Unregister` - Unregister context menu (Windows, requires admin)
+
+### Getting Help
+* Run `repackinator.shell.exe -h` to view all available actions
+* Run `repackinator.shell.exe -a=<action> -h` to view detailed help for a specific action
+
+### Example: Repack Action
+Run `repackinator.shell.exe -a=repack` along with the following options:
 ```
   -i, --input=VALUE          Input folder
   -o, --output=VALUE         Output folder
@@ -111,21 +131,41 @@ Actions:
   -h, --help                 show help
   -w, --wait                 Wait on exit
 ```
+
+### Example: Pack Action
+Pack a folder to ISO or CCI format:
+```
+  -i, --input=VALUE          Input folder (required)
+  -o, --output=VALUE         Output file path (required)
+  -c, --compress             Compress to CCI format (default: ISO)
+  -s, --scrub                Scrub padding
+  -t, --trimscrub            TrimScrub padding
+  -n, --nosplit              Do not split at 4GB (not recommended)
+  -h, --help                 show help
+  -w, --wait                 Wait on exit
+```
 ## Context Menu
 <div align="center">
 
-After Repackinator has been ran as admin the first time, the context menu will populate.
+After Repackinator context menu has been registered, it will be available for supported file types and folders.
 
 ![contextMenu](readmeStuff/contextMenu.png?raw=true)
 
 ***CONTEXT MENU OPTIONS WILL NOT CREATE `default.xbe` OR `default.tbn` FILES!***
 </div>
 
+### For ISO/CCI Files:
 * .ISO files can be split, as well as .CCI files can be decompressed using the **Convert to ISO** functions.
 * .ISO files can be compressed to various types of .CCI using the **Convert to CCI** functions.
 * Compatible files can be cryptographically compared by selecting **Compare Set First** on initial file, then **Compare First With** on the second file.
+* **XBE Info** will display XBE certificate information from the disk image.
 * **Info** will print the sector data.
+* **Checksum** will calculate and display the SHA256 checksum.
 * **Extract** will create a HDD ready file from *any* supported input type.
+
+### For Folders:
+* **Pack To ISO** will pack the folder contents into a split ISO image (automatically splits at 4GB).
+* **Pack To CCI** will pack the folder contents into a split CCI compressed image (automatically splits at 4GB).
 
 
 ## Acknowledgments
