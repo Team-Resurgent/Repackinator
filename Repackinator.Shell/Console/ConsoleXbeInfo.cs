@@ -96,9 +96,20 @@ namespace Repackinator.Shell.Console
                         }
                         try
                         {
+                            if (!Quiet)
+                            {
+                                System.Console.Write("Processing...");
+                            }
+
                             if (!containerReader.TryGetDefault(out var xbeData, out var containerType))
                             {
                                 throw new Exception("Unable to extract XBE from container.");
+                            }
+
+                            if (!Quiet)
+                            {
+                                System.Console.CursorLeft = 0;
+                                System.Console.WriteLine("Processing... Complete");
                             }
 
                             if (containerType != ContainerType.XboxOriginal)

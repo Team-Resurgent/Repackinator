@@ -83,7 +83,7 @@ namespace Repackinator.Shell.Console
                         {
                             System.Console.WriteLine(Path.GetFileName(slice));
                         }
-                        System.Console.WriteLine("Processing...");
+                        System.Console.WriteLine();
                     }
 
                     var headerLine = $"Type,Filename,Size,StartSector,EndSector,InSlices";
@@ -108,6 +108,29 @@ namespace Repackinator.Shell.Console
                         }
                         try
                         {
+                            var previousProgress = -1.0f;
+                            var progress = new Action<float>((p) =>
+                            {
+                                var amount = (float)Math.Round(p * 100);
+                                if (!Quiet && amount != previousProgress)
+                                {
+                                    if (amount < 10)
+                                    {
+                                        System.Console.Write($"Progress   {amount}%");
+                                    }
+                                    else if (amount < 100)
+                                    {
+                                        System.Console.Write($"Progress  {amount}%");
+                                    }
+                                    else
+                                    {
+                                        System.Console.Write($"Progress {amount}%");
+                                    }
+                                    System.Console.CursorLeft = 0;
+                                    previousProgress = amount;
+                                }
+                            });
+
                             ContainerUtility.GetFileInfoFromContainer(containerReader, f =>
                             {
                                 var type = f.IsFile ? "F" : "D";
@@ -122,7 +145,7 @@ namespace Repackinator.Shell.Console
                                 {
                                     System.Console.WriteLine(line);
                                 }
-                            }, null, default);
+                            }, progress, default);
                         }
                         finally
                         {

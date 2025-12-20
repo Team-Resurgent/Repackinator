@@ -210,13 +210,71 @@ namespace Repackinator.Shell.Console
 
                 var prevMessage = string.Empty;
 
+                var previousProgress1 = -1.0f;
+                var previousProgress2 = -1.0f;
+                var progress = new Action<Repackinator.Core.Models.ProgressInfo>((progressInfo) =>
+                {
+                    if (!string.IsNullOrEmpty(progressInfo.Progress1Text) && progressInfo.Progress1Text != prevMessage)
+                    {
+                        if (!string.IsNullOrEmpty(prevMessage))
+                        {
+                            System.Console.WriteLine();
+                        }
+                        System.Console.WriteLine(progressInfo.Progress1Text);
+                        prevMessage = progressInfo.Progress1Text;
+                    }
+
+                    var amount1 = (float)Math.Round(progressInfo.Progress1 * 100);
+                    if (amount1 != previousProgress1)
+                    {
+                        if (amount1 < 10)
+                        {
+                            System.Console.Write($"Progress   {amount1}%");
+                        }
+                        else if (amount1 < 100)
+                        {
+                            System.Console.Write($"Progress  {amount1}%");
+                        }
+                        else
+                        {
+                            System.Console.Write($"Progress {amount1}%");
+                        }
+                        System.Console.CursorLeft = 0;
+                        previousProgress1 = amount1;
+                    }
+
+                    if (progressInfo.Progress1 >= 1.0f && !string.IsNullOrEmpty(progressInfo.Progress2Text))
+                    {
+                        var amount2 = (float)Math.Round(progressInfo.Progress2 * 100);
+                        if (amount2 != previousProgress2)
+                        {
+                            System.Console.WriteLine();
+                            System.Console.Write($"{progressInfo.Progress2Text} - ");
+                            if (amount2 < 10)
+                            {
+                                System.Console.Write($"Progress   {amount2}%");
+                            }
+                            else if (amount2 < 100)
+                            {
+                                System.Console.Write($"Progress  {amount2}%");
+                            }
+                            else
+                            {
+                                System.Console.Write($"Progress {amount2}%");
+                            }
+                            System.Console.CursorLeft = 0;
+                            previousProgress2 = amount2;
+                        }
+                    }
+                });
+
                 var repacker = new Repacker();
-                repacker.StartRepacking(gameData, config, null, logger, new Stopwatch(), default);
+                repacker.StartRepacking(gameData, config, progress, logger, new Stopwatch(), default);
 
                 logStream?.Dispose();
 
                 System.Console.WriteLine();
-                System.Console.WriteLine("Convert completed.");
+                System.Console.WriteLine("Repack completed.");
             }
             catch (OptionException e)
             {
