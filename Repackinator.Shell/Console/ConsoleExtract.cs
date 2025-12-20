@@ -109,19 +109,16 @@ namespace Repackinator.Shell.Console
                     }
                     try
                     {
-                        var previousProgress = -1.0f;
-                        var progress = new Action<float>((p) =>
+                        Action<string>? extractProgress = null;
+                        if (!Quiet)
                         {
-                            var amount = (float)Math.Round(p * 100);
-                            if (!Quiet && amount != previousProgress)
+                            extractProgress = new Action<string>((filename) =>
                             {
-                                System.Console.Write($"Progress {amount}%");
-                                System.Console.CursorLeft = 0;
-                                previousProgress = amount;
-                            }
-                        });
+                                System.Console.WriteLine($"  {filename}");
+                            });
+                        }
                         
-                        if (!ContainerUtility.ExtractFilesFromContainer(containerReader, outputPath))
+                        if (!ContainerUtility.ExtractFilesFromContainer(containerReader, outputPath, extractProgress))
                         {
                             throw new Exception("Unable to extract files.");
                         }
