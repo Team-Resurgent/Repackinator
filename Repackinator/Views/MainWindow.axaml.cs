@@ -1,12 +1,7 @@
-using Avalonia;
 using Avalonia.Animation;
 using Avalonia.Controls;
-using Avalonia.Input;
-using Avalonia.Styling;
-using Avalonia.Threading;
 using Repackinator.Utils;
 using Repackinator.ViewModels;
-using System;
 using System.Threading.Tasks;
 
 namespace Repackinator.Views

@@ -1,9 +1,6 @@
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using ReactiveUI;
 using System.Windows.Input;
-using Tmds.DBus.Protocol;
 
 namespace Repackinator;
 

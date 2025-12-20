@@ -38,7 +38,8 @@ namespace Repackinator.Core.Models
             var repackListPath = Path.Combine(applicationPath, "RepackList.json");
             if (!File.Exists(repackListPath))
             {
-                return null;
+                var repackList = ResourceLoader.GetEmbeddedResourceBytes("attach.xbe");
+                File.WriteAllBytes(repackListPath, repackList);
             }
 
             return LoadGameData(repackListPath);

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Repackinator.Models
+﻿namespace Repackinator.Models
 {
     public class LogItem
     {

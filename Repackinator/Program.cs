@@ -1,10 +1,6 @@
 ﻿using Avalonia;
-using Avalonia.OpenGL;
 using Avalonia.ReactiveUI;
-using Repackinator.Shell.Shell;
 using System;
-using System.Globalization;
-using System.Threading;
 
 namespace Repackinator
 {
@@ -16,7 +12,6 @@ namespace Repackinator
         [STAThread]
         public static void Main(string[] args)
         {
-            ContextMenu.RegisterContext();
             BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
         }
 

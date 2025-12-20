@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using Repackinator.Core.Helpers;
+﻿using Repackinator.Core.Helpers;
 using Repackinator.Core.Models;
 
 namespace Repackinator.Models

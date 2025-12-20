@@ -8,10 +8,12 @@
 
   <ItemGroup>
     <None Remove="Resources\attach.xbe" />
+    <None Remove="Resources\RepackList.json" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\attach.xbe" />
+    <EmbeddedResource Include="Resources\RepackList.json" />
   </ItemGroup>
 
 

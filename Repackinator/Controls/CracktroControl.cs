@@ -9,11 +9,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Repackinator.Core.Helpers;
 using System.Numerics;
-using System.Collections;
-using System.Security.Cryptography.X509Certificates;
-using Avalonia.Input;
 using System.Globalization;
-using Avalonia.Media.TextFormatting;
 
 namespace Repackinator.Controls
 {

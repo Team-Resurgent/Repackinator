@@ -4,17 +4,12 @@ using ReactiveUI;
 using Repackinator.Core.Actions;
 using Repackinator.Core.Logging;
 using Repackinator.Core.Models;
-using Repackinator.Models;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Linq;
-using System.Numerics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Timers;
 using System.Windows.Input;
 
 namespace Repackinator.ViewModels
