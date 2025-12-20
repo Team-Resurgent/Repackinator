@@ -1,7 +1,7 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using Repackinator.Core.Helpers;
 
-namespace Repackinator.Core.Shell
+namespace Repackinator.Shell.Shell
 {
     public class ContextMenu
     {
@@ -13,6 +13,15 @@ namespace Repackinator.Core.Shell
                 menu1Key.SetValue("MUIVerb", description);
                 var commandMenu1Key = menu1Key.CreateSubKey("command");
                 commandMenu1Key.SetValue(null, command);
+            }
+        }
+
+        private static void RegisterSeparator(RegistryKey key, string name)
+        {
+            if (OperatingSystem.IsWindows() && Utility.IsAdmin())
+            {
+                var separatorKey = key.CreateSubKey($"shell\\{name}");
+                separatorKey.SetValue("MUIVerb", "-");
             }
         }
 
@@ -29,7 +38,7 @@ namespace Repackinator.Core.Shell
 
                 // Register context menu for files (*)
                 using var tempKey = Registry.ClassesRoot.OpenSubKey($"*\\shell\\Repackinator");
-                if ((string?)tempKey?.GetValue("Version") != Version.Value)
+                if ((string?)tempKey?.GetValue("Version") != Core.Version.Value)
                 {
                     tempKey?.Close();
                     UnregisterContext();
@@ -44,7 +53,7 @@ namespace Repackinator.Core.Shell
                 key.SetValue("AppliesTo", ".iso OR .cci");
                 key.SetValue("MUIVerb", "Repackinator");
                 key.SetValue("SubCommands", string.Empty);
-                key.SetValue("Version", Version.Value);
+                key.SetValue("Version", Core.Version.Value);
 
                 // Convert to ISO options
                 RegisterSubMenu(key, "01ConvertToISO", "Convert to ISO", $"\"{exePath}\" -a=convert -i \"%L\" -w");
@@ -56,19 +65,25 @@ namespace Repackinator.Core.Shell
                 RegisterSubMenu(key, "05ConvertToCCIScrub", "Convert to CCI (Scrub)", $"\"{exePath}\" -a=convert -i \"%L\" -s -c -w");
                 RegisterSubMenu(key, "06ConvertToCCITrimScrub", "Convert to CCI (TrimScrub)", $"\"{exePath}\" -a=convert -i \"%L\" -t -c -w");
 
+                // Separator
+                RegisterSeparator(key, "07Separator");
+
                 // Information and extraction options
-                RegisterSubMenu(key, "07XbeInfo", "XBE Info", $"\"{exePath}\" -a=xbeinfo -i \"%L\" -w");
-                RegisterSubMenu(key, "08Info", "Sector Info", $"\"{exePath}\" -a=info -i \"%L\" -w");
-                RegisterSubMenu(key, "09Checksum", "Checksum (SHA256)", $"\"{exePath}\" -a=checksum -i \"%L\" -w");
-                RegisterSubMenu(key, "10Extract", "Extract Files", $"\"{exePath}\" -a=extract -i \"%L\" -w");
+                RegisterSubMenu(key, "08XbeInfo", "XBE Info", $"\"{exePath}\" -a=xbeinfo -i \"%L\" -w");
+                RegisterSubMenu(key, "09Info", "Sector Info", $"\"{exePath}\" -a=info -i \"%L\" -w");
+                RegisterSubMenu(key, "10Checksum", "Checksum (SHA256)", $"\"{exePath}\" -a=checksum -i \"%L\" -w");
+                RegisterSubMenu(key, "11Extract", "Extract Files", $"\"{exePath}\" -a=extract -i \"%L\" -w");
+
+                // Separator
+                RegisterSeparator(key, "12Separator");
 
                 // Compare options
-                RegisterSubMenu(key, "11CompareSetFirst", "Compare - Set First", $"\"{exePath}\" -a=compare -f \"%L\"");
-                RegisterSubMenu(key, "12CompareFirstWith", "Compare - First With This", $"\"{exePath}\" -a=compare -s \"%L\" -c -w");
+                RegisterSubMenu(key, "13CompareSetFirst", "Compare - Set First", $"\"{exePath}\" -a=compare -f \"%L\"");
+                RegisterSubMenu(key, "14CompareFirstWith", "Compare - First With This", $"\"{exePath}\" -a=compare -s \"%L\" -c -w");
 
                 // Register context menu for folders (Directory)
                 using var tempDirKey = Registry.ClassesRoot.OpenSubKey($"Directory\\shell\\Repackinator");
-                if ((string?)tempDirKey?.GetValue("Version") != Version.Value)
+                if ((string?)tempDirKey?.GetValue("Version") != Core.Version.Value)
                 {
                     tempDirKey?.Close();
                     UnregisterFolderContext();
@@ -82,7 +97,7 @@ namespace Repackinator.Core.Shell
 
                 dirKey.SetValue("MUIVerb", "Repackinator");
                 dirKey.SetValue("SubCommands", string.Empty);
-                dirKey.SetValue("Version", Version.Value);
+                dirKey.SetValue("Version", Core.Version.Value);
 
                 // Pack To ISO - output will be in parent directory with folder name
                 RegisterSubMenu(dirKey, "01PackToISO", "Pack To ISO", $"\"{exePath}\" -a=pack -i \"%1\" -o \"%1.iso\" -w");
@@ -120,3 +135,4 @@ namespace Repackinator.Core.Shell
         }
     }
 }
+

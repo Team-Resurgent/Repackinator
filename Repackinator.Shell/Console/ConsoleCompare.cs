@@ -50,10 +50,19 @@ namespace Repackinator.Shell.Console
                     return;
                 }
 
+                // If no parameters provided, show help
+                if (string.IsNullOrEmpty(First) && string.IsNullOrEmpty(Second) && !Compare)
+                {
+                    throw new OptionException("No parameters specified. Use -f to set first file, -s to set second file, or -c to compare.", "compare");
+                }
+
                 string? firstFile = null;
                 string? secondFile = null;
 
-                // Try to get from command line arguments first
+                // Load config to get/set comparison files
+                var config = Config.LoadConfig();
+
+                // Process first file: save to config if provided, or load from config if not provided
                 if (!string.IsNullOrEmpty(First))
                 {
                     if (!File.Exists(First))
@@ -61,8 +70,20 @@ namespace Repackinator.Shell.Console
                         throw new OptionException("First is not a valid file.", "first");
                     }
                     firstFile = Path.GetFullPath(First);
+                    // Save to config for future use
+                    if (config != null)
+                    {
+                        config.CompareFirst = firstFile;
+                        Config.SaveConfig(config);
+                    }
+                }
+                else if (config != null && !string.IsNullOrEmpty(config.CompareFirst))
+                {
+                    // Load from config if not provided via command line
+                    firstFile = config.CompareFirst;
                 }
 
+                // Process second file: save to config if provided, or load from config if not provided
                 if (!string.IsNullOrEmpty(Second))
                 {
                     if (!File.Exists(Second))
@@ -70,43 +91,25 @@ namespace Repackinator.Shell.Console
                         throw new OptionException("Second is not a valid file.", "second");
                     }
                     secondFile = Path.GetFullPath(Second);
+                    // Save to config for future use
+                    if (config != null)
+                    {
+                        config.CompareSecond = secondFile;
+                        Config.SaveConfig(config);
+                    }
+                }
+                else if (config != null && !string.IsNullOrEmpty(config.CompareSecond))
+                {
+                    // Load from config if not provided via command line
+                    secondFile = config.CompareSecond;
                 }
 
-                // If compare flag is set or both files provided, use them directly
-                if (Compare || (!string.IsNullOrEmpty(firstFile) && !string.IsNullOrEmpty(secondFile)))
+                // If compare flag is set, ensure we have both files (from command line or config)
+                if (Compare)
                 {
                     if (string.IsNullOrEmpty(firstFile) || string.IsNullOrEmpty(secondFile))
                     {
-                        throw new OptionException("Both first and second files must be specified when using -c flag.", "compare");
-                    }
-                }
-                else
-                {
-                    // Fall back to config file for backward compatibility
-                    var config = Config.LoadConfig();
-                    if (config != null)
-                    {
-                        if (!string.IsNullOrEmpty(First))
-                        {
-                            config.CompareFirst = Path.GetFullPath(First);
-                            Config.SaveConfig(config);
-                            firstFile = config.CompareFirst;
-                        }
-                        else if (!string.IsNullOrEmpty(config.CompareFirst))
-                        {
-                            firstFile = config.CompareFirst;
-                        }
-
-                        if (!string.IsNullOrEmpty(Second))
-                        {
-                            config.CompareSecond = Path.GetFullPath(Second);
-                            Config.SaveConfig(config);
-                            secondFile = config.CompareSecond;
-                        }
-                        else if (!string.IsNullOrEmpty(config.CompareSecond))
-                        {
-                            secondFile = config.CompareSecond;
-                        }
+                        throw new OptionException("Both first and second files must be specified (use -f to set first, or it will be loaded from config).", "compare");
                     }
                 }
 

@@ -1,5 +1,5 @@
 using Mono.Options;
-using Repackinator.Core.Shell;
+using Repackinator.Shell.Shell;
 using Repackinator.Core.Helpers;
 
 namespace Repackinator.Shell.Console

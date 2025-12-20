@@ -1,7 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.OpenGL;
 using Avalonia.ReactiveUI;
-using Repackinator.Core.Shell;
+using Repackinator.Shell.Shell;
 using System;
 using System.Globalization;
 using System.Threading;

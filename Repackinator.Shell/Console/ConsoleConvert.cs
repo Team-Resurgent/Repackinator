@@ -57,10 +57,15 @@ namespace Repackinator.Shell.Console
                     return;
                 }
 
+                if (string.IsNullOrEmpty(Input))
+                {
+                    throw new OptionException("Input file not specified.", "input");
+                }
+
                 var input = Path.GetFullPath(Input);
                 if (!File.Exists(input))
                 {
-                    throw new OptionException("Input is not a valid file.", "input");
+                    throw new OptionException("Input file does not exist.", "input");
                 }
 
                 var outputNameWithoutExtension = Path.GetFileNameWithoutExtension(input);

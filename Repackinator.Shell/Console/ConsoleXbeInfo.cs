@@ -49,9 +49,14 @@ namespace Repackinator.Shell.Console
                     return;
                 }
 
+                if (string.IsNullOrEmpty(Input))
+                {
+                    throw new OptionException("Input file not specified.", "input");
+                }
+
                 if (!File.Exists(Input))
                 {
-                    throw new OptionException("Input is not a valid file.", "input");
+                    throw new OptionException("Input file does not exist.", "input");
                 }
 
                 StreamWriter? outputWriter = null;
