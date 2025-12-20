@@ -11,7 +11,7 @@ using Repackinator.Core.Helpers;
 using System.Numerics;
 using System.Globalization;
 
-namespace Repackinator.Controls
+namespace Repackinator.UI.Controls
 {
     public class CracktroControl : Control
     {
@@ -196,7 +196,7 @@ namespace Repackinator.Controls
         private void PlayAudio()
         {
             Bass.Init();
-            var musicData = ResourceLoader.GetEmbeddedResourceBytes("Stuart Wilson - Not Another Comic Bakery Remix.mp3", typeof(AboutWindow).GetTypeInfo().Assembly);
+            var musicData = ResourceLoader.GetEmbeddedResourceBytes("Stuart Wilson - Not Another Comic Bakery Remix.mp3", typeof(Repackinator.UI.Program).GetTypeInfo().Assembly);
             mPlayBackHandle = Bass.CreateStream(musicData, 0, musicData.Length, BassFlags.Default | BassFlags.Loop);
             Bass.ChannelPlay(mPlayBackHandle);
 

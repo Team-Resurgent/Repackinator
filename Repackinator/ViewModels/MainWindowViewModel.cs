@@ -3,23 +3,23 @@ using System.Collections.ObjectModel;
 using System;
 using Repackinator.Core.Models;
 using System.Linq;
-using Repackinator.Models;
+using Repackinator.UI.Models;
 using Avalonia.Controls;
 using ReactiveUI;
 using DynamicData;
 using Avalonia.Data;
 using Avalonia.Platform.Storage;
-using Repackinator.Utils;
+using Repackinator.UI.Utils;
 using System.Reactive.Linq;
 using System.Windows.Input;
-using Repackinator.Views;
+using Repackinator.UI.Views;
 using Repackinator.Core.Helpers;
 using System.Text;
 using System.IO;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 
-namespace Repackinator.ViewModels
+namespace Repackinator.UI.ViewModels
 {
     public partial class MainWindowViewModel : ViewModelBase
     {

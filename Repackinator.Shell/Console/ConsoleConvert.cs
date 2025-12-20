@@ -75,7 +75,7 @@ namespace Repackinator.Shell.Console
                     outputNameWithoutExtension = Path.GetFileNameWithoutExtension(outputNameWithoutExtension);
                 }
 
-                string outputPath;
+                string? outputPath;
                 string outputFile;
 
                 if (!string.IsNullOrEmpty(Output))

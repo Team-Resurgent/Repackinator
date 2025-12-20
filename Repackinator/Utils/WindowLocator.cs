@@ -1,6 +1,6 @@
 ﻿using Avalonia.Controls;
 
-namespace Repackinator.Utils
+namespace Repackinator.UI.Utils
 {
     public static class WindowLocator
     {

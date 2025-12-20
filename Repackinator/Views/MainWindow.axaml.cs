@@ -1,10 +1,10 @@
 using Avalonia.Animation;
 using Avalonia.Controls;
-using Repackinator.Utils;
-using Repackinator.ViewModels;
+using Repackinator.UI.Utils;
+using Repackinator.UI.ViewModels;
 using System.Threading.Tasks;
 
-namespace Repackinator.Views
+namespace Repackinator.UI.Views
 {
 
     public partial class MainWindow : Window

@@ -2,7 +2,7 @@
 using Avalonia.ReactiveUI;
 using System;
 
-namespace Repackinator
+namespace Repackinator.UI
 {
     internal sealed class Program
     {

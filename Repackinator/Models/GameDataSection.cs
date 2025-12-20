@@ -1,4 +1,4 @@
-﻿namespace Repackinator.Models
+﻿namespace Repackinator.UI.Models
 {
     public class GameDataSection(string name)
     {

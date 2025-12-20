@@ -1,6 +1,6 @@
 using Avalonia.Controls;
 
-namespace Repackinator;
+namespace Repackinator.UI;
 
 public partial class AboutWindow : Window
 {

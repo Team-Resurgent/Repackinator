@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.0.11222.15
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repackinator", "Repackinator\Repackinator.csproj", "{DF56920E-1432-4F34-B948-573A2163F19E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repackinator.UI", "Repackinator\Repackinator.UI.csproj", "{DF56920E-1432-4F34-B948-573A2163F19E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repackinator.Core", "Repackinator.Core\Repackinator.Core.csproj", "{C66D6B85-EC0F-4E6F-BA9F-A9E321C8E31A}"
 EndProject

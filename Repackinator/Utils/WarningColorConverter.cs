@@ -4,7 +4,7 @@ using Avalonia.Media;
 using System;
 using System.Globalization;
 
-namespace Repackinator.Utils
+namespace Repackinator.UI.Utils
 {
     public class WarningColorConverter : IValueConverter
     {

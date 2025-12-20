@@ -1,6 +1,6 @@
 ﻿using ReactiveUI;
 
-namespace Repackinator.ViewModels
+namespace Repackinator.UI.ViewModels
 {
     public class ViewModelBase : ReactiveObject
     {

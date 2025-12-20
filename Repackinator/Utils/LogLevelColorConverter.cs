@@ -5,7 +5,7 @@ using Repackinator.Core.Logging;
 using System;
 using System.Globalization;
 
-namespace Repackinator.Utils
+namespace Repackinator.UI.Utils
 {
     public class LogLevelColorConverter : IValueConverter
     {

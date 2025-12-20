@@ -1,8 +1,8 @@
 using Avalonia.Controls;
 using Repackinator.Core.Models;
-using Repackinator.ViewModels;
+using Repackinator.UI.ViewModels;
 
-namespace Repackinator;
+namespace Repackinator.UI;
 
 public partial class ProcessWindow : Window
 {

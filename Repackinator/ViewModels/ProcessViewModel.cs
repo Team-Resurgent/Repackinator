@@ -12,7 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace Repackinator.ViewModels
+namespace Repackinator.UI.ViewModels
 {
     public class ProcessViewModel : ViewModelBase
     {

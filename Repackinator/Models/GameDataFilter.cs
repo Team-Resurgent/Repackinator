@@ -1,7 +1,7 @@
 ﻿using Repackinator.Core.Helpers;
 using Repackinator.Core.Models;
 
-namespace Repackinator.Models
+namespace Repackinator.UI.Models
 {
     public class GameDataFilter(GameDataFilterType type)
     {

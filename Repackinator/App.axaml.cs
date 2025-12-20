@@ -2,11 +2,11 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
-using Repackinator.ViewModels;
-using Repackinator.Views;
+using Repackinator.UI.ViewModels;
+using Repackinator.UI.Views;
 using System.Linq;
 
-namespace Repackinator
+namespace Repackinator.UI
 {
     public partial class App : Application
     {

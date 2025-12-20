@@ -2,7 +2,7 @@ using Avalonia.Controls;
 using ReactiveUI;
 using System.Windows.Input;
 
-namespace Repackinator;
+namespace Repackinator.UI;
 
 public partial class MessageWindow : Window
 {
