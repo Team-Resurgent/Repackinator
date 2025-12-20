@@ -18,21 +18,55 @@ jobs:
     strategy:
       matrix:
         os_flavor: [win-x64, linux-x64, osx-x64, osx-arm64]
-        project: [Repackinator]
-        project_lowercase: [repackinator]
         include:
           - os_flavor: win-x64
             arch: x64
             archive_ext: zip
+            project: Repackinator.UI
+            project_path: Repackinator/Repackinator.UI
+            project_lowercase: repackinator.ui
           - os_flavor: linux-x64
             arch: x64
             archive_ext: tar
+            project: Repackinator.UI
+            project_path: Repackinator/Repackinator.UI
+            project_lowercase: repackinator.ui
           - os_flavor: osx-x64
             arch: x64
             archive_ext: tar
+            project: Repackinator.UI
+            project_path: Repackinator/Repackinator.UI
+            project_lowercase: repackinator.ui
           - os_flavor: osx-arm64
             arch: arm64
             archive_ext: tar
+            project: Repackinator.UI
+            project_path: Repackinator/Repackinator.UI
+            project_lowercase: repackinator.ui
+          - os_flavor: win-x64
+            arch: x64
+            archive_ext: zip
+            project: Repackinator.Shell
+            project_path: Repackinator.Shell/Repackinator.Shell
+            project_lowercase: repackinator.shell
+          - os_flavor: linux-x64
+            arch: x64
+            archive_ext: tar
+            project: Repackinator.Shell
+            project_path: Repackinator.Shell/Repackinator.Shell
+            project_lowercase: repackinator.shell
+          - os_flavor: osx-x64
+            arch: x64
+            archive_ext: tar
+            project: Repackinator.Shell
+            project_path: Repackinator.Shell/Repackinator.Shell
+            project_lowercase: repackinator.shell
+          - os_flavor: osx-arm64
+            arch: arm64
+            archive_ext: tar
+            project: Repackinator.Shell
+            project_path: Repackinator.Shell/Repackinator.Shell
+            project_lowercase: repackinator.shell
 
     steps:
     - uses: actions/checkout@v4
@@ -42,7 +76,12 @@ jobs:
         dotnet-version: 8.0.x
     
     - name: Publish
-      run: dotnet publish ./${{ matrix.project }}/${{ matrix.project }}.csproj -p:Platform=${{ matrix.arch }} -r ${{ matrix.os_flavor }} -c Release -p:SelfContained=true -p:PublishSingleFile=true -p:PublishReadyToRun=true -p:TrimUnusedDependencies=false -p:DebugType=None -p:DebugSymbols=false -p:AvaloniaUseCompiledBindingsByDefault=true --output ${{ github.workspace }}/artifacts/${{ matrix.project }}/${{ matrix.os_flavor }}-${{ matrix.arch }} -maxcpucount:1
+      run: |
+        if [ "${{ matrix.project }}" == "Repackinator.UI" ]; then
+          dotnet publish ./${{ matrix.project_path }}.csproj -p:Platform=${{ matrix.arch }} -r ${{ matrix.os_flavor }} -c Release -p:SelfContained=true -p:PublishSingleFile=true -p:PublishReadyToRun=true -p:TrimUnusedDependencies=false -p:DebugType=None -p:DebugSymbols=false -p:AvaloniaUseCompiledBindingsByDefault=true --output ${{ github.workspace }}/artifacts/${{ matrix.project }}/${{ matrix.os_flavor }}-${{ matrix.arch }} -maxcpucount:1
+        else
+          dotnet publish ./${{ matrix.project_path }}.csproj -p:Platform=${{ matrix.arch }} -r ${{ matrix.os_flavor }} -c Release -p:SelfContained=true -p:PublishSingleFile=true -p:PublishReadyToRun=true -p:TrimUnusedDependencies=false -p:DebugType=None -p:DebugSymbols=false --output ${{ github.workspace }}/artifacts/${{ matrix.project }}/${{ matrix.os_flavor }}-${{ matrix.arch }} -maxcpucount:1
+        fi
 
     - name: Check publish output
       run: ls -laR ${{ github.workspace }}/artifacts/${{ matrix.project }}/
