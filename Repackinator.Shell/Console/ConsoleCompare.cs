@@ -195,6 +195,8 @@ namespace Repackinator.Shell.Console
             {
                 ConsoleUtil.ShowOptionException(e, Action, version);
             }
+
+            ConsoleUtil.ProcessWait(Wait);
         }
     }
 }
