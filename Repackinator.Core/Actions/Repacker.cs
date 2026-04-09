@@ -44,7 +44,7 @@ namespace Repackinator.Core.Actions
             File.AppendAllText("RepackLog.txt", logMessage.ToLogFormat());
         }
 
-        private int ProcessFile(string inputFile, string outputPath, string unpackPath, GroupingOptionType grouping, bool hasAllCrcs, bool upperCase, CompressOptionType compressType, ScrubOptionType scrubType, bool noSplit, CancellationToken cancellationToken)
+        private int ProcessFile(string inputFile, string outputPath, string unpackPath, string trainerPath, GroupingOptionType grouping, bool hasAllCrcs, bool upperCase, CompressOptionType compressType, ScrubOptionType scrubType, bool noSplit, CancellationToken cancellationToken)
         {
             try
             {
@@ -59,10 +59,10 @@ namespace Repackinator.Core.Actions
                 var extension = Path.GetExtension(inputFile).ToLower();
                 if (extension.Equals(".iso") || extension.Equals(".cso") || extension.Equals(".cci"))
                 {
-                    return ProcessIso(inputFile, outputPath, grouping, upperCase, compressType, scrubType, noSplit, cancellationToken);
+                    return ProcessIso(inputFile, outputPath, trainerPath, grouping, upperCase, compressType, scrubType, noSplit, cancellationToken);
                 }
 
-                return ProcessArchive(inputFile, outputPath, unpackPath, grouping, hasAllCrcs, upperCase, compressType, scrubType, noSplit, cancellationToken);
+                return ProcessArchive(inputFile, outputPath, unpackPath, trainerPath, grouping, hasAllCrcs, upperCase, compressType, scrubType, noSplit, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -71,7 +71,7 @@ namespace Repackinator.Core.Actions
             }
         }
 
-        public int ProcessArchive(string inputFile, string outputPath, string tempPath, GroupingOptionType grouping, bool hasAllCrcs, bool upperCase, CompressOptionType compressType, ScrubOptionType scrubType, bool noSplit, CancellationToken cancellationToken)
+        public int ProcessArchive(string inputFile, string outputPath, string tempPath, string trainerPath, GroupingOptionType grouping, bool hasAllCrcs, bool upperCase, CompressOptionType compressType, ScrubOptionType scrubType, bool noSplit, CancellationToken cancellationToken)
         {
             if (GameDataList == null)
             {
@@ -485,7 +485,13 @@ namespace Repackinator.Core.Actions
                     File.Move(Path.Combine(unpackPath, @"Repackinator.2.temp"), Path.Combine(processOutput, $"{isoFileName}.2.iso"));
                 }
 
-                var attach = ResourceLoader.GetEmbeddedResourceBytes("attach.xbe");
+                var hasEtm = Utility.TryFindMatchingEtm(trainerPath, cert.Title_Id, out var etmData);
+                if (hasEtm)
+                {
+                    File.WriteAllBytes(Path.Combine(processOutput, "trainer.etm"), etmData);
+                }
+
+                var attach = ResourceLoader.GetEmbeddedResourceBytes(hasEtm ? "hermes-menu" : "hermes.xbe");
                 if (XboxToolkit.XbeUtility.TryGetXbeImage(xbeData, XboxToolkit.XbeUtility.ImageType.TitleImage, out var xprImage))
                 {
                     if (XboxToolkit.XprUtility.ConvertXprToJpeg(xprImage, out var jpgImage))
@@ -551,7 +557,7 @@ namespace Repackinator.Core.Actions
             }
         }
 
-        public int ProcessIso(string inputFile, string outputPath, GroupingOptionType grouping, bool upperCase, CompressOptionType compressType, ScrubOptionType scrubType, bool noSplit, CancellationToken cancellationToken)
+        public int ProcessIso(string inputFile, string outputPath, string trainerPath, GroupingOptionType grouping, bool upperCase, CompressOptionType compressType, ScrubOptionType scrubType, bool noSplit, CancellationToken cancellationToken)
         {
             if (GameDataList == null)
             {
@@ -715,7 +721,13 @@ namespace Repackinator.Core.Actions
                 }
                 Directory.CreateDirectory(processOutput);
 
-                var attach = ResourceLoader.GetEmbeddedResourceBytes("attach.xbe");
+                var hasEtm = Utility.TryFindMatchingEtm(trainerPath, cert.Title_Id, out var etmData);
+                if (hasEtm)
+                {
+                    File.WriteAllBytes(Path.Combine(processOutput, "trainer.etm"), etmData);
+                }
+
+                var attach = ResourceLoader.GetEmbeddedResourceBytes(hasEtm ? "hermes-menu" : "hermes.xbe");
                 if (XboxToolkit.XbeUtility.TryGetXbeImage(xbeData, XboxToolkit.XbeUtility.ImageType.TitleImage, out var xprImage))
                 {
                     if (XboxToolkit.XprUtility.ConvertXprToJpeg(xprImage, out var jpgImage))
@@ -1091,7 +1103,7 @@ namespace Repackinator.Core.Actions
                                     continue;
                                 }
 
-                                var gameIndex = ProcessFile(tempPath, config.OutputPath, config.UnpackPath, config.GroupingOption, crcMissingCount == 0, config.Uppercase, config.CompressOption, config.ScrubOption, config.NoSplit, cancellationToken);
+                                var gameIndex = ProcessFile(tempPath, config.OutputPath, config.UnpackPath, config.TrainerPath, config.GroupingOption, crcMissingCount == 0, config.Uppercase, config.CompressOption, config.ScrubOption, config.NoSplit, cancellationToken);
                                 if (gameIndex >= 0)
                                 {
                                     gameData[gameIndex].Process = "N";
@@ -1151,7 +1163,7 @@ namespace Repackinator.Core.Actions
                         CurrentProgress.Progress1Text = $"Processing {i + 1} of {files.Count}";
                         SendProgress();
 
-                        var gameIndex = ProcessFile(file, config.OutputPath, config.UnpackPath, config.GroupingOption, crcMissingCount == 0, config.Uppercase, config.CompressOption, config.ScrubOption, config.NoSplit, cancellationToken);
+                        var gameIndex = ProcessFile(file, config.OutputPath, config.UnpackPath, config.TrainerPath, config.GroupingOption, crcMissingCount == 0, config.Uppercase, config.CompressOption, config.ScrubOption, config.NoSplit, cancellationToken);
                         if (gameIndex >= 0)
                         {
                             gameData[gameIndex].Process = "N";

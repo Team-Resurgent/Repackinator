@@ -35,7 +35,7 @@ namespace Repackinator.Core.Actions
             File.AppendAllText("AttachUpdateLog.txt", logMessage.ToLogFormat());
         }
 
-        private void ProcessFolder(string folder, Stopwatch procesTime, bool upperCase, GameData[]? gameDatas, CancellationToken cancellationToken)
+        private void ProcessFolder(string folder, string trainerPath, Stopwatch procesTime, bool upperCase, GameData[]? gameDatas, CancellationToken cancellationToken)
         {
             var filesToProcess = Directory.GetFiles(folder, "default.xbe").OrderBy(o => o).ToArray();
             if (filesToProcess.Length != 1)
@@ -81,7 +81,13 @@ namespace Repackinator.Core.Actions
                     titleName = titleName.ToUpper();
                 }
 
-                var attach = ResourceLoader.GetEmbeddedResourceBytes("attach.xbe");
+                var hasEtm = Utility.TryFindMatchingEtm(trainerPath, cert.Title_Id, out var etmData);
+                if (hasEtm)
+                {
+                    File.WriteAllBytes(Path.Combine(folder, "trainer.etm"), etmData);
+                }
+
+                var attach = ResourceLoader.GetEmbeddedResourceBytes(hasEtm ? "hermes-menu" : "hermes.xbe");
                 if (XbeUtility.TryGetXbeImage(xbeData, XbeUtility.ImageType.TitleImage, out var xprImage))
                 {
                     if (XprUtility.ConvertXprToJpeg(xprImage, out var jpgImage))
@@ -168,7 +174,7 @@ namespace Repackinator.Core.Actions
                     CurrentProgress.Progress1 = pathsScanned / (float)totalPaths;
                     SendProgress();
 
-                    ProcessFolder(pathToProcess, stopwatch, config.Uppercase, gameData, cancellationToken);
+                    ProcessFolder(pathToProcess, config.TrainerPath, stopwatch, config.Uppercase, gameData, cancellationToken);
 
                     try
                     {

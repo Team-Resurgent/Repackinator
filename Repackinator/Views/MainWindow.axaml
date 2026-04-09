@@ -143,6 +143,7 @@
                 <RowDefinition Height="40" />
                 <RowDefinition Height="40" />
                 <RowDefinition Height="40" />
+                <RowDefinition Height="40" />
               </Grid.RowDefinitions>
               <Label Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Content="Grouping Option" />
               <ComboBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" ItemsSource="{Binding GroupingOptionList}" SelectedItem="{Binding SelectedGroupingOption}" Width="150">
@@ -189,6 +190,11 @@
                 <TextBox HorizontalAlignment="Left" Width="300" Text="{Binding UnpackFolder}" />
                 <Button HorizontalAlignment="Left" Content="..." Command="{Binding SelectPathCommand}" CommandParameter="Unpack" />
               </StackPanel>
+              <Label Grid.Row="9" Grid.Column="0" VerticalAlignment="Center" Content="Trainer Folder (optional)" />
+                <StackPanel Grid.Row="9" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Spacing="10">
+                    <TextBox HorizontalAlignment="Left" Width="300" Text="{Binding TrainerFolder}" />
+                    <Button HorizontalAlignment="Left" Content="..." Command="{Binding SelectPathCommand}" CommandParameter="Trainer" />
+                </StackPanel>
             </Grid>
           </ScrollViewer>
         </Border>

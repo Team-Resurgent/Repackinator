@@ -126,5 +126,64 @@ namespace Repackinator.Core.Helpers
             }
             return true;
         }
+
+        public static HashSet<uint> GetEtmTitleIDs(byte[] etmData)
+        {
+            var result = new HashSet<uint>();
+
+            if (etmData.Length < 4)
+            {
+                return result;
+            }
+
+            uint fileSize = BitConverter.ToUInt32(etmData, 0);
+
+            if (fileSize != etmData.Length)
+            {
+                return result;
+            }
+
+            const int ETM_ID_LIST = 0x12;
+            uint offset = BitConverter.ToUInt32(etmData, ETM_ID_LIST);
+            for (int i = 0; i < 3; i++)
+            {
+                uint titleId = BitConverter.ToUInt32(etmData, (int)offset);
+                if (titleId == 0)
+                {
+                    break;
+                }
+                result.Add(titleId);
+                offset += 4;
+            }
+
+            return result;
+        }
+
+        public static bool TryFindMatchingEtm(string trainerPath, uint titleId, out byte[] etmData)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(trainerPath) && Directory.Exists(trainerPath))
+                {
+                    var files = Directory.GetFiles(trainerPath, "*.etm");
+                    foreach (var file in files)
+                    {
+                        var etm = File.ReadAllBytes(file);
+                        var titleIds = GetEtmTitleIDs(etm);
+                        if (titleIds.Contains(titleId))
+                        {
+                            etmData = etm;
+                            return true;
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // do nothing
+            }
+            etmData = Array.Empty<byte>();
+            return false;
+        }
     }
 }

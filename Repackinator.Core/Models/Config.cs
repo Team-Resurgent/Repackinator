@@ -82,6 +82,8 @@ namespace Repackinator.Core.Models
 
         public string UnpackPath { get; set; }
 
+        public string TrainerPath { get; set; }
+
         public Config()
         {
             Section = "Main";
@@ -98,6 +100,7 @@ namespace Repackinator.Core.Models
             InputPath = string.Empty;
             OutputPath = string.Empty;
             UnpackPath = string.Empty;
+            TrainerPath = string.Empty;
         }
 
         public static Config LoadConfig(string path)

@@ -7,12 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Resources\attach.xbe" />
+    <None Remove="Resources\hermes.xbe" />
+    <None Remove="Resources\hermes-menu.xbe" />
     <None Remove="Resources\RepackList.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Resources\attach.xbe" />
+    <EmbeddedResource Include="Resources\hermes.xbe" />
+    <EmbeddedResource Include="Resources\hermes-menu.xbe" />
     <EmbeddedResource Include="Resources\RepackList.json" />
   </ItemGroup>
 

@@ -165,6 +165,13 @@ namespace Repackinator.UI.ViewModels
             set => this.RaiseAndSetIfChanged(ref mUnpackFolder, value);
         }
 
+        private string mTrainerFolder = string.Empty;
+        public string TrainerFolder
+        {
+            get => mTrainerFolder;
+            set => this.RaiseAndSetIfChanged(ref mTrainerFolder, value);
+        }
+
         private void OnConfigChanged()
         {
             mLoadedConfig.Section = mSelectedGameDataSection.Name;
@@ -178,6 +185,7 @@ namespace Repackinator.UI.ViewModels
             mLoadedConfig.InputPath = mInputFolder;
             mLoadedConfig.OutputPath = mOutputFolder;
             mLoadedConfig.UnpackPath = mUnpackFolder;
+            mLoadedConfig.TrainerPath = mTrainerFolder;
             Config.SaveConfig(mLoadedConfig);
         }
 
@@ -270,6 +278,10 @@ namespace Repackinator.UI.ViewModels
                 else if (arg == "Unpack")
                 {
                     UnpackFolder = path;
+                }
+                else if (arg == "Trainer")
+                {
+                    TrainerFolder = path;
                 }
             }
         }
@@ -531,6 +543,7 @@ namespace Repackinator.UI.ViewModels
             mInputFolder = mLoadedConfig.InputPath;
             mOutputFolder = mLoadedConfig.OutputPath;
             mUnpackFolder = mLoadedConfig.UnpackPath;
+            mTrainerFolder = mLoadedConfig.TrainerPath;
 
             mFilteredGameDataList = new ObservableCollection<GameData>(Array.Empty<GameData>());
 
@@ -557,7 +570,8 @@ namespace Repackinator.UI.ViewModels
                 this.WhenAnyValue(x => x.DoNotSplitISO).Select(v => (object)v),
                 this.WhenAnyValue(x => x.InputFolder).Select(v => (object)v),
                 this.WhenAnyValue(x => x.OutputFolder).Select(v => (object)v),
-                this.WhenAnyValue(x => x.UnpackFolder).Select(v => (object)v)
+                this.WhenAnyValue(x => x.UnpackFolder).Select(v => (object)v),
+                this.WhenAnyValue(x => x.TrainerFolder).Select(v => (object)v)
             };
             Observable.CombineLatest(configObservables).DistinctUntilChanged().Subscribe(x => {
                  OnConfigChanged();
